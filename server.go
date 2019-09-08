@@ -41,6 +41,7 @@ type Customer struct {
 	LastName  string `json:"lastName"`
 	Age       int    `json:"age"`
 	Email     string `json:"email"`
+	User      User
 }
 
 // ResposeMessage is property of table message

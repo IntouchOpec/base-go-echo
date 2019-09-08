@@ -1,0 +1,37 @@
+[template]
+src = "config.conf.tmpl"
+dest = "./conf/conf.toml"
+
+keys = [
+    "/release_mode",
+    "/log_level",
+    "/session_store",
+    "/cache_store",
+    "/app/name",
+    "/app/version",
+    "/server/graceful",
+    "/server/addr",
+    "/server/domain_api",
+    "/server/domain_web",
+    "/server/domain_socket",
+    "/static/type",
+    "/tmpl/type",
+    "/tmpl/data",
+    "/tmpl/dir",
+    "/tmpl/suffix",
+    "/database/name",
+    "/database/user_name",
+    "/database/pwd",
+    "/database/host",
+    "/database/port",
+    "/redis/server",
+    "/redis/pwd",
+    "/memcached/server",
+    "/opentracing/disable",
+    "/opentracing/type",
+    "/opentracing/service_name",
+    "/opentracing/address",
+    "/metrics/disable",
+    "/metrics/freq_sec",
+    "/metrics/address",
+]

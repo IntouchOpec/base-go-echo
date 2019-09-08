@@ -15,3 +15,9 @@ services:
     restart: always
     ports:
       - 8080:8080
+  redis:
+    image: redis
+    restart: always
+    container_name: cache
+    expose:
+      - 6379            
