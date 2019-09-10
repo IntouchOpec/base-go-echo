@@ -42,6 +42,7 @@ type Customer struct {
 	LastName  string `json:"lastName"`
 	Age       int    `json:"age"`
 	Email     string `json:"email"`
+	User      User
 }
 
 // ResposeMessage is property of table message
@@ -403,7 +404,7 @@ func (h *DBHandler) GetCustomer(c echo.Context) error {
 	if err := h.DB.Find(&customer, id).Error; err != nil {
 		return c.NoContent(http.StatusNotFound)
 	}
-	fmt.Println(customer)
+
 	return c.JSON(http.StatusOK, customer)
 }
 
