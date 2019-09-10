@@ -19,6 +19,8 @@ type ChatChannel struct {
 	Tpye               string  `json:"type" gorm:"type:varchar(10)"`
 	AccountID          uint    `form:"account_id" json:"account_id" gorm:"not null;"`
 	Account            Account `gorm:"ForeignKey:id"`
+	Image              string  `json:"image" gorm:"type:varchar(255)"`
+	Address            string  `json:"address"`
 }
 
 // SaveChatChannel router create chatchannel.

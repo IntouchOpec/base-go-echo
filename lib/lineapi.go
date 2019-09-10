@@ -149,14 +149,17 @@ func MonthInterval(y int, m time.Month) (firstDay, lastDay time.Time) {
 }
 
 //
-func MakeCalenda() string {
+func MakeCalenda(date string) string {
 	var contents string
 	var calendar string
-
-	t := time.Now()
-
 	year, month, _ := time.Now().Date()
+	t := time.Now()
+	if len(date) != 0 {
+		time2, _ := time.Parse("01-01-2019", date)
+		year, month, _ = time2.Date()
+	}
 
+	fmt.Println(month, int(month))
 	var color string = "#000000"
 
 	endOfMonth := time.Date(year, month+1, 1, 0, 0, 0, -1, time.UTC)
@@ -180,7 +183,14 @@ func MakeCalenda() string {
 		} else {
 			color = "#000000"
 		}
-
+		dayStr := strconv.FormatInt(int64(day), 10)
+		monthStr := strconv.FormatInt(int64(month), 10)
+		if len(dayStr) == 1 {
+			dayStr = fmt.Sprintf("0%s", dayStr)
+		}
+		if len(monthStr) == 1 {
+			monthStr = fmt.Sprintf("0%s", monthStr)
+		}
 		contents = contents + fmt.Sprintf(`{
 			"type":    "text",
 			"text":    "%s",
@@ -188,9 +198,7 @@ func MakeCalenda() string {
 			"color":   "%s",
 			"align":   "center",
 			"gravity": "center",
-			"action": { "type": "message",
-            "label": "%s",
-            "text": "%s"}},`, strconv.FormatInt(int64(day), 10), color, day, day)
+			"action": { "type": "message", "label": "%s", "text": "product %d-%s-%s"}},`, dayStr, color, day, year, monthStr, dayStr)
 		contents = contents + `{"type": "separator"},`
 		Weekday = int(time.Date(year, month, day, 0, 0, 0, -1, time.UTC).Weekday())
 		if endOfMonth.Day() == day {
@@ -203,7 +211,6 @@ func MakeCalenda() string {
           "align":   "center",
           "gravity": "center"},`)
 			}
-			// contents = contents + `{"type": "text", "text": " ", "size": "sm", "color": "#000000", "align": "center"},`
 		}
 
 		// 6 == saturday
@@ -234,7 +241,35 @@ func MakeCalenda() string {
                 "type":     "box",
                 "layout":   "horizontal",
                 "margin":   "md",
-                "contents": [%s]},`, weekdaysStr[:len(weekdaysStr)-1])
-
-	return weekdaysStr + `{"type": "separator"},` + calendar[:len(calendar)-1]
+				"contents": [%s]},`, weekdaysStr[:len(weekdaysStr)-1])
+	HeaderCalendat := fmt.Sprintf("%s %s", month, strconv.FormatInt(int64(year), 10))
+	actionNextMonth := fmt.Sprintf("01-%d-%s", int(month+1), strconv.FormatInt(int64(year), 10))
+	m := fmt.Sprintf(`{"type": "bubble","styles": {"footer": {"separator": true}},
+	"body": {
+		"type": "box",
+		"layout": "vertical",
+		"contents": [
+		{
+			"type": "box",
+			"layout": "horizontal",
+			"contents": [
+				{
+					"type": "text",
+					"text": "%s",
+					"size": "sm",
+					"weight": "bold",
+					"color": "#1db446",
+					"flex": 0
+				},
+				{
+				"type": "text",
+				"text": "ถัดไป",
+				"size": "sm",
+				"color": "#111111",
+				"align": "end",
+				"action": { "type": "message", "label": " ", "text": "calendar %s"}
+				}
+			]
+		}, %s]}}`, HeaderCalendat, actionNextMonth, weekdaysStr+`{"type": "separator"},`+calendar[:len(calendar)-1])
+	return m
 }

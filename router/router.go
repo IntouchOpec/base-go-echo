@@ -35,7 +35,7 @@ func InitRoutes() map[string]*Host {
 
 	// hosts[Conf.Server.DomainWeb] = &Host{web.Routers()}
 	hosts["localhost"] = &Host{api.Routers()}
-	hosts["942b3ab4.ngrok.io"] = &Host{channel.Routers()}
+	hosts["bc1a5788.ngrok.io"] = &Host{channel.Routers()}
 
 	return hosts
 }

@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/hb-go/gorm"
@@ -11,6 +12,7 @@ type Booking struct {
 	gorm.Model
 	// ID            uint          `json:"id,omitempty"`
 	Queue         int         `json:"queue" `
+	LineID        string      `json:"line_id" gorm:"type:varchar(50)"`
 	CustomerID    uint        `json:"customer_id"`
 	Customer      Customer    `gorm:"foreignkey:ID"`
 	SubProductID  uint        `json:"prodict_id"`
@@ -21,7 +23,7 @@ type Booking struct {
 	ChatChannel   ChatChannel `gorm:"ForeignKey:id"`
 	BookingStatus int         `json:"booking_status"`
 	BookingState  int         `json:"booking_state"`
-	BookingDate   time.Time   `gorm:"column:booking_date" json:"booking_date,omitempty"`
+	BookingDate   time.Time   `gorm:"column:booking_date" json:"booking_date"`
 }
 
 // BookingStatus is status of booking.
@@ -48,12 +50,13 @@ type BookingState struct {
 // SaveBooking is function create chat answer.
 func (booking *Booking) SaveBooking() *Booking {
 	db := DB()
-	subProduct := SubProduct{}
-	db.Where("BookingDate = ? and SubProductID = ?", booking.BookingDate, booking.SubProductID).Find(&booking).Related(&subProduct).Last(booking)
-	if subProduct.Amount >= booking.Queue {
-		return nil
-	}
+	// subProduct := SubProduct{}
+	// db.Where("BookingDate = ? and SubProductID = ?", booking.BookingDate, booking.SubProductID).Find(&booking).Related(&subProduct).Last(booking)
+	// if subProduct.Amount >= booking.Queue {
+	// 	return nil
+	// }
 	if err := db.Create(&booking).Error; err != nil {
+		fmt.Println(err)
 		return nil
 	}
 	return booking

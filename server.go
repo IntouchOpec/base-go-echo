@@ -403,7 +403,7 @@ func (h *DBHandler) GetCustomer(c echo.Context) error {
 	if err := h.DB.Find(&customer, id).Error; err != nil {
 		return c.NoContent(http.StatusNotFound)
 	}
-	fmt.Println(customer)
+
 	return c.JSON(http.StatusOK, customer)
 }
 
