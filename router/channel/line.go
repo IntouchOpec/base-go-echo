@@ -25,7 +25,7 @@ import (
 
 // HandleWebHookLineAPI webhook for connent line api.
 func HandleWebHookLineAPI(c echo.Context) error {
-	client := &lib.ClientLine{}
+	// client := &lib.ClientLine{}
 	name := c.Param("account")
 	ChannelID := c.Param("ChannelID")
 	account := model.Account{}
@@ -160,42 +160,16 @@ func HandleWebHookLineAPI(c echo.Context) error {
 			if err := model.DB().Where("Input = followAuto").Find(&ChatAnswer).Error; err != nil {
 				fmt.Println(err)
 			}
-			client.ReplyLineMessage(ChatAnswer, event.ReplyToken)
-			// var contents []linebot.FlexComponent
-			// text := linebot.TextComponent{
-			// 	Type:   linebot.FlexComponentTypeText,
-			// 	Text:   "taey line bookking plaform",
-			// 	Weight: "bold",
-			// 	Size:   linebot.FlexTextSizeTypeXl,
-			// 	Action: linebot.NewURIAction("register", "https://15e330d8.ngrok.io/register"),
-			// }
-			// contents = append(contents, &text)
-			// // Make Hero
-			// hero := linebot.ImageComponent{
-			// 	Type:        linebot.FlexComponentTypeImage,
-			// 	URL:         "https://scontent.fbkk2-7.fna.fbcdn.net/v/t1.0-9/55771768_3311003885591805_86103752003551232_o.jpg?_nc_cat=109&_nc_eui2=AeGPFqTgk7ynFe18QHmR-69H6MogRu5OFJXtXwbMnKDQa2IZeLa57IEayXcXzhyzKDfBKx_tYZevLlEoaJ_bJn6Fl9hCv6mhlWYOOV3ltGoR9Q&_nc_oc=AQkpFLS6szBuMWyOhKz-Ope9I4YkWTFea1DFHE9oNPodtflCUt53bb_kjVd7SVx236w&_nc_ht=scontent.fbkk2-7.fna&oh=62d415b199aaa244c8bea5b9e60dd44b&oe=5DD5122F",
-			// 	Size:        "full",
-			// 	AspectRatio: linebot.FlexImageAspectRatioType1to1,
-			// 	AspectMode:  linebot.FlexImageAspectModeTypeCover,
-			// 	Action:      linebot.NewURIAction("register", "https://15e330d8.ngrok.io/register"),
-			// }
-			// // Make Body
-			// body := linebot.BoxComponent{
-			// 	Type:     linebot.FlexComponentTypeBox,
-			// 	Layout:   linebot.FlexBoxLayoutTypeVertical,
-			// 	Contents: contents,
-			// }
-			// // Build Container
-			// bubble := linebot.BubbleContainer{
-			// 	Type: linebot.FlexContainerTypeBubble,
-			// 	Hero: &hero,
-			// 	Body: &body,
-			// }
-			// // New Flex Message
-			// flexMessage := linebot.NewFlexMessage("ขอบคุณที่มาเป็นเพื่อนกันนะ", &bubble)
-			// if _, err = bot.ReplyMessage(event.ReplyToken, flexMessage).Do(); err != nil {
-			// 	log.Print(err)
-			// }
+
+			m := FollowTemplate(chatChannel)
+			flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(m))
+			if err != nil {
+				return err
+			}
+			flexMessage := linebot.NewFlexMessage("ขอบคุณ", flexContainer)
+			if _, err = bot.ReplyMessage(event.ReplyToken, flexMessage).Do(); err != nil {
+				log.Print(err)
+			}
 		}
 	}
 
@@ -272,6 +246,92 @@ func ProductListLineTemplate(product model.Product, subProduct []model.SubProduc
 	  }`, product.Image, product.Name, strconv.FormatInt(int64(product.Price), 10), slotTime)
 
 	return productTamplate
+}
+
+//
+func FollowTemplate(chatChannel model.ChatChannel) string {
+
+	return `{
+		"type": "bubble",
+		"hero": {
+		  "type": "image",
+		  "url": "%s",
+		  "size": "full",
+		  "aspectRatio": "20:13",
+		  "aspectMode": "cover",
+		  "action": {
+			"type": "uri",
+			"uri": "http://linecorp.com/"
+		  }
+		},
+		"body": {
+		  "type": "box",
+		  "layout": "vertical",
+		  "contents": [
+			{
+			  "type": "text",
+			  "text": "%s",
+			  "weight": "bold",
+			  "size": "xl"
+			},
+			{
+			  "type": "box",
+			  "layout": "vertical",
+			  "margin": "lg",
+			  "spacing": "sm",
+			  "contents": [
+				{
+				  "type": "box",
+				  "layout": "baseline",
+				  "spacing": "sm",
+				  "contents": [
+					{
+					  "type": "text",
+					  "text": "%s",
+					  "wrap": true,
+					  "color": "#666666",
+					  "size": "sm",
+					  "flex": 5
+					}
+				  ]
+				}
+			  ]
+			}
+		  ]
+		},
+		"footer": {
+		  "type": "box",
+		  "layout": "vertical",
+		  "spacing": "sm",
+		  "contents": [
+			{
+			  "type": "button",
+			  "style": "link",
+			  "height": "sm",
+			  "action": {
+				"type": "uri",
+				"label": "REGISTER",
+				"uri": "https://linecorp.com"
+			  }
+			},
+			{
+			  "type": "button",
+			  "style": "link",
+			  "height": "sm",
+			  "action": {
+				"type": "uri",
+				"label": "WEBSITE",
+				"uri": "https://linecorp.com"
+			  }
+			},
+			{
+			  "type": "spacer",
+			  "size": "sm"
+			}
+		  ],
+		  "flex": 0
+		}
+	  }
 }
 
 // ThankyouTemplate
