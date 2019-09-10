@@ -69,6 +69,7 @@ func Routers() *echo.Echo {
 	e.POST("/product", CreateProduct)
 
 	e.PATCH("/chatchannel/:id", GetChannelAccessToken)
+	e.GET("/richmenu/:id", GetRichMenu)
 	// account := e.Group("/account")
 	// {
 	// 	account.POST("/", CreateAccount)
