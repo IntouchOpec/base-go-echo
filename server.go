@@ -19,6 +19,7 @@ import (
 	"github.com/line/line-bot-sdk-go/linebot"
 )
 
+// comment by sothon
 // LineLoginRespose is instacne respose line json
 type LineLoginRespose struct {
 	AccessToken  string `json:"access_token"`
