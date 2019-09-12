@@ -273,3 +273,12 @@ func MakeCalenda(date string) string {
 		}, %s]}}`, HeaderCalendat, actionNextMonth, weekdaysStr+`{"type": "separator"},`+calendar[:len(calendar)-1])
 	return m
 }
+
+// CreateLIIF request url and size
+// func (client *ClientLine) CreateLIIF(view linebot.View) {
+// res, err := client.AddLIFF(view).Do()
+// if err != nil {
+// return nil, err
+// }
+// return res, nil
+// }

@@ -73,12 +73,24 @@ func Routers() *echo.Echo {
 	e.POST("/richmenu/:id", CreateRichMenu)
 	e.POST("/richmenu/:id/:richMenuID", UploadImageRichMenu)
 	e.PATCH("/richmenu/:id/:richMenuID", AtiveRichMenu)
+
+	e.POST("/richmenu/:id/:richMenuID", UploadImageRichMenu)
+
 	// account := e.Group("/account")
 	// {
 	// 	account.POST("/", CreateAccount)
 	// 	// post.GET("/id/:id", PostHandler)
 	// 	// post.GET("/:userId/p/:p/s/:s", PostsHandler)
 	// }
+
+	// chatanswer := e.Group("/chatanswer")
+	// proDuct := e.Group("/product")
+	// richMenu := e.Group("/richmenu")
+	// chatChannel := e.Group("/chatchannel")
+	// richMenu := e.Group("/richmenu")
+
+	// chatanswer.POST("/:channelID", CreateChatAnswer)
+
 	// JWT
 	r := e.Group("")
 	fmt.Println(echo.HeaderAuthorization)

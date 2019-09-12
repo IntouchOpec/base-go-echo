@@ -23,3 +23,36 @@ func (chatReq *ChatRequest) SaveChatRequest() *ChatRequest {
 	}
 	return chatReq
 }
+
+// GetChatRequest get ChatRequest list.
+func (cha *ChatRequest) GetChatRequest() *ChatRequest {
+	DB().Find(&cha)
+	return cha
+}
+
+// EditChatRequest update ChatRequest.
+func (cha *ChatRequest) EditChatRequest(id int) *ChatRequest {
+
+	if err := DB().Find(&cha, id).Error; err != nil {
+		return nil
+	}
+
+	if err := DB().Save(&cha).Error; err != nil {
+		return nil
+	}
+
+	return cha
+}
+
+// DeleteChatRequest delete ChatRequest
+func (cha *ChatRequest) DeleteChatRequest() *ChatRequest {
+	if err := DB().Find(&cha).Error; err != nil {
+		return nil
+	}
+
+	if err := DB().Delete(&cha).Error; err != nil {
+		return nil
+	}
+
+	return cha
+}

@@ -19,3 +19,8 @@ func (eventlog *EventLog) SaveEventLog() *EventLog {
 	}
 	return eventlog
 }
+
+func (eventLog *EventLog) getEventLog() *EventLog {
+	DB().Find(&eventLog)
+	return eventLog
+}

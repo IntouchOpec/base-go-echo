@@ -2,7 +2,6 @@ package model
 
 import (
 	"github.com/hb-go/gorm"
-	"github.com/labstack/echo"
 )
 
 // Account struct.
@@ -47,12 +46,9 @@ func (acc *Account) CreateAccount() *Account {
 }
 
 // UpdateAccount edit account soucre.
-func (acc *Account) UpdateAccount(id uint, c echo.Context) *Account {
+func (acc *Account) UpdateAccount(id uint) *Account {
 
 	if err := DB().Find(&acc, id).Error; err != nil {
-	}
-
-	if err := c.Bind(&acc); err != nil {
 		return nil
 	}
 

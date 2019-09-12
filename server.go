@@ -519,7 +519,7 @@ func (h *DBHandler) AuthLine(c echo.Context) error {
 	json.Unmarshal(body, &lineRespose)
 	claims := jwt.MapClaims{}
 	if lineRespose.IDToken == "" {
-		fmt.Println("====", string(body))
+		fmt.Println(string(body))
 	}
 	token, err := jwt.ParseWithClaims(lineRespose.IDToken, claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte(""), nil

@@ -62,7 +62,7 @@ func HandleWebHookLineAPI(c echo.Context) error {
 	}
 
 	for _, event := range events {
-		ChatAnswer := model.ChatAnswer{}
+		// ChatAnswer := model.ChatAnswer{}
 		var keyWord string
 
 		switch eventType := event.Type; eventType {
@@ -157,10 +157,13 @@ func HandleWebHookLineAPI(c echo.Context) error {
 			}
 
 		case linebot.EventTypeFollow:
-			if err := model.DB().Where("Input = followAuto").Find(&ChatAnswer).Error; err != nil {
-				fmt.Println(err)
-			}
+			// if err := model.DB().Where("Input = followAuto").Find(&ChatAnswer).Error; err != nil {
+			// 	fmt.Println(err)
+			// }
+			fmt.Println(event.Source.UserID)
+			customer := model.Customer{LineID: event.Source.UserID, AccountID: account.ID}
 
+			model.DB().FirstOrCreate(&customer, model.Customer{LineID: event.Source.UserID, AccountID: account.ID})
 			m := FollowTemplate(chatChannel)
 			flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(m))
 			if err != nil {
@@ -248,10 +251,9 @@ func ProductListLineTemplate(product model.Product, subProduct []model.SubProduc
 	return productTamplate
 }
 
-//
+// FollowTemplate
 func FollowTemplate(chatChannel model.ChatChannel) string {
-
-	return `{
+	template := fmt.Sprintf(`{
 		"type": "bubble",
 		"hero": {
 		  "type": "image",
@@ -261,7 +263,7 @@ func FollowTemplate(chatChannel model.ChatChannel) string {
 		  "aspectMode": "cover",
 		  "action": {
 			"type": "uri",
-			"uri": "http://linecorp.com/"
+			"uri": "line://app/1610710377-m1bz4lon"
 		  }
 		},
 		"body": {
@@ -321,7 +323,7 @@ func FollowTemplate(chatChannel model.ChatChannel) string {
 			  "action": {
 				"type": "uri",
 				"label": "WEBSITE",
-				"uri": "https://linecorp.com"
+				"uri": "%s"
 			  }
 			},
 			{
@@ -331,7 +333,8 @@ func FollowTemplate(chatChannel model.ChatChannel) string {
 		  ],
 		  "flex": 0
 		}
-	  }
+	  }`, chatChannel.Image, chatChannel.Name, chatChannel.WelcomeMessage)
+	return template
 }
 
 // ThankyouTemplate

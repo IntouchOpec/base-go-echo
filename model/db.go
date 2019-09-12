@@ -74,6 +74,7 @@ func Initialize() {
 	newDb.AutoMigrate(&Promotion{})
 	newDb.AutoMigrate(&Setting{})
 	newDb.AutoMigrate(&Account{})
+	newDb.AutoMigrate(&LoginRespose{})
 
 	// Foreign Key Account Table.
 	newDb.Model(&User{}).AddForeignKey("account_id", "accounts(id)", "CASCADE", "RESTRICT")

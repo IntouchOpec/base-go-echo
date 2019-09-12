@@ -20,7 +20,9 @@ type ChatChannel struct {
 	AccountID          uint    `form:"account_id" json:"account_id" gorm:"not null;"`
 	Account            Account `gorm:"ForeignKey:id"`
 	Image              string  `json:"image" gorm:"type:varchar(255)"`
-	Address            string  `json:"address"`
+	WebSite            string  `json:"website" gorm:"type:varchar(255)"`
+	WelcomeMessage     string  `json:"welcome_message" gorm:"type:varchar(100)"`
+	Address            string  `json:"address" gorm:"type:varchar(100)"`
 }
 
 // SaveChatChannel router create chatchannel.
@@ -34,5 +36,32 @@ func (cha *ChatChannel) SaveChatChannel() *ChatChannel {
 // GetChatChannel query account list.
 func (cha *ChatChannels) GetChatChannel() *ChatChannels {
 	DB().Find(&cha)
+	return cha
+}
+
+// EditChatChannel update ChatChannel.
+func (cha *ChatChannel) EditChatChannel(id int) *ChatChannel {
+
+	if err := DB().Find(&cha, id).Error; err != nil {
+		return nil
+	}
+
+	if err := DB().Save(&cha).Error; err != nil {
+		return nil
+	}
+
+	return cha
+}
+
+// DeleteChatChannel delete ChatChannels
+func (cha *ChatChannels) DeleteChatChannel() *ChatChannels {
+	if err := DB().Find(&cha).Error; err != nil {
+		return nil
+	}
+
+	if err := DB().Delete(&cha).Error; err != nil {
+		return nil
+	}
+
 	return cha
 }
