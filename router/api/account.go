@@ -1,8 +1,8 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/IntouchOpec/base-go-echo/model"
 	"github.com/labstack/echo"
@@ -14,7 +14,41 @@ func CreateAccount(c echo.Context) error {
 	if err := c.Bind(&account); err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}
-	fmt.Println(account)
 	account.CreateAccount()
+	return c.JSON(http.StatusOK, account)
+}
+
+func GetAccount(c echo.Context) error {
+	account := model.Account{}
+	id := c.Param("id")
+	if err := c.Bind(&account); err != nil {
+		return c.NoContent(http.StatusBadRequest)
+	}
+	account.GetAccountByID(id)
+	return c.JSON(http.StatusOK, account)
+}
+
+func GetAccontList(c echo.Context) error {
+	page := c.QueryParam("page")
+	size := c.QueryParam("size")
+
+	pageInt, _ := strconv.Atoi(page)
+	sizeInt, _ := strconv.Atoi(size)
+
+	accounts := model.GetAccount(pageInt, sizeInt)
+	return c.JSON(http.StatusOK, accounts)
+}
+
+func UpdateAccount(c echo.Context) error {
+	id := c.Param("id")
+	account := model.Account{}
+	account.GetAccountByID(id)
+	return c.JSON(http.StatusOK, account)
+}
+
+func DeleteAccount(c echo.Context) error {
+	id := c.Param("id")
+	account := model.Account{}
+	account.RemoveAccount(id)
 	return c.JSON(http.StatusOK, account)
 }

@@ -20,7 +20,14 @@ func (eventlog *EventLog) SaveEventLog() *EventLog {
 	return eventlog
 }
 
-func (eventLog *EventLog) getEventLog() *EventLog {
-	DB().Find(&eventLog)
-	return eventLog
+func GetEventLog(page int, size int, chatChannelID int) *[]EventLog {
+	eventLogs := []EventLog{}
+	DB().Where("chatChannelID = ? ", chatChannelID).Offset((page - 1) * size).Limit(size).Find(&eventLogs)
+	return &eventLogs
+}
+
+func GetAllEventLog(page int, size int) *[]EventLog {
+	eventLogs := []EventLog{}
+	DB().Offset((page - 1) * size).Limit(size).Find(&eventLogs)
+	return &eventLogs
 }

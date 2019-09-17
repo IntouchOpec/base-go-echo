@@ -34,9 +34,20 @@ func (cha *ChatChannel) SaveChatChannel() *ChatChannel {
 }
 
 // GetChatChannel query account list.
-func (cha *ChatChannels) GetChatChannel() *ChatChannels {
-	DB().Find(&cha)
-	return cha
+func GetChatChannel(chatChannelID, size, page int) *[]ChatChannel {
+	chatChannels := []ChatChannel{}
+	if err := DB().Where("AccountID = ?", chatChannelID).Offset((page - 1) * size).Limit(size).Find(&chatChannels).Error; err != nil {
+		return nil
+	}
+	return &chatChannels
+}
+
+func GetChatChannelByID(id string) *ChatChannel {
+	chatChannel := ChatChannel{}
+	if err := DB().Find(&chatChannel, id).Error; err != nil {
+		return nil
+	}
+	return &chatChannel
 }
 
 // EditChatChannel update ChatChannel.
@@ -54,8 +65,9 @@ func (cha *ChatChannel) EditChatChannel(id int) *ChatChannel {
 }
 
 // DeleteChatChannel delete ChatChannels
-func (cha *ChatChannels) DeleteChatChannel() *ChatChannels {
-	if err := DB().Find(&cha).Error; err != nil {
+func DeleteChatChannel(id int) *ChatChannel {
+	cha := ChatChannel{}
+	if err := DB().Find(&cha, id).Error; err != nil {
 		return nil
 	}
 
@@ -63,5 +75,5 @@ func (cha *ChatChannels) DeleteChatChannel() *ChatChannels {
 		return nil
 	}
 
-	return cha
+	return &cha
 }

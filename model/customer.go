@@ -38,3 +38,36 @@ func (loginRespose *LoginRespose) SaveLoginRespose() *LoginRespose {
 	}
 	return loginRespose
 }
+
+func (customer *Customer) GetCustomer(id int) *Customer {
+	if err := DB().Create(&customer).Error; err != nil {
+		return nil
+	}
+	return customer
+}
+
+func (customer *Customer) UpdateCustomer(id int) *Customer {
+	if err := DB().Find(&customer, id).Error; err != nil {
+		return nil
+	}
+	if err := DB().Save(&customer).Error; err != nil {
+		return nil
+	}
+	return customer
+}
+
+func GetCustomerList(page, size, chatChannelID int) *[]Customer {
+	customer := []Customer{}
+	if err := DB().Where("chat_channel_id = ?", chatChannelID).Offset((page - 1) * size).Limit(size).Find(&customer).Error; err != nil {
+		return nil
+	}
+	return &customer
+}
+
+func GetCustomer(customerID int) *Customer {
+	customer := Customer{}
+	if err := DB().Find(&customer, customerID).Error; err != nil {
+		return nil
+	}
+	return &customer
+}

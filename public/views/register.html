@@ -1,0 +1,29 @@
+
+{{define "register"}}
+<form >
+  First name:<br>
+  <input type="text" name="firstname" >
+  <br>
+  Last name:<br>
+  <input type="text" name="lastname" >
+  <br><br>
+  email:<br>
+  <input type="email" name="email" >
+  <br><br>
+  <input type="submit" value="Submit">
+</form> 
+  <button onclick="myFunction()">Click me</button>
+
+<script src="https://d.line-scdn.net/liff/1.0/sdk.js"></script>
+<script> function myFunction() {
+   liff.sendMessages([
+		{
+		  type: 'text',
+		  text: 'From:'
+		}
+	  ])
+  // liff.closeWindow();
+}</script>
+{{end}}
+
+

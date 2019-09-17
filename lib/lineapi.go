@@ -159,14 +159,12 @@ func MakeCalenda(date string) string {
 		year, month, _ = time2.Date()
 	}
 
-	fmt.Println(month, int(month))
 	var color string = "#000000"
 
 	endOfMonth := time.Date(year, month+1, 1, 0, 0, 0, -1, time.UTC)
 	var Weekday int = int(time.Date(year, month, 1, 0, 0, 0, 0, time.UTC).Weekday())
 
 	for day := 0; day < Weekday; day++ {
-		fmt.Println(day)
 		contents = contents + fmt.Sprintf(`{
 			"type":    "text",
 			"text":    " ",

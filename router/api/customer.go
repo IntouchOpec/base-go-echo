@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 
 	"github.com/IntouchOpec/base-go-echo/model"
@@ -52,4 +53,35 @@ func RegisterCustomerByLine(c echo.Context) error {
 	})
 
 	return c.JSON(http.StatusOK, token)
+}
+
+func GetCustomerList(c echo.Context) error {
+	page := c.QueryParam("page")
+	size := c.QueryParam("size")
+	chatChannelID := c.Param("chatChannelID")
+	pageInt, _ := strconv.Atoi(page)
+	sizeInt, _ := strconv.Atoi(size)
+	chatChannelIDInt, _ := strconv.Atoi(chatChannelID)
+
+	customers := model.GetCustomerList(pageInt, sizeInt, chatChannelIDInt)
+	return c.JSON(http.StatusOK, customers)
+}
+
+func GetCustomerDetail(c echo.Context) error {
+	id := c.Param("id")
+	idInt, _ := strconv.Atoi(id)
+	customer := model.Customer{}
+	customer.GetCustomer(idInt)
+	return c.JSON(http.StatusOK, customer)
+}
+
+func UpdateCustomer(c echo.Context) error {
+	id := c.Param("id")
+	idInt, _ := strconv.Atoi(id)
+	customer := model.Customer{}
+	if err := c.Bind(&customer).Error; err != nil {
+		return c.NoContent(http.StatusBadRequest)
+	}
+	customer.UpdateCustomer(idInt)
+	return c.JSON(http.StatusOK, customer)
 }

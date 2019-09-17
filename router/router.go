@@ -15,8 +15,7 @@ import (
 	"go.elastic.co/apm/module/apmechov4"
 
 	. "github.com/IntouchOpec/base-go-echo/conf"
-	"github.com/IntouchOpec/base-go-echo/router/api"
-	"github.com/IntouchOpec/base-go-echo/router/channel"
+	"github.com/IntouchOpec/base-go-echo/router/web"
 	"github.com/hb-go/echo-web/middleware/metrics/prometheus"
 	"github.com/hb-go/echo-web/middleware/opentracing"
 	"github.com/hb-go/echo-web/middleware/pprof"
@@ -33,9 +32,9 @@ func InitRoutes() map[string]*Host {
 	// Hosts
 	hosts := make(map[string]*Host)
 
-	// hosts[Conf.Server.DomainWeb] = &Host{web.Routers()}
-	hosts["localhost"] = &Host{api.Routers()}
-	hosts["bc1a5788.ngrok.io"] = &Host{channel.Routers()}
+	hosts["d2670202.ngrok.io"] = &Host{web.Routers()}
+	// hosts["localhost"] = &Host{api.Routers()}
+	// hosts["d2670202.ngrok.io"] = &Host{channel.Routers()}
 
 	return hosts
 }

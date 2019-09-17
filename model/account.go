@@ -12,16 +12,16 @@ type Account struct {
 }
 
 // GetAccount query account list.
-func (acc *Account) GetAccount() *[]Account {
+func GetAccount(size int, page int) *[]Account {
 	accounts := []Account{}
 
-	DB().Find(&accounts)
+	DB().Offset((page - 1) * size).Limit(size).Find(&accounts)
 
 	return &accounts
 }
 
 // GetAccountByID find account by id.
-func (acc *Account) GetAccountByID(id uint) *Account {
+func (acc *Account) GetAccountByID(id string) *Account {
 	account := Account{}
 
 	if err := DB().Find(&account, id).Error; err != nil {
@@ -46,7 +46,7 @@ func (acc *Account) CreateAccount() *Account {
 }
 
 // UpdateAccount edit account soucre.
-func (acc *Account) UpdateAccount(id uint) *Account {
+func (acc *Account) UpdateAccount(id string) *Account {
 
 	if err := DB().Find(&acc, id).Error; err != nil {
 		return nil
@@ -56,5 +56,15 @@ func (acc *Account) UpdateAccount(id uint) *Account {
 		return nil
 	}
 
+	return acc
+}
+
+func (acc *Account) RemoveAccount(id string) *Account {
+	if err := DB().Find(&acc, id).Error; err != nil {
+		return nil
+	}
+	if err := DB().Delete(&acc, id).Error; err != nil {
+		return nil
+	}
 	return acc
 }

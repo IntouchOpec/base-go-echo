@@ -25,34 +25,35 @@ func (chatReq *ChatRequest) SaveChatRequest() *ChatRequest {
 }
 
 // GetChatRequest get ChatRequest list.
-func (cha *ChatRequest) GetChatRequest() *ChatRequest {
-	DB().Find(&cha)
-	return cha
+func GetChatRequest(chatChannelID string) *ChatRequest {
+	chatReq := ChatRequest{}
+	DB().Where("ChatChannelID = ?", chatChannelID).Find(&chatReq)
+	return &chatReq
 }
 
 // EditChatRequest update ChatRequest.
-func (cha *ChatRequest) EditChatRequest(id int) *ChatRequest {
+func (chatReq *ChatRequest) EditChatRequest(id int) *ChatRequest {
 
-	if err := DB().Find(&cha, id).Error; err != nil {
+	if err := DB().Find(&chatReq, id).Error; err != nil {
 		return nil
 	}
 
-	if err := DB().Save(&cha).Error; err != nil {
+	if err := DB().Save(&chatReq).Error; err != nil {
 		return nil
 	}
 
-	return cha
+	return chatReq
 }
 
 // DeleteChatRequest delete ChatRequest
-func (cha *ChatRequest) DeleteChatRequest() *ChatRequest {
-	if err := DB().Find(&cha).Error; err != nil {
+func (chatReq *ChatRequest) DeleteChatRequest() *ChatRequest {
+	if err := DB().Find(&chatReq).Error; err != nil {
 		return nil
 	}
 
-	if err := DB().Delete(&cha).Error; err != nil {
+	if err := DB().Delete(&chatReq).Error; err != nil {
 		return nil
 	}
 
-	return cha
+	return chatReq
 }

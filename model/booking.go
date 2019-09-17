@@ -61,3 +61,44 @@ func (booking *Booking) SaveBooking() *Booking {
 	}
 	return booking
 }
+
+func (booking *Booking) UpdateBooking(id string) *Booking {
+	db := DB()
+	if err := db.Find(&booking, id).Error; err != nil {
+		return nil
+	}
+
+	if err := db.Save(&booking).Error; err != nil {
+		return nil
+	}
+	return booking
+}
+
+func GetBookingList(chatChannelID string) *[]Booking {
+	bookings := []Booking{}
+	db := DB()
+	if err := db.Where("chat_channel_id = ?", chatChannelID).Find(&bookings).Error; err != nil {
+		return nil
+	}
+	return &bookings
+}
+
+func GetBooking(id string) *Booking {
+	db := DB()
+	booking := Booking{}
+	if err := db.Find(&booking, id).Error; err != nil {
+		return nil
+	}
+	return &booking
+}
+
+func (booking *Booking) DeleteBooking(id string) *Booking {
+	db := DB()
+	if err := db.Find(&booking, id).Error; err != nil {
+		return nil
+	}
+	if err := db.Delete(&booking, id).Error; err != nil {
+		return nil
+	}
+	return booking
+}

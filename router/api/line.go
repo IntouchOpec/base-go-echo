@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -153,8 +154,38 @@ func CreateLIFF(c echo.Context) error {
 		return c.NoContent(http.StatusBadRequest)
 	}
 	res, err := bot.AddLIFF(view).Do()
-
 	if err != nil {
+		fmt.Println(err)
+
+		return c.NoContent(http.StatusBadRequest)
+	}
+	return c.JSON(http.StatusOK, res)
+}
+
+func UpdateLIFF(c echo.Context) error {
+	chatChannelID := c.Param("chatChannelID")
+	LIFFID := c.Param("LIFFID")
+
+	db := model.DB()
+	chatChannel := model.ChatChannel{}
+
+	if err := db.Find(&chatChannel, chatChannelID).Error; err != nil {
+		return c.NoContent(http.StatusNotFound)
+	}
+
+	bot, err := lib.ConnectLineBot(chatChannel.ChannelSecret, chatChannel.ChannelAccessToken)
+	if err != nil {
+		return c.NoContent(http.StatusBadRequest)
+	}
+	view := linebot.View{}
+
+	if err := c.Bind(&view); err != nil {
+		return c.NoContent(http.StatusBadRequest)
+	}
+	res, err := bot.UpdateLIFF(LIFFID, view).Do()
+	if err != nil {
+		fmt.Println(err)
+
 		return c.NoContent(http.StatusBadRequest)
 	}
 	return c.JSON(http.StatusOK, res)
