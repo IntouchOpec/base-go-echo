@@ -1,16 +1,22 @@
 package model
 
-import "github.com/hb-go/gorm"
+import (
+	"fmt"
+
+	"github.com/hb-go/gorm"
+)
 
 // Customer follow Line OA.
 type Customer struct {
 	gorm.Model
 	// ID          uint    `json:"id,omitempty"`
-	LineID      string  `json:"line_id" gorm:"type:varchar(25)"`
-	Email       string  `json:"email" gorm:"type:varchar(25)"`
-	PhoneNumber string  `json:"phone_number" gorm:"type:varchar(25)"`
-	AccountID   uint    `form:"account_id" json:"account_id" gorm:"not null;"`
-	Account     Account `gorm:"ForeignKey:id"`
+	PictureURL    string      `json:"picture_url"`
+	DisplayName   string      `json:"display_name"`
+	LineID        string      `json:"line_id" gorm:"type:varchar(255)"`
+	Email         string      `json:"email" gorm:"type:varchar(25)"`
+	PhoneNumber   string      `json:"phone_number" gorm:"type:varchar(25)"`
+	ChatChannelID uint        `form:"chat_channel_id" json:"chat_channel_id" gorm:"not null;"`
+	ChatChannel   ChatChannel `gorm:"ForeignKey:id"`
 }
 
 // LoginRespose is instacne respose line json
@@ -53,6 +59,26 @@ func (customer *Customer) UpdateCustomer(id int) *Customer {
 	if err := DB().Save(&customer).Error; err != nil {
 		return nil
 	}
+	return customer
+}
+
+// UpdateCustomerByAtt update by atti
+func (customer *Customer) UpdateCustomerByAtt(pictureURL string, displayName string, email string, phoneNumber string) *Customer {
+	if err := DB().Where("line_id = ? and chat_channel_id = ?", customer.LineID, customer.ChatChannelID).Find(&customer).Error; err != nil {
+		fmt.Println(err)
+		fmt.Println("=======================", customer)
+		return nil
+	}
+	customer.PictureURL = pictureURL
+	customer.DisplayName = displayName
+	customer.Email = email
+	customer.PhoneNumber = phoneNumber
+
+	if err := DB().Save(&customer).Error; err != nil {
+		fmt.Println(err, "=========")
+		return nil
+	}
+
 	return customer
 }
 

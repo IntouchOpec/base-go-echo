@@ -9,13 +9,17 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/IntouchOpec/base-go-echo/model"
+	"github.com/IntouchOpec/base-go-echo/router/api"
+	"github.com/IntouchOpec/base-go-echo/router/channel"
+	"github.com/IntouchOpec/base-go-echo/router/web"
+
 	"github.com/labstack/echo"
 	mw "github.com/labstack/echo/middleware"
 	"go.elastic.co/apm"
 	"go.elastic.co/apm/module/apmechov4"
 
 	. "github.com/IntouchOpec/base-go-echo/conf"
-	"github.com/IntouchOpec/base-go-echo/router/web"
 	"github.com/hb-go/echo-web/middleware/metrics/prometheus"
 	"github.com/hb-go/echo-web/middleware/opentracing"
 	"github.com/hb-go/echo-web/middleware/pprof"
@@ -32,9 +36,11 @@ func InitRoutes() map[string]*Host {
 	// Hosts
 	hosts := make(map[string]*Host)
 
-	hosts["d2670202.ngrok.io"] = &Host{web.Routers()}
-	// hosts["localhost"] = &Host{api.Routers()}
-	// hosts["d2670202.ngrok.io"] = &Host{channel.Routers()}
+	hosts["host_web"] = &Host{web.Routers()}
+	hosts["host_api"] = &Host{api.Routers()}
+	hosts["host_line_channel"] = &Host{channel.Routers()}
+	// for deveop
+	hosts["localhost"] = &Host{api.Routers()}
 
 	return hosts
 }
@@ -95,17 +101,23 @@ func RunSubdomains(confFilePath string) {
 	e.Any("/*", func(c echo.Context) (err error) {
 		req := c.Request()
 		res := c.Response()
-		fmt.Println(req.Host, "========req.Host==========")
-
 		u, _err := url.Parse(c.Scheme() + "://" + req.Host)
 		if _err != nil {
 			e.Logger.Errorf("Request URL parse error:%v", _err)
 		}
-
-		host := hosts[u.Hostname()]
-		if host == nil {
+		setting := model.Setting{}
+		if err := model.DB().Where("Value = ?", u.Hostname()).Preload("ChatChannel").Find(&setting).Error; err != nil {
 			e.Logger.Info("Host not found")
+			fmt.Println(err)
 			err = echo.ErrNotFound
+		}
+		fmt.Println(req.Host, "========req.Host==========")
+
+		host := hosts[setting.Name]
+		if host == nil {
+			// for deveop
+			host := hosts["localhost"]
+			host.Echo.ServeHTTP(res, req)
 		} else {
 			host.Echo.ServeHTTP(res, req)
 		}

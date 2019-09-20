@@ -1,7 +1,6 @@
 package web
 
 import (
-	"fmt"
 	"html/template"
 	"io"
 	"net/http"
@@ -19,7 +18,7 @@ func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Con
 
 func Routers() *echo.Echo {
 	e := echo.New()
-	fmt.Println("test")
+
 	t := &Template{
 		templates: template.Must(template.ParseGlob("public/views/*.html")),
 	}
@@ -28,6 +27,7 @@ func Routers() *echo.Echo {
 		return c.Render(http.StatusOK, "hello", "World")
 	})
 	e.GET("/register/:lineID", LIFFRegisterHandler)
+	e.POST("/register/:lineID", LIIFRegisterSaveCustomer)
 
 	return e
 }

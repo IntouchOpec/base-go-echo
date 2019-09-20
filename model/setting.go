@@ -6,10 +6,9 @@ import "github.com/hb-go/gorm"
 type Setting struct {
 	gorm.Model
 
-	Value         string  `json:"value" gorm:"unique; type:varchar(25)"`
-	Name          string  `json:"name" gorm:"unique; type:varchar(25)"`
-	ChatChannelID uint    `form:"chat_channel_id" json:"chat_channel_id" gorm:"not null;"`
-	ChatChannel   Account `gorm:"ForeignKey:id"`
+	Value        string         `json:"value" gorm:"type:varchar(25)"`
+	Name         string         `json:"name" gorm:"type:varchar(25)"`
+	ChatChannels []*ChatChannel `gorm:"many2many:setting_chat_channel;" json:"chat_channels"`
 }
 
 // SaveSetting is function create Setting.

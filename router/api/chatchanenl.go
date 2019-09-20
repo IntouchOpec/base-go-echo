@@ -13,6 +13,24 @@ import (
 	"github.com/line/line-bot-sdk-go/linebot"
 )
 
+// SettingType
+type SettingType string
+
+const (
+	HostAPI         SettingType = "host_api"
+	HostWeb         SettingType = "host_web"
+	HostLineChaanel SettingType = "host_line_channel"
+	LIFFRegister    SettingType = "LIFFregister"
+)
+
+// Setting
+type Setting struct {
+	Value         string            `json:"value" gorm:"unique; type:varchar(25)"`
+	Name          SettingType       `json:"name" gorm:"unique; type:varchar(25)"`
+	ChatChannelID uint              `form:"chat_channel_id" json:"chat_channel_id" gorm:"not null;"`
+	ChatChannel   model.ChatChannel `gorm:"ForeignKey:id"`
+}
+
 // CreateChatChannel route create chat_channel.
 func CreateChatChannel(c echo.Context) error {
 
@@ -20,28 +38,38 @@ func CreateChatChannel(c echo.Context) error {
 	if err := c.Bind(&cha); err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}
-	bot, err := lib.ConnectLineBot(cha.ChannelSecret, cha.ChannelAccessToken)
-	if err != nil {
+
+	cha.SaveChatChannel()
+
+	return c.JSON(http.StatusOK, cha)
+}
+
+// ActiveRegisterLIFFAPI
+func ActiveRegisterLIFFAPI(c echo.Context) error {
+	LineID := c.Param("lineID")
+	chatChannel := model.ChatChannel{}
+	if err := model.DB().Preload("Settings", "name = 'host_web'").Where("line_id = ?", LineID).Find(&chatChannel).Error; err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}
+	fmt.Println(chatChannel.Settings[0])
 	// config web Conf.Server.DomainWeb
-	// view := linebot.View{Type: "full", URL: fmt.Sprintf("%s/register/%s", Conf.Server.DomainWeb, cha.LineID)}
-	view := linebot.View{Type: "full", URL: "https://d2670202.ngrok.io/register/" + cha.LineID}
+	url := fmt.Sprintf("https://%s/register/%s", chatChannel.Settings[0].Value, chatChannel.LineID)
 
-	if err := c.Bind(&view); err != nil {
+	view := linebot.View{Type: "full", URL: url}
+	bot, err := lib.ConnectLineBot(chatChannel.ChannelSecret, chatChannel.ChannelAccessToken)
+	if err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}
 	res, err := bot.AddLIFF(view).Do()
-
 	if err != nil {
-		fmt.Println(err)
-
 		return c.NoContent(http.StatusBadRequest)
 	}
-	cha.SaveChatChannel()
-	setting := model.Setting{Name: "LIFFregister", Value: res.LIFFID, ChatChannelID: cha.ID}
-	setting.SaveSetting()
-	return c.JSON(http.StatusOK, cha)
+	setting := model.Setting{Name: "LIFFregister", Value: res.LIFFID}
+
+	if err := model.DB().Model(&chatChannel).Association("Settings").Append(setting).Error; err != nil {
+		return c.NoContent(http.StatusBadRequest)
+	}
+	return c.JSON(http.StatusOK, chatChannel)
 }
 
 // GetChannelAccessToken route get channel access token.

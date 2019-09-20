@@ -15,14 +15,6 @@ import (
 	"github.com/labstack/echo"
 )
 
-// Routers channel.
-// func Routers() *echo.Echo {
-// 	e := echo.New()
-
-// 	e.POST("/callback/:account", Callback)
-// 	return e
-// }
-
 // HandleWebHookLineAPI webhook for connent line api.
 func HandleWebHookLineAPI(c echo.Context) error {
 	client := &lib.ClientLine{}
@@ -30,15 +22,17 @@ func HandleWebHookLineAPI(c echo.Context) error {
 	ChannelID := c.Param("ChannelID")
 	account := model.Account{}
 	chatChannel := model.ChatChannel{}
-
+	fmt.Println(name)
 	if err := model.DB().Where("name = ?", name).Find(&account).Error; err != nil {
+		fmt.Println(err, 1)
 		return c.NoContent(http.StatusNotFound)
 	}
 
-	if err := model.DB().Where("channel_id = ?", ChannelID).Find(&chatChannel).Error; err != nil {
+	if err := model.DB().Where("Channel_ID = ?", ChannelID).Find(&chatChannel).Error; err != nil {
+		fmt.Println(err, 2)
+
 		return c.NoContent(http.StatusNotFound)
 	}
-
 	ctx := c.Request().Context()
 	if ctx == nil {
 		ctx = context.Background()
@@ -47,12 +41,14 @@ func HandleWebHookLineAPI(c echo.Context) error {
 	bot, err := lib.ConnectLineBot(chatChannel.ChannelSecret, chatChannel.ChannelAccessToken)
 
 	if err != nil {
+		fmt.Println(err, 3)
 		log.Print(err)
 	}
 
 	events, err := bot.ParseRequest(c.Request())
 
 	if err != nil {
+		fmt.Println(err, 4)
 
 		if err == linebot.ErrInvalidSignature {
 			c.String(400, linebot.ErrInvalidSignature.Error())
@@ -154,19 +150,18 @@ func HandleWebHookLineAPI(c echo.Context) error {
 			}
 
 		case linebot.EventTypeFollow:
-			// if err := model.DB().Where("Input = followAuto").Find(&ChatAnswer).Error; err != nil {
-			// 	fmt.Println(err)
-			// }
-			customer := model.Customer{LineID: event.Source.UserID, AccountID: account.ID}
-
-			model.DB().FirstOrCreate(&customer, model.Customer{LineID: event.Source.UserID, AccountID: account.ID})
-			m := FollowTemplate(chatChannel)
-			flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(m))
+			customer := model.Customer{LineID: event.Source.UserID, ChatChannelID: chatChannel.ID}
+			setting := chatChannel.GetSetting("LIFFregister")
+			if err := model.DB().FirstOrCreate(&customer, model.Customer{LineID: event.Source.UserID, ChatChannelID: chatChannel.ID}).Error; err != nil {
+				fmt.Println(err)
+			}
+			jsonFlexMessage := FollowTemplate(chatChannel, setting)
+			flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(jsonFlexMessage))
 			if err != nil {
 				log.Print(err)
 				return err
 			}
-			flexMessage := linebot.NewFlexMessage("ขอบคุณ", flexContainer)
+			flexMessage := linebot.NewFlexMessage(chatChannel.WelcomeMessage, flexContainer)
 			if _, err = bot.ReplyMessage(event.ReplyToken, flexMessage).Do(); err != nil {
 				log.Print(err)
 			}
@@ -233,7 +228,7 @@ func ProductListLineTemplate(subProduct []model.SubProduct, dateTime string) str
 }
 
 // FollowTemplate
-func FollowTemplate(chatChannel model.ChatChannel) string {
+func FollowTemplate(chatChannel model.ChatChannel, settings map[string]string) string {
 	template := fmt.Sprintf(`{
 		"type": "bubble",
 		"hero": { "type": "image", "url": "%s", "size": "full", "aspectRatio": "20:13", "aspectMode": "cover"},
@@ -246,13 +241,13 @@ func FollowTemplate(chatChannel model.ChatChannel) string {
 			]}]
 		},
 		"footer": { "type": "box", "layout": "vertical", "spacing": "sm", "contents": [
-			{ "type": "button", "style": "link", "height": "sm", "action": { "type": "uri", "label": "REGISTER", "uri": "line://app/1611229598-5l2DBPPR"} },
-			{ "type": "button", "style": "link", "height": "sm", "action": { "type": "uri", "label": "WEBSITE", "uri": "https://linecorp.com"}},
+			{ "type": "button", "style": "link", "height": "sm", "action": { "type": "uri", "label": "REGISTER", "uri": "line://app/%s"} },
+			{ "type": "button", "style": "link", "height": "sm", "action": { "type": "uri", "label": "WEBSITE", "uri": "%s"}},
 			{ "type": "spacer", "size": "sm" }
 		],
 		"flex": 0
 		}
-	  }`, chatChannel.Image, chatChannel.Name, chatChannel.WelcomeMessage)
+	  }`, chatChannel.Image, chatChannel.Name, chatChannel.WelcomeMessage, settings["LIFFregister"])
 	return template
 }
 

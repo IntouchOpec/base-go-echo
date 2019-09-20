@@ -1,8 +1,6 @@
 package api
 
 import (
-	"fmt"
-
 	"github.com/labstack/echo"
 	mw "github.com/labstack/echo/middleware"
 
@@ -72,14 +70,13 @@ func Routers() *echo.Echo {
 	e.PUT("/booking/:id", UpdateBooking)
 	e.DELETE("/booking/:id", DeleteBooking)
 
-	e.GET("/json/encode", handler(JsonEncodeHandler))
-
 	e.GET("/chatchannel/:chatChannelID/list", GetChatChannelList)
 	e.GET("/chatchannel/:id", GetChatChannelDetail)
 	e.POST("/chatchannel", CreateChatChannel)
 	e.PATCH("/chatchannel/:id", UpdateChatChannel)
 	e.DELETE("/chatchannel/id", DeleteChatChannel)
 	e.PATCH("/chatchannel/:id/getaccesstoken", GetChannelAccessToken)
+	e.PATCH("/chatchannel/:lineID/activeregisterliff", ActiveRegisterLIFFAPI)
 
 	e.GET("/chatanswer/:chatChannelID/list", GetChatAnswerList)
 	e.GET("/chatanswer/:id", GetChatAnswerDetail)
@@ -121,6 +118,8 @@ func Routers() *echo.Echo {
 	e.GET("/customer/:chatChannelID/list", GetCustomerList)
 	e.GET("/customer/:id", GetCustomerDetail)
 	e.PATCH("/customer/:id", UpdateCustomer)
+	//
+	e.GET("/json/encode", handler(JsonEncodeHandler))
 
 	// account := e.Group("/account")
 	// {
@@ -138,18 +137,18 @@ func Routers() *echo.Echo {
 	// chatanswer.POST("/:channelID", CreateChatAnswer)
 
 	// JWT
-	r := e.Group("")
-	fmt.Println(echo.HeaderAuthorization)
-	r.Use(mw.JWTWithConfig(mw.JWTConfig{
-		SigningKey:  []byte("secret"),
-		ContextKey:  "_user",
-		TokenLookup: "header:" + echo.HeaderAuthorization,
-	}))
+	// r := e.Group("")
+	// fmt.Println(echo.HeaderAuthorization)
+	// r.Use(mw.JWTWithConfig(mw.JWTConfig{
+	// 	SigningKey:  []byte("secret"),
+	// 	ContextKey:  "_user",
+	// 	TokenLookup: "header:" + echo.HeaderAuthorization,
+	// }))
 
-	r.GET("/", handler(ApiHandler))
+	// r.GET("/", handler(ApiHandler))
 
 	// curl http://echo.api.localhost:8080/restricted/user -H "Authorization: Bearer XXX"
-	r.GET("/user", UserHandler)
+	// r.GET("/user", UserHandler)
 
 	return e
 }

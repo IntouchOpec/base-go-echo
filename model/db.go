@@ -75,17 +75,11 @@ func Initialize() {
 	newDb.AutoMigrate(&Setting{})
 	newDb.AutoMigrate(&Account{})
 	newDb.AutoMigrate(&LoginRespose{})
-
+	newDb.AutoMigrate(&TemplateSocial{})
+	newDb.AutoMigrate(&TemplateSocialDetail{})
+	newDb.AutoMigrate(&KeyTemplate{})
 	// Foreign Key Account Table.
 	newDb.Model(&User{}).AddForeignKey("account_id", "accounts(id)", "CASCADE", "RESTRICT")
-	newDb.Model(&Booking{}).AddForeignKey("account_id", "accounts(id)", "CASCADE", "RESTRICT")
-	newDb.Model(&Customer{}).AddForeignKey("account_id", "accounts(id)", "CASCADE", "RESTRICT")
-	newDb.Model(&ChatAnswer{}).AddForeignKey("account_id", "accounts(id)", "CASCADE", "RESTRICT")
-	newDb.Model(&ChatChannel{}).AddForeignKey("account_id", "accounts(id)", "CASCADE", "RESTRICT")
-	newDb.Model(&ChatRequest{}).AddForeignKey("account_id", "accounts(id)", "CASCADE", "RESTRICT")
-	newDb.Model(&EventLog{}).AddForeignKey("account_id", "accounts(id)", "CASCADE", "RESTRICT")
-	newDb.Model(&Product{}).AddForeignKey("account_id", "accounts(id)", "CASCADE", "RESTRICT")
-	newDb.Model(&Setting{}).AddForeignKey("account_id", "accounts(id)", "CASCADE", "RESTRICT")
 
 	// Booking Foreign.
 	newDb.Model(&Booking{}).AddForeignKey("customer_id", "customers(id)", "CASCADE", "RESTRICT")
