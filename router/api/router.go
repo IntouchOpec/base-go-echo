@@ -59,6 +59,8 @@ func Routers() *echo.Echo {
 	e.POST("/login", UserLoginHandler)
 	e.POST("/register", UserRegisterHandler)
 
+	e.POST("/user", UserRegisterHandler)
+
 	e.GET("/account/:chatChannelID/list", GetAccontList)
 	e.GET("/account/:id", GetAccount)
 	e.POST("/account", CreateAccount)
@@ -73,6 +75,7 @@ func Routers() *echo.Echo {
 	e.GET("/chatchannel/:chatChannelID/list", GetChatChannelList)
 	e.GET("/chatchannel/:id", GetChatChannelDetail)
 	e.POST("/chatchannel", CreateChatChannel)
+	e.POST("/chatchannel/:id/setting", CreateChatChannelSetting)
 	e.PATCH("/chatchannel/:id", UpdateChatChannel)
 	e.DELETE("/chatchannel/id", DeleteChatChannel)
 	e.PATCH("/chatchannel/:id/getaccesstoken", GetChannelAccessToken)
@@ -86,7 +89,7 @@ func Routers() *echo.Echo {
 
 	e.GET("/product/:chatChannelID/list", GetProductList)
 	e.GET("/product/:id", GetProduct)
-	e.POST("/product/:chatChannelID/:id", CreateProduct)
+	e.POST("/product", CreateProduct)
 	e.PATCH("/product/:id", UpdateProduct)
 
 	// e.GET("/subproduct/:chatChannelID", GetProductList)
@@ -99,15 +102,15 @@ func Routers() *echo.Echo {
 	e.POST("/richmenu/:id", CreateRichMenu)
 	e.POST("/richmenu/:id/:richMenuID", UploadImageRichMenu)
 	e.PATCH("/richmenu/:id/:richMenuID", AtiveRichMenu)
+	e.DELETE("/richmenu/:id/:richMenuID", DeleteRichMenu)
 
 	e.GET("/promotion/:chatChannelID/list", GetPromotionList)
 	e.GET("/promotion/:id", GetPromotion)
-	e.POST("/promotion/:chatChannelID", CreateProduct)
-	e.PATCH("/promotion/:id", UpdateProduct)
+	e.POST("/promotion/:lineID", CreatePromotion)
+	e.PATCH("/promotion/:id", UpdatePromotion)
 	e.DELETE("/promotion/:id", DeletePromotion)
 
 	e.POST("/liff/:chatChannelID", CreateLIFF)
-	e.GET("/liff/:chatChannelID", GetListLIFF)
 
 	e.GET("/eventlog", GetAllEvenLog)
 	e.GET("/eventlog/:chatChannelID", GetEvenLogList)
@@ -118,6 +121,7 @@ func Routers() *echo.Echo {
 	e.GET("/customer/:chatChannelID/list", GetCustomerList)
 	e.GET("/customer/:id", GetCustomerDetail)
 	e.PATCH("/customer/:id", UpdateCustomer)
+
 	//
 	e.GET("/json/encode", handler(JsonEncodeHandler))
 

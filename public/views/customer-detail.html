@@ -1,0 +1,42 @@
+{{ define "customer-detail" }}
+
+<!DOCTYPE html>
+<html lang="en">
+
+{{ template "header" .title }}
+
+<body class="">
+  <div class="wrapper ">
+   {{ template "sidebar" .title }}
+    <div class="main-panel">
+      {{ template "navbar" .title }}
+      <div class="content">
+         <div class="container-fluid">
+           <div class="row">
+             <div class="col-md-8">
+               <div class="card">
+                 <div class="card-header card-header-primary">
+                   <h4 class="card-title ">customer detail</h4>
+                 </div>
+                 <div class="card-body">
+                    <div class="row">
+                        <div class="col-2">
+                          
+                        </div>
+                        
+                        <!-- {{ .customer.LineID }} -->
+                    </div>
+                 </div>
+               </div>
+             </div>
+           </div>
+         </div>
+       </div>
+  {{ template "footer" }}
+
+    </div>
+  </div>
+</body>
+
+</html>
+{{ end }}

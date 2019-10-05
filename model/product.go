@@ -9,26 +9,28 @@ import (
 // Product souce product and service.
 type Product struct {
 	gorm.Model
-	Name          string       `json:"name" gorm:"type:varchar(25)"`
-	Detail        string       `json:"detail" gorm:"type:varchar(25)"`
-	Price         float32      `json:"price"`
-	AccountID     uint         `form:"account_id" json:"account_id" gorm:"not null;"`
-	Account       Account      `gorm:"ForeignKey:id"`
-	Image         string       `json:"image" gorm:"type:varchar(255)"`
-	ChatChannelID uint         `json:"chat_channel_id"`
-	Chatchannel   ChatChannel  `gorm:"foreignkey:chatchannelID;" json:"chat_channels"`
-	SubProducts   []SubProduct `gorm:"foreignkey:ProductID;" json:"sub_products"`
+	Name          string        `json:"name" gorm:"type:varchar(25)"`
+	Detail        string        `json:"detail" gorm:"type:varchar(25)"`
+	Price         float32       `json:"price"`
+	AccountID     int           `form:"account_id" json:"account_id" gorm:"not null;"`
+	Account       Account       `gorm:"ForeignKey:id"`
+	Image         string        `json:"image" gorm:"type:varchar(255)"`
+	ChatChannelID int           `json:"chat_channel_id"`
+	Chatchannel   ChatChannel   `gorm:"foreignkey:chatchannelID;" json:"chat_channels"`
+	SubProducts   []*SubProduct `gorm:"foreignkey:ProductID;" json:"sub_products"`
+	// Promotions    []*Promotion  `json:"promotions" gorm:"many2many:product_promotion;"`
 }
 
 // SubProduct product set.
 type SubProduct struct {
 	gorm.Model
-	Start     string  `json:"start"`
-	End       string  `json:"end"`
-	Day       int     `json:"day"`
-	Amount    int     `json:"amount"`
-	Product   Product `json:"product"`
-	ProductID uint    `json:"product_id"`
+	Start     string     `json:"start"`
+	End       string     `json:"end"`
+	Day       int        `json:"day"`
+	Amount    int        `json:"amount"`
+	ProductID uint       `json:"product_id"`
+	Bookings  []*Booking `json:"bookings"`
+	Product   Product    `json:"product" gorm:"foreignkey:ProductID;"`
 }
 
 // SaveProduct is function create Product.

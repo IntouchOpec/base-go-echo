@@ -1,0 +1,76 @@
+
+{{define "booking-list"}}
+ <!DOCTYPE html>
+ <html lang="en">
+ 
+ {{ template "header" .title }}
+ 
+ <body class="">
+   <div class="wrapper ">
+    {{ template "sidebar" .title }}
+     <div class="main-panel">
+      {{ template "navbar" .title }}
+       <div class="content">
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-md-12">
+                <div class="card">
+                  <div class="card-header card-header-primary">
+                    <h4 class="card-title ">Book list</h4>
+                    <p class="card-category"> Here is a subtitle for this table</p>
+                  </div>
+                  <div class="card-body">
+                    <div class="table-responsive">
+                      <table class="table">
+                        <thead class=" text-primary">
+                          <th>No</th>
+                          <th>Day</th>
+                          <th>From</th>
+                          <th>To</th>
+                          <th>Queue</th>
+                          <th>Customer</th>
+                          <th>Status</th>
+                          <th></th>
+                        </thead>
+                        <tbody>
+                          {{ with .list }}
+                            {{ range . }}
+                              <tr>
+                                <td></td>
+                                <td>{{ ((.BookedDate).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
+                                <td>{{ .SubProduct.Start }}</td>
+                                <td>{{ .SubProduct.End }}</td>
+                                <td>{{ .Queue }}</td>
+                                <td>{{ .Customer.FullName }}</td>
+                                <td>{{ if (eq .BookState 0) }}Padding{{ else if (eq .BookState 1) }}Book{{ else }}reject{{ end }}</td>
+                                <td class="td-actions text-right">
+                                    <button type="button" rel="tooltip" class="btn btn-info">
+                                        <i class="material-icons">person</i>
+                                    </button>
+                                    <button type="button" rel="tooltip" class="btn btn-success">
+                                        <i class="material-icons">edit</i>
+                                    </button>
+                                    <button type="button" rel="tooltip" class="btn btn-danger">
+                                        <i class="material-icons">close</i>
+                                    </button>
+                                </td>
+                              </tr>
+                            {{ end }} 
+                          {{ end }}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {{ template "footer" }}
+     </div>
+   </div>
+   {{ template "script" }}
+ </body>
+</html>
+ 
+{{end}}

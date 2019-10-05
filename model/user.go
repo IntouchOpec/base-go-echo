@@ -86,7 +86,15 @@ type User struct {
 	Authenticated bool    `form:"-" db:"-" json:"-"`
 	Admin         bool    `json:"admin"`
 	AccountID     uint    `form:"account_id" json:"account_id" gorm:"not null;"`
-	Account       Account `gorm:"ForeignKey:id"`
+	Roles         []*Role `gorm:"many2many:user_role" json:"roles"`
+	Account       Account `gorm:"ForeignKey:AccountID"`
+}
+
+type Role struct {
+	gorm.Model
+
+	Name  string  `json:"name"`
+	Users []*User `gorm:"many2many:user_role" json:"users"`
 }
 
 // GenerateAnonymousUser should generate an anonymous user model
@@ -103,9 +111,6 @@ func (u User) TableName() string {
 // Login will preform any actions that are required to make a user model
 // officially authenticated.
 func (u *User) Login() {
-	// Update last login time
-	// Add to logged-in user's list
-	// etc ...
 	u.Authenticated = true
 }
 
@@ -133,4 +138,13 @@ func (u *User) GetById(id interface{}) error {
 		return err
 	}
 	return nil
+}
+
+func (u *User) GetUserByEmailPwd(email string, pwd string) *User {
+	user := User{}
+	if err := DB().Preload("Account").Where("email = ? ", email).First(&user).Error; err != nil {
+		log.Debugf("GetUserByNicknamePwd error: %v", err)
+		return nil
+	}
+	return &user
 }

@@ -78,6 +78,7 @@ func Initialize() {
 	newDb.AutoMigrate(&TemplateSocial{})
 	newDb.AutoMigrate(&TemplateSocialDetail{})
 	newDb.AutoMigrate(&KeyTemplate{})
+	newDb.AutoMigrate(&ActionLog{})
 	// Foreign Key Account Table.
 	newDb.Model(&User{}).AddForeignKey("account_id", "accounts(id)", "CASCADE", "RESTRICT")
 

@@ -475,5 +475,19 @@ iframe {
   }
 }
 
+.lo-center-panel:before, .lo-center-panel:after {
+  content: '';
+  flex: 1;
+  display: block;
+  min-height: 2rem;
+  height: 1.5rem;
+}
 
+.lo-center-panel:before, .lo-center-panel:after {
+  content: '';
+  flex: 1;
+  display: block;
+  min-height: 2rem;
+  height: 1.5rem;
+}
 

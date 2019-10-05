@@ -46,7 +46,7 @@ port = "5432"
 
 [redis]
 server = "127.0.0.1:6379"
-pwd = "123456"
+pwd = "password"
 
 [memcached]
 server = "localhost:11211"

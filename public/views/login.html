@@ -1,0 +1,86 @@
+{{ define "login" }}
+  {{ template "header" .title }}
+  <link rel="stylesheet" type="text/css" href="../vendor/bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="../fonts/font-awesome-4.7.0/css/font-awesome.min.css">
+	<link rel="stylesheet" type="text/css" href="../fonts/Linearicons-Free-v1.0.0/icon-font.min.css">
+	<link rel="stylesheet" type="text/css" href="../vendor/animate/animate.css">
+	<link rel="stylesheet" type="text/css" href="../vendor/css-hamburgers/hamburgers.min.css">
+	<link rel="stylesheet" type="text/css" href="../vendor/animsition/css/animsition.min.css">
+	<link rel="stylesheet" type="text/css" href="../vendor/select2/select2.min.css">
+	<link rel="stylesheet" type="text/css" href="../vendor/daterangepicker/daterangepicker.css">
+	<link rel="stylesheet" type="text/css" href="../css/util.css">
+	<link rel="stylesheet" type="text/css" href="../css/main.css">
+	<div class="limiter">
+    <div class="container-login100">
+        <div class="container-fluid">
+          <div class="row justify-content-center">
+            <div class="col-md-5">
+              <div class="card">
+                <div class="card card-nav-tabs text-center">
+                  <div class="card-header card-header-primary">
+                    <h2>login</h2>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <form class="validate-form">
+                    <input type="hidden" name="_csrf" value="{{._csrf}}" />
+                    <div class="row">
+                      <div class="form-group w-100">
+                        <input type="email" class="form-control" name="email" placeholder="email">
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="form-group w-100">
+                        <input type="password" class="form-control" name="password" placeholder="password">                        
+                      </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary pull-right">login</button>
+                    <div class="clearfix"></div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+  </div>
+
+  {{ template "script" }}
+  <script>
+    (function($) {
+      
+    })(jQuery);
+  </script>
+  <script>
+    (function ($) {
+      "use strict";
+      $(".validate-form").on("submit",function(){
+        let email = document.getElementsByName("email");
+        let password = document.getElementsByName("password");
+        let _csrf = document.getElementsByName("_csrf");
+        const data = new URLSearchParams();
+        data.append("email", email[0].value);
+        data.append("password", password[0].value);
+        data.append("_csrf", _csrf[0].value);
+        
+        console.log(email[0].value,password[0].value,_csrf[0].value)
+        fetch(window.location.href, {
+          method: "POST",
+          body: data
+        })
+        .then(res => {
+          if (res.status === 301) {
+            return res.json();
+          }
+        })
+        .then(data => {
+          location.replace(data)
+        })
+				.catch(err => {
+					console.log("error", err);
+				})
+        return false
+      })
+    })(jQuery);
+  </script>
+{{ end }}

@@ -1,7 +1,7 @@
 package model
 
 import (
-	"fmt"
+	"errors"
 	"time"
 
 	"github.com/hb-go/gorm"
@@ -14,16 +14,14 @@ type Booking struct {
 	Queue         int         `json:"queue" `
 	LineID        string      `json:"line_id" gorm:"type:varchar(50)"`
 	CustomerID    uint        `json:"customer_id"`
-	Customer      Customer    `gorm:"foreignkey:ID"`
+	Customer      Customer    `gorm:"foreignkey:CustomerID"`
 	SubProductID  uint        `json:"prodict_id"`
 	SubProduct    SubProduct  `gorm:"foreignkey:SubProductID"`
-	AccountID     uint        `form:"account_id" json:"account_id" gorm:"not null;"`
-	Account       Account     `gorm:"ForeignKey:id"`
 	ChatChannelID uint        `json:"chat_chaneel_id"`
-	ChatChannel   ChatChannel `gorm:"ForeignKey:id"`
-	BookingStatus int         `json:"booking_status"`
-	BookingState  int         `json:"booking_state"`
-	BookingDate   time.Time   `gorm:"column:booking_date" json:"booking_date"`
+	ChatChannel   ChatChannel `gorm:"ForeignKey:ChatChannelID"`
+	BookStatus    int         `json:"booking_status"`
+	BookState     int         `json:"booking_state"`
+	BookedDate    time.Time   `gorm:"column:booked_date" json:"booked_date"`
 }
 
 // BookingStatus is status of booking.
@@ -48,18 +46,22 @@ type BookingState struct {
 }
 
 // SaveBooking is function create chat answer.
-func (booking *Booking) SaveBooking() *Booking {
+func (booking *Booking) SaveBooking() (*Booking, error) {
 	db := DB()
-	// subProduct := SubProduct{}
-	// db.Where("BookingDate = ? and SubProductID = ?", booking.BookingDate, booking.SubProductID).Find(&booking).Related(&subProduct).Last(booking)
-	// if subProduct.Amount >= booking.Queue {
-	// 	return nil
-	// }
-	if err := db.Create(&booking).Error; err != nil {
-		fmt.Println(err)
-		return nil
+	booked := Booking{}
+	db.Preload("SubProduct").Where("Booked_Date = ? and Sub_Product_ID = ?", booking.BookedDate, booking.SubProductID).Last(&booked)
+	if booked.SubProduct.Amount == 0 {
+		booking.Queue = 1
+	} else if booked.SubProduct.Amount > booked.Queue {
+		booking.Queue = booked.Queue + 1
+	} else {
+		return nil, errors.New("can't insert booking case queue full")
 	}
-	return booking
+
+	if err := db.Create(&booking).Error; err != nil {
+		return nil, err
+	}
+	return booking, nil
 }
 
 func (booking *Booking) UpdateBooking(id string) *Booking {

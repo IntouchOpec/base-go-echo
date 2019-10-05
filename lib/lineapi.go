@@ -152,17 +152,19 @@ func MonthInterval(y int, m time.Month) (firstDay, lastDay time.Time) {
 func MakeCalenda(date string) string {
 	var contents string
 	var calendar string
+	var color string
 	year, month, _ := time.Now().Date()
 	t := time.Now()
 	if len(date) != 0 {
-		time2, _ := time.Parse("01-01-2019", date)
+		time2, _ := time.Parse("2006-01-02", date)
 		year, month, _ = time2.Date()
 	}
 
-	var color string = "#000000"
+	color = "#000000"
 
 	endOfMonth := time.Date(year, month+1, 1, 0, 0, 0, -1, time.UTC)
-	var Weekday int = int(time.Date(year, month, 1, 0, 0, 0, 0, time.UTC).Weekday())
+
+	Weekday := int(time.Date(year, month, 1, 0, 0, 0, 0, time.UTC).Weekday())
 
 	for day := 0; day < Weekday; day++ {
 		contents = contents + fmt.Sprintf(`{
@@ -176,7 +178,7 @@ func MakeCalenda(date string) string {
 	Weekday = int(t.Weekday())
 
 	for day := 1; day <= endOfMonth.Day(); day++ {
-		if day == t.Day() {
+		if day == t.Day() && month == t.Month() {
 			color = "#1db446"
 		} else {
 			color = "#000000"
@@ -189,30 +191,18 @@ func MakeCalenda(date string) string {
 		if len(monthStr) == 1 {
 			monthStr = fmt.Sprintf("0%s", monthStr)
 		}
-		contents = contents + fmt.Sprintf(`{
-			"type":    "text",
-			"text":    "%s",
-			"size":    "sm",
-			"color":   "%s",
-			"align":   "center",
-			"gravity": "center",
-			"action": { "type": "message", "label": "%s", "text": "product %d-%s-%s"}},`, dayStr, color, day, year, monthStr, dayStr)
+		contents = contents + fmt.Sprintf(`{ "type": "text", "text": "%s", "size": "sm", "color": "%s", "align": "center", "gravity": "center",
+					"action": { "type": "message", "label": "%s", "text": "product %d-%s-%s"}},`, dayStr, color, day, year, monthStr, dayStr)
 		contents = contents + `{"type": "separator"},`
 		Weekday = int(time.Date(year, month, day, 0, 0, 0, -1, time.UTC).Weekday())
 		if endOfMonth.Day() == day {
 			for dw := int(endOfMonth.Weekday()); dw < 6; dw++ {
-				contents = contents + fmt.Sprintf(`{
-          "type":    "text",
-          "text":    " ",
-          "size":    "sm",
-          "color":   "#000000",
-          "align":   "center",
-          "gravity": "center"},`)
+				contents = contents + fmt.Sprintf(`{ "type": "text", "text": " ", "size": "sm", "color": "#000000", "align": "center", "gravity": "center"},`)
 			}
 		}
 
 		// 6 == saturday
-		if (int(Weekday) == 5 && day != 1) || endOfMonth.Day() == day {
+		if (int(Weekday) == 5) || endOfMonth.Day() == day {
 
 			calendar = calendar + fmt.Sprintf(`{
 				"type":     "box",
@@ -227,50 +217,32 @@ func MakeCalenda(date string) string {
 	var weekdaysStr string
 	for weekday := 0; weekday < len(weekdays); weekday++ {
 
-		weekdaysStr = weekdaysStr + fmt.Sprintf(`{
-        "type": "text",
-        "text": "%s",
-        "size": "sm",
-        "color": "#000000",
-        "align": "center"
-      },`, weekdays[weekday])
+		weekdaysStr = weekdaysStr + fmt.Sprintf(`{ "type": "text", "text": "%s", "size": "sm", "color": "#000000", "align": "center" },`, weekdays[weekday])
 	}
-	weekdaysStr = fmt.Sprintf(`{
-                "type":     "box",
-                "layout":   "horizontal",
-                "margin":   "md",
-				"contents": [%s]},`, weekdaysStr[:len(weekdaysStr)-1])
+	weekdaysStr = fmt.Sprintf(`{"type": "box","layout": "horizontal","margin": "md","contents": [%s]},`, weekdaysStr[:len(weekdaysStr)-1])
 	HeaderCalendat := fmt.Sprintf("%s %s", month, strconv.FormatInt(int64(year), 10))
-	actionNextMonth := fmt.Sprintf("01-%d-%s", int(month+1), strconv.FormatInt(int64(year), 10))
+	var nextMonth string = strconv.FormatInt(int64(month+1), 10)
+	var nextYear int = year
+	if nextMonth == "13" {
+		nextMonth = "01"
+		nextYear = year + 1
+	}
+
+	if len(nextMonth) == 1 {
+		nextMonth = "0" + nextMonth
+	}
+	actionNextMonth := fmt.Sprintf("%d-%s-01", nextYear, nextMonth)
 	m := fmt.Sprintf(`{"type": "bubble","styles": {"footer": {"separator": true}},
-	"body": {
-		"type": "box",
-		"layout": "vertical",
-		"contents": [
-		{
-			"type": "box",
-			"layout": "horizontal",
-			"contents": [
-				{
-					"type": "text",
-					"text": "%s",
-					"size": "sm",
-					"weight": "bold",
-					"color": "#1db446",
-					"flex": 0
-				},
-				{
-				"type": "text",
-				"text": "ถัดไป",
-				"size": "sm",
-				"color": "#111111",
-				"align": "end",
-				"action": { "type": "message", "label": " ", "text": "calendar %s"}
-				}
+	"body": { "type": "box", "layout": "vertical", "contents": [
+		{ "type": "box", "layout": "horizontal", "contents": [
+				{ "type": "text", "text": "%s", "size": "sm", "weight": "bold", "color": "#1db446", "flex": 0 },
+				{ "type": "text", "text": "ถัดไป", "size": "sm", "color": "#111111", "align": "end", "action": { "type": "message", "label": " ", "text": "calendar %s"} }
 			]
 		}, %s]}}`, HeaderCalendat, actionNextMonth, weekdaysStr+`{"type": "separator"},`+calendar[:len(calendar)-1])
 	return m
 }
+
+// func
 
 // CreateLIIF request url and size
 // func (client *ClientLine) CreateLIIF(view linebot.View) {

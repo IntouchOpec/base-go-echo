@@ -9,6 +9,8 @@ type Setting struct {
 	Value        string         `json:"value" gorm:"type:varchar(25)"`
 	Name         string         `json:"name" gorm:"type:varchar(25)"`
 	ChatChannels []*ChatChannel `gorm:"many2many:setting_chat_channel;" json:"chat_channels"`
+	Promotions   []*Promotion   `gorm:"many2many:promotion_setting;" json:"promotions"`
+	Accounts     []*Account     `gorm:"many2many:account_setting;" json:"accounts"`
 }
 
 // SaveSetting is function create Setting.

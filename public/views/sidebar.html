@@ -1,0 +1,61 @@
+{{ define "sidebar" }}
+    <div class="sidebar" data-color="purple" data-background-color="white" data-image="./assets/img/sidebar-1.jpg">
+        <div class="logo">
+        <a href="http://www.creative-tim.com" class="simple-text logo-normal">
+            Chatbot
+        </a>
+        </div>
+        <div class="sidebar-wrapper">
+        <ul class="nav">
+            <li class="nav-item {{ if (eq . "dashboard") }}active{{ end }}">
+                <a class="nav-link" href="/dashboard">
+                    <i class="material-icons">dashboard</i>
+                    <p>Dashboard</p>
+                </a>
+            </li>
+            <li class="nav-item {{ if (eq . "Book") }}active{{ end }}">
+                <a class="nav-link" href="/book">
+                <i class="material-icons">book</i>
+                <p>Booking List</p>
+                </a>
+            </li> 
+            <li class="nav-item {{ if (eq . "chat_channel") }}active{{ end }}">
+                <a class="nav-link" href="/chat_channel">
+                    <i class="material-icons">apps</i>
+                    <p>Chat Channel</p>
+                </a>
+            </li>
+            <li class="nav-item {{ if (eq . "customer") }}active{{ end }}">
+                <a class="nav-link" href="/customer">
+                    <i class="material-icons">face</i>
+                    <p>Customer</p>
+                </a>
+            </li>
+            <li class="nav-item {{ if (eq . "promotion") }}active{{ end }}">
+                <a class="nav-link" href="/promotion">
+                    <i class="material-icons">card_giftcard</i>
+                    <p>Promotion</p>
+                </a>
+            </li>
+                <li class="nav-item {{ if (eq . "chat_answer") }}active{{ end }}">
+                    <a class="nav-link" href="/chat_answer">
+                    <i class="material-icons">adb</i>
+                    <p>Chat Answer</p>
+                </a>
+            </li>
+            <li class="nav-item {{ if (eq . "admin") }}active{{ end }}">
+                <a class="nav-link" href="/admin">
+                    <i class="material-icons">person</i>
+                    <p>Admin</p>
+                </a>
+            </li>
+            <li class="nav-item {{ if (eq . "setting") }}active{{ end }}">
+                <a class="nav-link" href="/setting">
+                    <i class="material-icons">settings_applications</i>
+                    <p>Setting</p>
+                </a>
+            </li> 
+        </ul>
+        </div>
+    </div>
+{{ end }}

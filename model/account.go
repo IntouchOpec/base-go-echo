@@ -7,7 +7,8 @@ import (
 // Account struct.
 type Account struct {
 	// ID   uint64 `json:"id,omitempty"`
-	Name string `json:"name" gorm:"not null; type:varchar(25)"`
+	Name     string     `json:"name" gorm:"not null; type:varchar(25)"`
+	Settings []*Setting `json:"settings" gorm:"many2many:account_setting"`
 	gorm.Model
 }
 

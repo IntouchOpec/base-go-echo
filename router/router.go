@@ -106,12 +106,12 @@ func RunSubdomains(confFilePath string) {
 			e.Logger.Errorf("Request URL parse error:%v", _err)
 		}
 		setting := model.Setting{}
-		if err := model.DB().Where("Value = ?", u.Hostname()).Preload("ChatChannel").Find(&setting).Error; err != nil {
+		if err := model.DB().Preload("ChatChannels").Where("Value = ?", u.Hostname()).Find(&setting).Error; err != nil {
 			e.Logger.Info("Host not found")
 			fmt.Println(err)
 			err = echo.ErrNotFound
 		}
-		fmt.Println(req.Host, "========req.Host==========")
+		fmt.Println(setting.Name)
 
 		host := hosts[setting.Name]
 		if host == nil {

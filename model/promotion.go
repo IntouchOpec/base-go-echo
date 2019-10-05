@@ -6,19 +6,35 @@ import (
 	"github.com/hb-go/gorm"
 )
 
+type PromotionType string
+
+const (
+	PromotionTypePromotion PromotionType = "Promotion"
+	PromotionTypeCoupon    PromotionType = "Coupon"
+	PromotionTypeVoucher   PromotionType = "Voucher"
+)
+
 // Promotion discount price product.
 type Promotion struct {
 	gorm.Model
-	// ID        uint      `gorm:"primary_key" json:"id"`
+	// ID            uint        `gorm:"primary_key" json:"id"`
+	Title         string      `json:"title"`
+	TypePromotion string      `json:"type_promotion" gorm:"type:varchar(25)"`
 	Discount      int         `json:"discount"`
 	Amount        int         `json:"amount"`
-	Name          string      `json:"name" gorm:"unique; type:varchar(25)"`
-	StartDate     time.Time   `gorm:"column:start_time" json:"start_time,omitempty"`
-	EndDate       time.Time   `gorm:"column:end_time" json:"end_time,omitempty"`
+	Code          string      `json:"code" gorm:"type:varchar(25)"`
+	Name          string      `json:"name" gorm:"type:varchar(25)"`
+	StartDate     time.Time   `gorm:"column:start_time" json:"start_time"`
+	EndDate       time.Time   `gorm:"column:end_time" json:"end_time"`
+	Condition     string      `json:"condition"`
+	Image         string      `json:"image" gorm:"type:varchar(255)"`
 	ChatChannelID uint        `json:"chat_channel_id"`
-	ChatChannel   ChatChannel `json:"chat_channels"`
-	AccountID     uint        `form:"account_id" json:"account_id" gorm:"not null;"`
+	ChatChannel   ChatChannel `json:"chat_channel"`
+	AccountID     uint        `json:"account_id" gorm:"not null;"`
 	Account       Account     `gorm:"ForeignKey:id"`
+	Settings      []*Setting  `json:"settings" gorm:"many2many:promotion_setting"`
+	Customers     []*Customer `json:"customers" gorm:"many2many:customer_promotion"`
+	Products      []*Product  `json:"products" gorm:"many2many:product_promotion"`
 }
 
 // SavePromotion is function create Promotion.
@@ -66,4 +82,17 @@ func DeletePromotion(id int) *Promotion {
 	}
 
 	return &promotion
+}
+
+func (promo *Promotion) GetSettingPromotion(settingNames []string) map[string]string {
+	if err := DB().Preload("Settings", "name in (?)", settingNames).Find(&promo).Error; err != nil {
+		return nil
+	}
+
+	var m map[string]string
+	m = make(map[string]string)
+	for key := range promo.Settings {
+		m[promo.Settings[key].Name] = promo.Settings[key].Value
+	}
+	return m
 }

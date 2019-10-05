@@ -9,14 +9,19 @@ import (
 // Customer follow Line OA.
 type Customer struct {
 	gorm.Model
-	// ID          uint    `json:"id,omitempty"`
+
+	FullName      string      `json:"full_name" gorm:"type:varchar(50);"`
 	PictureURL    string      `json:"picture_url"`
 	DisplayName   string      `json:"display_name"`
-	LineID        string      `json:"line_id" gorm:"type:varchar(255)"`
+	LineID        string      `json:"line_id" gorm:"type:varchar(255);primary_key"`
 	Email         string      `json:"email" gorm:"type:varchar(25)"`
 	PhoneNumber   string      `json:"phone_number" gorm:"type:varchar(25)"`
 	ChatChannelID uint        `form:"chat_channel_id" json:"chat_channel_id" gorm:"not null;"`
-	ChatChannel   ChatChannel `gorm:"ForeignKey:id"`
+	ChatChannel   ChatChannel `gorm:"ForeignKey:ChatChannelID; primary_key"`
+	Promotions    []Promotion `json:"promotions" gorm:"many2many:customer_promotion"`
+	EventLog      EventLog    `json:"even_log"`
+	ActionLog     ActionLog   `json:"action_log"`
+	Bookings      []*Booking
 }
 
 // LoginRespose is instacne respose line json
@@ -63,10 +68,8 @@ func (customer *Customer) UpdateCustomer(id int) *Customer {
 }
 
 // UpdateCustomerByAtt update by atti
-func (customer *Customer) UpdateCustomerByAtt(pictureURL string, displayName string, email string, phoneNumber string) *Customer {
-	if err := DB().Where("line_id = ? and chat_channel_id = ?", customer.LineID, customer.ChatChannelID).Find(&customer).Error; err != nil {
-		fmt.Println(err)
-		fmt.Println("=======================", customer)
+func (customer *Customer) UpdateCustomerByAtt(pictureURL string, displayName string, email string, phoneNumber string, FillName string) *Customer {
+	if err := DB().Preload("Promotions").Where("line_id = ? and chat_channel_id = ?", customer.LineID, customer.ChatChannelID).Find(&customer).Error; err != nil {
 		return nil
 	}
 	customer.PictureURL = pictureURL

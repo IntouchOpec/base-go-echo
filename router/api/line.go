@@ -86,7 +86,7 @@ func UploadImageRichMenu(c echo.Context) error {
 	if _, err = io.Copy(dst, src); err != nil {
 		return err
 	}
-
+	fmt.Println(file.Filename, "====")
 	chatChannel := model.ChatChannel{}
 
 	db := model.DB()
@@ -99,7 +99,7 @@ func UploadImageRichMenu(c echo.Context) error {
 	if err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}
-	res := bot.UploadRichMenuImage(richMenuID, file.Filename)
+	res, err := bot.UploadRichMenuImage(richMenuID, file.Filename).Do()
 
 	if err != nil {
 		return c.NoContent(http.StatusBadRequest)
@@ -125,12 +125,35 @@ func AtiveRichMenu(c echo.Context) error {
 	if err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}
-	res := bot.SetDefaultRichMenu(richMenuID)
+	res, err := bot.SetDefaultRichMenu(richMenuID).Do()
 
 	if err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}
 
+	return c.JSON(http.StatusOK, res)
+}
+
+// DeleteRichMenu
+func DeleteRichMenu(c echo.Context) error {
+	id := c.Param("id")
+	richMenuID := c.Param("richMenuID")
+	chatChannel := model.ChatChannel{}
+
+	db := model.DB()
+
+	if err := db.Find(&chatChannel, id).Error; err != nil {
+		return c.NoContent(http.StatusNotFound)
+	}
+
+	bot, err := lib.ConnectLineBot(chatChannel.ChannelSecret, chatChannel.ChannelAccessToken)
+	if err != nil {
+		return c.NoContent(http.StatusBadRequest)
+	}
+	res, err := bot.DeleteRichMenu(richMenuID).Do()
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
 	return c.JSON(http.StatusOK, res)
 }
 
@@ -192,7 +215,25 @@ func UpdateLIFF(c echo.Context) error {
 }
 
 // GetListLIFF
-func GetListLIFF(c echo.Context) error {
+// func GetListLIFF(c echo.Context) error {
+// 	chatChannelID := c.Param("chatChannelID")
+// 	LIFFID := c.Param("LIFFID")
+
+// 	db := model.DB()
+// 	chatChannel := model.ChatChannel{}
+// 	if err := db.Find(&chatChannel, chatChannelID).Error; err != nil {
+// 		return c.NoContent(http.StatusNotFound)
+// 	}
+
+// 	bot, err := lib.ConnectLineBot(chatChannel.ChannelSecret, chatChannel.ChannelAccessToken)
+// 	if err != nil {
+// 		return c.NoContent(http.StatusBadRequest)
+// 	}
+// 	res, err := bot.GetLIFF().Do()
+// 	return c.JSON(http.StatusOK, res)
+// }
+
+func GetDatailLIFF(c echo.Context) error {
 	chatChannelID := c.Param("chatChannelID")
 	db := model.DB()
 	chatChannel := model.ChatChannel{}

@@ -44,6 +44,28 @@ func CreateChatChannel(c echo.Context) error {
 	return c.JSON(http.StatusOK, cha)
 }
 
+func CreateChatChannelSetting(c echo.Context) error {
+	chatChannel := model.ChatChannel{}
+	settings := model.ChatChannel{}
+	id := c.Param("id")
+
+	db := model.DB()
+	if err := c.Bind(&settings); err != nil {
+		fmt.Println(err)
+		return c.NoContent(http.StatusBadRequest)
+	}
+
+	if err := db.Find(&chatChannel, id).Error; err != nil {
+		return c.NoContent(http.StatusNotFound)
+	}
+
+	if err := db.Model(&chatChannel).Association("Settings").Append(settings.Settings).Error; err != nil {
+		return c.NoContent(http.StatusBadRequest)
+	}
+
+	return c.JSON(http.StatusOK, chatChannel)
+}
+
 // ActiveRegisterLIFFAPI
 func ActiveRegisterLIFFAPI(c echo.Context) error {
 	LineID := c.Param("lineID")

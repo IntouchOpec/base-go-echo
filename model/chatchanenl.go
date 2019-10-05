@@ -20,7 +20,7 @@ type ChatChannel struct {
 	ChannelAccessToken string     `json:"channel_access_token" gorm:"type:varchar(255)"`
 	Type               string     `json:"type" gorm:"type:varchar(10)"`
 	AccountID          uint       `form:"account_id" json:"account_id" gorm:"not null;"`
-	Account            Account    `gorm:"ForeignKey:id"`
+	Account            Account    `gorm:"ForeignKey:AccountID"`
 	Image              string     `json:"image" gorm:"type:varchar(255)"`
 	WebSite            string     `json:"website" gorm:"type:varchar(255)"`
 	WelcomeMessage     string     `json:"welcome_message" gorm:"type:varchar(100)"`
@@ -83,7 +83,7 @@ func DeleteChatChannel(id int) *ChatChannel {
 }
 
 //
-func (cha *ChatChannel) GetSetting(settingNames string) map[string]string {
+func (cha *ChatChannel) GetSetting(settingNames []string) map[string]string {
 	if err := DB().Preload("Settings", "name in (?)", settingNames).Find(&cha).Error; err != nil {
 		return nil
 	}
