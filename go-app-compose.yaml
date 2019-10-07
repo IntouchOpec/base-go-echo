@@ -10,5 +10,3 @@ services:
       - LETSENCRYPT_HOST=web.triple-t.cc
       - API_HOST=api.triple-t.cc
       - CHANNEL_HOST=channel.triple-t.cc
-
-      
