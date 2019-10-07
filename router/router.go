@@ -11,7 +11,6 @@ import (
 
 	"github.com/IntouchOpec/base-go-echo/model"
 	"github.com/IntouchOpec/base-go-echo/router/api"
-	"github.com/IntouchOpec/base-go-echo/router/channel"
 	"github.com/IntouchOpec/base-go-echo/router/web"
 
 	"github.com/labstack/echo"
@@ -38,7 +37,7 @@ func InitRoutes() map[string]*Host {
 
 	hosts["host_web"] = &Host{web.Routers()}
 	hosts["host_api"] = &Host{api.Routers()}
-	hosts["host_line_channel"] = &Host{channel.Routers()}
+	// hosts["host_line_channel"] = &Host{channel.Routers()}
 	// for deveop
 	hosts["localhost"] = &Host{api.Routers()}
 

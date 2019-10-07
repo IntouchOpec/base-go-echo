@@ -1,0 +1,73 @@
+
+{{define "chat-channel-list"}}
+<!DOCTYPE html>
+<html lang="en">
+
+{{ template "header" .title }}
+
+<body class="">
+  <div class="wrapper ">
+   {{ template "sidebar" .title }}
+    <div class="main-panel">
+      {{ template "navbar" .title }}
+      <div class="content">
+         <div class="container-fluid">
+           <div class="row">
+             <div class="col-md-12">
+               <div class="card">
+                 <div class="card-header card-header-primary">
+                   <h4 class="card-title ">customer list</h4>
+                 </div>
+                 <div class="card-body">
+                   <div class="table-responsive">
+                     <table class="table">
+                       <thead class=" text-primary">
+                         <th>No</th>
+                         <th>Line Id</th>
+                         <th>Full Name</th>
+                         <th>Phone</th>
+                         <th>E-mail</th>
+                         <th>Create At</th>
+                         <th></th>
+                       </thead>
+                       <tbody>
+                         {{ with .list }}
+                           {{ range . }}
+                             <tr>
+                               <td></td>
+                               <td>{{ .LineID }}</td>
+                               <td>{{ .FullName }}</td>
+                               <td>{{ .PhoneNumber }}</td>
+                               <td>{{ .Email }}</td>
+                               <td>{{ ((.CreatedAt).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
+                               <td class="td-actions text-right">
+                                  <a href="/customer/{{ .ID }}/detail" type="button" rel="tooltip" class="btn btn-info">
+                                      <i class="material-icons">person</i>
+                                  </a>
+                                  <button type="button" rel="tooltip" class="btn btn-success">
+                                      <i class="material-icons">edit</i>
+                                  </button>
+                                  <button type="button" rel="tooltip" class="btn btn-danger">
+                                      <i class="material-icons">close</i>
+                                  </button>
+                              </td>
+                             </tr>
+                           {{ end }} 
+                         {{ end }}
+                       </tbody>
+                     </table>
+                   </div>
+                 </div>
+               </div>
+             </div>
+           </div>
+         </div>
+       </div>
+      {{ template "footer" }}
+    </div>
+  </div>
+</body>
+
+</html>
+
+{{end}}

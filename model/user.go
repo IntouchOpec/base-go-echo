@@ -142,7 +142,9 @@ func (u *User) GetById(id interface{}) error {
 
 func (u *User) GetUserByEmailPwd(email string, pwd string) *User {
 	user := User{}
-	if err := DB().Preload("Account").Where("email = ? ", email).First(&user).Error; err != nil {
+	if err := DB().Preload("Account", func(db *gorm.DB) *gorm.DB {
+		return db.Preload("ChatChannels")
+	}).Where("email = ? ", email).First(&user).Error; err != nil {
 		log.Debugf("GetUserByNicknamePwd error: %v", err)
 		return nil
 	}

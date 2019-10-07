@@ -1,8 +1,6 @@
 package model
 
 import (
-	"fmt"
-
 	"github.com/hb-go/gorm"
 )
 
@@ -10,18 +8,18 @@ import (
 type Customer struct {
 	gorm.Model
 
-	FullName      string      `json:"full_name" gorm:"type:varchar(50);"`
-	PictureURL    string      `json:"picture_url"`
-	DisplayName   string      `json:"display_name"`
-	LineID        string      `json:"line_id" gorm:"type:varchar(255);primary_key"`
-	Email         string      `json:"email" gorm:"type:varchar(25)"`
-	PhoneNumber   string      `json:"phone_number" gorm:"type:varchar(25)"`
-	ChatChannelID uint        `form:"chat_channel_id" json:"chat_channel_id" gorm:"not null;"`
-	ChatChannel   ChatChannel `gorm:"ForeignKey:ChatChannelID; primary_key"`
-	Promotions    []Promotion `json:"promotions" gorm:"many2many:customer_promotion"`
-	EventLog      EventLog    `json:"even_log"`
-	ActionLog     ActionLog   `json:"action_log"`
-	Bookings      []*Booking
+	FullName      string       `json:"full_name" gorm:"type:varchar(50);"`
+	PictureURL    string       `json:"picture_url"`
+	DisplayName   string       `json:"display_name"`
+	LineID        string       `json:"line_id" gorm:"type:varchar(255);primary_key"`
+	Email         string       `json:"email" gorm:"type:varchar(25)"`
+	PhoneNumber   string       `json:"phone_number" gorm:"type:varchar(25)"`
+	ChatChannelID uint         `form:"chat_channel_id" json:"chat_channel_id" gorm:"not null;"`
+	ChatChannel   ChatChannel  `gorm:"ForeignKey:ChatChannelID; primary_key"`
+	Promotions    []Promotion  `json:"promotions" gorm:"many2many:customer_promotion"`
+	EventLogs     []*EventLog  `json:"even_logs"`
+	ActionLogs    []*ActionLog `json:"action_logs"`
+	Bookings      []*Booking   `json:"bookings"`
 }
 
 // LoginRespose is instacne respose line json
@@ -78,7 +76,6 @@ func (customer *Customer) UpdateCustomerByAtt(pictureURL string, displayName str
 	customer.PhoneNumber = phoneNumber
 
 	if err := DB().Save(&customer).Error; err != nil {
-		fmt.Println(err, "=========")
 		return nil
 	}
 
@@ -87,7 +84,7 @@ func (customer *Customer) UpdateCustomerByAtt(pictureURL string, displayName str
 
 func GetCustomerList(page, size, chatChannelID int) *[]Customer {
 	customer := []Customer{}
-	if err := DB().Where("chat_channel_id = ?", chatChannelID).Offset((page - 1) * size).Limit(size).Find(&customer).Error; err != nil {
+	if err := DB().Where("chat_channel_id = ?", chatChannelID).Offset((page - 1) * size).Limit(size).Preload("Bookings").Preload("EventLogs").Preload("ActionLogs").Find(&customer).Error; err != nil {
 		return nil
 	}
 	return &customer

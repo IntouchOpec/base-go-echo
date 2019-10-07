@@ -10,7 +10,7 @@ import (
 )
 
 // BookingListHandler
-func BookingListHandler(c echo.Context) error {
+func BookingListHandler(c *Context) error {
 	lineID := c.Param("lineID")
 	chatChannel := model.ChatChannel{}
 	if err := model.DB().Where("line_ID = ?", lineID).Find(&chatChannel).Error; err != nil {
