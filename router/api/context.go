@@ -5,10 +5,6 @@ import (
 
 	"github.com/hb-go/json"
 	"github.com/labstack/echo"
-
-	"github.com/opentracing/opentracing-go"
-
-	ot "github.com/hb-go/echo-web/middleware/opentracing"
 )
 
 var (
@@ -66,8 +62,4 @@ func (c *Context) CustomJSON(code int, i interface{}, f string) (err error) {
 		return
 	}
 	return c.JSONBlob(code, b)
-}
-
-func (ctx *Context) OpenTracingSpan() opentracing.Span {
-	return ot.Default(ctx)
 }

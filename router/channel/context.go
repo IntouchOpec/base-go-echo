@@ -3,11 +3,9 @@ package channel
 import (
 	"sync"
 
-	ot "github.com/IntouchOpec/base-go-echo/middleware/opentracing"
 	"github.com/IntouchOpec/base-go-echo/middleware/session"
 	"github.com/IntouchOpec/base-go-echo/module/auth"
 	"github.com/labstack/echo"
-	"github.com/opentracing/opentracing-go"
 )
 
 type Context struct {
@@ -28,10 +26,6 @@ func (c *Context) reset() {
 
 func (ctx *Context) Session() session.Session {
 	return session.Default(ctx)
-}
-
-func (ctx *Context) OpenTracingSpan() opentracing.Span {
-	return ot.Default(ctx)
 }
 
 var (

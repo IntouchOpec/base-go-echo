@@ -5,7 +5,6 @@ import (
 	"text/template"
 
 	. "github.com/IntouchOpec/base-go-echo/conf"
-	"github.com/IntouchOpec/base-go-echo/middleware/opentracing"
 	"github.com/IntouchOpec/base-go-echo/module/auth"
 	"github.com/IntouchOpec/base-go-echo/module/cache"
 	"github.com/IntouchOpec/base-go-echo/module/session"
@@ -54,11 +53,6 @@ func Routers() *echo.Echo {
 	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{
 		Level: 5,
 	}))
-
-	// OpenTracing
-	if !Conf.Opentracing.Disable {
-		e.Use(opentracing.OpenTracing("web"))
-	}
 
 	// 模板
 	// e.Renderer = render.LoadTemplates()

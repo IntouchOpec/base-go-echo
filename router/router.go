@@ -20,7 +20,6 @@ import (
 
 	. "github.com/IntouchOpec/base-go-echo/conf"
 	"github.com/hb-go/echo-web/middleware/metrics/prometheus"
-	"github.com/hb-go/echo-web/middleware/opentracing"
 	"github.com/hb-go/echo-web/middleware/pprof"
 	"github.com/hb-go/echo-web/module/log"
 )
@@ -58,25 +57,12 @@ func RunSubdomains(confFilePath string) {
 
 	// Elastic APM
 	// Requires APM Server 6.5.0 or newer
-	apm.DefaultTracer.Service.Name = Conf.Opentracing.ServiceName
 	apm.DefaultTracer.Service.Version = Conf.App.Version
 	e.Use(apmechov4.Middleware(
 		apmechov4.WithRequestIgnorer(func(request *http.Request) bool {
 			return false
 		}),
 	))
-
-	// OpenTracing
-	otCtf := opentracing.Configuration{
-		Disabled: Conf.Opentracing.Disable,
-		Type:     opentracing.TracerType(Conf.Opentracing.Type),
-	}
-	if closer := otCtf.InitGlobalTracer(
-		opentracing.ServiceName(Conf.Opentracing.ServiceName),
-		opentracing.Address(Conf.Opentracing.Address),
-	); closer != nil {
-		defer closer.Close()
-	}
 
 	e.Logger.SetLevel(GetLogLvl())
 

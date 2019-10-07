@@ -5,7 +5,6 @@ import (
 	mw "github.com/labstack/echo/middleware"
 
 	. "github.com/IntouchOpec/base-go-echo/conf"
-	"github.com/hb-go/echo-web/middleware/opentracing"
 	"github.com/hb-go/echo-web/module/cache"
 	"github.com/hb-go/echo-web/module/session"
 )
@@ -27,11 +26,6 @@ func Routers() *echo.Echo {
 
 	// Session
 	e.Use(session.Session())
-
-	// OpenTracing
-	if !Conf.Opentracing.Disable {
-		e.Use(opentracing.OpenTracing("api"))
-	}
 
 	// CSRF
 	// e.Use(mw.CSRFWithConfig(mw.CSRFConfig{

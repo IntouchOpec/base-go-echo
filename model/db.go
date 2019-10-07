@@ -5,7 +5,7 @@ import (
 	"time"
 
 	. "github.com/IntouchOpec/base-go-echo/conf"
-	"github.com/hb-go/echo-web/middleware/cache"
+	"github.com/IntouchOpec/base-go-echo/middleware/cache"
 	"github.com/hb-go/gorm"
 
 	// "github.com/hb-go/gorm"
