@@ -2,7 +2,6 @@ package api
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/IntouchOpec/base-go-echo/model"
 	"github.com/labstack/echo"
@@ -29,13 +28,13 @@ func GetAccount(c echo.Context) error {
 }
 
 func GetAccontList(c echo.Context) error {
-	page := c.QueryParam("page")
-	size := c.QueryParam("size")
+	// page := c.QueryParam("page")
+	// size := c.QueryParam("size")
 
-	pageInt, _ := strconv.Atoi(page)
-	sizeInt, _ := strconv.Atoi(size)
+	// pageInt, _ := strconv.Atoi(page)
+	// sizeInt, _ := strconv.Atoi(size)
 
-	accounts := model.GetAccount(pageInt, sizeInt)
+	accounts := model.GetAccount()
 	return c.JSON(http.StatusOK, accounts)
 }
 

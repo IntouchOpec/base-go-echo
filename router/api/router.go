@@ -55,6 +55,7 @@ func Routers() *echo.Echo {
 
 	e.POST("/user", UserRegisterHandler)
 
+	e.GET("/account", GetAccontList)
 	e.GET("/account/:chatChannelID/list", GetAccontList)
 	e.GET("/account/:id", GetAccount)
 	e.POST("/account", CreateAccount)

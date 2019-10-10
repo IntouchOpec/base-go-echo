@@ -35,15 +35,15 @@ type ActionLog struct {
 	Type          ActionType   `json:"type" gorm:"type:varchar(10)"`
 	UserID        string       `json:"user_id" gorm:"type:varchar(55)"`
 	ChatChannelID uint         `json:"chat_channel_id"`
-	ChatChannel   ChatChannel  `json:"chat_channel"`
+	ChatChannel   ChatChannel  `json:"chat_channel" gorm:"ForeignKey:ProductID;"`
 	CustomerID    uint         `json:"customer_id"`
 	Customer      *Customer    `json:"customer" gorm:"ForeignKey:CustomerID"`
 }
 
 // CreateAction create action record
 func (act *ActionLog) CreateAction() (*ActionLog, error) {
-	if err := db.Create(&act).Error; err != nil {
-		return nil, err
-	}
+	// if err := db.Create(&act).Error; err != nil {
+	// 	return nil, err
+	// }
 	return act, nil
 }

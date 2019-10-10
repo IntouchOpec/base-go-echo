@@ -7,7 +7,7 @@
 
 <body class="">
   <div class="wrapper ">
-   {{ template "sidebar" .title }}
+   {{ template "sidebar" .base }}
     <div class="main-panel">
       {{ template "navbar" .title }}
       <div class="content">
@@ -24,46 +24,22 @@
                             <div class="col-md-12">
                               <div class="card">
                                 <div class="card-header card-header-primary">
-                                  <h4 class="card-title ">customer list</h4>
+                                  <h4 class="card-title ">booking</h4>
                                 </div>
                                 <div class="card-body">
                                   <div class="table-responsive">
-                                    <table class="table">
-                                      <thead class=" text-primary">
-                                        <th>No</th>
-                                        <th>Line Id</th>
-                                        <th>Full Name</th>
-                                        <th>Phone</th>
-                                        <th>E-mail</th>
-                                        <th>Create At</th>
-                                        <th></th>
-                                      </thead>
-                                      <tbody>
-                                        {{ with .list }}
+                                      <table class="table">
+                                        <thead class=" text-primary">
+                                          <th>CreatedAt</th>
+                                        </thead>
+                                        <tbody>
+                                          {{ with .customer.EventLogs }}
                                           {{ range . }}
-                                            <tr>
-                                              <td></td>
-                                              <td>{{ .LineID }}</td>
-                                              <td>{{ .FullName }}</td>
-                                              <td>{{ .PhoneNumber }}</td>
-                                              <td>{{ .Email }}</td>
-                                              <td>{{ ((.CreatedAt).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
-                                              <td class="td-actions text-right">
-                                                  <a href="/customer/{{ .ID }}/detail" type="button" rel="tooltip" class="btn btn-info">
-                                                      <i class="material-icons">person</i>
-                                                  </a>
-                                                  <button type="button" rel="tooltip" class="btn btn-success">
-                                                      <i class="material-icons">edit</i>
-                                                  </button>
-                                                  <button type="button" rel="tooltip" class="btn btn-danger">
-                                                      <i class="material-icons">close</i>
-                                                  </button>
-                                              </td>
-                                            </tr>
+                                          <td>{{ ((.CreatedAt).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
                                           {{ end }} 
-                                        {{ end }}
-                                      </tbody>
-                                    </table>
+                                          {{ end }}
+                                        </tbody>
+                                      </table>
                                   </div>
                                 </div>
                               </div>
@@ -88,6 +64,69 @@
                  </div>
                </div>
              </div>
+           </div>
+           <div class="row">
+              <div class="col-6">
+                <div class="card">
+                    <div class="card-header card-header-primary">
+                        <h4 class="card-title ">ActionLogs</h4>
+                      </div>
+                    <div class="card-body">
+                    <div class="table-responsive">
+                      <table class="table">
+                        <thead class=" text-primary">
+                            <th>ReplyToken</th>
+                            <th>Type</th>
+                            <th>LineID</th>
+                            <th>Text</th>
+                            <th>CreatedAt</th>
+                        </thead>
+                        <tbody>
+                            {{ with .customer.EventLogs }}
+                            {{ range . }}
+                            <td>{{.ReplyToken}}</td>
+                            <td>{{.Type}}</td>
+                            <td>{{.LineID}}</td>
+                            <td>{{.Text}}</td>
+                            <td>{{ ((.CreatedAt).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
+                            {{ end }} 
+                            {{ end }}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-6">
+                  <div class="card">
+                      <div class="card-header card-header-primary">
+                        <h4 class="card-title ">ActionLogs</h4>
+                      </div>
+                      <div class="card-body">
+                          <div class="table-responsive">
+                            <table class="table">
+                              <thead class=" text-primary">
+                                  <th>Name</th>
+                                  <th>Status</th>
+                                  <th>Type</th>
+                                  <th>CreatedAt</th>
+                              </thead>
+                              <tbody>
+                                  {{ with .customer.ActionLogs }}
+                                  {{ range . }}
+                                  <td>{{ .Name }}</td>
+                                  <td>{{ .Status }}</td>
+                                  <td>{{ .Type }}</td>
+                                  <td>{{ ((.CreatedAt).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
+                                  {{ end }} 
+                                  {{ end }}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                  </div>
+              </div>
            </div>
            <div>
           </div>

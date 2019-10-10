@@ -1,23 +1,5 @@
-version: '2'
+version: '3.1'
 services:
-  nginx-proxy:
-    restart: always
-    image: jwilder/nginx-proxy
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - "/etc/nginx/vhost.d"
-      - "/usr/share/nginx/html"
-      - "/var/run/docker.sock:/tmp/docker.sock:ro"
-      - "/etc/nginx/certs"
-  letsencrypt-nginx-proxy-companion:
-    restart: always
-    image: jrcs/letsencrypt-nginx-proxy-companion
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-    volumes_from:
-      - "nginx-proxy"
   db:
     image: postgres
     restart: always
@@ -28,15 +10,9 @@ services:
       POSTGRES_PASSWORD: password
     ports:
       - 5432:5432
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - 8080:8080
   redis:
     image: redis
     restart: always
     container_name: cache
-    command: redis-server --requirepass password
     expose:
-      - 6379            
+      - 6379    

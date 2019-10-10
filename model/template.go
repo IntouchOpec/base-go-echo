@@ -12,7 +12,7 @@ type TemplateSocial struct {
 	Souce                 string         `json:"souce"`
 	Type                  uint           `json:"type"`
 	ChatChannelID         uint           `json:"chat_channel_id"`
-	ChatChannel           ChatChannel    `json:"chat_channel" gorm:"foreignkey:ChatChannelID;"`
+	ChatChannel           ChatChannel    `json:"chat_channel" gorm:"ForeignKey:ChatChannelID;"`
 	KeyTemplates          []*KeyTemplate `gorm:"many2many:template_social_key_template;" json:"key_templates"`
 	TemplateSocialDetails []*TemplateSocialDetail
 }

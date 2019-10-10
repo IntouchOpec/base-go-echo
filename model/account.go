@@ -1,24 +1,32 @@
 package model
 
-import (
-	"github.com/hb-go/gorm"
-)
-
 // Account struct.
 type Account struct {
+	Model
+
 	// ID   uint64 `json:"id,omitempty"`
-	Name     string     `json:"name" gorm:"not null; type:varchar(25)"`
-	Settings []*Setting `json:"settings" gorm:"many2many:account_setting"`
-	gorm.Model
+	Name         string         `json:"name" gorm:"type:varchar(25)"`
+	Settings     []*Setting     `json:"settings" gorm:"many2many:account_setting"`
+	ChatChannels []*ChatChannel `json:"chat_channels"`
+}
+
+func GetAccountByName(name string) bool {
+	account := Account{}
+
+	if err := DB().Where("name = ?", name).Find(&account).Error; err != nil {
+		return false
+	}
+
+	return true
 }
 
 // GetAccount query account list.
-func GetAccount(size int, page int) *[]Account {
-	accounts := []Account{}
+func GetAccount() []*Account {
+	accounts := []*Account{}
 
-	DB().Offset((page - 1) * size).Limit(size).Find(&accounts)
+	DB().Find(&accounts)
 
-	return &accounts
+	return accounts
 }
 
 // GetAccountByID find account by id.

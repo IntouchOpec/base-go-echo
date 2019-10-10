@@ -6,40 +6,37 @@ import (
 
 	. "github.com/IntouchOpec/base-go-echo/conf"
 	"github.com/IntouchOpec/base-go-echo/middleware/cache"
-	"github.com/hb-go/gorm"
-
-	// "github.com/hb-go/gorm"
-
 	"github.com/IntouchOpec/base-go-echo/model/orm"
-
+	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/labstack/gommon/log"
 )
 
+type Model struct {
+	ID uint
+}
+
+var db gorm.DB
+
 // "host=localhost port=5432 user=postgres-dev dbname=dev password=password sslmode=disable"
-var db *gorm.DB
 var dbCacheStore cache.CacheStore
 
 // DB connect data base pastgras.
 func DB() *gorm.DB {
-	if db == nil {
-		log.Debugf("Model NewDB")
+	log.Debugf("Model NewDB")
 
-		newDb, err := newDB()
+	newDb, err := newDB()
 
-		if err != nil {
-			panic(err)
-		}
-
-		newDb.DB().SetMaxIdleConns(10)
-		newDb.DB().SetMaxOpenConns(100)
-
-		newDb.SetLogger(orm.Logger{})
-		newDb.LogMode(true)
-		db = newDb
+	if err != nil {
+		panic(err)
 	}
 
-	return db
+	newDb.DB().SetMaxIdleConns(10)
+	newDb.DB().SetMaxOpenConns(100)
+
+	newDb.SetLogger(orm.Logger{})
+	newDb.LogMode(true)
+	return newDb
 }
 
 func newDB() (*gorm.DB, error) {
@@ -53,17 +50,18 @@ func newDB() (*gorm.DB, error) {
 	return db, nil
 }
 
+type TestModel struct {
+	Namw string
+}
+
 // Initialize auto migration.
 func Initialize() {
-	newDb, err := newDB()
+	newDb := DB()
 
-	if err != nil {
-		panic(err)
-	}
-
+	newDb.AutoMigrate(&Customer{})
+	newDb.AutoMigrate(&Promotion{})
 	newDb.AutoMigrate(&Account{})
 	newDb.AutoMigrate(&User{})
-	newDb.AutoMigrate(&Customer{})
 	newDb.AutoMigrate(&ChatAnswer{})
 	newDb.AutoMigrate(&ChatChannel{})
 	newDb.AutoMigrate(&ChatRequest{})
@@ -71,24 +69,9 @@ func Initialize() {
 	newDb.AutoMigrate(&Product{})
 	newDb.AutoMigrate(&SubProduct{})
 	newDb.AutoMigrate(&Booking{})
-	newDb.AutoMigrate(&Promotion{})
-	newDb.AutoMigrate(&Setting{})
 	newDb.AutoMigrate(&Account{})
 	newDb.AutoMigrate(&LoginRespose{})
-	newDb.AutoMigrate(&TemplateSocial{})
-	newDb.AutoMigrate(&TemplateSocialDetail{})
-	newDb.AutoMigrate(&KeyTemplate{})
 	newDb.AutoMigrate(&ActionLog{})
-	// Foreign Key Account Table.
-	newDb.Model(&User{}).AddForeignKey("account_id", "accounts(id)", "CASCADE", "RESTRICT")
-
-	// Booking Foreign.
-	newDb.Model(&Booking{}).AddForeignKey("customer_id", "customers(id)", "CASCADE", "RESTRICT")
-	newDb.Model(&Booking{}).AddForeignKey("sub_product_id", "sub_products(id)", "CASCADE", "RESTRICT")
-	newDb.Model(&Booking{}).AddForeignKey("chat_channel_id", "chat_channels(id)", "CASCADE", "RESTRICT")
-
-	// ChatRequest Foreign.
-	newDb.Model(&ChatRequest{}).AddForeignKey("chat_answer_id", "chat_answers(id)", "CASCADE", "RESTRICT")
 
 }
 

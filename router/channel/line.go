@@ -8,10 +8,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/IntouchOpec/base-go-echo/router/web"
-
 	"github.com/IntouchOpec/base-go-echo/lib"
 	"github.com/IntouchOpec/base-go-echo/model"
+	"github.com/IntouchOpec/base-go-echo/router/web"
 	"github.com/hb-go/gorm"
 	"github.com/line/line-bot-sdk-go/linebot"
 
@@ -156,7 +155,7 @@ func HandleWebHookLineAPI(c echo.Context) error {
 						var template string
 						for index := 0; index < len(customer.Promotions); index++ {
 							promotion := customer.Promotions[index]
-							template = template + web.VoucherTemplate(promotion) + ","
+							template = template + web.VoucherTemplate(customer.Promotions[index]) + ","
 						}
 						template = fmt.Sprintf(`{ "type": "carousel", "contents": [%s]}`, template[:len(template)-1])
 						flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(template))

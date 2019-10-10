@@ -21,34 +21,30 @@ type Response struct {
 
 func LoginHandler(c *Context) error {
 	a := c.Auth()
-	fmt.Println(a.IsAuthenticated())
-	redirect := c.QueryParam(auth.RedirectParam)
 
 	if a.User.IsAuthenticated() {
-		if redirect == "" {
-			redirect = "/"
-		}
-		c.Redirect(http.StatusMovedPermanently, redirect)
+		acc := a.GetAccount()
+		c.Redirect(http.StatusMovedPermanently, fmt.Sprintf("/admin/%s/dashboard", acc))
 		return nil
 	}
 	csrfValue := c.Get("_csrf")
 	err := c.Render(http.StatusOK, "login", echo.Map{
-		"title":         "login",
-		"_csrf":         csrfValue,
-		"redirectParam": auth.RedirectParam,
-		"redirect":      redirect,
+		"title": "login",
+		"_csrf": csrfValue,
+		// "redirectParam": auth.RedirectParam,
+		"redirect": "",
 	})
 	return err
 }
 
 func LoginPostHandler(c *Context) error {
 	var form LoginForm
-	redirect := c.QueryParam(auth.RedirectParam)
+	// redirect := c.QueryParam(auth.RedirectParam)
 	loginURL := c.Request().RequestURI
 	a := c.Auth()
 	response := Response{}
 	if a.User.IsAuthenticated() {
-		response.Redirect = redirect
+		// response.Redirect = redirect
 		c.JSON(http.StatusOK, response)
 		return nil
 	}
@@ -56,13 +52,14 @@ func LoginPostHandler(c *Context) error {
 	if err := c.Bind(&form); err == nil {
 		var User model.User
 		u := User.GetUserByEmailPwd(form.Email, form.Password)
+
 		if u != nil {
 			session := c.Session()
 			err := auth.AuthenticateSession(session, u)
 			if err != nil {
 				c.JSON(http.StatusBadRequest, err)
 			}
-			response.Redirect = redirect
+			response.Redirect = fmt.Sprintf("/admin/%s/dashboard", u.Account.Name)
 			response.User = u
 
 			c.JSON(http.StatusMovedPermanently, response)
@@ -82,12 +79,12 @@ func LogoutHandler(c *Context) error {
 	a := c.Auth()
 	auth.Logout(session, a.User)
 
-	redirect := c.QueryParam(auth.RedirectParam)
-	if redirect == "" {
-		redirect = "/"
-	}
+	// redirect := c.QueryParam(auth.RedirectParam)
+	// if redirect == "" {
+	// 	redirect = "/"
+	// }
 
-	c.Redirect(http.StatusMovedPermanently, redirect)
+	// c.Redirect(http.StatusMovedPermanently, redirect)
 
 	return nil
 }

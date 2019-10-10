@@ -9,7 +9,6 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/IntouchOpec/base-go-echo/model"
 	"github.com/IntouchOpec/base-go-echo/router/api"
 	"github.com/IntouchOpec/base-go-echo/router/web"
 
@@ -33,12 +32,10 @@ type (
 func InitRoutes() map[string]*Host {
 	// Hosts
 	hosts := make(map[string]*Host)
-
-	hosts["host_web"] = &Host{web.Routers()}
-	hosts["host_api"] = &Host{api.Routers()}
-	// hosts["host_line_channel"] = &Host{channel.Routers()}
-	// for deveop
-	hosts["localhost"] = &Host{api.Routers()}
+	// Conf.DB.Port
+	hosts[Conf.Server.DomainWeb] = &Host{web.Routers()}
+	hosts[Conf.Server.DomainAPI] = &Host{api.Routers()}
+	hosts[Conf.Server.DomainLineChannel] = &Host{api.Routers()}
 
 	return hosts
 }
@@ -90,19 +87,10 @@ func RunSubdomains(confFilePath string) {
 		if _err != nil {
 			e.Logger.Errorf("Request URL parse error:%v", _err)
 		}
-		setting := model.Setting{}
-		if err := model.DB().Preload("ChatChannels").Where("Value = ?", u.Hostname()).Find(&setting).Error; err != nil {
-			e.Logger.Info("Host not found")
-			fmt.Println(err)
-			err = echo.ErrNotFound
-		}
-		fmt.Println(setting.Name)
-
-		host := hosts[setting.Name]
+		fmt.Println("=====", u.Hostname(), "======")
+		host := hosts[u.Hostname()]
 		if host == nil {
-			// for deveop
-			host := hosts["localhost"]
-			host.Echo.ServeHTTP(res, req)
+			// host.Echo.ServeHTTP(res, req)
 		} else {
 			host.Echo.ServeHTTP(res, req)
 		}

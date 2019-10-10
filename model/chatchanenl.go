@@ -13,19 +13,20 @@ type ChatChannels []ChatChannel
 type ChatChannel struct {
 	gorm.Model
 
-	ChannelID          string     `json:"channel_id" gorm:"type:varchar(25);unique_index"`
-	Name               string     `json:"name" gorm:"type:varchar(25)"`
-	LineID             string     `json:"line_id" gorm:"type:varchar(25);unique_index"`
-	ChannelSecret      string     `json:"channel_secret" gorm:"type:varchar(255)"`
-	ChannelAccessToken string     `json:"channel_access_token" gorm:"type:varchar(255)"`
-	Type               string     `json:"type" gorm:"type:varchar(10)"`
-	AccountID          uint       `form:"account_id" json:"account_id" gorm:"not null;"`
-	Account            Account    `gorm:"ForeignKey:AccountID"`
-	Image              string     `json:"image" gorm:"type:varchar(255)"`
-	WebSite            string     `json:"website" gorm:"type:varchar(255)"`
-	WelcomeMessage     string     `json:"welcome_message" gorm:"type:varchar(100)"`
-	Address            string     `json:"address" gorm:"type:varchar(100)"`
-	Settings           []*Setting `gorm:"many2many:setting_chat_channel;" json:"settings"`
+	ChannelID          string      `json:"channel_id" gorm:"type:varchar(25);unique_index"`
+	Name               string      `json:"name" gorm:"type:varchar(25)"`
+	LineID             string      `json:"line_id" gorm:"type:varchar(25);unique_index"`
+	ChannelSecret      string      `json:"channel_secret" gorm:"type:varchar(255)"`
+	ChannelAccessToken string      `json:"channel_access_token" gorm:"type:varchar(255)"`
+	Type               string      `json:"type" gorm:"type:varchar(10)"`
+	AccountID          uint        `form:"account_id" json:"account_id" gorm:"not null;"`
+	Account            Account     `gorm:"ForeignKey:AccountID"`
+	Image              string      `json:"image" gorm:"type:varchar(255)"`
+	WebSite            string      `json:"website" gorm:"type:varchar(255)"`
+	WelcomeMessage     string      `json:"welcome_message" gorm:"type:varchar(100)"`
+	Address            string      `json:"address" gorm:"type:varchar(100)"`
+	Settings           []*Setting  `gorm:"many2many:setting_chat_channel;" json:"settings"`
+	Customer           []*Customer `json:"customer"`
 }
 
 // SaveChatChannel router create chatchannel.

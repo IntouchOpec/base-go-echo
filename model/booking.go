@@ -14,9 +14,9 @@ type Booking struct {
 	Queue         int         `json:"queue" `
 	LineID        string      `json:"line_id" gorm:"type:varchar(50)"`
 	CustomerID    uint        `json:"customer_id"`
-	Customer      Customer    `gorm:"foreignkey:CustomerID"`
+	Customer      Customer    `gorm:"ForeignKey:CustomerID"`
 	SubProductID  uint        `json:"prodict_id"`
-	SubProduct    SubProduct  `gorm:"foreignkey:SubProductID"`
+	SubProduct    SubProduct  `gorm:"ForeignKey:SubProductID"`
 	ChatChannelID uint        `json:"chat_chaneel_id"`
 	ChatChannel   ChatChannel `gorm:"ForeignKey:ChatChannelID"`
 	BookStatus    int         `json:"booking_status"`

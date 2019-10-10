@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo"
@@ -22,7 +21,7 @@ var (
 	// RedirectParam is the query string parameter that will be set
 	// with the page the user was trying to visit before they were
 	// intercepted.
-	RedirectParam string = "return_url"
+	// RedirectParam string = "return_url"
 
 	// SessionKey is the key containing the unique ID in your session
 	SessionKey string = "AUTHUNIQUEID"
@@ -43,6 +42,8 @@ type User interface {
 
 	// Populate this user object with values
 	GetById(id interface{}) error
+
+	GetAccount() string
 }
 
 type Auth struct {
@@ -69,7 +70,6 @@ func New() echo.MiddlewareFunc {
 
 			auth := Auth{&user}
 			c.Set(DefaultKey, auth)
-
 			return next(c)
 		}
 	}
@@ -111,10 +111,10 @@ func LoginRequired() echo.MiddlewareFunc {
 		return func(c echo.Context) error {
 			a := Default(c)
 			if a.User.IsAuthenticated() == false {
-				uri := c.Request().RequestURI
-				path := fmt.Sprintf("%s?%s=%s", RedirectUrl, RedirectParam, uri)
-				c.Redirect(http.StatusMovedPermanently, path)
-				return echo.NewHTTPError(http.StatusUnauthorized)
+				// uri := c.Request().RequestURI
+				// path := fmt.Sprintf("%s?%s=%s", RedirectUrl, RedirectParam, uri)
+				c.Redirect(http.StatusMovedPermanently, "/login")
+				// return echo.NewHTTPError(http.StatusUnauthorized)
 			}
 
 			return next(c)

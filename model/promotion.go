@@ -17,7 +17,7 @@ const (
 // Promotion discount price product.
 type Promotion struct {
 	gorm.Model
-	// ID            uint        `gorm:"primary_key" json:"id"`
+
 	Title         string      `json:"title"`
 	TypePromotion string      `json:"type_promotion" gorm:"type:varchar(25)"`
 	Discount      int         `json:"discount"`
@@ -29,11 +29,11 @@ type Promotion struct {
 	Condition     string      `json:"condition"`
 	Image         string      `json:"image" gorm:"type:varchar(255)"`
 	ChatChannelID uint        `json:"chat_channel_id"`
-	ChatChannel   ChatChannel `json:"chat_channel"`
-	AccountID     uint        `json:"account_id" gorm:"not null;"`
-	Account       Account     `gorm:"ForeignKey:id"`
+	Customers     []*Customer `gorm:"many2many:promotion_customer" json:"customer"`
+	ChatChannel   ChatChannel `json:"chat_channel" gorm:"Foreignkey:ChatChannelID;"`
+	AccountID     uint        `json:"account_id"`
+	Account       Account     `gorm:"ForeignKey:AccountID"`
 	Settings      []*Setting  `json:"settings" gorm:"many2many:promotion_setting"`
-	Customers     []*Customer `json:"customers" gorm:"many2many:customer_promotion"`
 	Products      []*Product  `json:"products" gorm:"many2many:product_promotion"`
 }
 

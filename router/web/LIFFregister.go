@@ -67,7 +67,6 @@ func LIIFRegisterSaveCustomer(c echo.Context) error {
 	promotion := model.Promotion{}
 
 	if err := model.DB().Where("name = ?", "register_voucher").Find(&promotion).Error; err != nil {
-		fmt.Println("====")
 		return err
 	}
 
@@ -76,7 +75,7 @@ func LIIFRegisterSaveCustomer(c echo.Context) error {
 		return c.NoContent(http.StatusBadRequest)
 	}
 
-	temp := VoucherTemplate(promotion)
+	temp := VoucherTemplate(&promotion)
 	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(temp))
 
 	if err != nil {
@@ -94,7 +93,7 @@ func LIIFRegisterSaveCustomer(c echo.Context) error {
 	return c.JSON(http.StatusOK, custo)
 }
 
-func ValidateVoucher(promotions []model.Promotion) bool {
+func ValidateVoucher(promotions []*model.Promotion) bool {
 	for index := 0; index < len(promotions); index++ {
 		if promotions[index].Name == "register_voucher" {
 			return true
@@ -103,7 +102,7 @@ func ValidateVoucher(promotions []model.Promotion) bool {
 	return false
 }
 
-func VoucherTemplate(promotion model.Promotion) string {
+func VoucherTemplate(promotion *model.Promotion) string {
 	settings := promotion.GetSettingPromotion([]string{"displayText", "TitleName"})
 	StartDateStr := promotion.StartDate.Format("02-12-2006")
 	EndDateStr := promotion.EndDate.Format("02-12-2006")

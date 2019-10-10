@@ -7,18 +7,19 @@ import (
 	"github.com/hb-go/echo-web/module/auth"
 	"github.com/hb-go/echo-web/module/log"
 	"github.com/hb-go/gorm"
+
 	"golang.org/x/crypto/bcrypt"
 )
 
 // GetUserByID is function find user by id
 func (u *User) GetUserByID(id uint64) *User {
 	user := User{}
-	var count int64
-	db := DB().Where("id = ?", id)
-	if err := Cache(db).First(&user).Count(&count).Error; err != nil {
-		log.Debugf("GetUserById error: %v", err)
-		return nil
-	}
+	// var count int64
+	// db := DB().Where("id = ?", id)
+	// if err := Cache(db).First(&user).Count(&count).Error; err != nil {
+	// 	log.Debugf("GetUserById error: %v", err)
+	// 	return nil
+	// }
 
 	return &user
 }
@@ -83,11 +84,11 @@ type User struct {
 	PhoneNumber   string  `json:"phone_number" gorm:"type:varchar(10)"`
 	LastName      string  `json:"last_name" gorm:"type:varchar(25)"`
 	FirstName     string  `json:"first_name" gorm:"type:varchar(25)"`
-	Authenticated bool    `form:"-" db:"-" json:"-"`
 	Admin         bool    `json:"admin"`
 	AccountID     uint    `form:"account_id" json:"account_id" gorm:"not null;"`
 	Roles         []*Role `gorm:"many2many:user_role" json:"roles"`
 	Account       Account `gorm:"ForeignKey:AccountID"`
+	Authenticated bool    `form:"-" db:"-" json:"-"`
 }
 
 type Role struct {
@@ -114,6 +115,10 @@ func (u *User) Login() {
 	u.Authenticated = true
 }
 
+func (u *User) GetAccount() string {
+	return u.Account.Name
+}
+
 // Logout will preform any actions that are required to completely
 // logout a user.
 func (u *User) Logout() {
@@ -134,7 +139,7 @@ func (u *User) UniqueId() interface{} {
 
 // GetById will populate a user object from a database model witha matching id.
 func (u *User) GetById(id interface{}) error {
-	if err := DB().Where("id = ?", id).First(&u).Error; err != nil {
+	if err := DB().Preload("Account").Where("id = ?", id).First(&u).Error; err != nil {
 		return err
 	}
 	return nil
@@ -142,9 +147,7 @@ func (u *User) GetById(id interface{}) error {
 
 func (u *User) GetUserByEmailPwd(email string, pwd string) *User {
 	user := User{}
-	if err := DB().Preload("Account", func(db *gorm.DB) *gorm.DB {
-		return db.Preload("ChatChannels")
-	}).Where("email = ? ", email).First(&user).Error; err != nil {
+	if err := DB().Preload("Account").Where("email = ? ", email).First(&user).Error; err != nil {
 		log.Debugf("GetUserByNicknamePwd error: %v", err)
 		return nil
 	}

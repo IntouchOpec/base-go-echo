@@ -16,9 +16,9 @@ type Product struct {
 	Account       Account       `gorm:"ForeignKey:id"`
 	Image         string        `json:"image" gorm:"type:varchar(255)"`
 	ChatChannelID int           `json:"chat_channel_id"`
-	Chatchannel   ChatChannel   `gorm:"foreignkey:chatchannelID;" json:"chat_channels"`
-	SubProducts   []*SubProduct `gorm:"foreignkey:ProductID;" json:"sub_products"`
-	// Promotions    []*Promotion  `json:"promotions" gorm:"many2many:product_promotion;"`
+	Chatchannel   ChatChannel   `gorm:"ForeignKey:chatchannelID;" json:"chat_channels"`
+	SubProducts   []*SubProduct `gorm:"ForeignKey:ProductID;" json:"sub_products"`
+	Promotions    []*Promotion  `json:"promotions" gorm:"many2many:product_promotion;"`
 }
 
 // SubProduct product set.
@@ -30,7 +30,7 @@ type SubProduct struct {
 	Amount    int        `json:"amount"`
 	ProductID uint       `json:"product_id"`
 	Bookings  []*Booking `json:"bookings"`
-	Product   Product    `json:"product" gorm:"foreignkey:ProductID;"`
+	Product   Product    `json:"product" gorm:"ForeignKey:ProductID;"`
 }
 
 // SaveProduct is function create Product.

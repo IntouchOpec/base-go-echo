@@ -19,9 +19,11 @@ graceful = true
 addr = ":80"
 
 # Domains
-domain_api = "echo.api.localhost.com"
-domain_web = "echo.www.localhost.com"
-domain_socket = "echo.socket.localhost.com"
+domain_api = "api.localhost"
+domain_web = "web.localhost"
+domain_socket = "socket.localhost"
+domain_line_channel = "channel.localhost"
+domain_static = "localhost"
 
 [static]
 # BINDATA,FILE(FILE Default)

@@ -1,8 +1,6 @@
 package model
 
-import (
-	"github.com/hb-go/gorm"
-)
+import "github.com/hb-go/gorm"
 
 // Customer follow Line OA.
 type Customer struct {
@@ -11,12 +9,12 @@ type Customer struct {
 	FullName      string       `json:"full_name" gorm:"type:varchar(50);"`
 	PictureURL    string       `json:"picture_url"`
 	DisplayName   string       `json:"display_name"`
-	LineID        string       `json:"line_id" gorm:"type:varchar(255);primary_key"`
+	LineID        string       `json:"line_id" gorm:"type:varchar(255)"`
 	Email         string       `json:"email" gorm:"type:varchar(25)"`
 	PhoneNumber   string       `json:"phone_number" gorm:"type:varchar(25)"`
-	ChatChannelID uint         `form:"chat_channel_id" json:"chat_channel_id" gorm:"not null;"`
-	ChatChannel   ChatChannel  `gorm:"ForeignKey:ChatChannelID; primary_key"`
-	Promotions    []Promotion  `json:"promotions" gorm:"many2many:customer_promotion"`
+	ChatChannelID uint         `json:"chat_channel_id" gorm:"not null;"`
+	ChatChannel   ChatChannel  `json:"chat_channel" gorm:"ForeignKey:ChatChannelID"`
+	Promotions    []*Promotion `gorm:"many2many:promotion_customer" json:"promotions"`
 	EventLogs     []*EventLog  `json:"even_logs"`
 	ActionLogs    []*ActionLog `json:"action_logs"`
 	Bookings      []*Booking   `json:"bookings"`

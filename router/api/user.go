@@ -83,4 +83,3 @@ func getJWTToken(u *model.User) (t string, e error) {
 	t, e = token.SignedString([]byte("secret"))
 	return
 }
-
