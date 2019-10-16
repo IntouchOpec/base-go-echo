@@ -7,15 +7,14 @@ import (
 	"github.com/labstack/echo"
 )
 
-func PromotionListHandler(c *Context) error {
+func SettingHandler(c *Context) error {
 	promotions := []*model.Promotion{}
 
 	if err := model.DB().Find(&promotions).Error; err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}
-	err := c.Render(http.StatusOK, "promotion-list", echo.Map{
-		"list":  promotions,
-		"title": "promotion",
+	err := c.Render(http.StatusOK, "setting", echo.Map{
+		"title": "setting",
 	})
 	return err
 }

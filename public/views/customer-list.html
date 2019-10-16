@@ -41,7 +41,7 @@
                                <td>{{ .Email }}</td>
                                <td>{{ ((.CreatedAt).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
                                <td class="td-actions text-right">
-                                  <a href="/customer/{{ .ID }}/detail" type="button" rel="tooltip" class="btn btn-info">
+                                  <a href="/customer/{{ .ID }}" type="button" rel="tooltip" class="btn btn-info">
                                       <i class="material-icons">person</i>
                                   </a>
                                   <button type="button" rel="tooltip" class="btn btn-success">
@@ -63,7 +63,7 @@
            </div>
          </div>
        </div>
-  {{ template "footer" }}
+      {{ template "footer" }}
 
     </div>
   </div>

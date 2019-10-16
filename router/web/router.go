@@ -27,7 +27,9 @@ func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Con
 	a := auth.Default(c)
 	if viewContext, isMap := data.(echo.Map); isMap {
 		acc := a.User.GetAccount()
+		csrfValue := c.Get("_csrf")
 		viewContext["base"] = echo.Map{"title": fmt.Sprintf("%s", viewContext["title"]), "account": acc}
+		viewContext["_csrf"] = csrfValue
 	}
 	return t.templates.ExecuteTemplate(w, name, data)
 }
@@ -82,19 +84,27 @@ func Routers() *echo.Echo {
 	e.GET("/register/:lineID", LIFFRegisterHandler)
 	e.POST("/register/:lineID", LIIFRegisterSaveCustomer)
 
-	managent := e.Group("/admin/:account")
+	managent := e.Group("/admin")
 	managent.Use(auth.LoginRequired())
 	{
 		managent.GET("/dashboard", handler(DashboardHandler))
 		managent.GET("/book", handler(BookingListHandler))
-		managent.GET("/customer/:id/detail", handler(CustomerDetailHandler))
+		managent.GET("/customer", handler(CustomerListHandler))
 		managent.GET("/customer/:lineID", handler(CustomerListHandler))
-		managent.GET("/chat_chennal", handler(ChatChannelListHandler))
-		managent.GET("/product", handler(BookingListHandler))
-		managent.GET("/product/:id", handler(BookingListHandler))
-		managent.GET("/promotion", handler(BookingListHandler))
+		managent.GET("/chat_channel", handler(ChatChannelListHandler))
+		managent.GET("/chat_channel/create", handler(ChatChannelCreateViewHandler))
+		managent.POST("/chat_channel", handler(ChatChannelCreatePostHandler))
+		managent.PATCH("/chat_channel/:id/channel_access_token", handler(ChatChannelGetChannelAccessTokenHandler))
+		managent.DELETE("/chat_channel/:id", handler(ChatChannelListHandler))
+		managent.GET("/chat_channel/:id", handler(ChatChannelDetailHandler))
+		managent.GET("/chat_channel/:id/edit", handler(ChatChannelEditHandler))
+		managent.GET("/chat_answer", handler(ChatAnswerListHandler))
+		managent.GET("/product/:id", handler(ProductDetailHandler))
+		managent.GET("/product", handler(ProductListHandler))
+		managent.GET("/promotion", handler(PromotionListHandler))
 		managent.GET("/promotion/:lineID", handler(BookingListHandler))
-		managent.GET("/user", handler(BookingListHandler))
+		managent.GET("/user", handler(UserListHandler))
+		managent.GET("/setting", handler(SettingHandler))
 	}
 
 	return e

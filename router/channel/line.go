@@ -89,7 +89,6 @@ func HandleWebHookLineAPI(c echo.Context) error {
 						act.CreateAction()
 						return err
 					}
-					fmt.Println(res, "======")
 					act := model.ActionLog{Name: "calendar", Status: model.StatusSuccess, Type: model.TypeActionLine, UserID: event.Source.UserID, ChatChannelID: chatChannel.ID, CustomerID: customer.ID}
 					act.CreateAction()
 				} else if keyWord == "product " {

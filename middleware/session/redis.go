@@ -14,6 +14,7 @@ type RedisStore interface {
 }
 
 func dial(network, address, password string) (redis.Conn, error) {
+	fmt.Println(network, address)
 	c, err := redis.Dial(network, address)
 	if err != nil {
 		return nil, err

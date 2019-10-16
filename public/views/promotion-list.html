@@ -16,42 +16,56 @@
              <div class="col-md-12">
                <div class="card">
                  <div class="card-header card-header-primary">
-                   <h4 class="card-title ">customer list</h4>
+                   <h4 class="card-title ">promotion list</h4>
                  </div>
                  <div class="card-body">
                    <div class="table-responsive">
                      <table class="table">
                        <thead class=" text-primary">
-                         <th>No</th>
-                         <th>Line Id</th>
-                         <th>Full Name</th>
-                         <th>Phone</th>
-                         <th>E-mail</th>
-                         <th>Create At</th>
-                         <th></th>
+                        <th>No</th>
+                        <th>Title</th>
+                        <th>TypePromotion</th>
+                        <th>Discount</th>
+                        <th>Amount</th>
+                        <th>Code</th>
+                        <th>Name</th>
+                        <th>StartDate</th>
+                        <th>EndDate</th>
+                        <th>Condition</th>
+                        <th>Image</th>
+                        <th>create at</th>
+                        <th></th>
                        </thead>
                        <tbody>
                          {{ with .list }}
                            {{ range . }}
-                             <tr>
-                               <td></td>
-                               <td>{{ .LineID }}</td>
-                               <td>{{ .FullName }}</td>
-                               <td>{{ .PhoneNumber }}</td>
-                               <td>{{ .Email }}</td>
-                               <td>{{ ((.CreatedAt).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
-                               <td class="td-actions text-right">
-                                  <a href="/customer/{{ .ID }}/detail" type="button" rel="tooltip" class="btn btn-info">
-                                      <i class="material-icons">person</i>
-                                  </a>
+                            <tr>
+                              <td></td>
+                              <td>{{.Title}}</td>
+                              <td>{{.TypePromotion}}</td>
+                              <td>{{.Discount}}</td>
+                              <td>{{.Amount}}</td>
+                              <td>{{.Code}}</td>
+                              <td>{{.Name}}</td>
+                              <td>{{ ((.StartDate).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
+                              <td>{{ ((.EndDate).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
+                              <td>{{.Condition}}</td>
+                              <td>{{.Image}}</td>
+                              <td>{{ ((.CreatedAt).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
+                              <td class="td-actions text-right">
+                                <a href="/promotion/{{ .ID }}" type="button" rel="tooltip" class="btn btn-info">
                                   <button type="button" rel="tooltip" class="btn btn-success">
-                                      <i class="material-icons">edit</i>
+                                    <i class="material-icons">settings_applications</i>
                                   </button>
-                                  <button type="button" rel="tooltip" class="btn btn-danger">
-                                      <i class="material-icons">close</i>
-                                  </button>
+                                </a>
+                                <button type="button" rel="tooltip" class="btn btn-success">
+                                    <i class="material-icons">edit</i>
+                                </button>
+                                <button type="button" rel="tooltip" class="btn btn-danger">
+                                    <i class="material-icons">close</i>
+                                </button>
                               </td>
-                             </tr>
+                            </tr>
                            {{ end }} 
                          {{ end }}
                        </tbody>
@@ -63,7 +77,7 @@
            </div>
          </div>
        </div>
-  {{ template "footer" }}
+      {{ template "footer" }}
 
     </div>
   </div>

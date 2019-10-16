@@ -1,0 +1,122 @@
+{{define "product-detail"}}
+<!DOCTYPE html>
+<html lang="en">
+
+{{ template "header" .title }}
+
+<body class="">
+  <div class="wrapper ">
+   {{ template "sidebar" .base }}
+    <div class="main-panel">
+      {{ template "navbar" .title }}
+      <div class="content">
+         <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card card-profile">
+                        <div class="card-avatar">
+                            <a href="#pablo">
+                                <img class="img" src="{{ .detail.Image }}" />
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            <h6 class="card-category text-gray">{{ .detail.Name }}</h6>
+                            <h6 class="card-category text-gray">{{ .detail.Price }}</h6>
+                            <h6 class="card-category text-gray">{{ .detail.Detail }}</h6>
+                            <h6 class="card-category text-gray">{{ .detail.Active }}</h6>
+                            <div class="d-flex justify-content-center">
+                                <button type="button" class="btn btn-warning"><i class="material-icons">edit</i>edit</button>
+                                <button type="button" class="btn btn-danger"><i class="material-icons">delete</i>delete</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header card-header-primary">
+                                <h4 class="card-title ">channel</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <thead>
+                                            <th>Name</th>
+                                            <th>Type</th>
+                                        </thead>
+                                        <tbody>
+                                            {{ with .detail.Chatchannels }}
+                                            {{ range . }}
+                                                <tr>
+                                                    <td>{{ .Name }}</td>
+                                                    <td>{{ .Type }}</td>
+                                                </tr>
+                                            {{ end }}
+                                            {{ end }}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header card-header-primary">
+                            <h4 class="card-title ">slot</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <th>No.</th>
+                                        <th>Start</th>
+                                        <th>End</th>
+                                        <th>Day</th>
+                                        <th>Amount</th>
+                                        <th>Created At</th>
+                                        <th>Active</th>
+                                        <th></th>
+                                    </thead>
+                                    <tbody>
+                                    {{ with .detail.SubProducts }}
+                                    {{ range . }}
+                                        <tr>
+                                            <td></td>
+                                            <td>{{.Start}}</td>
+                                            <td>{{.End}}</td>
+                                            <td>{{.Day}}</td>
+                                            <td>{{.Amount}}</td>
+                                            <td>{{ ((.CreatedAt).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
+                                            <td><input type="checkbox" checked="{{.Active}}" data-toggle="toggle"></td>
+                                            <td class="td-actions text-right">
+                                                <a href="/productsub/{{ .ID }}/edit">
+                                                    <button type="button" rel="tooltip" class="btn btn-warning">
+                                                        <i class="material-icons">edit</i>
+                                                    </button>
+                                                </a>
+                                                <a href="/productsub/{{ .ID }}/delete">
+                                                    <button type="button" rel="tooltip" class="btn btn-danger">
+                                                        <i class="material-icons">close</i>
+                                                    </button>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {{end}}
+                                    {{end}}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+         </div>
+       </div>
+      {{ template "footer" }}
+    </div>
+  </div>
+</body>
+
+</html>
+{{end}}

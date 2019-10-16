@@ -22,10 +22,11 @@
                      <table class="table">
                        <thead class=" text-primary">
                          <th>No</th>
-                         <th>Line Id</th>
-                         <th>Full Name</th>
-                         <th>Phone</th>
-                         <th>E-mail</th>
+                         <th>Input</th>
+                         <th>TypeInput</th>
+                         <th>Reply</th>
+                         <th>TypeReply</th>
+                         <th>Active</th>
                          <th>Create At</th>
                          <th></th>
                        </thead>
@@ -34,13 +35,14 @@
                            {{ range . }}
                              <tr>
                                <td></td>
-                               <td>{{ .LineID }}</td>
-                               <td>{{ .FullName }}</td>
-                               <td>{{ .PhoneNumber }}</td>
-                               <td>{{ .Email }}</td>
+                              <td>{{.Input}}</td>
+                              <td>{{.TypeInput}}</td>
+                              <td>{{.Reply}}</td>
+                              <td>{{.TypeReply}}</td>
+                              <td>{{.Active}}</td>
                                <td>{{ ((.CreatedAt).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
                                <td class="td-actions text-right">
-                                  <a href="/customer/{{ .ID }}/detail" type="button" rel="tooltip" class="btn btn-info">
+                                  <a href="/customer/{{ .ID }}" type="button" rel="tooltip" class="btn btn-info">
                                       <i class="material-icons">person</i>
                                   </a>
                                   <button type="button" rel="tooltip" class="btn btn-success">

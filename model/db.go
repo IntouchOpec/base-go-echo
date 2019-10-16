@@ -72,6 +72,7 @@ func Initialize() {
 	newDb.AutoMigrate(&Account{})
 	newDb.AutoMigrate(&LoginRespose{})
 	newDb.AutoMigrate(&ActionLog{})
+	newDb.AutoMigrate(&Setting{})
 
 }
 

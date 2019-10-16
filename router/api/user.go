@@ -83,3 +83,9 @@ func getJWTToken(u *model.User) (t string, e error) {
 	t, e = token.SignedString([]byte("secret"))
 	return
 }
+
+func GetUserList(c echo.Context) error {
+	users := model.GetUserList()
+	return c.JSON(200, users)
+
+}

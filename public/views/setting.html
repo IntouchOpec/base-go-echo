@@ -1,0 +1,39 @@
+
+{{define "setting"}}
+<!DOCTYPE html>
+<html lang="en">
+
+{{ template "header" .title }}
+
+<body class="">
+  <div class="wrapper ">
+   {{ template "sidebar" .base }}
+    <div class="main-panel">
+      {{ template "navbar" .title }}
+      <div class="content">
+         <div class="container-fluid">
+           <div class="row">
+             <div class="col-md-12">
+               <div class="card">
+                 <div class="card-header card-header-primary">
+                   <h4 class="card-title ">setting</h4>
+                 </div>
+                 <div class="card-body">
+                   <div class="table-responsive">
+                    
+                   </div>
+                 </div>
+               </div>
+             </div>
+           </div>
+         </div>
+       </div>
+      {{ template "footer" }}
+    </div>
+  </div>
+  {{ template "script" }}
+</body>
+
+</html>
+
+{{end}}

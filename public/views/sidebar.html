@@ -8,49 +8,55 @@
         <div class="sidebar-wrapper">
         <ul class="nav">
             <li class="nav-item {{ if (eq .title "dashboard") }}active{{ end }}">
-                <a class="nav-link" href="/admin/{{.account}}/dashboard">
+                <a class="nav-link" href="/admin/dashboard">
                     <i class="material-icons">dashboard</i>
                     <p>Dashboard</p>
                 </a>
             </li>
             <li class="nav-item {{ if (eq .title "Book") }}active{{ end }}">
-                <a class="nav-link" href="/admin/{{.account}}/book">
+                <a class="nav-link" href="/admin/book">
                 <i class="material-icons">book</i>
                 <p>Booking List</p>
                 </a>
             </li> 
             <li class="nav-item {{ if (eq .title "chat_channel") }}active{{ end }}">
-                <a class="nav-link" href="/admin/{{.account}}/chat_channel">
+                <a class="nav-link" href="/admin/chat_channel">
                     <i class="material-icons">apps</i>
                     <p>Chat Channel</p>
                 </a>
             </li>
             <li class="nav-item {{ if (eq .title "customer") }}active{{ end }}">
-                <a class="nav-link" href="/admin/{{.account}}/customer">
+                <a class="nav-link" href="/admin/customer">
                     <i class="material-icons">face</i>
                     <p>Customer</p>
                 </a>
             </li>
+            <li class="nav-item {{ if (eq .title "product") }}active{{ end }}">
+                <a class="nav-link" href="/admin/product">
+                    <i class="material-icons">local_grocery_store</i>
+                    <p>Product</p>
+                </a>
+            </li>
             <li class="nav-item {{ if (eq .title "promotion") }}active{{ end }}">
-                <a class="nav-link" href="/admin/{{.account}}/promotion">
+                <a class="nav-link" href="/admin/promotion">
                     <i class="material-icons">card_giftcard</i>
                     <p>Promotion</p>
                 </a>
             </li>
                 <li class="nav-item {{ if (eq .title "chat_answer") }}active{{ end }}">
-                    <a class="nav-link" href="/admin/{{.account}}/chat_answer">
+                    <a class="nav-link" href="/admin/chat_answer">
                     <i class="material-icons">adb</i>
                     <p>Chat Answer</p>
                 </a>
             </li>
-            <li class="nav-item {{ if (eq .title "admin") }}active{{ end }}">
-                <a class="nav-link" href="/admin/{{.account}}/admin">
+            <li class="nav-item {{ if (eq .title "user") }}active{{ end }}">
+                <a class="nav-link" href="/admin/user">
                     <i class="material-icons">person</i>
                     <p>Admin</p>
                 </a>
             </li>
             <li class="nav-item {{ if (eq .title "setting") }}active{{ end }}">
-                <a class="nav-link" href="/admin/{{.account}}/setting">
+                <a class="nav-link" href="/admin/setting">
                     <i class="material-icons">settings_applications</i>
                     <p>Setting</p>
                 </a>

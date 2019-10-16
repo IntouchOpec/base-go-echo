@@ -22,26 +22,30 @@
                    <div class="table-responsive">
                      <table class="table">
                        <thead class=" text-primary">
-                         <th>No</th>
-                         <th>Line Id</th>
-                         <th>Full Name</th>
-                         <th>Phone</th>
-                         <th>E-mail</th>
-                         <th>Create At</th>
-                         <th></th>
+                        <th>No</th>
+                        <th>UserName</th>
+                        <th>Email</th>
+                        <th>PhoneNumber</th>
+                        <th>LastName</th>
+                        <th>FirstName</th>
+                        <th>Admin</th>
+                        <th>Create At</th>
+                        <th></th>
                        </thead>
                        <tbody>
                          {{ with .list }}
                            {{ range . }}
                              <tr>
                                <td></td>
-                               <td>{{ .LineID }}</td>
-                               <td>{{ .FullName }}</td>
-                               <td>{{ .PhoneNumber }}</td>
-                               <td>{{ .Email }}</td>
+                              <td>{{.UserName}}</td>
+                              <td>{{.Email}}</td>
+                              <td>{{.PhoneNumber}}</td>
+                              <td>{{.LastName}}</td>
+                              <td>{{.FirstName}}</td>
+                              <td>{{.Admin}}</td>
                                <td>{{ ((.CreatedAt).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
                                <td class="td-actions text-right">
-                                  <a href="/customer/{{ .ID }}/detail" type="button" rel="tooltip" class="btn btn-info">
+                                  <a href="/customer/{{ .ID }}" type="button" rel="tooltip" class="btn btn-info">
                                       <i class="material-icons">person</i>
                                   </a>
                                   <button type="button" rel="tooltip" class="btn btn-success">
@@ -63,7 +67,7 @@
            </div>
          </div>
        </div>
-  {{ template "footer" }}
+    {{ template "footer" }}
 
     </div>
   </div>

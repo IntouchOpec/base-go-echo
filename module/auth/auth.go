@@ -44,6 +44,8 @@ type User interface {
 	GetById(id interface{}) error
 
 	GetAccount() string
+
+	GetAccountID() uint
 }
 
 type Auth struct {

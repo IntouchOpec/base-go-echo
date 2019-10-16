@@ -1,0 +1,195 @@
+
+{{define "chat-channel-form"}}
+<!DOCTYPE html>
+<html lang="en">
+
+{{ template "header" .title }}
+
+<body class="">
+    <div class="wrapper ">
+    {{ template "sidebar" .base }}
+        <div class="main-panel">
+            {{ template "navbar" .title }}
+            <div class="content">
+                <div class="container-fluid">
+                    <div class="row">
+                            <div class="col-md-12">
+                                <div class="card">
+                                    <div class="card-header card-header-primary">
+                                        <h4 class="card-title">{{.mode}} Chat Channel</h4>
+                                        <p class="card-category">Complete your Chat Channel</p>
+                                    </div>
+                                    <div class="card-body">
+                                        <form name="form-chat-channel" action="" >
+                                            <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden" class="form-control" >
+                                            <div class="row">
+                                                <div class="col-md-6 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="bmd-label-floating" >Name</label>
+                                                        <input name="name" id="name" type="text" class="form-control" >
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="bmd-label-floating" >PhoneNumber</label>
+                                                        <input name="phone_number" id="phone_number" type="text" class="form-control" >
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="bmd-label-floating">ChannelID</label>
+                                                        <input name="channel_id" id="channel_id" type="text" class="form-control" >
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="bmd-label-floating">LineID</label>
+                                                        <input name="line_id" id="line_id" type="text" class="form-control" >
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="bmd-label-floating">WebSite</label>
+                                                        <input name="web_site" id="web_site" type="text" class="form-control" >
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="bmd-label-floating">Address</label>
+                                                        <textarea name="address" id="address" type="text" class="form-control" ></textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="bmd-label-floating">WelcomeMessage</label>
+                                                        <input name="welcome_message" id="welcome_message" type="text" class="form-control" >
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="bmd-label-floating">ChannelSecret</label>
+                                                        <textarea name="channel_secret" id="channel_secret" type="text" class="form-control" ></textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="bmd-label-floating">ChannelAccessToken</label>
+                                                        <textarea name="channel_access_token" id="channel_access_token" type="text" class="form-control" ></textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 mt-2">
+                                                    <div class="form-group">
+                                                        <label for="exampleFormControlSelect2">Type</label>
+                                                        <select name="type" class="form-control" id="type" data-style="btn btn-link" id="exampleFormControlSelect2">
+                                                            {{ with .typeChatChannels }}
+                                                            {{ range . }}
+                                                                <option value="{{.}}">{{.}}</option>
+                                                            {{ end }}
+                                                            {{ end }}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="bmd-label-floating">Latitude</label>
+                                                        <input name="Latitude" id="Latitude" type="text" class="form-control" >
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 mt-2">
+                                                    <div class="form-group">
+                                                        <label for="Longitude" class="bmd-label-floating">Longitude</label>
+                                                        <input name="Longitude" id="Longitude" type="text" class="form-control" >
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <input type="submit" rel="tooltip" value="Submit" class="btn btn-success">
+                                                <!-- <i class="material-icons">save</i>
+                                                Save
+                                            </button> -->
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {{ template "footer" }}
+            </div>
+        </div>
+    </div>
+  {{ template "script" }}
+  <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+  <script>
+    (function ($) {
+        $("form[name='form-chat-channel']").validate({
+            rules: {
+                name: "required",
+                phone_number: "required",
+                channel_id: "required",
+                line_id: "required",
+                web_site: "required",
+                address: "required",
+                welcome_message: "required",
+                channel_secret: "required",
+                channel_access_token: "required",
+                type: "required",
+                Latitude: "required",
+                Longitude: "required",
+            },
+            messages: {
+                name: "Please enter a valid name",
+                phone_number: "Please enter a valid phone_number",
+                channel_id: "Please enter a valid channel_id",
+                line_id: "Please enter a valid line_id",
+                web_site: "Please enter a valid web_site",
+                address: "Please enter a valid address",
+                welcome_message: "Please enter a valid welcome_message",
+                channel_secret: "Please enter a valid channel_secret",
+                channel_access_token: "Please enter a valid channel_access_token",
+                type: "Please enter a valid type",
+                Latitude: "Please enter a valid Latitude",
+                Longitude: "Please enter a valid Longitude",
+            },
+            submitHandler: function(form) {
+                let _csrf = $("#_csrf").val()
+                let name = $("#name").val()
+                let phone_number = $("#phone_number").val()
+                let channel_id = $("#channel_id").val()
+                let line_id = $("#line_id").val()
+                let web_site = $("#web_site").val()
+                let address = $("#address").val()
+                let welcome_message = $("#welcome_message").val()
+                let channel_secret = $("#channel_secret").val()
+                let channel_access_token = $("#channel_access_token").val()
+                let type = $("#type").val()
+                let Latitude = $("#Latitude").val()
+                let Longitude = $("#Longitude").val()
+                let data = new URLSearchParams();
+                data.append("_csrf", _csrf)
+                data.append("name", name)
+                data.append("phone_number", phone_number)
+                data.append("channel_id", channel_id)
+                data.append("line_id", line_id)
+                data.append("web_site", web_site)
+                data.append("address", address)
+                data.append("welcome_message", welcome_message)
+                data.append("channel_secret", channel_secret)
+                data.append("channel_access_token", channel_access_token)
+                data.append("type", type)
+                data.append("settings", JSON.stringify([{key: "Latitude", value: Latitude}, {key: "Longitude", Latitude}]))
+                fetch("/admin/chat_channel", { method: "POST", body: data })
+                .then(res => res.json())
+                .then(json => {
+                    if (res.status === 201) Swal.fire("success", "", "success") 
+                })
+                .catch(err => Swal.fire("fial", "", "warning"))
+            }
+        })
+        
+    })(jQuery)
+  </script>
+</body>
+
+</html>
+
+{{end}}

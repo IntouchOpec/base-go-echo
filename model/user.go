@@ -27,7 +27,7 @@ func (u *User) GetUserByID(id uint64) *User {
 // GetUserByUserName is sign in function
 func (u *User) GetUserByUserName() *User {
 	newDb, err := newDB()
-	if err := newDb.Where("username = ?", u.UserName).First(&u).Error; err != nil {
+	if err := newDb.Preload("Account").Where("username = ?", u.UserName).First(&u).Error; err != nil {
 		log.Debugf("GetUserByUserNamePwd error: %v", err)
 		return nil
 	}
@@ -119,6 +119,10 @@ func (u *User) GetAccount() string {
 	return u.Account.Name
 }
 
+func (u *User) GetAccountID() uint {
+	return u.Account.ID
+}
+
 // Logout will preform any actions that are required to completely
 // logout a user.
 func (u *User) Logout() {
@@ -139,7 +143,7 @@ func (u *User) UniqueId() interface{} {
 
 // GetById will populate a user object from a database model witha matching id.
 func (u *User) GetById(id interface{}) error {
-	if err := DB().Preload("Account").Where("id = ?", id).First(&u).Error; err != nil {
+	if err := DB().Preload("Account").First(&u, id).Error; err != nil {
 		return err
 	}
 	return nil
@@ -152,4 +156,12 @@ func (u *User) GetUserByEmailPwd(email string, pwd string) *User {
 		return nil
 	}
 	return &user
+}
+
+func GetUserList() []*User {
+	users := []*User{}
+	if err := DB().Find(&users).Error; err != nil {
+		return nil
+	}
+	return users
 }

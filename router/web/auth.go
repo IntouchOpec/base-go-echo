@@ -59,16 +59,15 @@ func LoginPostHandler(c *Context) error {
 			if err != nil {
 				c.JSON(http.StatusBadRequest, err)
 			}
-			response.Redirect = fmt.Sprintf("/admin/%s/dashboard", u.Account.Name)
+			response.Redirect = "/admin/dashboard"
 			response.User = u
 
 			c.JSON(http.StatusMovedPermanently, response)
 			return nil
-		} else {
-			response.Redirect = loginURL
-			c.JSON(http.StatusMovedPermanently, response)
-			return nil
 		}
+		response.Redirect = loginURL
+		c.JSON(http.StatusMovedPermanently, response)
+		return nil
 	}
 	response.Redirect = loginURL
 	return c.JSON(http.StatusBadRequest, response)
@@ -84,7 +83,7 @@ func LogoutHandler(c *Context) error {
 	// 	redirect = "/"
 	// }
 
-	// c.Redirect(http.StatusMovedPermanently, redirect)
+	c.Redirect(http.StatusMovedPermanently, "/login")
 
 	return nil
 }

@@ -90,7 +90,8 @@ func RunSubdomains(confFilePath string) {
 		fmt.Println("=====", u.Hostname(), "======")
 		host := hosts[u.Hostname()]
 		if host == nil {
-			// host.Echo.ServeHTTP(res, req)
+			e.Logger.Info("Host not found")
+			err = echo.ErrNotFound
 		} else {
 			host.Echo.ServeHTTP(res, req)
 		}

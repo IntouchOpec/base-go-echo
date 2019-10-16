@@ -1,0 +1,235 @@
+
+{{define "chat-channel-detail"}}
+<!DOCTYPE html>
+<html lang="en">
+
+{{ template "header" .title }}
+
+<body class="">
+  <input type="hidden" id="_csrf" value="{{._csrf}}" />
+  <div class="wrapper ">
+   {{ template "sidebar" .base }}
+    <div class="main-panel">
+      {{ template "navbar" .title }}
+      <div class="content">
+         <div class="container-fluid">
+           <div class="row">
+                <div class="col-md-4 row">
+                    <div class="col-md-12">
+                        <div class="card card-profile">
+                        <div class="card-avatar">
+                            <a href="#pablo">
+                            <img class="img" src="{{ .detail.Image }}" />
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            <h6 class="card-category text-gray">{{ .customer.DisplayName }}</h6>
+                                <h4 class="card-title">{{ .detail.Name }}</h4>
+                                <h4 class="card-title">{{ .detail.ChannelID }}</h4>
+                                <h4 class="card-title">{{ .detail.LineID }}</h4>
+                                <h4 class="card-title">{{ .detail.PhoneNumber }}</h4>
+                        </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card card-stats">
+                            <div class="card-header card-header-warning card-header-icon">
+                                <div class="card-icon p-2">
+                                    <i class="material-icons">face</i>
+                                </div>
+                                <p class="card-category">Customer</p>
+                                <h3 class="card-title">{{ .customerSum }}
+                                    <small>man</small>
+                                </h3>
+                            </div>
+                            <div class="card-footer">
+                                <div class="stats">
+                                    <a href="#pablo">view customers</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card card-stats">
+                            <div class="card-header card-header-success card-header-icon">
+                                <div class="card-icon p-2">
+                                    <i class="material-icons">local_grocery_store</i>
+                                </div>
+                                <p class="card-category">Products</p>
+                                <h3 class="card-title">{{ .productSum }}
+                                    <small>man</small>
+                                </h3>
+                            </div>
+                            <div class="card-footer">
+                                <div class="stats">
+                                    <a href="#pablo">view products</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <div class="col-md-8">
+            <div class="card">
+            <div class="card-header card-header-primary">
+                <h4 class="card-title ">chat channel detail</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-3">
+                        WebSite:
+                    </div>
+                    <div class="col-8">
+                        {{ .detail.WebSite }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-3">
+                        Address:
+                    </div>
+                    <div class="col-8">
+                        {{ .detail.Address }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-3">
+                        WelcomeMessage:
+                    </div>
+                    <div class="col-8">
+                        {{ .detail.WelcomeMessage }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-3">
+                        ChannelSecret:
+                    </div>
+                    <div class="col-8">
+                        {{ .detail.ChannelSecret }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-3">
+                        ChannelAccessToken:
+                    </div>
+                    <div id="access_token" class="col-7">
+                        {{ .detail.ChannelAccessToken }}
+                    </div>
+                    <div class="col-1">
+                        <button id="get_access_token" value="{{ .detail.ID }}" type="button" class="btn btn-success"><i class="material-icons">cached</i></button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-3">
+                        Type:
+                    </div>
+                    <div class="col-8">
+                        {{ .detail.Type }}
+                    </div>
+                </div>
+                <a href="/admin/chat_channel/{{ .detail.ID }}/edit">
+                    <button type="button" class="btn btn-warning mt-3">
+                        <i class="material-icons">edit</i>
+                        Edit
+                    </button>
+                </a>
+            </div>
+            </div>
+            </div>
+           </div>
+           <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header card-header-primary">
+                            <h4 class="card-title ">Event Log</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead class=" text-primary">
+                                        <th>LineID</th>
+                                        <th>ReplyToken</th>
+                                        <th>Customer</th>
+                                        <th>Text</th>
+                                        <th>CreatedAt</th>
+                                        <th></th>
+                                    </thead>
+                                    <tbody>
+                                    {{ with .detail.EventLogs }}
+                                    {{ range . }}
+                                        <td>{{ .LineID }}</td>
+                                        <td>{{ .ReplyToken }}</td>
+                                        <td>{{ .Customer.Name }}</td>
+                                        <td>{{ .Text }}</td>
+                                        <td>{{ ((.CreatedAt).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
+                                    {{ end }}
+                                    {{ end }}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header card-header-primary">
+                            <h4 class="card-title ">Action Log</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead class=" text-primary">
+                                        <th>Name</th>
+                                        <th>Status</th>
+                                        <th>Customer</th>
+                                        <th>CreatedAt</th>
+                                        <th></th>
+                                    </thead>
+                                    <tbody>
+                                    {{ with .detail.EventLogs }}
+                                    {{ range . }}
+                                        <td>{{ .Name }}</td>
+                                        <td>{{ .Status }}</td>
+                                        <td>{{ .Customer.Name }}</td>
+                                        <td>{{ ((.CreatedAt).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
+                                    {{ end }}
+                                    {{ end }}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+         </div>
+       </div>
+      {{ template "footer" }}
+    </div>
+  </div>
+ 
+  {{ template "script" }}
+    <script>
+        (function ($) {
+            $("#get_access_token").on("click",function () {
+                let _csrf = $("#_csrf").val()
+                const data = new URLSearchParams();
+                data.append("_csrf", _csrf);
+                fetch(window.location.href+"/channel_access_token",{
+                    method: "PATCH",
+                    body: data
+                }).then(res => {
+                    return res.json();
+                }).then(data => {
+                    $("#access_token").text(data.access_token)
+                    Swal.fire(
+                    'New Access Token',
+                    '',
+                    'success'
+                    )
+                })
+            })
+        })(jQuery);
+    </script>
+</body>
+
+</html>
+
+{{end}}

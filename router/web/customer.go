@@ -10,15 +10,9 @@ import (
 
 // CustomerListHandler
 func CustomerListHandler(c *Context) error {
-	lineID := c.Param("lineID")
-	chatChannel := model.ChatChannel{}
-	if err := model.DB().Where("line_ID = ?", lineID).Find(&chatChannel).Error; err != nil {
-		fmt.Println(err)
-		return c.NoContent(http.StatusBadRequest)
-	}
 	customers := []*model.Customer{}
 
-	if err := model.DB().Where("chat_channel_id = ?", chatChannel.ID).Find(&customers).Error; err != nil {
+	if err := model.DB().Find(&customers).Error; err != nil {
 		fmt.Println(err)
 		return c.NoContent(http.StatusBadRequest)
 	}
