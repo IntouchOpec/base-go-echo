@@ -13,30 +13,31 @@ type ChatChannels []ChatChannel
 type ChatChannel struct {
 	gorm.Model
 
-	ChannelID          string       `json:"channel_id" gorm:"type:varchar(25);unique_index"`
-	Name               string       `json:"name" gorm:"type:varchar(25)"`
-	LineID             string       `json:"line_id" gorm:"type:varchar(25);unique_index"`
-	ChannelSecret      string       `json:"channel_secret" gorm:"type:varchar(255)"`
-	ChannelAccessToken string       `json:"channel_access_token" gorm:"type:varchar(255)"`
-	Type               string       `json:"type" gorm:"type:varchar(10)"`
-	PhoneNumber        string       `json:"phone_number" gorm:"type:varchar(10)"`
+	ChannelID          string       `json:"channel_id" form:"channel_id" binding:"required" gorm:"type:varchar(25);unique_index"`
+	Name               string       `json:"name" form:"name" binding:"required" gorm:"type:varchar(25)"`
+	LineID             string       `json:"line_id" form:"line_id" binding:"required" gorm:"type:varchar(25);unique_index"`
+	ChannelSecret      string       `json:"channel_secret" form:"channel_secret" binding:"required" gorm:"type:varchar(255)"`
+	ChannelAccessToken string       `json:"channel_access_token" form:"channel_access_token" binding:"required" gorm:"type:varchar(255)"`
+	Type               string       `form:"type" json:"type"  gorm:"type:varchar(10)"`
+	PhoneNumber        string       `json:"phone_number" form:"phone_number" binding:"required" gorm:"type:varchar(10)"`
 	AccountID          uint         `form:"account_id" json:"account_id" gorm:"not null;"`
+	Image              string       `json:"image" form:"image" binding:"required" gorm:"type:varchar(255)"`
+	WebSite            string       `json:"website" form:"website" binding:"required" gorm:"type:varchar(255)"`
+	WelcomeMessage     string       `json:"welcome_message" form:"welcome_message" binding:"required" gorm:"type:varchar(100)"`
+	Address            string       `json:"address" form:"address" binding:"required" gorm:"type:varchar(100)"`
 	Account            Account      `gorm:"ForeignKey:AccountID"`
-	Image              string       `json:"image" gorm:"type:varchar(255)"`
-	WebSite            string       `json:"website" gorm:"type:varchar(255)"`
-	WelcomeMessage     string       `json:"welcome_message" gorm:"type:varchar(100)"`
-	Address            string       `json:"address" gorm:"type:varchar(100)"`
-	Settings           []*Setting   `gorm:"many2many:setting_chat_channel;" json:"settings"`
+	Settings           []*Setting   `gorm:"many2many:setting_chat_channel;" json:"settings" form:"settings"`
 	Customers          []*Customer  `json:"customer"`
 	EventLogs          []*EventLog  `json:"event_logs"`
 	ActionLogs         []*ActionLog `json:"action_logs"`
 	Products           []*Product   `json:"products" gorm:"many2many:product_chat_channel"`
+	Promotions         []*Promotion `json:"promotions" gorm:"many2many:chat_channel_promotion"`
 }
 
 // SaveChatChannel router create chatchannel.
 func (cha *ChatChannel) SaveChatChannel() *ChatChannel {
 	if err := DB().Create(&cha).Error; err != nil {
-		fmt.Println(err)
+		fmt.Println(err, "====")
 		return nil
 	}
 	return cha

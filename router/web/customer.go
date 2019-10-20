@@ -37,3 +37,10 @@ func CustomerDetailHandler(c *Context) error {
 	})
 	return err
 }
+
+func CustomerDeleteHandler(c *Context) error {
+	id := c.Param("id")
+
+	customer := model.DeleteCustomer(id)
+	return c.JSON(http.StatusOK, customer)
+}

@@ -15,9 +15,15 @@
            <div class="row">
              <div class="col-md-12">
                <div class="card">
-                 <div class="card-header card-header-primary">
-                   <h4 class="card-title ">promotion list</h4>
-                 </div>
+                  <div class="card-header card-header-primary d-flex justify-content-between">
+                    <h4 class="card-title ">promotion list</h4>
+                    <a href="/admin/promotion/create">
+                      <button class="btn btn-info">
+                        <i class="material-icons">add</i>
+                        Create
+                      </button>
+                    </a>
+                  </div>
                  <div class="card-body">
                    <div class="table-responsive">
                      <table class="table">
@@ -49,21 +55,25 @@
                               <td>{{.Name}}</td>
                               <td>{{ ((.StartDate).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
                               <td>{{ ((.EndDate).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
-                              <td>{{.Condition}}</td>
-                              <td>{{.Image}}</td>
+                              <td>{{ .Condition }}</td>
+                              <td><img width="32" height="32" class="img-fluid" src="{{.Image}}"></td>
                               <td>{{ ((.CreatedAt).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
                               <td class="td-actions text-right">
-                                <a href="/promotion/{{ .ID }}" type="button" rel="tooltip" class="btn btn-info">
+                                <a href="/admin/promotion/{{ .ID }}">
                                   <button type="button" rel="tooltip" class="btn btn-success">
                                     <i class="material-icons">settings_applications</i>
                                   </button>
                                 </a>
-                                <button type="button" rel="tooltip" class="btn btn-success">
-                                    <i class="material-icons">edit</i>
-                                </button>
-                                <button type="button" rel="tooltip" class="btn btn-danger">
-                                    <i class="material-icons">close</i>
-                                </button>
+                                <a href="/admin/promotion/{{ .ID }}/edit">
+                                  <button type="button" rel="tooltip" class="btn btn-warning">
+                                      <i class="material-icons">edit</i>
+                                  </button>
+                                </a>
+                                <a href="/admin/promotion/{{ .ID }}/detail">
+                                  <button type="button" rel="tooltip" class="btn btn-danger">
+                                      <i class="material-icons">close</i>
+                                  </button>
+                                </a>
                               </td>
                             </tr>
                            {{ end }} 
@@ -81,6 +91,7 @@
 
     </div>
   </div>
+  {{ template "script" }}
 </body>
 
 </html>

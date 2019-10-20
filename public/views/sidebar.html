@@ -55,6 +55,12 @@
                     <p>Admin</p>
                 </a>
             </li>
+            <li class="nav-item {{ if (eq .title "rich-menu") }}active{{ end }}">
+                <a class="nav-link" href="/admin/richmenu">
+                    <i class="material-icons">menu_book</i>
+                    <p>Rich Menu</p>
+                </a>
+            </li>
             <li class="nav-item {{ if (eq .title "setting") }}active{{ end }}">
                 <a class="nav-link" href="/admin/setting">
                     <i class="material-icons">settings_applications</i>

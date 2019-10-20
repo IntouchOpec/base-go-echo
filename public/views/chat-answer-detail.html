@@ -1,0 +1,56 @@
+
+{{define "chat-answer-detail"}}
+<!DOCTYPE html>
+<html lang="en">
+
+{{ template "header" .title }}
+
+<body class="">
+  <input type="hidden" id="_csrf" value="{{._csrf}}" />
+  <div class="wrapper ">
+   {{ template "sidebar" .base }}
+    <div class="main-panel">
+      {{ template "navbar" .title }}
+      <div class="content">
+         <div class="container-fluid">
+           <div class="row">
+             <div class="col-6">
+              <div class="card">
+                <div class="card-header card-header-primary">
+                  <h4 class="card-title ">chat answer</h4>
+                </div>
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-6">Input:</div>
+                    <div class="col-6">{{ .detail.Input }}</div>
+                    <div class="col-6">TypeInput:</div>
+                    <div class="col-6">{{ .detail.TypeInput }}</div>
+                    <div class="col-6">Reply:</div>
+                    <div class="col-6">{{ .detail.Reply }}</div>
+                    <div class="col-6">TypeReply:</div>
+                    <div class="col-6">{{ .detail.TypeReply }}</div>
+                    <div class="col-6">Active:</div>
+                    <div class="col-6">{{ .detail.Active }}</div>
+                    <div class="col-6">Source:</div>
+                    <div class="col-6">{{ .detail.Source }}</div>
+                  </div>
+                  <div class="d-flex justify-content-center">
+                      <button type="button" class="btn btn-warning"><i class="material-icons">edit</i>edit</button>
+                      <button type="button" class="btn btn-danger"><i class="material-icons">delete</i>delete</button>
+                  </div>
+                </div>
+              </div>
+             </div>
+           </div>
+         </div>
+       </div>
+      {{ template "footer" }}
+    </div>
+  </div>
+ 
+  {{ template "script" }}
+</body>
+
+</html>
+
+{{end}}

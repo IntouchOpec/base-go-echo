@@ -20,6 +20,7 @@ require (
 	github.com/line/line-bot-sdk-go v6.3.0+incompatible
 	github.com/opentracing/opentracing-go v1.1.0
 	github.com/robfig/go-cache v0.0.0-20130306151617-9fc39e0dbf62
+	github.com/satori/go.uuid v1.2.0
 	github.com/uber/jaeger-client-go v2.19.0+incompatible
 	github.com/uber/jaeger-lib v2.2.0+incompatible
 	go.elastic.co/apm v1.5.0

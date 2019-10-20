@@ -9,7 +9,6 @@ import (
 	"github.com/IntouchOpec/base-go-echo/module/auth"
 	"github.com/IntouchOpec/base-go-echo/module/cache"
 	"github.com/IntouchOpec/base-go-echo/module/session"
-	"github.com/hb-go/echo-web/middleware/captcha"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 )
@@ -56,11 +55,6 @@ func Routers() *echo.Echo {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	e.Use(captcha.Captcha(captcha.Config{
-		CaptchaPath: "/captcha/",
-		SkipLogging: true,
-	}))
-
 	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{
 		Level: 5,
 	}))
@@ -90,7 +84,8 @@ func Routers() *echo.Echo {
 		managent.GET("/dashboard", handler(DashboardHandler))
 		managent.GET("/book", handler(BookingListHandler))
 		managent.GET("/customer", handler(CustomerListHandler))
-		managent.GET("/customer/:lineID", handler(CustomerListHandler))
+		managent.GET("/customer/:id", handler(CustomerDetailHandler))
+
 		managent.GET("/chat_channel", handler(ChatChannelListHandler))
 		managent.GET("/chat_channel/create", handler(ChatChannelCreateViewHandler))
 		managent.POST("/chat_channel", handler(ChatChannelCreatePostHandler))
@@ -99,12 +94,29 @@ func Routers() *echo.Echo {
 		managent.GET("/chat_channel/:id", handler(ChatChannelDetailHandler))
 		managent.GET("/chat_channel/:id/edit", handler(ChatChannelEditHandler))
 		managent.GET("/chat_answer", handler(ChatAnswerListHandler))
+		managent.GET("/chat_answer/create", handler(ChatAnswerCreateHandler))
+		managent.GET("/chat_answer/:id", handler(ChatAnswerDetailHandler))
+		managent.POST("/chat_answer", handler(ChatAnswerPostHandler))
+		managent.GET("/chat_answer/:id/edit", handler(ChatAnswerEditHandler))
+		managent.DELETE("/chat_answer/:id", handler(ChatAnswerDeleteHandler))
+		managent.GET("/product/create", handler(ProductCreateHandler))
 		managent.GET("/product/:id", handler(ProductDetailHandler))
 		managent.GET("/product", handler(ProductListHandler))
+		managent.POST("/product", handler(ProductPostHandler))
 		managent.GET("/promotion", handler(PromotionListHandler))
-		managent.GET("/promotion/:lineID", handler(BookingListHandler))
+		managent.GET("/promotion/create", handler(PromotionFormHandler))
+		managent.GET("/promotion/:id", handler(PromotionDetailHandler))
 		managent.GET("/user", handler(UserListHandler))
+		managent.GET("/user/:id", handler(UserDetailHandler))
+		managent.GET("/user/create", handler(UserFormHamdeler))
+		managent.GET("/user/:id/edit", handler(UserEditHamdeler))
+		managent.DELETE("/user/:id", handler(UserDeleteHandler))
+		managent.GET("/richmenu", handler(RichMenuListHandler))
 		managent.GET("/setting", handler(SettingHandler))
+		managent.GET("/product/:id/sub_product/create", handler(SubProductCreateHandler))
+		managent.POST("/product/:id/sub_product/create", handler(SubProductPostHandler))
+		managent.GET("/product/:id/chatchannel_product/create", handler(ProductChatChannelViewHandler))
+		managent.POST("/product/:id/chatchannel_product/create", handler(ProductChatChannelPostHandler))
 	}
 
 	return e

@@ -16,98 +16,37 @@
                             <div class="col-md-6">
                                 <div class="card">
                                     <div class="card-header card-header-primary">
-                                        <h4 class="card-title">Edit Chat Channel</h4>
+                                        <h4 class="card-title">Product</h4>
                                         <p class="card-category">Complete your Chat Channel</p>
                                     </div>
                                     <div class="card-body">
-                                        <form action="/admin/chat_channel" method="POST" >
-                                            <input name="_csrf" value="{{._csrf}}" type="hidden" class="form-control" >
+                                        <form name="create-product" >
+                                            <input id="_csrf" name="_csrf" value="{{._csrf}}" type="hidden" class="form-control" >
                                             <div class="row">
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating" >Name</label>
-                                                        <input id="name-form" type="text" class="form-control" >
+                                                        <input name="Name" id="Name" type="text" class="form-control" >
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div class="row">
-                                                    <div class="col-md-12 mt-2">
-                                                        <div class="form-group">
-                                                            <label class="bmd-label-floating" >PhoneNumber</label>
-                                                            <input id="name-form" type="text" class="form-control" >
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            <div class="row">
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
-                                                        <label class="bmd-label-floating">ChannelID</label>
-                                                        <input id="channel-id-form" type="text" class="form-control" >
+                                                        <label class="bmd-label-floating" >Detail</label>
+                                                        <input name="Detail" id="Detail" type="text" class="form-control" >
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div class="row">
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
-                                                        <label class="bmd-label-floating">LineID</label>
-                                                        <input type="text" class="form-control" >
+                                                        <label class="bmd-label-floating" >Price</label>
+                                                        <input name="Price" id="Price" type="text" class="form-control" >
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div class="row">
                                                 <div class="col-md-12 mt-2">
-                                                    <div class="form-group">
-                                                        <label class="bmd-label-floating">WebSite</label>
-                                                        <input type="text" class="form-control" >
-                                                    </div>
+                                                    <input id="Image" name="Image" type="file">
+                                                    <p><strong>Note:</strong> Choose any file on your computer and its name will be displayed in an alert dialog box.</p>
                                                 </div>
                                             </div>
-                                            <div class="row">
-                                                <div class="col-md-12 mt-2">
-                                                    <div class="form-group">
-                                                        <label class="bmd-label-floating">Address</label>
-                                                        <textarea type="text" class="form-control" ></textarea>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-md-12 mt-2">
-                                                    <div class="form-group">
-                                                        <label class="bmd-label-floating">WelcomeMessage</label>
-                                                        <input type="text" class="form-control" >
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-md-12 mt-2">
-                                                    <div class="form-group">
-                                                        <label class="bmd-label-floating">ChannelSecret</label>
-                                                        <textarea type="text" class="form-control" ></textarea>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-md-12 mt-2">
-                                                    <div class="form-group">
-                                                        <label class="bmd-label-floating">ChannelAccessToken</label>
-                                                        <textarea type="text" class="form-control" ></textarea>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="exampleFormControlSelect2">Type</label>
-                                                <select class="form-control " data-style="btn btn-link" id="exampleFormControlSelect2">
-                                                    {{ with .typeChatChannels }}
-                                                    {{ range . }}
-                                                        <option value="{{.}}">{{.}}</option>
-                                                    {{ end }}
-                                                    {{ end }}
-                                                </select>
-                                            </div>
-                                            <button type="submit" rel="tooltip" class="btn btn-success">
-                                                <i class="material-icons">save</i>
-                                                Save
-                                            </button>
+                                            <input type="submit" rel="tooltip" value="Submit" class="btn btn-success">
                                         </form>
                                     </div>
                                 </div>
@@ -121,10 +60,85 @@
     </div>
   {{ template "script" }}
   <script>
+    const toBase64 = file => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    });
     (function ($) {
-
+       
+        $("form[name='create-product']").validate({
+            rules: {
+                Name: {
+                    required: true
+                },
+                Detail: {
+                    required: true
+                },
+                Price: {
+                    required: true
+                },
+                Image: {
+                    required: true
+                },
+            },
+            messages: {
+                Name: {
+                    required: "Please enter a valid Name"
+                },
+                Detail: {
+                    required: "Please enter a valid Detail"
+                },
+                Price: {
+                    required: "Please enter a valid Price"
+                },
+                Image: {
+                    required: "Please enter a valid Image"
+                },
+            },
+            submitHandler: function(form) {
+                let _csrf = $("#_csrf").val()
+                let Name = $("#Name").val()
+                let Detail = $("#Detail").val()
+                let Price = $("#Price").val()
+                let Image = $("#Image")
+                let data = [] 
+                let encodedKey = encodeURIComponent("_csrf");
+                let encodedValue = encodeURIComponent(_csrf);
+                let nameEncodedKey = encodeURIComponent("name");
+                let nameEncodedValue = encodeURIComponent(Name);
+                let detailEncodedKey = encodeURIComponent("detail");
+                let detailEncodedValue = encodeURIComponent(Detail);
+                let priceEncodedKey = encodeURIComponent("price");
+                let priceEncodedValue = encodeURIComponent(Price);
+                let imageEncodedKey = encodeURIComponent("file");
+                toBase64(Image[0].files[0]).then(base64Image => {
+                    Image = JSON.stringify(base64Image)
+                    let imageEncodedValue = encodeURIComponent(Image);
+                    data.push(encodedKey + "=" + encodedValue)
+                    data.push(nameEncodedKey + "=" + nameEncodedValue)
+                    data.push(detailEncodedKey + "=" + detailEncodedValue)
+                    data.push(priceEncodedKey + "=" + priceEncodedValue)
+                    data.push(imageEncodedKey + "=" + imageEncodedValue)
+                    data = data.join("&");
+                    fetch("/admin/product", {
+                        method: "POST", 
+                        headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                        body: data
+                    })
+                    .then(res => res.json())
+                    .then(json => {
+                        if (res.status === 201) Swal.fire("success", "", "success") 
+                    })
+                    .catch(err => Swal.fire("fial", "", "warning"))
+                })
+               
+                
+            }
+        })
         
-    })
+    })(jQuery)
   </script>
 </body>
 

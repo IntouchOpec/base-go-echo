@@ -1,0 +1,177 @@
+
+{{define "promotion-form"}}
+<!DOCTYPE html>
+<html lang="en">
+
+{{ template "header" .title }}
+
+<body class="">
+    <div class="wrapper ">
+    {{ template "sidebar" .base }}
+        <div class="main-panel">
+            {{ template "navbar" .title }}
+            <div class="content">
+                <div class="container-fluid">
+                    <div class="row">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header card-header-primary">
+                                        <h4 class="card-title">{{.mode}} Promotion</h4>
+                                    </div>
+                                    <div class="card-body">
+                                        <form name="create-promotion" >
+                                            <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden" class="form-control" >
+                                            <div class="row">
+                                                <div class="col-md-12 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="bmd-label-floating" >Title</label>
+                                                        <input name="name" id="name" type="text" class="form-control" >
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="bmd-label-floating" >TypePromotion</label>
+                                                        <select name="TypePromotion" class="form-control" id="TypePromotion" data-style="btn btn-link" id="exampleFormControlSelect2">
+                                                            {{ with .promotionTypes }}
+                                                            {{ range . }}
+                                                                <option value="{{.}}">{{.}}</option>
+                                                            {{ end }}
+                                                            {{ end }}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="bmd-label-floating" >Discount</label>
+                                                        <input name="Discount" id="Discount" type="text" class="form-control" >
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="bmd-label-floating" >Amount</label>
+                                                        <input name="Amount" id="Amount" type="text" class="form-control" >
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="bmd-label-floating" >Code</label>
+                                                        <input name="name" id="name" type="text" class="form-control" >
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="bmd-label-floating" >Name</label>
+                                                        <input name="name" id="name" type="text" class="form-control" >
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="bmd-label-floating" >StartDate</label>
+                                                        <input name="StartDate" id="StartDate" class="form-control" type="date">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="bmd-label-floating" >EndDate</label>
+                                                        <input name="EndDate" id="EndDate" class="form-control" type="date">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="bmd-label-floating" >Condition</label>
+                                                        <textarea name="Condition" id="Condition" type="text" class="form-control" >
+                                                        </textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12 mt-2">
+                                                    <input name="Image" type="file">
+                                                    <p><strong>Image:</strong> Choose any file on your computer and its name will be displayed in an alert dialog box.</p>
+                                                </div>
+                                            </div>
+                                            <input type="submit" rel="tooltip" value="Submit" class="btn btn-success">
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {{ template "footer" }}
+            </div>
+        </div>
+    </div>
+  {{ template "script" }}
+  <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+  <script>
+    (function ($) {
+        $("form[name='create-promotion']").validate({
+            rules: {
+                Title: {
+                    required: true
+                },
+                TypePromotion: {
+                    required: true
+                },
+                Discount: {
+                    required: true
+                },
+                Amount: {
+                    required: true
+                },
+                Code: {
+                    required: true
+                },
+                Name: {
+                    required: true
+                },
+                StartDate: {
+                    required: true
+                },
+                EndDate: {
+                    required: true
+                },
+                Condition: {
+                    required: true
+                },
+            },
+            messages: {
+                Title: {
+                    required: "Please enter a valid Title"
+                },
+                TypePromotion: {
+                    required: "Please enter a valid TypePromotion"
+                },
+                Discount: {
+                    required: "Please enter a valid Discount"
+                },
+                Amount: {
+                    required: "Please enter a valid Amount"
+                },
+                Code: {
+                    required: "Please enter a valid Code"
+                },
+                Name: {
+                    required: "Please enter a valid Name"
+                },
+                StartDate: {
+                    required: "Please enter a valid StartDate"
+                },
+                EndDate: {
+                    required: "Please enter a valid EndDate"
+                },
+                Condition: {
+                    required: "Please enter a valid Condition"
+                }
+            },
+            submitHandler: function(form) {
+                
+            }
+        })
+        
+    })(jQuery)
+  </script>
+</body>
+
+</html>
+
+{{end}}

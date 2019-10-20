@@ -16,14 +16,15 @@
                     <div class="card card-profile">
                         <div class="card-avatar">
                             <a href="#pablo">
-                                <img class="img" src="{{ .detail.Image }}" />
+                                <img class="img" src="/images/{{ .detail.Image }}" />
                             </a>
                         </div>
                         <div class="card-body">
+                                
                             <h6 class="card-category text-gray">{{ .detail.Name }}</h6>
                             <h6 class="card-category text-gray">{{ .detail.Price }}</h6>
                             <h6 class="card-category text-gray">{{ .detail.Detail }}</h6>
-                            <h6 class="card-category text-gray">{{ .detail.Active }}</h6>
+                            <h6 class="card-category text-gray"><input type="checkbox" checked data-toggle="toggle" checked="{{.Active}}"></h6>
                             <div class="d-flex justify-content-center">
                                 <button type="button" class="btn btn-warning"><i class="material-icons">edit</i>edit</button>
                                 <button type="button" class="btn btn-danger"><i class="material-icons">delete</i>delete</button>
@@ -34,8 +35,14 @@
                 <div class="col-md-8">
                     <div class="col-md-12">
                         <div class="card">
-                            <div class="card-header card-header-primary">
+                            <div class="card-header card-header-primary d-flex justify-content-between">
                                 <h4 class="card-title ">channel</h4>
+                                <a href="/admin/product/{{.detail.ID}}/chatchannel_product/create">
+                                    <button class="btn btn-info">
+                                    <i class="material-icons">add</i>
+                                    Create
+                                    </button>
+                                </a>
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
@@ -61,8 +68,14 @@
                     </div>
                     <div class="col-md-12">
                     <div class="card">
-                        <div class="card-header card-header-primary">
+                        <div class="card-header card-header-primary d-flex justify-content-between">
                             <h4 class="card-title ">slot</h4>
+                            <a href="/admin/product/{{.detail.ID}}/sub_product/create">
+                                <button class="btn btn-info">
+                                <i class="material-icons">add</i>
+                                Create
+                                </button>
+                            </a>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
@@ -116,6 +129,7 @@
       {{ template "footer" }}
     </div>
   </div>
+  {{ template "script" }}
 </body>
 
 </html>

@@ -13,15 +13,44 @@
       <div class="content">
          <div class="container-fluid">
            <div class="row">
-             <div class="col-md-12">
+             <div class="col-md-6">
                <div class="card">
                  <div class="card-header card-header-primary">
                    <h4 class="card-title ">customer detail</h4>
                  </div>
                  <div class="card-body">
-                   
+                   <div class="row">
+                      <div class="col-6">UserName</div>
+                      <div class="col-6">{{ .detail.UserName }}</div>
+                      <div class="col-6">Email</div>
+                      <div class="col-6">{{ .detail.Email }}</div>
+                      <div class="col-6">PhoneNumber</div>
+                      <div class="col-6">{{ .detail.PhoneNumber }}</div>
+                      <div class="col-6">LastName</div>
+                      <div class="col-6">{{ .detail.LastName }}</div>
+                      <div class="col-6">FirstName</div>
+                      <div class="col-6">{{ .detail.FirstName }}</div>
+                   </div>
                  </div>
                </div>
+             </div>
+             <div class="col-md-6">
+                <div class="table-responsive">
+                  <table class="table">
+                    <thead>
+                      <th>Name</th>
+                    </thead>
+                    <tbody>
+                      {{ with .detail.Roles }}
+                      {{ range . }}
+                      <tr>
+                        <td>{{ .Name }}</td>
+                      </tr>
+                      {{ end }}
+                      {{ end }}
+                    </tbody>
+                  </table>
+                </div>
              </div>
            </div>
          </div>

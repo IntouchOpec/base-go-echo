@@ -1,0 +1,70 @@
+{{define "product-chat-channel-form"}}
+<!DOCTYPE html>
+<html lang="en">
+
+{{ template "header" .title }}
+
+<body class="">
+    <div class="wrapper ">
+    {{ template "sidebar" .base }}
+        <div class="main-panel">
+            {{ template "navbar" .title }}
+            <div class="content">
+                <div class="container-fluid">
+                    <div class="row">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header card-header-primary">
+                                        <h4 class="card-title">Add Chat Channel To Product</h4>
+                                    </div>
+                                    <div class="card-body">
+                                        <form name="form-chat-channel">
+                                            <input name="_csrf" value="{{._csrf}}" type="hidden" class="form-control" >
+                                            <div class="form-group">
+                                                <label for="exampleFormControlSelect2">Type</label>
+                                                <select class="form-control " data-style="btn btn-link" id="exampleFormControlSelect2">
+                                                    {{ with .list_chat_channel }}
+                                                    {{ range . }}
+                                                        <option value="{{.ID}}">{{.Name}}</option>
+                                                    {{ end }}
+                                                    {{ end }}
+                                                </select>
+                                            </div>
+                                        <input type="submit" value="Submit" class="btn btn-success">
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {{ template "footer" }}
+            </div>
+        </div>
+    </div>
+  {{ template "script" }}
+    <script>
+        (function ($) {
+        $("form[name='form-chat-channel']").validate({
+            rules: {
+                Type: {
+                    required: true
+                }
+            },
+            messages: {
+                Type: {
+                    required: "Please enter a valid Type"
+                }
+            },
+            submitHandler: function(form) {
+                
+            }
+        })
+        
+    })(jQuery)
+    </script>
+</body>
+
+</html>
+
+{{end}}

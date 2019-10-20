@@ -95,3 +95,16 @@ func GetCustomer(customerID int) *Customer {
 	}
 	return &customer
 }
+
+func DeleteCustomer(id string) *Customer {
+	cus := Customer{}
+	if err := DB().Find(&cus, id).Error; err != nil {
+		return nil
+	}
+
+	if err := DB().Delete(&cus).Error; err != nil {
+		return nil
+	}
+
+	return &cus
+}

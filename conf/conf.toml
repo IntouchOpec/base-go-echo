@@ -22,7 +22,7 @@ addr = ":80"
 domain_api = "api.localhost"
 domain_web = "web.localhost"
 domain_socket = "socket.localhost"
-domain_line_channel = "f977055e.ngrok.io"
+domain_line_channel = "af8f199b.ngrok.io"
 domain_static = "localhost"
 
 [static]

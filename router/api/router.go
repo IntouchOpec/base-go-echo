@@ -5,8 +5,8 @@ import (
 	mw "github.com/labstack/echo/middleware"
 
 	. "github.com/IntouchOpec/base-go-echo/conf"
+	"github.com/IntouchOpec/base-go-echo/module/session"
 	"github.com/hb-go/echo-web/module/cache"
-	"github.com/hb-go/echo-web/module/session"
 )
 
 //  Routers API
@@ -102,7 +102,7 @@ func Routers() *echo.Echo {
 
 	e.GET("/promotion/:chatChannelID/list", GetPromotionList)
 	e.GET("/promotion/:id", GetPromotion)
-	e.POST("/promotion/:lineID", CreatePromotion)
+	e.POST("/promotion", CreatePromotion)
 	e.PATCH("/promotion/:id", UpdatePromotion)
 	e.DELETE("/promotion/:id", DeletePromotion)
 

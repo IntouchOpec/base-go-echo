@@ -1,0 +1,129 @@
+
+{{define "chat-answer-form"}}
+<!DOCTYPE html>
+<html lang="en">
+
+{{ template "header" .title }}
+
+<body class="">
+  <input type="hidden" id="_csrf" value="{{._csrf}}" />
+  <div class="wrapper ">
+   {{ template "sidebar" .base }}
+    <div class="main-panel">
+      {{ template "navbar" .title }}
+      <div class="content">
+         <div class="container-fluid">
+           <div class="row">
+             <div class="col-6">
+              <div class="card">
+                <div class="card-header card-header-primary">
+                  <h4 class="card-title ">chat answer</h4>
+                </div>
+                <div class="card-body">
+                  <form name="create-chat-answer">
+                    <div class="row">
+                      <div class="col-md-12 mt-2">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Input</label>
+                          <input name="Input" id="Input" type="text" class="form-control" >
+                        </div>
+                      </div>
+                      <div class="col-md-12 mt-2">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">TypeInput</label>
+                          <select name="TypeInput" class="form-control" id="TypeInput" data-style="btn btn-link" id="exampleFormControlSelect2">
+                            {{ with .messageTypes }}
+                            {{ range . }}
+                                <option value="{{.}}">{{.}}</option>
+                            {{ end }}
+                            {{ end }}
+                          </select>
+                        </div>
+                      </div>
+                      <div class="col-md-12 mt-2">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">Reply</label>
+                          <input name="Reply" id="Reply" type="text" class="form-control" >
+                        </div>
+                      </div>
+                      <div class="col-md-12 mt-2">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">TypeReply</label>
+                          <select name="TypeReply" class="form-control" id="TypeReply" data-style="btn btn-link" id="exampleFormControlSelect2">
+                              {{ with .messageTypes }}
+                              {{ range . }}
+                                  <option value="{{.}}">{{.}}</option>
+                              {{ end }}
+                              {{ end }}
+                          </select>
+                        </div>
+                      </div>
+                      <div class="col-md-12 mt-2">
+                        <div class="form-group">
+                            <label class="bmd-label-floating">Source</label>
+                            <textarea name="Source" id="Source"  type="text" class="form-control" > </textarea>
+                        </div>
+                      </div>
+                      <input value="Submit" type="submit" class="btn btn-success">
+                    </div>
+                  </form>
+                </div>
+              </div>
+             </div>
+           </div>
+         </div>
+       </div>
+      {{ template "footer" }}
+    </div>
+  </div>
+ 
+  {{ template "script" }}
+
+  <script>
+    (function ($) {
+      $("form[name='create-chat-answer']").validate({
+        rules: {
+          Input: {
+            required: true
+          },
+          TypeInput: {
+            required: true
+          },
+          Reply: {
+            required: true
+          },
+          TypeReply: {
+            required: true
+          },
+          Source: {
+            required: true
+          },
+        },
+        messages: {
+          Input: {
+            required: "Please enter a valid Input"
+          },
+          TypeInput: {
+            required: "Please enter a valid TypeInput"
+          },
+          Reply: {
+            required: "Please enter a valid Reply"
+          },
+          TypeReply: {
+            required: "Please enter a valid TypeReply"
+          },
+          Source: {
+            required: "Please enter a valid Source"
+          },
+        },
+        submitHandler: function(form) {
+            
+        }
+        })
+    })(jQuery)
+  </script>
+</body>
+
+</html>
+
+{{end}}

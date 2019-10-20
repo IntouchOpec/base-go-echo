@@ -18,30 +18,31 @@ const (
 type Promotion struct {
 	gorm.Model
 
-	Title         string      `json:"title"`
-	TypePromotion string      `json:"type_promotion" gorm:"type:varchar(25)"`
-	Discount      int         `json:"discount"`
-	Amount        int         `json:"amount"`
-	Code          string      `json:"code" gorm:"type:varchar(25)"`
-	Name          string      `json:"name" gorm:"type:varchar(25)"`
-	StartDate     time.Time   `gorm:"column:start_time" json:"start_time"`
-	EndDate       time.Time   `gorm:"column:end_time" json:"end_time"`
-	Condition     string      `json:"condition"`
-	Image         string      `json:"image" gorm:"type:varchar(255)"`
-	ChatChannelID uint        `json:"chat_channel_id"`
-	Customers     []*Customer `gorm:"many2many:promotion_customer" json:"customer"`
-	ChatChannel   ChatChannel `json:"chat_channel" gorm:"Foreignkey:ChatChannelID;"`
-	AccountID     uint        `json:"account_id"`
-	Account       Account     `gorm:"ForeignKey:AccountID"`
-	Settings      []*Setting  `json:"settings" gorm:"many2many:promotion_setting"`
-	Products      []*Product  `json:"products" gorm:"many2many:product_promotion"`
+	Title         string         `json:"title"`
+	TypePromotion string         `json:"type_promotion" gorm:"type:varchar(25)"`
+	Discount      int            `json:"discount"`
+	Amount        int            `json:"amount"`
+	Code          string         `json:"code" gorm:"type:varchar(25)"`
+	Name          string         `json:"name" gorm:"type:varchar(25)"`
+	StartDate     time.Time      `gorm:"column:start_time" json:"start_time"`
+	EndDate       time.Time      `gorm:"column:end_time" json:"end_time"`
+	Condition     string         `json:"condition"`
+	Image         string         `json:"image" gorm:"type:varchar(255)"`
+	Customers     []*Customer    `gorm:"many2many:promotion_customer" json:"customer"`
+	ChatChannels  []*ChatChannel `json:"chat_channels" gorm:"many2many:chat_channel_promotion"`
+	AccountID     uint           `json:"account_id"`
+	Account       Account        `gorm:"ForeignKey:AccountID"`
+	Settings      []*Setting     `json:"settings" gorm:"many2many:promotion_setting"`
+	Products      []*Product     `json:"products" gorm:"many2many:product_promotion"`
 }
 
 // SavePromotion is function create Promotion.
 func (promotion *Promotion) SavePromotion() *Promotion {
-	if err := DB().Create(&promotion).Error; err != nil {
+	db := DB()
+	if err := db.Set("gorm:association_autoupdate", false).Create(&promotion).Error; err != nil {
 		return nil
 	}
+
 	return promotion
 }
 

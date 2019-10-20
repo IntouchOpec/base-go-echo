@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/IntouchOpec/base-go-echo/router/api"
+	"github.com/IntouchOpec/base-go-echo/router/channel"
 	"github.com/IntouchOpec/base-go-echo/router/web"
 
 	"github.com/labstack/echo"
@@ -32,10 +33,9 @@ type (
 func InitRoutes() map[string]*Host {
 	// Hosts
 	hosts := make(map[string]*Host)
-	// Conf.DB.Port
 	hosts[Conf.Server.DomainWeb] = &Host{web.Routers()}
 	hosts[Conf.Server.DomainAPI] = &Host{api.Routers()}
-	hosts[Conf.Server.DomainLineChannel] = &Host{api.Routers()}
+	hosts[Conf.Server.DomainLineChannel] = &Host{channel.Routers()}
 
 	return hosts
 }

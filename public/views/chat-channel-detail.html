@@ -125,6 +125,34 @@
                         {{ .detail.Type }}
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col-3">
+                        statusAccessToken:
+                    </div>
+                    <div class="col-2">
+                        {{ .settings.statusAccessToken }}
+                    </div>
+                    <div class="col-2">
+                        {{ .settings.dateStatusToken }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-3">
+                        LIFFregister:
+                    </div>
+                    <div class="col-3">
+                        {{ .settings.LIFFregister }}
+                    </div>
+                    <div class="col-2">
+                        {{ if (eq .settings.statusLIFFregister "success") }}
+                            <button class="btn btn-primary btn-fab btn-fab-mini btn-round">
+                                <i class="material-icons">done</i>
+                            </button>
+                        {{else}}
+                            <button type="button" class="btn btn-info">create LIFF register</button>
+                        {{ end }}
+                    </div>
+                </div>
                 <a href="/admin/chat_channel/{{ .detail.ID }}/edit">
                     <button type="button" class="btn btn-warning mt-3">
                         <i class="material-icons">edit</i>
@@ -157,7 +185,7 @@
                                     {{ range . }}
                                         <td>{{ .LineID }}</td>
                                         <td>{{ .ReplyToken }}</td>
-                                        <td>{{ .Customer.Name }}</td>
+                                        <td>{{ .Customer.FullName }}</td>
                                         <td>{{ .Text }}</td>
                                         <td>{{ ((.CreatedAt).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
                                     {{ end }}

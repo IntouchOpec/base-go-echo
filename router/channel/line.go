@@ -10,7 +10,6 @@ import (
 
 	"github.com/IntouchOpec/base-go-echo/lib"
 	"github.com/IntouchOpec/base-go-echo/model"
-	"github.com/IntouchOpec/base-go-echo/router/web"
 	"github.com/hb-go/gorm"
 	"github.com/line/line-bot-sdk-go/linebot"
 
@@ -84,6 +83,7 @@ func HandleWebHookLineAPI(c echo.Context) error {
 					}
 					flexMessage := linebot.NewFlexMessage("ตาราง", flexContainer)
 					res, err := bot.ReplyMessage(event.ReplyToken, flexMessage).Do()
+					fmt.Println(res)
 					if err != nil {
 						act := model.ActionLog{Name: "calendar", Status: model.StatusFail, Type: model.TypeActionLine, UserID: event.Source.UserID, ChatChannelID: chatChannel.ID, CustomerID: customer.ID}
 						act.CreateAction()
@@ -153,8 +153,8 @@ func HandleWebHookLineAPI(c echo.Context) error {
 						}).Where("line_id = ?", message.ID).Find(&customer)
 						var template string
 						for index := 0; index < len(customer.Promotions); index++ {
-							promotion := customer.Promotions[index]
-							template = template + web.VoucherTemplate(customer.Promotions[index]) + ","
+							// promotion := customer.Promotions[index]
+							// template = template + web.VoucherTemplate(customer.Promotions[index]) + ","
 						}
 						template = fmt.Sprintf(`{ "type": "carousel", "contents": [%s]}`, template[:len(template)-1])
 						flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(template))
@@ -243,7 +243,7 @@ func HandleWebHookLineAPI(c echo.Context) error {
 
 		case linebot.EventTypeFollow:
 			customer := model.Customer{LineID: event.Source.UserID, ChatChannelID: chatChannel.ID}
-			settingNames := []string{"LIFFregister", "host_web"}
+			settingNames := []string{"LIFFregister"}
 			setting := chatChannel.GetSetting(settingNames)
 			if err := model.DB().FirstOrCreate(&customer, model.Customer{LineID: event.Source.UserID, ChatChannelID: chatChannel.ID}).Error; err != nil {
 				fmt.Println(err)
@@ -355,7 +355,7 @@ func FollowTemplate(chatChannel model.ChatChannel, settings map[string]string) s
 		],
 		"flex": 0
 		}
-	  }`, chatChannel.Image, chatChannel.Name, chatChannel.WelcomeMessage, settings["LIFFregister"], settings["host_web"])
+	  }`, chatChannel.Image, chatChannel.Name, chatChannel.WelcomeMessage, settings["LIFFregister"], chatChannel.WebSite)
 	return template
 }
 

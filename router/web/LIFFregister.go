@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	// . "github.com/IntouchOpec/base-go-echo/conf"
 	"github.com/IntouchOpec/base-go-echo/lib"
 	"github.com/IntouchOpec/base-go-echo/model"
 	"github.com/labstack/echo"
@@ -15,17 +16,20 @@ import (
 func LIFFRegisterHandler(c echo.Context) error {
 	lineID := c.Param("lineID")
 	chatChannel := model.ChatChannel{}
-	if err := model.DB().Preload("Settings", "name in (?)", "host_api").Where("line_ID = ?", lineID).Find(&chatChannel).Error; err != nil {
+	fmt.Println(lineID)
+	if err := model.DB().Where("line_id = ?", lineID).Find(&chatChannel).Error; err != nil {
 		fmt.Println(err)
 		return c.NoContent(http.StatusBadRequest)
 	}
-	custo := model.Customer{}
-	if err := model.DB().FirstOrCreate(&custo).Error; err != nil {
-		return err
-	}
-	APIRegister := fmt.Sprintf("https://%s/register/%s", chatChannel.Settings[0].Value, lineID)
-	err := c.Render(http.StatusOK, "register", map[string]interface{}{
-		"web": APIRegister,
+	fmt.Println("====")
+
+	// custo := model.Customer{}
+	// if err := model.DB().FirstOrCreate(&custo).Error; err != nil {
+	// 	return err
+	// }
+	// APIRegister := fmt.Sprintf("https://%s/register/%s", Conf.Server.DomainLineChannel, lineID)
+	err := c.Render(http.StatusOK, "register", echo.Map{
+		// "web": APIRegister,
 	})
 	return err
 }
@@ -37,7 +41,7 @@ type LineReqRegister struct {
 	PictureURL  string `json:"pictureUrl"`
 	Email       string `json:"email"`
 	Phone       string `json:"phone"`
-	AccessToken string `accessToken`
+	AccessToken string `json:"accessToken"`
 }
 
 func LIIFRegisterSaveCustomer(c echo.Context) error {

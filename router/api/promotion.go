@@ -9,14 +9,8 @@ import (
 )
 
 func CreatePromotion(c echo.Context) error {
-	lineID := c.Param("lineID")
 
-	chatChanne := model.ChatChannel{}
-	if err := model.DB().Preload("Account").Find(&chatChanne, lineID).Error; err != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
-
-	promotion := model.Promotion{ChatChannelID: chatChanne.ID, AccountID: chatChanne.AccountID}
+	promotion := model.Promotion{}
 
 	if err := c.Bind(&promotion); err != nil {
 		return c.JSON(http.StatusBadRequest, err)

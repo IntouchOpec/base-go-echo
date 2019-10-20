@@ -20,7 +20,7 @@
                                         <p class="card-category">Complete your Chat Channel</p>
                                     </div>
                                     <div class="card-body">
-                                        <form name="form-chat-channel" action="" >
+                                        <form name="form-chat-channel" >
                                             <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden" class="form-control" >
                                             <div class="row">
                                                 <div class="col-md-6 mt-2">
@@ -50,7 +50,7 @@
                                                 <div class="col-md-6 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating">WebSite</label>
-                                                        <input name="web_site" id="web_site" type="text" class="form-control" >
+                                                        <input name="website" id="website" type="text" class="form-control" >
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6 mt-2">
@@ -101,11 +101,14 @@
                                                         <input name="Longitude" id="Longitude" type="text" class="form-control" >
                                                     </div>
                                                 </div>
+                                                <div class="col-md-6 mt-2">
+                                                    <div class="form-group">
+                                                        <label for="Longitude" class="bmd-label-floating">image</label>
+                                                        <input name="image" id="image" type="text" class="form-control" >
+                                                    </div>
+                                                </div>
                                             </div>
                                             <input type="submit" rel="tooltip" value="Submit" class="btn btn-success">
-                                                <!-- <i class="material-icons">save</i>
-                                                Save
-                                            </button> -->
                                         </form>
                                     </div>
                                 </div>
@@ -127,7 +130,7 @@
                 phone_number: "required",
                 channel_id: "required",
                 line_id: "required",
-                web_site: "required",
+                website: "required",
                 address: "required",
                 welcome_message: "required",
                 channel_secret: "required",
@@ -141,7 +144,7 @@
                 phone_number: "Please enter a valid phone_number",
                 channel_id: "Please enter a valid channel_id",
                 line_id: "Please enter a valid line_id",
-                web_site: "Please enter a valid web_site",
+                website: "Please enter a valid website",
                 address: "Please enter a valid address",
                 welcome_message: "Please enter a valid welcome_message",
                 channel_secret: "Please enter a valid channel_secret",
@@ -156,7 +159,7 @@
                 let phone_number = $("#phone_number").val()
                 let channel_id = $("#channel_id").val()
                 let line_id = $("#line_id").val()
-                let web_site = $("#web_site").val()
+                let website = $("#website").val()
                 let address = $("#address").val()
                 let welcome_message = $("#welcome_message").val()
                 let channel_secret = $("#channel_secret").val()
@@ -164,20 +167,25 @@
                 let type = $("#type").val()
                 let Latitude = $("#Latitude").val()
                 let Longitude = $("#Longitude").val()
+                let image = $("#image").val()
                 let data = new URLSearchParams();
                 data.append("_csrf", _csrf)
                 data.append("name", name)
                 data.append("phone_number", phone_number)
                 data.append("channel_id", channel_id)
                 data.append("line_id", line_id)
-                data.append("web_site", web_site)
+                data.append("website", website)
                 data.append("address", address)
                 data.append("welcome_message", welcome_message)
                 data.append("channel_secret", channel_secret)
                 data.append("channel_access_token", channel_access_token)
                 data.append("type", type)
-                data.append("settings", JSON.stringify([{key: "Latitude", value: Latitude}, {key: "Longitude", Latitude}]))
-                fetch("/admin/chat_channel", { method: "POST", body: data })
+                data.append("image", image)
+                data.append("settings", JSON.stringify([{name: "Latitude", value: Latitude}, {name: "Longitude", Latitude}]))
+                fetch("/admin/chat_channel", {
+                    method: "POST", 
+                    body: data
+                })
                 .then(res => res.json())
                 .then(json => {
                     if (res.status === 201) Swal.fire("success", "", "success") 

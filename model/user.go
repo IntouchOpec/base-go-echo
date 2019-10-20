@@ -165,3 +165,14 @@ func GetUserList() []*User {
 	}
 	return users
 }
+
+func DeleteUser(id string) *User {
+	user := User{}
+	if err := DB().Find(&user, id).Error; err != nil {
+		return nil
+	}
+	if err := DB().Delete(&user).Error; err != nil {
+		return nil
+	}
+	return &user
+}

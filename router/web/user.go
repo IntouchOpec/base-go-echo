@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/IntouchOpec/base-go-echo/model"
-	"github.com/IntouchOpec/base-go-echo/module/auth"
 	"github.com/labstack/echo"
 )
 
@@ -24,13 +23,41 @@ func UserListHandler(c *Context) error {
 func UserDetailHandler(c *Context) error {
 	id := c.Param("id")
 	var user model.User
-	a := auth.Default(c)
-	if err := model.DB().Where("account_id = ?", a.GetAccountID()).Find(&user, id).Error; err != nil {
-		return c.NoContent(http.StatusBadRequest)
-	}
+
+	user.GetById(id)
 	err := c.Render(http.StatusOK, "user-detail", echo.Map{
 		"detail": user,
 		"title":  "user",
 	})
+	return err
+}
+
+func UserFormHamdeler(c *Context) error {
+	var user model.User
+
+	err := c.Render(http.StatusOK, "user-form", echo.Map{
+		"detail": user,
+		"title":  "user",
+	})
+	return err
+}
+
+func UserEditHamdeler(c *Context) error {
+	var user model.User
+	id := c.Param("id")
+	user.GetById(id)
+
+	err := c.Render(http.StatusOK, "user-form", echo.Map{
+		"detail": user,
+		"title":  "user",
+	})
+	return err
+}
+
+func UserDeleteHandler(c *Context) error {
+	id := c.Param("id")
+	user := model.DeleteUser(id)
+
+	err := c.JSON(http.StatusOK, user)
 	return err
 }

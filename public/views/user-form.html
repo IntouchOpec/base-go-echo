@@ -1,0 +1,132 @@
+{{ define "user-form" }}
+<!DOCTYPE html>
+<html lang="en">
+
+{{ template "header" .title }}
+
+<body class="">
+  <input type="hidden" id="_csrf" value="{{._csrf}}" />
+  <div class="wrapper ">
+   {{ template "sidebar" .base }}
+    <div class="main-panel">
+      {{ template "navbar" .title }}
+      <div class="content">
+         <div class="container-fluid">
+           <div class="row">
+             <div class="col-6">
+              <div class="card">
+                <div class="card-header card-header-primary">
+                    <h4 class="card-title ">form admin</h4>
+                </div>
+                <div class="card-body">
+                    <form name="create-user">
+                        <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden" class="form-control" >
+                        <div class="row">
+                            <div class="col-md-6 mt-2">
+                                <div class="form-group">
+                                    <label class="bmd-label-floating" >UserName</label>
+                                    <input name="UserName" id="UserName" type="text" class="form-control" >
+                                </div>
+                            </div>
+                            <div class="col-md-6 mt-2">
+                                <div class="form-group">
+                                    <label class="bmd-label-floating" >Password</label>
+                                    <input name="Password" id="Password" type="password" class="form-control" >
+                                </div>
+                                <div class="form-group">
+                                    <label class="bmd-label-floating" >cfmPassword</label>
+                                    <input name="cfmPassword" id="cfmPassword" type="password" class="form-control" >
+                                </div>
+                            </div>
+                            <div class="col-md-6 mt-2">
+                                <div class="form-group">
+                                    <label class="bmd-label-floating" >Email</label>
+                                    <input name="Email" id="Email" type="email" class="form-control" >
+                                </div>
+                            </div>
+                            <div class="col-md-6 mt-2">
+                                <div class="form-group">
+                                    <label class="bmd-label-floating" >PhoneNumber</label>
+                                    <input name="PhoneNumber" id="PhoneNumber" type="text" class="form-control" >
+                                </div>
+                            </div>
+                            <div class="col-md-6 mt-2">
+                                <div class="form-group">
+                                    <label class="bmd-label-floating" >LastName</label>
+                                    <input name="LastName" id="LastName" type="text" class="form-control" >
+                                </div>
+                            </div>
+                            <div class="col-md-6 mt-2">
+                                <div class="form-group">
+                                    <label class="bmd-label-floating" >FirstName</label>
+                                    <input name="FirstName" id="FirstName" type="text" class="form-control" >
+                                </div>
+                            </div>
+                        </div>
+                        <input value="Submit" type="submit" class="btn btn-success">
+                    </form>
+                </div>
+                </div>
+              </div>
+             </div>
+           </div>
+         </div>
+       </div>
+      {{ template "footer" }}
+    </div>
+  </div>
+ 
+  {{ template "script" }}
+  <script>
+  (function ($) {
+        $("form[name='create-user']").validate({
+            rules: {
+                UserName: "required",
+                Password: {
+                    required: true,
+                    minlength: 6,
+                    maxlength: 10
+                },
+                cfmPassword: {
+                    required: true,
+                    equalTo: "#Password",
+                    minlength: 6,
+                    maxlength: 10
+                },
+                Email:  {
+                    required: true,
+                    email: true
+                },
+                PhoneNumber: {
+                    number: true,
+                    required: true,
+                },
+                LastName: "required",
+                FirstName: "required",
+            },
+            messages: {
+                UserName: "Please enter a valid UserName",
+                Password: {
+                    required: "Please enter a valid Password",
+                } ,
+                Email: {
+                    required: "Please enter a valid Password",
+                    email: "Password"
+                },
+                PhoneNumber: {
+                    number: true,
+                    required: "Please enter a valid PhoneNumber",
+                },
+                LastName: "Please enter a valid LastName",
+                FirstName: "Please enter a valid FirstName",
+            },
+            submitHandler: function(form) {
+                
+            }
+        })
+    })(jQuery)
+    </script>
+</body>
+
+</html>
+{{ end }}

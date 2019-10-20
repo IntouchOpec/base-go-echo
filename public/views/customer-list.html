@@ -41,10 +41,12 @@
                                <td>{{ .Email }}</td>
                                <td>{{ ((.CreatedAt).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
                                <td class="td-actions text-right">
-                                  <a href="/customer/{{ .ID }}" type="button" rel="tooltip" class="btn btn-info">
+                                  <a href="/admin/customer/{{ .ID }}">
+                                    <button type="button" rel="tooltip" class="btn btn-success">
                                       <i class="material-icons">person</i>
+                                    </button>
                                   </a>
-                                  <button type="button" rel="tooltip" class="btn btn-success">
+                                  <button type="button" rel="tooltip" class="btn btn-warning">
                                       <i class="material-icons">edit</i>
                                   </button>
                                   <button type="button" rel="tooltip" class="btn btn-danger">
@@ -67,6 +69,7 @@
 
     </div>
   </div>
+  {{ template "script" }}
 </body>
 
 </html>

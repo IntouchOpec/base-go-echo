@@ -15,8 +15,14 @@
            <div class="row">
              <div class="col-md-12">
                <div class="card">
-                 <div class="card-header card-header-primary">
-                   <h4 class="card-title ">customer list</h4>
+                 <div class="card-header card-header-primary d-flex justify-content-between">
+                  <h4 class="card-title ">customer list</h4>
+                  <a href="/admin/user/create">
+                    <button class="btn btn-info">
+                      <i class="material-icons">add</i>
+                      Create
+                    </button>
+                  </a>
                  </div>
                  <div class="card-body">
                    <div class="table-responsive">
@@ -44,16 +50,23 @@
                               <td>{{.FirstName}}</td>
                               <td>{{.Admin}}</td>
                                <td>{{ ((.CreatedAt).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
+                               
                                <td class="td-actions text-right">
-                                  <a href="/customer/{{ .ID }}" type="button" rel="tooltip" class="btn btn-info">
+                                  <a href="/admin/user/{{ .ID }}" >
+                                    <button type="button" rel="tooltip" class="btn btn-success">
                                       <i class="material-icons">person</i>
+                                    </button>
                                   </a>
-                                  <button type="button" rel="tooltip" class="btn btn-success">
-                                      <i class="material-icons">edit</i>
-                                  </button>
-                                  <button type="button" rel="tooltip" class="btn btn-danger">
-                                      <i class="material-icons">close</i>
-                                  </button>
+                                  <a href="/admin/user/{{ .ID }}/edit" >
+                                    <button type="button" rel="tooltip" class="btn btn-warning">
+                                        <i class="material-icons">edit</i>
+                                    </button>
+                                  </a>
+                                  <a href="/admin/user/{{ .ID }}/delete" >
+                                    <button type="button" rel="tooltip" class="btn btn-danger">
+                                        <i class="material-icons">close</i>
+                                    </button>
+                                  </a>
                               </td>
                              </tr>
                            {{ end }} 
@@ -71,6 +84,7 @@
 
     </div>
   </div>
+  {{ template "script" }}
 </body>
 
 </html>

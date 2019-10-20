@@ -13,29 +13,61 @@
          <div class="container-fluid">
             <div class="row">
                 <div class="col-md-4">
-                    <div class="card card-profile">
-                        <div class="card-avatar">
-                            <a href="#pablo">
-                                <img class="img" src="{{ .detail.Image }}" />
-                            </a>
-                        </div>
-                        <div class="card-body">
-                            <h6 class="card-category text-gray">{{ .detail.Name }}</h6>
-                            <h6 class="card-category text-gray">{{ .detail.Price }}</h6>
-                            <h6 class="card-category text-gray">{{ .detail.Detail }}</h6>
-                            <h6 class="card-category text-gray">{{ .detail.Active }}</h6>
-                            <div class="d-flex justify-content-center">
-                                <button type="button" class="btn btn-warning"><i class="material-icons">edit</i>edit</button>
-                                <button type="button" class="btn btn-danger"><i class="material-icons">delete</i>delete</button>
+                    <div class="row">
+                    <div class="col-md-12">
+                        <div class="card card-profile">
+                            <div class="card-avatar">
+                                <a href="#pablo">
+                                    <img class="img" src="{{ .detail.Image }}" />
+                                </a>
+                            </div>
+                            <div class="card-body">
+                                <h2 class="card-category text-gray">{{ .detail.Title }}</h2>
+                                <h2 class="card-category text-gray">{{ .detail.Name }}</h2>
+                                <h2 class="card-category text-gray">{{ .detail.Code }}</h2>
+                                <h6 class="card-category text-gray">{{ .detail.TypePromotion }}</h6>
+                                <h6 class="card-category text-gray">{{ ((.detail.StartDate).AddDate 0 1 0).Format "Mon Jan 2 2006" }} - {{ ((.detail.EndDate).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</h6>
+                                <div class="d-flex justify-content-center">
+                                    <button type="button" class="btn btn-warning"><i class="material-icons">edit</i>edit</button>
+                                    <button type="button" class="btn btn-danger"><i class="material-icons">delete</i>delete</button>
+                                </div>
                             </div>
                         </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card card-stats">
+                            <div class="card-header card-header-warning card-header-icon">
+                                <div class="card-icon p-2">
+                                    <i class="material-icons">monetization_on</i>
+                                </div>
+                                <p class="card-category">discount</p>
+                                <h3 class="card-title"> {{ .detail.Discount }}
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card card-stats">
+                            <div class="card-header card-header-success card-header-icon">
+                                <div class="card-icon p-2">
+                                    <i class="material-icons">account_balance_wallet</i>
+                                </div>
+                                <p class="card-category">used</p>
+                                <h3 class="card-title"> {{ .detail.Amount }}
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
                     </div>
                 </div>
                 <div class="col-md-8">
                     <div class="col-md-12">
+                        
+                    </div>
+                    <div class="col-md-12">
                         <div class="card">
                             <div class="card-header card-header-primary">
-                                <h4 class="card-title ">channel</h4>
+                                <h4 class="card-title ">chat channel</h4>
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
@@ -45,12 +77,12 @@
                                             <th>Type</th>
                                         </thead>
                                         <tbody>
-                                            {{ with .detail.Chatchannels }}
+                                            {{ with .detail.ChatChannels }}
                                             {{ range . }}
-                                                <tr>
-                                                    <td>{{ .Name }}</td>
-                                                    <td>{{ .Type }}</td>
-                                                </tr>
+                                            <tr>
+                                                <td>{{ .Name }}</td>
+                                                <td>{{ .Type }}</td>
+                                            </tr>
                                             {{ end }}
                                             {{ end }}
                                         </tbody>
@@ -58,18 +90,6 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-md-12">
-                    <div class="card">
-                        <div class="card-header card-header-primary">
-                            <h4 class="card-title ">slot</h4>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                
-                            </div>
-                        </div>
-                    </div>
                     </div>
                 </div>
             </div>
