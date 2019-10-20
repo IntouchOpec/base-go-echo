@@ -127,7 +127,7 @@ func ProductPostHandler(c *Context) error {
 	if fm == "" {
 		fm = ".jpg"
 	}
-	u1,  := uuid.Must(uuid.NewV4())
+	u1 := uuid.Must(uuid.NewV4())
 	fileNameBase := "public/assets/images/%s"
 	fileNameBase = fmt.Sprintf(fileNameBase, u1)
 	fileName := fileNameBase + "." + fm
