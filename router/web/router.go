@@ -103,9 +103,13 @@ func Routers() *echo.Echo {
 		managent.GET("/product/:id", handler(ProductDetailHandler))
 		managent.GET("/product", handler(ProductListHandler))
 		managent.POST("/product", handler(ProductPostHandler))
+
 		managent.GET("/promotion", handler(PromotionListHandler))
+		managent.POST("/promotion", handler(PromotionPostHandler))
 		managent.GET("/promotion/create", handler(PromotionFormHandler))
 		managent.GET("/promotion/:id", handler(PromotionDetailHandler))
+		managent.DELETE("/promotion/:id", handler(PromotionDetailHandler))
+
 		managent.GET("/user", handler(UserListHandler))
 		managent.GET("/user/:id", handler(UserDetailHandler))
 		managent.GET("/user/create", handler(UserFormHamdeler))
@@ -117,6 +121,8 @@ func Routers() *echo.Echo {
 		managent.POST("/product/:id/sub_product/create", handler(SubProductPostHandler))
 		managent.GET("/product/:id/chatchannel_product/create", handler(ProductChatChannelViewHandler))
 		managent.POST("/product/:id/chatchannel_product/create", handler(ProductChatChannelPostHandler))
+		managent.GET("/LIFF", handler(LIIFLiatHandler))
+		managent.GET("/LIFF/create", handler(LIFFCreateHandler))
 	}
 
 	return e

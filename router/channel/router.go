@@ -1,13 +1,12 @@
 package channel
 
 import (
-	"fmt"
 	"html/template"
 	"io"
 
-	"github.com/IntouchOpec/base-go-echo/module/auth"
 	"github.com/IntouchOpec/base-go-echo/router/web"
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 )
 
 type Template struct {
@@ -20,13 +19,6 @@ type BaseTempleRespone struct {
 }
 
 func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
-	a := auth.Default(c)
-	if viewContext, isMap := data.(echo.Map); isMap {
-		acc := a.User.GetAccount()
-		csrfValue := c.Get("_csrf")
-		viewContext["base"] = echo.Map{"title": fmt.Sprintf("%s", viewContext["title"]), "account": acc}
-		viewContext["_csrf"] = csrfValue
-	}
 	return t.templates.ExecuteTemplate(w, name, data)
 }
 
@@ -37,7 +29,10 @@ func Routers() *echo.Echo {
 		templates: template.Must(template.ParseGlob("public/views/*.html")),
 	}
 	e.Renderer = t
-
+	e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
+		Root:   "public/assets",
+		Browse: true,
+	}))
 	e.POST("/callback/:account/:ChannelID", HandleWebHookLineAPI)
 	e.GET("/register/:lineID", web.LIFFRegisterHandler)
 	e.POST("/register/:lineID", web.LIIFRegisterSaveCustomer)

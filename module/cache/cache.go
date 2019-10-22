@@ -6,14 +6,14 @@ import (
 	"github.com/labstack/echo"
 
 	. "github.com/IntouchOpec/base-go-echo/conf"
-	ec "github.com/hb-go/echo-web/middleware/cache"
+	ec "github.com/IntouchOpec/base-go-echo/middleware/cache"
 )
 
 const (
 	DefaultExpiration = 3600
 	DEFAULT           = time.Duration(0)
 	FOREVER           = time.Duration(-1)
-	DefaultKey        = "github.com/hb-go/echo-web/modules/cache"
+	DefaultKey        = "github.com/IntouchOpec/base-go-echo/modules/cache"
 )
 
 func Cache() echo.MiddlewareFunc {

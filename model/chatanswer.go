@@ -1,13 +1,13 @@
 package model
 
 import (
-	"github.com/hb-go/gorm"
+	"github.com/IntouchOpec/base-go-echo/model/orm"
 	"github.com/line/line-bot-sdk-go/linebot"
 )
 
 // ChatAnswer when customer send message use text find in ChatAnswer.
 type ChatAnswer struct {
-	gorm.Model
+	orm.ModelBase
 	// ID                uint               `gorm:"primary_key" json:"id"`
 	Input         string              `json:"input"`
 	TypeInput     string              `json:"type_input"`

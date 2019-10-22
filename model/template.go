@@ -3,12 +3,13 @@ package model
 import (
 	"fmt"
 
-	"github.com/hb-go/gorm"
+	"github.com/IntouchOpec/base-go-echo/model/orm"
+	"github.com/jinzhu/gorm"
 )
 
 // TemplateSocial
 type TemplateSocial struct {
-	gorm.Model
+	orm.ModelBase
 	Souce                 string         `json:"souce"`
 	Type                  uint           `json:"type"`
 	ChatChannelID         uint           `json:"chat_channel_id"`
@@ -19,7 +20,7 @@ type TemplateSocial struct {
 
 // TemplateSocialDetail
 type TemplateSocialDetail struct {
-	gorm.Model
+	orm.ModelBase
 	No               int            `json:"no"`
 	Souce            string         `json:"souce"`
 	BelongsToID      uint           `json:"belongs_id"`
@@ -31,7 +32,7 @@ type TemplateSocialDetail struct {
 
 // KeyTemplate
 type KeyTemplate struct {
-	gorm.Model
+	orm.ModelBase
 	Name                  string                  `json:"name"`
 	No                    int                     `json:"no"`
 	TemplateSocials       []*TemplateSocial       `gorm:"many2many:template_social_key_template;" json:"template_socials"`

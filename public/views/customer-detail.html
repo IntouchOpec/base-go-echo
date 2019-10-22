@@ -13,57 +13,79 @@
       <div class="content">
          <div class="container-fluid">
            <div class="row">
-             <div class="col-md-8">
-               <div class="card">
-                 <div class="card-header card-header-primary">
-                   <h4 class="card-title ">admin detail</h4>
-                 </div>
+              <div class="col-md-4">
                  <div class="card-body">
                     <div class="row">
-                        <div class="col-8">
-                            <div class="col-md-12">
-                              <div class="card">
-                                <div class="card-header card-header-primary">
-                                  <h4 class="card-title ">booking</h4>
-                                </div>
-                                <div class="card-body">
-                                  <div class="table-responsive">
-                                      <table class="table">
-                                        <thead class=" text-primary">
-                                          <th>CreatedAt</th>
-                                        </thead>
-                                        <tbody>
-                                          {{ with .customer.EventLogs }}
-                                          {{ range . }}
-                                          <td>{{ ((.CreatedAt).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
-                                          {{ end }} 
-                                          {{ end }}
-                                        </tbody>
-                                      </table>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                          <div class="card card-profile">
-                            <div class="card-avatar">
-                              <a href="#pablo">
-                                <img class="img" src="{{ .cutomer.PictureURL }}" />
-                              </a>
-                            </div>
-                            <div class="card-body">
+                        <div class="card card-profile">
+                          <div class="card-avatar">
+                            <a href="#pablo">
+                              {{ if (eq .customer.DisplayName "") }}
+                                <img class="img" src="https://icon-library.net/images/person-image-icon/person-image-icon-6.jpg" />
+                              {{ else }}
+                                <img class="img" src="{{ .customer.PictureURL }}" />
+                              {{ end }}
+                            </a>
+                          </div>
+                          <div class="card-body">
+                            <h4 class="card-title">{{ .customer.LineID }}</h4>
+                            {{ if (eq .customer.DisplayName "") }}
+                              <h6 class="card-category text-gray">-</h6>
+                            {{ else }}
                               <h6 class="card-category text-gray">{{ .customer.DisplayName }}</h6>
-                              <h4 class="card-title">{{ .customer.FullName }}</h4>
-                              <h4 class="card-title">{{ .customer.Email }}</h4>
-                              <h4 class="card-title">{{ .customer.PhoneNumber }}</h4>
-                            </div>
+                            {{ end }}
+                            {{ if (eq .customer.FullName "") }}
+                              <h6 class="card-category text-gray">-</h6>
+                            {{ else }}
+                              <h6 class="card-category text-gray">{{ .customer.FullName }}</h6>
+                            {{ end }}
+                            {{ if (eq .customer.Email "") }}
+                              <h6 class="card-category text-gray">-</h6>
+                            {{ else }}
+                              <h6 class="card-category text-gray">{{ .customer.Email }}</h6>
+                            {{ end }}
+                            {{ if (eq .customer.PhoneNumber "") }}
+                              <h6 class="card-category text-gray">-</h6>
+                            {{ else }}
+                              <h6 class="card-category text-gray">{{ .customer.PhoneNumber }}</h6>
+                            {{ end }}
                           </div>
                         </div>
                     </div>
                  </div>
-               </div>
-             </div>
+              </div>
+              <div class="col-md-8">
+                  <div class="card">
+                    <div class="card-header card-header-primary">
+                      <h4 class="card-title">booking</h4>
+                    </div>
+                    <div class="card-body">
+                      <div class="table-responsive">
+                          <table class="table">
+                            <thead class=" text-primary">
+                              <th>Queue</th>
+                              <th>BookStatus</th>
+                              <th>BookState</th>
+                              <th>BookedDate</th>
+                              <th>CreatedAt</th>
+                            </thead>
+                            <tbody>
+                              {{ with .customer.Bookings }}
+                              {{ range . }}
+                              <tr>
+                                <td>{{ .Queue }}</td>
+                                <td>{{ .BookStatus }}</td>
+                                <td>{{ .BookState }}</td>
+                                <td>{{ .BookedDate }}</td>
+                                <td>{{ ((.CreatedAt).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
+                              </tr>
+                              {{ end }} 
+                              {{ end }}
+                            </tbody>
+                          </table>
+                      </div>
+                    </div>
+                  </div>
+              </div>
            </div>
            <div class="row">
               <div class="col-6">
@@ -84,11 +106,13 @@
                         <tbody>
                             {{ with .customer.EventLogs }}
                             {{ range . }}
-                            <td>{{.ReplyToken}}</td>
-                            <td>{{.Type}}</td>
-                            <td>{{.LineID}}</td>
-                            <td>{{.Text}}</td>
-                            <td>{{ ((.CreatedAt).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
+                            <tr>
+                              <td>{{.ReplyToken}}</td>
+                              <td>{{.Type}}</td>
+                              <td>{{.LineID}}</td>
+                              <td>{{.Text}}</td>
+                              <td>{{ ((.CreatedAt).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
+                            </tr>
                             {{ end }} 
                             {{ end }}
                         </tbody>
@@ -114,10 +138,12 @@
                               <tbody>
                                   {{ with .customer.ActionLogs }}
                                   {{ range . }}
+                                  <tr>
                                   <td>{{ .Name }}</td>
                                   <td>{{ .Status }}</td>
                                   <td>{{ .Type }}</td>
                                   <td>{{ ((.CreatedAt).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
+                                  </tr>
                                   {{ end }} 
                                   {{ end }}
                               </tbody>

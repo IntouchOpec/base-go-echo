@@ -3,12 +3,12 @@ package router
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"net/url"
 	"os"
 	"os/signal"
 	"time"
 
+	"github.com/IntouchOpec/base-go-echo/module/log"
 	"github.com/IntouchOpec/base-go-echo/router/api"
 	"github.com/IntouchOpec/base-go-echo/router/channel"
 	"github.com/IntouchOpec/base-go-echo/router/web"
@@ -16,12 +16,8 @@ import (
 	"github.com/labstack/echo"
 	mw "github.com/labstack/echo/middleware"
 	"go.elastic.co/apm"
-	"go.elastic.co/apm/module/apmechov4"
 
 	. "github.com/IntouchOpec/base-go-echo/conf"
-	"github.com/hb-go/echo-web/middleware/metrics/prometheus"
-	"github.com/hb-go/echo-web/middleware/pprof"
-	"github.com/hb-go/echo-web/module/log"
 )
 
 type (
@@ -48,27 +44,27 @@ func RunSubdomains(confFilePath string) {
 	e := echo.New()
 
 	// pprof
-	e.Pre(pprof.Serve())
+	// e.Pre(pprof.Serve())
 
 	e.Pre(mw.RemoveTrailingSlash())
 
 	// Elastic APM
 	// Requires APM Server 6.5.0 or newer
 	apm.DefaultTracer.Service.Version = Conf.App.Version
-	e.Use(apmechov4.Middleware(
-		apmechov4.WithRequestIgnorer(func(request *http.Request) bool {
-			return false
-		}),
-	))
+	// e.Use(apmechov4.Middleware(
+	// 	apmechov4.WithRequestIgnorer(func(request *http.Request) bool {
+	// 		return false
+	// 	}),
+	// ))
 
 	e.Logger.SetLevel(GetLogLvl())
 
 	// Metrics
-	if !Conf.Metrics.Disable {
-		e.Use(prometheus.MetricsFunc(
-			prometheus.Namespace("echo_web"),
-		))
-	}
+	// if !Conf.Metrics.Disable {
+	// 	e.Use(prometheus.MetricsFunc(
+	// 		prometheus.Namespace("echo_web"),
+	// 	))
+	// }
 
 	// Secure, XSS/CSS HSTS
 	e.Use(mw.SecureWithConfig(mw.DefaultSecureConfig))

@@ -3,12 +3,12 @@ package model
 import (
 	"fmt"
 
-	"github.com/hb-go/gorm"
+	"github.com/IntouchOpec/base-go-echo/model/orm"
 )
 
 // Product souce product and service.
 type Product struct {
-	gorm.Model
+	orm.ModelBase
 	Name         string         `form:"name" json:"name" gorm:"type:varchar(25)"`
 	Detail       string         `form:"detail" json:"detail" gorm:"type:varchar(25)"`
 	Price        float32        `form:"price" json:"price"`
@@ -23,7 +23,7 @@ type Product struct {
 
 // SubProduct product set.
 type SubProduct struct {
-	gorm.Model
+	orm.ModelBase
 	Start     string     `json:"start"`
 	End       string     `json:"end"`
 	Day       int        `json:"day"`

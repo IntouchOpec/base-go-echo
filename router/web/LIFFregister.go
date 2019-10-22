@@ -21,7 +21,6 @@ func LIFFRegisterHandler(c echo.Context) error {
 		fmt.Println(err)
 		return c.NoContent(http.StatusBadRequest)
 	}
-	fmt.Println("====")
 
 	// custo := model.Customer{}
 	// if err := model.DB().FirstOrCreate(&custo).Error; err != nil {
@@ -36,7 +35,7 @@ func LIFFRegisterHandler(c echo.Context) error {
 
 type LineReqRegister struct {
 	UserID      string `json:"userId"`
-	FullName    string `json:"full_name"`
+	FullName    string `json:"fullName"`
 	DisplayName string `json:"displayName"`
 	PictureURL  string `json:"pictureUrl"`
 	Email       string `json:"email"`

@@ -3,7 +3,7 @@ package model
 import (
 	"time"
 
-	"github.com/hb-go/gorm"
+	"github.com/IntouchOpec/base-go-echo/model/orm"
 )
 
 type PromotionType string
@@ -16,18 +16,18 @@ const (
 
 // Promotion discount price product.
 type Promotion struct {
-	gorm.Model
+	orm.ModelBase
 
-	Title         string         `json:"title"`
-	TypePromotion string         `json:"type_promotion" gorm:"type:varchar(25)"`
-	Discount      int            `json:"discount"`
-	Amount        int            `json:"amount"`
-	Code          string         `json:"code" gorm:"type:varchar(25)"`
-	Name          string         `json:"name" gorm:"type:varchar(25)"`
-	StartDate     time.Time      `gorm:"column:start_time" json:"start_time"`
-	EndDate       time.Time      `gorm:"column:end_time" json:"end_time"`
-	Condition     string         `json:"condition"`
-	Image         string         `json:"image" gorm:"type:varchar(255)"`
+	Title         string         `form:"title" json:"title"`
+	TypePromotion string         `form:"type_promotion" json:"type_promotion" gorm:"type:varchar(25)"`
+	Discount      int            `form:"discount" json:"discount"`
+	Amount        int            `form:"amount" json:"amount"`
+	Code          string         `form:"code" json:"code" gorm:"type:varchar(25)"`
+	Name          string         `form:"name" json:"name" gorm:"type:varchar(25)"`
+	StartDate     time.Time      `from:"start_time" gorm:"column:start_time" json:"start_time"`
+	EndDate       time.Time      `from:"end_time" gorm:"column:end_time" json:"end_time"`
+	Condition     string         `form:"condition" json:"condition"`
+	Image         string         `form:"image" json:"image" gorm:"type:varchar(255)"`
 	Customers     []*Customer    `gorm:"many2many:promotion_customer" json:"customer"`
 	ChatChannels  []*ChatChannel `json:"chat_channels" gorm:"many2many:chat_channel_promotion"`
 	AccountID     uint           `json:"account_id"`

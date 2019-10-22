@@ -61,6 +61,12 @@
                     <p>Rich Menu</p>
                 </a>
             </li>
+            <li class="nav-item {{ if (eq .title "LIFF") }}active{{ end }}">
+                <a class="nav-link" href="/admin/LIFF">
+                    <i class="material-icons">web_asset</i>
+                    <p>LIFF</p>
+                </a>
+            </li>
             <li class="nav-item {{ if (eq .title "setting") }}active{{ end }}">
                 <a class="nav-link" href="/admin/setting">
                     <i class="material-icons">settings_applications</i>

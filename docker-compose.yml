@@ -34,5 +34,5 @@ services:
       context: . # Use an image built from the specified dockerfile in the current directory.
       dockerfile: Dockerfile
     ports:
-      - "8181:8080" # Forward the exposed port 8080 on the container to port 8080 on the host machine
+      - "8181:8181" # Forward the exposed port 8080 on the container to port 8080 on the host machine
     restart: unless-stopped

@@ -1,8 +1,10 @@
 package model
 
+import "github.com/IntouchOpec/base-go-echo/model/orm"
+
 // Account struct.
 type Account struct {
-	Model
+	orm.ModelBase
 
 	// ID   uint64 `json:"id,omitempty"`
 	Name         string         `json:"name" gorm:"type:varchar(25)"`

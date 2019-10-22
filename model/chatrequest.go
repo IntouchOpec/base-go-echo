@@ -1,10 +1,10 @@
 package model
 
-import "github.com/hb-go/gorm"
+import "github.com/IntouchOpec/base-go-echo/model/orm"
 
 // ChatRequest log castomer when customer send something to line OA.
 type ChatRequest struct {
-	gorm.Model
+	orm.ModelBase
 	// ID           uint       `gorm:"primary_key" json:"id"`
 	LineID       string     `json:"line_id" gorm:"type:varchar(25)"`
 	Message      string     `json:"message" gorm:"type:varchar(50)"`

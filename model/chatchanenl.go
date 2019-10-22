@@ -3,7 +3,7 @@ package model
 import (
 	"fmt"
 
-	"github.com/hb-go/gorm"
+	"github.com/IntouchOpec/base-go-echo/model/orm"
 )
 
 // ChatChannels list ChatChannel
@@ -11,7 +11,7 @@ type ChatChannels []ChatChannel
 
 // ChatChannel is soucre for chatbot.
 type ChatChannel struct {
-	gorm.Model
+	orm.ModelBase
 
 	ChannelID          string       `json:"channel_id" form:"channel_id" binding:"required" gorm:"type:varchar(25);unique_index"`
 	Name               string       `json:"name" form:"name" binding:"required" gorm:"type:varchar(25)"`

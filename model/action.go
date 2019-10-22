@@ -1,6 +1,6 @@
 package model
 
-import "github.com/hb-go/gorm"
+import "github.com/IntouchOpec/base-go-echo/model/orm"
 
 // ActionStatus  action status
 type ActionStatus string
@@ -28,7 +28,7 @@ const (
 
 // Action source action all
 type ActionLog struct {
-	gorm.Model
+	orm.ModelBase
 
 	Name          string       `json:"name" gorm:"type:varchar(25)"`
 	Status        ActionStatus `json:"status" gorm:"type:varchar(10)"`

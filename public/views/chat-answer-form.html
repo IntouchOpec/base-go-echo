@@ -117,9 +117,33 @@
           },
         },
         submitHandler: function(form) {
-            
+          let _csrf = $("#_csrf").val()
+          let Input = $("#Input").val()
+          let TypeInput = $("#TypeInput").val()
+          let Reply = $("#Reply").val()
+          let TypeReply = $("#TypeReply").val()
+          let Source = $("#Source").val()
+          let data = new URLSearchParams();
+          data.append("_csrf", _csrf)
+          data.append("Input", Input)
+          data.append("TypeInput", TypeInput)
+          data.append("Reply", Reply)
+          data.append("TypeReply", TypeReply)
+          data.append("Source", Source)
+          fetch("/admin/chat_answer", {
+              method: "POST", 
+              body: data
+          })
+          .then(res => {
+            if (res.status === 201) Swal.fire("success", "", "success") 
+            return res.json()
+          })
+          .then(json => {
+            window.location = "/admin/chat_answer"
+          })
+          .catch(err => Swal.fire("fial", "", "warning"))
         }
-        })
+      })
     })(jQuery)
   </script>
 </body>

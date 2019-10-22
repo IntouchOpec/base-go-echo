@@ -23,7 +23,7 @@ import (
 type TracerType string
 
 const (
-	DefaultKey = "github.com/hb-go/echo-web/middleware/opentracing"
+	DefaultKey = "github.com/IntouchOpec/base-go-echo/middleware/opentracing"
 
 	TracerTypeJaeger  TracerType = "jaeger"
 	TracerTypeAppdash            = "appdash"

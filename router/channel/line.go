@@ -70,6 +70,7 @@ func HandleWebHookLineAPI(c echo.Context) error {
 				if len(messageText) >= 8 {
 					keyWord = messageText[0:8]
 				}
+				fmt.Println(keyWord)
 				if keyWord == "calendar" || messageText == "booking" {
 					var m string
 					if len(message.Text) > 8 {
@@ -175,8 +176,6 @@ func HandleWebHookLineAPI(c echo.Context) error {
 						act.CreateAction()
 					} else if keyWord == "comment" {
 
-					} else if keyWord == "promotion" {
-
 					} else {
 						m = ThankyouTemplate(chatChannel, booking, subProduct)
 					}
@@ -187,6 +186,24 @@ func HandleWebHookLineAPI(c echo.Context) error {
 					flexMessage := linebot.NewFlexMessage("ขอบคุณ", flexContainer)
 					// flexMessage := linebot.NewPostbackAction("label", "data", "text", "displayText")
 					bot.ReplyMessage(event.ReplyToken, flexMessage).Do()
+				} else if keyWord == "promotio" {
+					promotions := []*model.Promotion{}
+					model.DB().Where("type_promotion = ?", "Promotion").Find(&promotions)
+					fmt.Println(len(promotions))
+					m := PromotionsTemplate(promotions)
+					flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(m))
+					if err != nil {
+
+						return err
+					}
+					flexMessage := linebot.NewFlexMessage("ตาราง", flexContainer)
+					res, err := bot.ReplyMessage(event.ReplyToken, flexMessage).Do()
+					fmt.Println(res)
+					if err != nil {
+						return err
+					}
+					act := model.ActionLog{Name: "promotion", Status: model.StatusSuccess, Type: model.TypeActionLine, UserID: event.Source.UserID, ChatChannelID: chatChannel.ID, CustomerID: customer.ID}
+					act.CreateAction()
 				} else if keyWord == "location" {
 					position := chatChannel.GetSetting([]string{"Latitude", "Longitude"})
 					Latitude, _ := strconv.ParseFloat(position["Latitude"], 64)
@@ -390,4 +407,33 @@ func ThankyouTemplate(ChatChannel model.ChatChannel, booking model.Booking, subP
 		}
 	  }`, ChatChannel.Image, ChatChannel.Address, subProduct.Start, subProduct.End)
 	return productTamplate
+}
+
+func PromotionsTemplate(promotions []*model.Promotion) string {
+	var promotionCards string
+	for _, promotion := range promotions {
+		promotionCards = promotionCards + PromotionCardTemplate(promotion)
+	}
+	var promotionsTemplate string = fmt.Sprintf(`{
+		"type": "carousel",
+		"contents": [%s]
+	  }`, promotionCards[:len(promotionCards)-1])
+	return promotionsTemplate
+}
+
+func PromotionCardTemplate(promotion *model.Promotion) string {
+	return fmt.Sprintf(`{
+		"type": "bubble",
+		"hero": { "type": "image", "size": "full", "aspectRatio": "20:13", "aspectMode": "cover", "url": "%s" },
+		"body": { "type": "box", "layout": "vertical", "spacing": "sm", "contents": [
+			{ "type": "text", "text": "%s", "wrap": true, "weight": "bold", "size": "xl"
+			},
+			{ "type": "box", "layout": "baseline", "flex": 1, "contents": [
+				{ "type": "text", "text": "%s", "wrap": true, "weight": "bold", "size": "xl", "flex": 0 } ] } ]
+		},
+		"footer": { "type": "box", "layout": "vertical", "spacing": "sm", "contents": [
+			{ "type": "button", "flex": 2, "style": "primary", "color": "#aaaaaa", "action": 
+			{ "type": "uri", "label": "Add to Cart", "uri": "https://linecorp.com" } } ]
+		}
+	  },`, promotion.Image, promotion.Title, promotion.Condition)
 }

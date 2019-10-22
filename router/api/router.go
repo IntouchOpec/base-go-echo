@@ -5,8 +5,8 @@ import (
 	mw "github.com/labstack/echo/middleware"
 
 	. "github.com/IntouchOpec/base-go-echo/conf"
+	"github.com/IntouchOpec/base-go-echo/module/cache"
 	"github.com/IntouchOpec/base-go-echo/module/session"
-	"github.com/hb-go/echo-web/module/cache"
 )
 
 //  Routers API

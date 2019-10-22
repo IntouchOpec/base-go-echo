@@ -1,10 +1,10 @@
 package model
 
-import "github.com/hb-go/gorm"
+import "github.com/IntouchOpec/base-go-echo/model/orm"
 
 // Customer follow Line OA.
 type Customer struct {
-	gorm.Model
+	orm.ModelBase
 
 	FullName      string       `json:"full_name" gorm:"type:varchar(50);"`
 	PictureURL    string       `json:"picture_url"`

@@ -1,6 +1,7 @@
 package hanlder
 
 import (
+	// "github.com/hb-go/gorm"
 	"github.com/hb-go/gorm"
 	"github.com/line/line-bot-sdk-go/linebot"
 )

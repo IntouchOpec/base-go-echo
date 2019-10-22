@@ -1,10 +1,10 @@
 package model
 
-import "github.com/hb-go/gorm"
+import "github.com/IntouchOpec/base-go-echo/model/orm"
 
 // Setting souce value.
 type Setting struct {
-	gorm.Model
+	orm.ModelBase
 
 	Value        string         `json:"value" gorm:"type:varchar(25)"`
 	Name         string         `json:"name" gorm:"type:varchar(25)"`

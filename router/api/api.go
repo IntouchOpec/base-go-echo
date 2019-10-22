@@ -5,9 +5,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/hb-go/echo-web/model"
-	"github.com/hb-go/echo-web/module/cache"
-	"github.com/hb-go/echo-web/module/log"
+	"github.com/IntouchOpec/base-go-echo/model"
+	"github.com/IntouchOpec/base-go-echo/module/cache"
+	"github.com/IntouchOpec/base-go-echo/module/log"
 )
 
 // ApiHandler
@@ -20,7 +20,7 @@ func ApiHandler(c *Context) error {
 		log.Debugf("Render Error: %v", err)
 	} else {
 		var User model.User
-		u = User.GetUserById(id)
+		u = User.GetUserByID(id)
 	}
 
 	value := -1

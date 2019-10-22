@@ -4,9 +4,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/hb-go/echo-web/module/auth"
-	"github.com/hb-go/echo-web/module/log"
-	"github.com/hb-go/gorm"
+	"github.com/IntouchOpec/base-go-echo/model/orm"
+	"github.com/labstack/gommon/log"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -14,12 +13,12 @@ import (
 // GetUserByID is function find user by id
 func (u *User) GetUserByID(id uint64) *User {
 	user := User{}
-	// var count int64
-	// db := DB().Where("id = ?", id)
-	// if err := Cache(db).First(&user).Count(&count).Error; err != nil {
-	// 	log.Debugf("GetUserById error: %v", err)
-	// 	return nil
-	// }
+	var count int64
+	db := DB().Where("id = ?", id)
+	if err := Cache(db).First(&user).Count(&count).Error; err != nil {
+		log.Debugf("GetUserById error: %v", err)
+		return nil
+	}
 
 	return &user
 }
@@ -76,7 +75,7 @@ func (u *User) AddUserWithUserNamePwd() *User {
 
 // User prepeo use system.
 type User struct {
-	gorm.Model
+	orm.ModelBase
 	// ID            uint64  `json:"id,omitempty"`
 	UserName      string  `form:"username" json:"username,omitempty" gorm:"unique; type:varchar(25)"`
 	Password      string  `form:"password" json:"password" gorm:"type:varchar(255)"`
@@ -92,16 +91,10 @@ type User struct {
 }
 
 type Role struct {
-	gorm.Model
+	orm.ModelBase
 
 	Name  string  `json:"name"`
 	Users []*User `gorm:"many2many:user_role" json:"users"`
-}
-
-// GenerateAnonymousUser should generate an anonymous user model
-// for all sessions. This should be an unauthenticated 0 value struct.
-func GenerateAnonymousUser() auth.User {
-	return &User{}
 }
 
 // TableName users

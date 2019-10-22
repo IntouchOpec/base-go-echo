@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/jinzhu/gorm"
 
@@ -13,7 +12,6 @@ import (
 	"github.com/labstack/echo"
 	"github.com/line/line-bot-sdk-go/linebot"
 
-	"github.com/IntouchOpec/base-go-echo/lib"
 	"github.com/IntouchOpec/base-go-echo/model"
 	"github.com/IntouchOpec/base-go-echo/module/auth"
 )
@@ -45,28 +43,27 @@ func ChatChannelListHandler(c *Context) error {
 }
 
 func ChatChannelGetChannelAccessTokenHandler(c *Context) error {
-	id := c.Param("id")
-	chatChannel := model.ChatChannel{}
-	a := auth.Default(c)
-	db := model.DB()
-	db.Preload("Account").Where("account_id = ?", a.User.GetAccountID()).Find(&chatChannel, id)
-	bot, err := lib.ConnectLineBot(chatChannel.ChannelSecret, chatChannel.ChannelAccessToken)
-	if err != nil {
-		return c.NoContent(http.StatusBadRequest)
-	}
+	// id := c.Param("id")
+	// chatChannel := model.ChatChannel{}
+	// a := auth.Default(c)
+	// db := model.DB()
+	// db.Preload("Account").Where("account_id = ?", a.User.GetAccountID()).Find(&chatChannel, id)
+	// bot, err := linebot.New(chatChannel.ChannelID, chatChannel.ChannelSecret)
+	// if err != nil {
+	// 	return c.NoContent(http.StatusBadRequest)
+	// }
+	// res, err := bot.IssueAccessToken(chatChannel.ChannelID, chatChannel.ChannelSecret).Do()
+	// if err != nil {
+	// 	return c.NoContent(http.StatusBadRequest)
+	// }
 
-	res, err := bot.IssueAccessToken(chatChannel.ChannelID, chatChannel.ChannelSecret).Do()
-	if err != nil {
-		return c.NoContent(http.StatusBadRequest)
-	}
+	// chatChannel.ChannelAccessToken = res.AccessToken
+	// if err := db.Save(&chatChannel).Error; err != nil {
+	// 	return c.NoContent(http.StatusInternalServerError)
+	// }
 
-	chatChannel.ChannelAccessToken = res.AccessToken
-	if err := db.Save(&chatChannel).Error; err != nil {
-		return c.NoContent(http.StatusInternalServerError)
-	}
-
-	db.Model(&chatChannel).Association("Settings").Append(&model.Setting{Name: "statusAccessToken", Value: "success"}, model.Setting{Name: "dateStatusToken", Value: fmt.Sprintf("%s", time.Now())})
-	return c.JSON(http.StatusOK, res)
+	// db.Model(&chatChannel).Association("Settings").Append(&model.Setting{Name: "statusAccessToken", Value: "success"}, model.Setting{Name: "dateStatusToken", Value: fmt.Sprintf("%s", time.Now())})
+	return c.JSON(http.StatusOK, "res")
 }
 
 // ChatChannelDetailHandler
@@ -131,7 +128,7 @@ func ChatChannelCreatePostHandler(c *Context) error {
 	}
 	chatChannelModel.SaveChatChannel()
 	if chatChannel.Type == "Line" {
-		bot, err := lib.ConnectLineBot(chatChannel.ChannelSecret, chatChannel.ChannelAccessToken)
+		bot, err := linebot.New(chatChannel.ChannelID, chatChannel.ChannelSecret)
 		if err != nil {
 			return c.NoContent(http.StatusBadRequest)
 		}

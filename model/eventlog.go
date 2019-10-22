@@ -1,10 +1,10 @@
 package model
 
-import "github.com/hb-go/gorm"
+import "github.com/IntouchOpec/base-go-echo/model/orm"
 
 // EventLog log event line OA.
 type EventLog struct {
-	gorm.Model
+	orm.ModelBase
 	ReplyToken    string       `json:"reply_token" gorm:"type:varchar(255)"`
 	Type          string       `json:"type" gorm:"type:varchar(10)"`
 	LineID        string       `json:"line_id" gorm:"type:varchar(255)"`

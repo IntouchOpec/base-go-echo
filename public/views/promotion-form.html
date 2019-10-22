@@ -25,7 +25,7 @@
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating" >Title</label>
-                                                        <input name="name" id="name" type="text" class="form-control" >
+                                                        <input name="Title" id="Title" type="text" class="form-control" >
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12 mt-2">
@@ -55,13 +55,13 @@
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating" >Code</label>
-                                                        <input name="name" id="name" type="text" class="form-control" >
+                                                        <input name="Code" id="Code" type="text" class="form-control" >
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating" >Name</label>
-                                                        <input name="name" id="name" type="text" class="form-control" >
+                                                        <input name="Name" id="Name" type="text" class="form-control" >
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12 mt-2">
@@ -79,12 +79,11 @@
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating" >Condition</label>
-                                                        <textarea name="Condition" id="Condition" type="text" class="form-control" >
-                                                        </textarea>
+                                                        <textarea name="Condition" id="Condition" type="text" class="form-control" ></textarea>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12 mt-2">
-                                                    <input name="Image" type="file">
+                                                    <input id="Image" name="Image" type="file">
                                                     <p><strong>Image:</strong> Choose any file on your computer and its name will be displayed in an alert dialog box.</p>
                                                 </div>
                                             </div>
@@ -103,6 +102,12 @@
   {{ template "script" }}
   <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
   <script>
+    const toBase64 = file => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = error => reject(error);
+    });
     (function ($) {
         $("form[name='create-promotion']").validate({
             rules: {
@@ -131,6 +136,9 @@
                     required: true
                 },
                 Condition: {
+                    required: true
+                }, 
+                Image: {
                     required: true
                 },
             },
@@ -161,13 +169,84 @@
                 },
                 Condition: {
                     required: "Please enter a valid Condition"
-                }
+                },
+                Image: {
+                    required: "Please enter a valid Image"
+                },
             },
             submitHandler: function(form) {
-                
+                let _csrf = $("#_csrf").val()
+                let TypePromotion = $("#TypePromotion").val()
+                let Title = $("#Title").val()
+                let Discount = $("#Discount").val()
+                let Amount = $("#Amount").val()
+                let Code = $("#Code").val()
+                let Name = $("#Name").val()
+                let StartDate = $("#StartDate").val()
+                let EndDate = $("#EndDate").val()
+                let Condition = $("#Condition").val()
+                let Image =  $("#Image")
+
+                let typePromotionEncodedKey = encodeURIComponent("type_promotion") 
+                let titleEncodedKey = encodeURIComponent("title") 
+                let discountEncodedKey = encodeURIComponent("discount") 
+                let amountEncodedKey = encodeURIComponent("amount") 
+                let codeEncodedKey = encodeURIComponent("code") 
+                let nameEncodedKey = encodeURIComponent("name") 
+                let startDateEncodedKey = encodeURIComponent("start_date") 
+                let endDateEncodedKey = encodeURIComponent("end_date") 
+                let conditionEncodedKey = encodeURIComponent("condition") 
+                let imageEncodedKey = encodeURIComponent("file") 
+
+                let typePromotionEncodedValue = encodeURIComponent(TypePromotion)
+                let titleEncodedValue = encodeURIComponent(Title)
+                let discountEncodedValue = encodeURIComponent(Discount)
+                let amountEncodedValue = encodeURIComponent(Amount)
+                let codeEncodedValue = encodeURIComponent(Code)
+                let nameEncodedValue = encodeURIComponent(Name)
+
+                let startDateEncodedValue = encodeURIComponent(new Date(StartDate).toISOString())
+                let endDateEncodedValue = encodeURIComponent(new Date(EndDate).toISOString())
+                let conditionEncodedValue = encodeURIComponent(Condition)
+                let encodedKey = encodeURIComponent("_csrf");
+                let encodedValue = encodeURIComponent(_csrf);
+
+                let data = []
+
+                toBase64(Image[0].files[0]).then(base64Image => {
+                    
+                    Image = JSON.stringify(base64Image)
+                    let imageEncodedValue = encodeURIComponent(Image);
+                    data.push(encodedKey + "=" + encodedValue)
+                    data.push(typePromotionEncodedKey + "=" + typePromotionEncodedValue) 
+                    data.push(titleEncodedKey + "=" + titleEncodedValue) 
+                    data.push(discountEncodedKey + "=" + discountEncodedValue) 
+                    data.push(amountEncodedKey + "=" + amountEncodedValue) 
+                    data.push(codeEncodedKey + "=" + codeEncodedValue) 
+                    data.push(nameEncodedKey + "=" + nameEncodedValue) 
+                    data.push(startDateEncodedKey + "=" + startDateEncodedValue) 
+                    data.push(endDateEncodedKey + "=" + endDateEncodedValue) 
+                    data.push(conditionEncodedKey + "=" + conditionEncodedValue) 
+                    data.push(imageEncodedKey + "=" + imageEncodedValue) 
+                    data = data.join("&");
+                    fetch("/admin/promotion", {
+                        method: "POST", 
+                        headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                        body: data
+                    })
+                    .then(res => {
+                        if (res.status === 201) Swal.fire("success", "", "success") 
+                        return res.json()
+                    })
+                    .then(json => {
+                        console.log(json)
+                        window.location = "/admin/promotion"
+                        return false
+                    })
+                    .catch(err => Swal.fire("fial", "", "warning"))
+                })
             }
         })
-        
     })(jQuery)
   </script>
 </body>
