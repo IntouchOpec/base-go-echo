@@ -9,7 +9,7 @@ import (
 	"io/ioutil"
 	"strings"
 
-	uuid "github.com/satori/go.uuid"
+	guuid "github.com/google/uuid"
 )
 
 func UploadteImage(file string) (string, error) {
@@ -39,9 +39,9 @@ func UploadteImage(file string) (string, error) {
 		fm = ".jpg"
 	}
 
-	u1 := uuid.Must(uuid.NewV4())
+	u := guuid.New()
 	fileNameBase := "public/assets/images/%s"
-	fileNameBase = fmt.Sprintf(fileNameBase, u1)
+	fileNameBase = fmt.Sprintf(fileNameBase, u)
 	fileName := fileNameBase + "." + fm
 	err = ioutil.WriteFile(fileName, buff.Bytes(), 0644)
 	return fileName, nil

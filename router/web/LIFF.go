@@ -1,6 +1,7 @@
 package web
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/IntouchOpec/base-go-echo/model"
@@ -9,13 +10,18 @@ import (
 	"github.com/line/line-bot-sdk-go/linebot"
 )
 
-func LIIFLiatHandler(c *Context) error {
+func LIIFListHandler(c *Context) error {
 	a := auth.Default(c)
-	var chatChannel model.ChatChannel
+	chatChannel := model.ChatChannel{}
 	model.DB().Where("account_id = ?", a.User.GetAccountID()).Find(&chatChannel)
-	bot, _ := linebot.New(chatChannel.ChannelID, chatChannel.ChannelSecret)
 
-	res, _ := bot.GetLIFF().Do()
+	bot, err := linebot.New(chatChannel.ChannelID, chatChannel.ChannelSecret)
+	if err != nil {
+		fmt.Println(err, "=====")
+	}
+	res, err := bot.GetLIFF().Do()
+
+	fmt.Println(res, chatChannel.ID, err)
 	return c.Render(http.StatusOK, "LIFF-list", echo.Map{
 		"list":  res,
 		"title": "LIFF",

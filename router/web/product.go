@@ -12,10 +12,10 @@ import (
 
 	"github.com/jinzhu/gorm"
 	"github.com/line/line-bot-sdk-go/linebot"
-	uuid "github.com/satori/go.uuid"
 
 	"github.com/IntouchOpec/base-go-echo/model"
 	"github.com/IntouchOpec/base-go-echo/module/auth"
+	guuid "github.com/google/uuid"
 	"github.com/labstack/echo"
 )
 
@@ -128,9 +128,9 @@ func ProductPostHandler(c *Context) error {
 		fm = ".jpg"
 	}
 
-	u1 := uuid.Must(uuid.NewV4())
+	u := guuid.New()
 	fileNameBase := "public/assets/images/%s"
-	fileNameBase = fmt.Sprintf(fileNameBase, u1)
+	fileNameBase = fmt.Sprintf(fileNameBase, u)
 	fileName := fileNameBase + "." + fm
 	err = ioutil.WriteFile(fileName, buff.Bytes(), 0644)
 	if err != nil {
@@ -144,7 +144,7 @@ func ProductPostHandler(c *Context) error {
 		Name:      product.Name,
 		Detail:    product.Detail,
 		Price:     product.Price,
-		Image:     fmt.Sprintf("%s.%s", u1, fm),
+		Image:     fmt.Sprintf("%s.%s", u, fm),
 		AccountID: a.User.GetAccountID(),
 	}
 	productModel.SaveProduct()

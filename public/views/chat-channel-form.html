@@ -181,7 +181,7 @@
                 data.append("channel_access_token", channel_access_token)
                 data.append("type", type)
                 data.append("image", image)
-                data.append("settings", JSON.stringify([{name: "Latitude", value: Latitude}, {name: "Longitude", Latitude}]))
+                data.append("settings", JSON.stringify([{name: "Latitude", value: Latitude}, {name: "Longitude", value: Latitude}]))
                 fetch("/admin/chat_channel", {
                     method: "POST", 
                     body: data

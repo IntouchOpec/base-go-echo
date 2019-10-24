@@ -141,7 +141,7 @@ func ChatChannelCreatePostHandler(c *Context) error {
 		}
 		model.DB().Model(&chatChannelModel).Association("Settings").Append(
 			&model.Setting{Name: "LIFFregister", Value: res.LIFFID},
-			&model.Setting{Name: "StatusLIFFregister", Value: status},
+			&model.Setting{Name: "statusLIFFregister", Value: status},
 			&model.Setting{Name: "statusAccessToken", Value: status},
 			&model.Setting{Name: "dateStatusToken", Value: status},
 		)

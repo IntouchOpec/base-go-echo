@@ -22,23 +22,16 @@
                    <div class="table-responsive">
                      <table class="table">
                        <thead class=" text-primary">
-                        <th>No</th>
-                        <th>RichMenuId</th>
-                        <th>selected</th>
-                        <th>name</th>
-                        <th>chatBarText</th>
-                        <th>create at</th>
+                        <th>RichMenuID</th>
+                        <th>Height</th>
+                        <th>Width</th>
+                        <th>Selected</th>
+                        <th>Name</th>
+                        <th>ChatBarText</th>
                         <th></th>
                        </thead>
-                       {{.list}}
                        <tbody>
-                         {{ with .list }}
-                           {{ range . }}
-                            <tr>
-                                <td></td>
-                            </tr>
-                           {{ end }} 
-                         {{ end }}
+                          {{ .list }}
                        </tbody>
                      </table>
                    </div>

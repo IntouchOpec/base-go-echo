@@ -1,4 +1,4 @@
-{{define "product-list"}}
+{{define "LIFF-list"}}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -28,32 +28,10 @@
                      <table class="table">
                        <thead class=" text-primary">
                         <th>Create At</th>
+                        {{ .list }}
                         <th></th>
                        </thead>
                        <tbody>
-                         {{ with .list }}
-                           {{ range . }}
-                             <tr>
-                                <td class="td-actions text-right">
-                                    <a href="/admin/product/{{ .ID }}">
-                                      <button type="button" rel="tooltip" class="btn btn-success">
-                                          <i class="material-icons">person</i>
-                                      </button>
-                                    </a>
-                                    <a href="/admin/product/{{ .ID }}/edit">
-                                      <button type="button" rel="tooltip" class="btn btn-warning">
-                                          <i class="material-icons">edit</i>
-                                      </button>
-                                    </a>
-                                    <a href="/admin/product/{{ .ID }}/de">
-                                      <button type="button" rel="tooltip" class="btn btn-danger">
-                                          <i class="material-icons">close</i>
-                                      </button>
-                                    </a>
-                                </td>
-                             </tr>
-                           {{ end }} 
-                         {{ end }}
                        </tbody>
                      </table>
                    </div>
