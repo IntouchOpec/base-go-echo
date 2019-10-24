@@ -43,15 +43,15 @@ suffix = ".html"
 name = "dev"
 user_name = "postgres-dev"
 pwd  = "password"
-host = "localhost"
+host = "127.0.0.1"
 port = "5432"
 
 [redis]
-server = "localhost:6379"
+server = "127.0.0.1:6379"
 pwd = "password"
 
 [memcached]
-server = "localhost:11211"
+server = "127.0.0.1:11211"
 
 [opentracing]
 disable = false
@@ -63,7 +63,7 @@ type = "elastic"
 service_name = "echo-web"
 
 # jaeger-agent 127.0.0.1:6831
-# appdash http://localhost:8700
+# appdash localhost:8700
 address = "127.0.0.1:6831"
 
 [metrics]

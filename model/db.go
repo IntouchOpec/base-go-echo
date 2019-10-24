@@ -40,10 +40,11 @@ func DB() *gorm.DB {
 }
 
 func newDB() (*gorm.DB, error) {
-
-	// sqlConnection := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",
-	// 	Conf.DB.Host, Conf.DB.Port, Conf.DB.UserName, Conf.DB.Name, Conf.DB.Pwd)
-	sqlConnection := "host=localhost port=5432 user=postgres-dev dbname=dev password=password sslmode=disable"
+	// fmt.Println(Conf.DB.Host, Conf.DB.Port, Conf.DB.UserName, Conf.DB.Name, Conf.DB.Pwd)
+	sqlConnection := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",
+		Conf.DB.Host, Conf.DB.Port, Conf.DB.UserName, Conf.DB.Name, Conf.DB.Pwd)
+	fmt.Println(sqlConnection)
+	// sqlConnection := "host=127.0.0.1 port=5432 user=postgres-dev dbname=dev password=password sslmode=disable"
 	db, err := gorm.Open("postgres", sqlConnection)
 	if err != nil {
 		return nil, err
