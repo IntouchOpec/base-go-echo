@@ -19,7 +19,7 @@
                                     </div>
                                     <div class="card-body">
                                         <form name="create-sub-product" >
-                                            <input name="_csrf" value="{{._csrf}}" type="hidden" class="form-control" >
+                                            <input id="_csrf" name="_csrf" value="{{._csrf}}" type="hidden" class="form-control" >
                                             <div class="col-md-12 mt-2">
                                                 <div class="form-group">
                                                     <label class="bmd-label-floating">Start</label>
@@ -34,18 +34,8 @@
                                             </div>
                                             <div class="col-md-12 mt-2">
                                                 <div class="form-group">
-                                                    <label for="exampleFormControlSelect2">Type</label>
-                                                    <select class="form-control" data-style="btn btn-link" id="exampleFormControlSelect2">
-                                                        {{ with .messageTypes }}
-                                                        {{ range . }}
-                                                        <option value="{{.}}">{{.}}</option>
-                                                        {{ end }}
-                                                        {{ end }}
-                                                    </select>                                                   
-                                                </div>
-                                                <div class="form-group">
                                                     <label class="bmd-label-floating" >Day</label>
-                                                    <select class="form-control " data-style="btn btn-link" id="exampleFormControlSelect2">
+                                                    <select class="form-control " data-style="btn btn-link" id="Day">
                                                         <option value="0">Sundays</option>
                                                         <option value="1">Mondays</option>
                                                         <option value="2">Tuesdays</option>
@@ -59,13 +49,7 @@
                                             <div class="col-md-12 mt-2">
                                                 <div class="form-group">
                                                     <label class="bmd-label-floating" >Amount</label>
-                                                    <input name="Active" id="Active" type="text" class="form-control" >
-                                                </div>
-                                            </div>
-                                            <div class="col-md-12 mt-2">
-                                                <div class="form-group">
-                                                    <label class="bmd-label-floating" >Active</label>
-                                                    <input name="Active" id="Active" type="text" class="form-control" >
+                                                    <input name="Amount" id="Amount" type="text" class="form-control" >
                                                 </div>
                                             </div>
                                             <input type="submit" value="Submit" class="btn btn-success" >
@@ -107,10 +91,7 @@
                     },
                     Amount: {
                         required: true
-                    },
-                    Active: {
-                        required: true
-                    },
+                    }
                 },
                 messages: {
                     Start: {
@@ -127,10 +108,31 @@
                     },
                     Amount: {
                         required: "Please enter a valid required"
-                    },
-                    Active: {
-                        required: "Please enter a valid required"
-                    },
+                    }
+                },
+                submitHandler: function(form) {
+                    let _csrf = $("#_csrf").val() 
+                    let Start = $("#Start").val() 
+                    let End = $("#End").val() 
+                    let Amount = $("#Amount").val() 
+                    let Type = $("#Type").val()
+                    let Day = $("#Day").val()
+                    let data = new URLSearchParams();
+                    data.append("_csrf", _csrf)
+                    data.append("start", Start)
+                    data.append("end", End)
+                    data.append("amount", Amount)
+                    data.append("day", Day)
+                    fetch(window.location.href, {
+                        body: data, 
+                        method: "POST"
+                    })
+                    .then(res => {
+                        if (res.status === 201) Swal.fire("success", "", "success") 
+                        return res.json()
+                    })
+                    .then(json => window.location.href = json.redirect)
+                    .catch(err => Swal.fire("fial", "", "warning"))
                 }
             })
             

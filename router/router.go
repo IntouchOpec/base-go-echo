@@ -15,7 +15,6 @@ import (
 
 	"github.com/labstack/echo"
 	mw "github.com/labstack/echo/middleware"
-	"go.elastic.co/apm"
 
 	. "github.com/IntouchOpec/base-go-echo/conf"
 )
@@ -50,7 +49,7 @@ func RunSubdomains(confFilePath string) {
 
 	// Elastic APM
 	// Requires APM Server 6.5.0 or newer
-	apm.DefaultTracer.Service.Version = Conf.App.Version
+	// apm.DefaultTracer.Service.Version = Conf.App.Version
 	// e.Use(apmechov4.Middleware(
 	// 	apmechov4.WithRequestIgnorer(func(request *http.Request) bool {
 	// 		return false

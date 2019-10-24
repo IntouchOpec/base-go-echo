@@ -1,10 +1,15 @@
 version: '3.1'
 services:
-  adminer:
-    image: adminer
-    restart: always
+  app:
+    build:
+      context: . # Use an image built from the specified dockerfile in the current directory.
+      dockerfile: Dockerfile
     ports:
-      - 8080:8080
+      - "8080:8080" # Forward the exposed port 8080 on the container to port 8080 on the host machine
+    restart: unless-stopped
+    depends_on: 
+      - redis
+      - db
   db:
     image: postgres
     restart: always
@@ -15,8 +20,6 @@ services:
       POSTGRES_PASSWORD: password
     ports:
       - 5432:5432
-    networks:
-      - backend
   redis:
     image: redis
     restart: always
@@ -24,28 +27,3 @@ services:
     restart: unless-stopped
     ports:
       - 6379:6379 
-    networks:
-      - backend
-  pgadmin:
-    container_name: pgadmin_container
-    image: dpage/pgadmin4
-    environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
-    ports:
-      - "${PGADMIN_PORT:-5050}:80"
-  app:
-    build:
-      context: . # Use an image built from the specified dockerfile in the current directory.
-      dockerfile: Dockerfile
-    ports:
-      - "8181:8181" # Forward the exposed port 8080 on the container to port 8080 on the host machine
-    restart: unless-stopped
-    networks:
-      - backend
-    depends_on: 
-      - redis
-      - db
-
-networks:
-  backend:

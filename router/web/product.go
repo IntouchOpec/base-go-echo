@@ -152,29 +152,24 @@ func ProductPostHandler(c *Context) error {
 	return c.JSON(http.StatusCreated, productModel)
 }
 
+type SubProductForm struct {
+	Start  string `form:"start" json:"start"`
+	End    string `form:"end" json:"end"`
+	Day    int    `form:"day" json:"day"`
+	Amount int    `form:"amount" json:"amount"`
+}
+
 func SubProductPostHandler(c *Context) error {
-	// file, err := c.FormFile("file")
-	// if err != nil {
-	// 	return err
-	// }
-	// src, err := file.Open()
-	// if err != nil {
-	// 	return err
-	// }
-	// defer src.Close()
-
-	// dst, err := os.Create(file.Filename)
-	// if err != nil {
-	// 	return err
-	// }
-	// defer dst.Close()
-
-	// if _, err = io.Copy(dst, src); err != nil {
-	// 	return err
-	// }
-	// fmt.Println(file.Filename, "====")
-
-	return c.JSON(http.StatusCreated, "")
+	id := c.Param("id")
+	product := model.Product{}
+	db := model.DB()
+	subProductFrom := SubProductForm{}
+	if err := c.Bind(&subProductFrom); err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	db.Find(&product, id)
+	db.Model(&product).Association("SubProducts").Append(&model.SubProduct{Start: subProductFrom.Start, End: subProductFrom.End, Day: subProductFrom.Day, Amount: subProductFrom.Amount})
+	return c.JSON(http.StatusCreated, product)
 }
 
 func SubProductEditHandler(c *Context) error {
@@ -212,5 +207,26 @@ func ProductChatChannelViewHandler(c *Context) error {
 }
 
 func ProductChatChannelPostHandler(c *Context) error {
-	return c.JSON(http.StatusCreated, "")
+	id := c.QueryParam("id")
+	chatChannelID := c.FormValue("chat_channel_id")
+	fmt.Println(chatChannelID)
+	product := model.Product{}
+	chatChannel := model.ChatChannel{}
+	db := model.DB()
+
+	if err := db.Find(&chatChannel, chatChannelID).Error; err != nil {
+		fmt.Println("====>1", err)
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	if err := db.Find(&product, id).Error; err != nil {
+		fmt.Println("====>2")
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	if err := db.Model(&product).Association("ChatChannels").Append(&chatChannel).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	return c.JSON(http.StatusCreated, product)
 }

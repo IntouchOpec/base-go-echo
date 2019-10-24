@@ -1,8 +1,6 @@
 package model
 
 import (
-	"fmt"
-
 	"github.com/IntouchOpec/base-go-echo/model/orm"
 )
 
@@ -37,7 +35,6 @@ type ChatChannel struct {
 // SaveChatChannel router create chatchannel.
 func (cha *ChatChannel) SaveChatChannel() *ChatChannel {
 	if err := DB().Create(&cha).Error; err != nil {
-		fmt.Println(err, "====")
 		return nil
 	}
 	return cha

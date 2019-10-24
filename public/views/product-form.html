@@ -127,9 +127,12 @@
                         headers: {"Content-Type": "application/x-www-form-urlencoded"},
                         body: data
                     })
-                    .then(res => res.json())
+                    .then(res => {
+                        if (res.status === 201) Swal.fire("success", "", "success")
+                        return res.json()
+                    })
                     .then(json => {
-                        if (res.status === 201) Swal.fire("success", "", "success") 
+                        window.location.href = json.redirect
                     })
                     .catch(err => Swal.fire("fial", "", "warning"))
                 }) 

@@ -66,6 +66,13 @@ func ChatChannelGetChannelAccessTokenHandler(c *Context) error {
 	return c.JSON(http.StatusOK, "res")
 }
 
+type SettingResponse struct {
+	LIFFregister       string `json:"LIFFregister"`
+	StatusLIFFregister string `json:"statusLIFFregister"`
+	StatusAccessToken  string `json:"statusAccessToken"`
+	DateStatusToken    string `json:"dateStatusToken"`
+}
+
 // ChatChannelDetailHandler
 func ChatChannelDetailHandler(c *Context) error {
 	id := c.Param("id")
@@ -77,6 +84,7 @@ func ChatChannelDetailHandler(c *Context) error {
 	customerSum := len(chatChannel.Customers)
 	productSum := len(chatChannel.Products)
 	settings := chatChannel.GetSetting([]string{"LIFFregister", "statusLIFFregister", "statusAccessToken", "dateStatusToken"})
+
 	return c.Render(http.StatusOK, "chat-channel-detail", echo.Map{
 		"title":       "chat_channel",
 		"detail":      chatChannel,

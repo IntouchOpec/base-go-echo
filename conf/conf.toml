@@ -22,7 +22,7 @@ addr = ":81"
 domain_api = "api.localhost"
 domain_web = "web.localhost"
 domain_socket = "socket.localhost"
-domain_line_channel = "af8f199b.ngrok.io"
+domain_line_channel = "6bbfdf22.ngrok.io"
 domain_static = "localhost"
 
 [static]
@@ -43,11 +43,11 @@ suffix = ".html"
 name = "dev"
 user_name = "postgres-dev"
 pwd  = "password"
-host = "127.0.0.1"
+host = "localhost"
 port = "5432"
 
 [redis]
-server = "127.0.0.1:6379"
+server = "localhost:6379"
 pwd = "password"
 
 [memcached]

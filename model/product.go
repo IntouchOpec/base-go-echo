@@ -16,7 +16,7 @@ type Product struct {
 	AccountID    uint           `form:"account_id" json:"account_id" gorm:"not null;"`
 	Account      Account        `gorm:"ForeignKey:id"`
 	Image        string         `form:"image" json:"image" gorm:"type:varchar(255)"`
-	Chatchannels []*ChatChannel `json:"chat_channels" gorm:"many2many:product_chat_channel"`
+	ChatChannels []*ChatChannel `json:"chat_channels" gorm:"many2many:product_chat_channel"`
 	SubProducts  []*SubProduct  `gorm:"ForeignKey:ProductID;" json:"sub_products"`
 	Promotions   []*Promotion   `json:"promotions" gorm:"many2many:product_promotion;"`
 }

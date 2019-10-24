@@ -19,10 +19,10 @@
                                     </div>
                                     <div class="card-body">
                                         <form name="form-chat-channel">
-                                            <input name="_csrf" value="{{._csrf}}" type="hidden" class="form-control" >
+                                            <input id="_csrf" name="_csrf" value="{{._csrf}}" type="hidden" class="form-control" >
                                             <div class="form-group">
                                                 <label for="exampleFormControlSelect2">Type</label>
-                                                <select class="form-control " data-style="btn btn-link" id="exampleFormControlSelect2">
+                                                <select class="form-control " data-style="btn btn-link" id="chat_channel_id">
                                                     {{ with .list_chat_channel }}
                                                     {{ range . }}
                                                         <option value="{{.ID}}">{{.Name}}</option>
@@ -57,7 +57,20 @@
                 }
             },
             submitHandler: function(form) {
+                let data = new URLSearchParams();
+                let _csrf = $("#_csrf").val()
+                let chat_channel_id = $("#chat_channel_id").val()
                 
+                data.append("_csrf", _csrf)
+                data.append("chat_channel_id", chat_channel_id)
+                fetch(window.location.href, {
+                    method: "POST",
+                    body: data
+                })
+                .then(res => {
+                    if (res.status === 201) Swal.fire("success", "", "success") 
+                })
+                .catch(err => Swal.fire("fial", "", "warning"))
             }
         })
         
