@@ -16,7 +16,7 @@ version = "0.0.1"
 
 [server]
 graceful = true
-addr = ":81"
+addr = ":8181"
 
 # Domains
 domain_api = "api.localhost"
@@ -47,7 +47,7 @@ host = "127.0.0.1"
 port = "5432"
 
 [redis]
-server = "127.0.0.1:6379"
+server = "cache:6379"
 pwd = "password"
 
 [memcached]

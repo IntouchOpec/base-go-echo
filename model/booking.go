@@ -104,3 +104,8 @@ func (booking *Booking) DeleteBooking(id string) *Booking {
 	}
 	return booking
 }
+
+func (book *Booking) BookingAcjectStatus(status string) (*Booking, error) {
+
+	return book, nil
+}

@@ -36,20 +36,25 @@ func DB() *gorm.DB {
 
 	newDb.SetLogger(orm.Logger{})
 	newDb.LogMode(true)
+	defer newDb.Close()
+
 	return newDb
 }
 
 func newDB() (*gorm.DB, error) {
-	// fmt.Println(Conf.DB.Host, Conf.DB.Port, Conf.DB.UserName, Conf.DB.Name, Conf.DB.Pwd)
+
+	fmt.Println(Conf.DB.Host, Conf.DB.Port, Conf.DB.UserName, Conf.DB.Name, Conf.DB.Pwd)
 	sqlConnection := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",
-		Conf.DB.Host, Conf.DB.Port, Conf.DB.UserName, Conf.DB.Name, Conf.DB.Pwd)
+		"db", Conf.DB.Port, "admin", "todos", Conf.DB.Pwd)
 	fmt.Println(sqlConnection)
 	// sqlConnection := "host=127.0.0.1 port=5432 user=postgres-dev dbname=dev password=password sslmode=disable"
 	db, err := gorm.Open("postgres", sqlConnection)
 	if err != nil {
 		return nil, err
 	}
+
 	return db, nil
+
 }
 
 type TestModel struct {

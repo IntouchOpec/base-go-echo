@@ -1,29 +1,48 @@
 version: '3'
+
 services:
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+  db:
+    image: postgres:11.3
+    container_name: db
+    hostname: db
+    ports:
+      - "5432:5432"
+    volumes:
+      - ../db/postgres/data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=todos
+    networks:
+      - backend
+  redis:
+    image: redis
+    restart: always
+    container_name: cache
+    hostname: cache
+    ports:
+      - 6379:6379
+    networks:
+      - backend
   app:
     build:
       context: . # Use an image built from the specified dockerfile in the current directory.
       dockerfile: Dockerfile
     ports:
-      - "8080:8080" # Forward the exposed port 8080 on the container to port 8080 on the host machine
-    restart: unless-stopped
+      - "8181:8181" # Forward the exposed port 8080 on the container to port 8080 on the host machine
+    restart: on-failure
     depends_on: 
       - redis
       - db
-  db:
-    image: postgres
-    restart: always
-    environment:
-      GET_HOSTS_FROM: dns
-      POSTGRES_DB: dev
-      POSTGRES_USER: postgres-dev
-      POSTGRES_PASSWORD: password
-    ports:
-      - 5432:5432
-  redis:
-    image: redis
-    restart: always
-    container_name: cache
-    restart: unless-stopped
-    ports:
-      - 6379:6379 
+    links:
+      - db
+    networks:
+      - backend
+
+networks:
+  backend:
