@@ -18,33 +18,41 @@ services:
 
   nginx:
     image: nginx
-    container_name: webserver
-    restart: unless-stopped
+    hostname: localhost
+    restart: always
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - web-root:/var/www/html
-      - ./nginx-conf:/etc/nginx/conf.d
-      - certbot-etc:/etc/letsencrypt
-      - certbot-var:/var/lib/letsencrypt
+      - /etc/localtime:/etc/localtime:ro
+      - ./nginx:/etc/nginx:ro
+      - ./letsencrypt/conf:/etc/letsencrypt
+      - ./letsencrypt/html:/tmp/letsencrypt
+    environment:
+      - LE_RENEW_HOOK=docker kill -s HUP @CONTAINER_NAME@
     depends_on: 
       - app
     networks:
       - backend
 
-  certbot:
-    image: certbot/certbot
-    container_name: certbot
+  letsencrypt:
+    restart: always
+    image: kvaps/letsencrypt-webroot
     volumes:
-      - certbot-etc:/etc/letsencrypt
-      - certbot-var:/var/lib/letsencrypt
-      - web-root:/var/www/html
-    depends_on: 
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./letsencrypt/conf:/etc/letsencrypt
+      - ./letsencrypt/html:/tmp/letsencrypt
+    links:
       - nginx
-    command: 
-      certonly --webroot --webroot-path=/var/www/html --email intouch.opec@gmail.com --agree-tos --no-eff-email --staging -d triple-t.cc  -d www.triple-t.cc
-
+    environment:
+      - DOMAINS=triple-t.cc www.triple-t.cc
+      - EMAIL=intouch.opec@gmail.com
+      - WEBROOT_PATH=/tmp/letsencrypt
+      - EXP_LIMIT=30
+      - CHECK_FREQ=30
+      - CHICKENEGG=
+      - STAGING=
   # adminer:
   #   image: adminer
   #   restart: always
@@ -74,15 +82,6 @@ services:
     networks:
       - backend
 
-volumes:
-  certbot-etc:
-  certbot-var:
-  web-root:
-    driver: local
-    driver_opts:
-      type: none
-      device: /home/base-go-echo/
-      o: bind
-
 networks:
   backend:
+    driver: bridge 
