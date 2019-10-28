@@ -99,9 +99,10 @@ func Routers() *echo.Echo {
 		managent.POST("/chat_answer", handler(ChatAnswerPostHandler))
 		managent.GET("/chat_answer/:id/edit", handler(ChatAnswerEditHandler))
 		managent.DELETE("/chat_answer/:id", handler(ChatAnswerDeleteHandler))
+
+		managent.GET("/product", handler(ProductListHandler))
 		managent.GET("/product/create", handler(ProductCreateHandler))
 		managent.GET("/product/:id", handler(ProductDetailHandler))
-		managent.GET("/product", handler(ProductListHandler))
 		managent.POST("/product", handler(ProductPostHandler))
 
 		managent.GET("/promotion", handler(PromotionListHandler))

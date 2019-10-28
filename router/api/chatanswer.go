@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/IntouchOpec/base-go-echo/model"
@@ -12,7 +11,6 @@ import (
 func CreateChatAnswer(c echo.Context) error {
 	chatAnswer := model.ChatAnswer{}
 	if err := c.Bind(&chatAnswer); err != nil {
-		fmt.Println(err)
 		return c.NoContent(http.StatusBadRequest)
 	}
 	chatAnswer.SaveChatAnswer()

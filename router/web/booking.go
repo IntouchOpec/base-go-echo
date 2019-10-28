@@ -1,7 +1,6 @@
 package web
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/IntouchOpec/base-go-echo/model"
@@ -26,7 +25,6 @@ func BookingListHandler(c *Context) error {
 	if err := model.DB().Preload("SubProduct", func(db *gorm.DB) *gorm.DB {
 		return db.Preload("Product")
 	}).Preload("Customer").Where("chat_channel_id = ?", chatChannel.ID).Find(&bookings).Error; err != nil {
-		fmt.Println(err)
 		return c.NoContent(http.StatusBadRequest)
 	}
 	err := c.Render(http.StatusOK, "booking-list", echo.Map{

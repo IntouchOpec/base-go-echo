@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -59,7 +58,6 @@ func UserRegisterHandler(c echo.Context) error {
 	user := model.User{}
 
 	if err := c.Bind(&user); err != nil {
-		fmt.Println(err)
 		return c.NoContent(http.StatusBadRequest)
 	}
 	user.AddUserWithUserNamePwd()

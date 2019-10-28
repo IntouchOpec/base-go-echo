@@ -138,7 +138,6 @@ func Routers() *echo.Echo {
 
 	// JWT
 	// r := e.Group("")
-	// fmt.Println(echo.HeaderAuthorization)
 	// r.Use(mw.JWTWithConfig(mw.JWTConfig{
 	// 	SigningKey:  []byte("secret"),
 	// 	ContextKey:  "_user",

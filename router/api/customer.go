@@ -46,7 +46,7 @@ func RegisterCustomerByLine(c echo.Context) error {
 
 	claims := jwt.MapClaims{}
 	if lineRespose.IDToken == "" {
-		fmt.Println(string(body))
+		return c.JSON(http.StatusBadRequest, "")
 	}
 	token, err := jwt.ParseWithClaims(lineRespose.IDToken, claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte(""), nil

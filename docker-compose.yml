@@ -1,11 +1,56 @@
 version: '3'
 
 services:
-  adminer:
-    image: adminer
-    restart: always
+  app:
+    build:
+      context: . # Use an image built from the specified dockerfile in the current directory.
+      dockerfile: Dockerfile
     ports:
-      - 8080:8080
+      - "8080:8080" # Forward the exposed port 8080 on the container to port 8080 on the host machine
+    restart: on-failure
+    depends_on: 
+      - redis
+      - db
+    links:
+      - db
+    networks:
+      - backend
+
+  nginx:
+    image: nginx
+    container_name: webserver
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - web-root:/var/www/html
+      - ./nginx-conf:/etc/nginx/conf.d
+      - certbot-etc:/etc/letsencrypt
+      - certbot-var:/var/lib/letsencrypt
+    depends_on: 
+      - app
+    networks:
+      - backend
+
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - certbot-etc:/etc/letsencrypt
+      - certbot-var:/var/lib/letsencrypt
+      - web-root:/var/www/html
+    depends_on: 
+      - nginx
+    command: 
+      certonly --webroot --webroot-path=/var/www/html --email intouch.opec@gmail.com --agree-tos --no-eff-email --staging -d triple-t.cc  -d www.triple-t.cc
+
+  # adminer:
+  #   image: adminer
+  #   restart: always
+  #   ports:
+  #     - 8080:8080
+
   db:
     image: postgres:11.3
     container_name: db
@@ -18,6 +63,7 @@ services:
       - POSTGRES_DB=todos
     networks:
       - backend
+
   redis:
     image: redis
     restart: always
@@ -27,20 +73,16 @@ services:
       - 6379:6379
     networks:
       - backend
-  app:
-    build:
-      context: . # Use an image built from the specified dockerfile in the current directory.
-      dockerfile: Dockerfile
-    ports:
-      - "80:80" # Forward the exposed port 8080 on the container to port 8080 on the host machine
-    restart: on-failure
-    depends_on: 
-      - redis
-      - db
-    links:
-      - db
-    networks:
-      - backend
+
+volumes:
+  certbot-etc:
+  certbot-var:
+  web-root:
+    driver: local
+    driver_opts:
+      type: none
+      device: /home/base-go-echo/
+      o: bind
 
 networks:
   backend:

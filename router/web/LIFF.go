@@ -1,7 +1,6 @@
 package web
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/IntouchOpec/base-go-echo/model"
@@ -17,11 +16,10 @@ func LIIFListHandler(c *Context) error {
 
 	bot, err := linebot.New(chatChannel.ChannelID, chatChannel.ChannelSecret)
 	if err != nil {
-		fmt.Println(err, "=====")
+
 	}
 	res, err := bot.GetLIFF().Do()
 
-	fmt.Println(res, chatChannel.ID, err)
 	return c.Render(http.StatusOK, "LIFF-list", echo.Map{
 		"list":  res,
 		"title": "LIFF",

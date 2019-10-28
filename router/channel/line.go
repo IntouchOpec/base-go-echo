@@ -25,13 +25,10 @@ func HandleWebHookLineAPI(c echo.Context) error {
 	chatChannel := model.ChatChannel{}
 
 	if err := model.DB().Where("name = ?", name).Find(&account).Error; err != nil {
-		fmt.Println(err, 1)
 		return c.NoContent(http.StatusNotFound)
 	}
 
 	if err := model.DB().Where("Channel_ID = ?", ChannelID).Find(&chatChannel).Error; err != nil {
-		fmt.Println(err, 2)
-
 		return c.NoContent(http.StatusNotFound)
 	}
 	ctx := c.Request().Context()
@@ -42,20 +39,16 @@ func HandleWebHookLineAPI(c echo.Context) error {
 	bot, err := lib.ConnectLineBot(chatChannel.ChannelSecret, chatChannel.ChannelAccessToken)
 
 	if err != nil {
-		fmt.Println(err, 3)
-		log.Print(err)
+		return c.JSON(http.StatusBadRequest, err)
 	}
 
 	events, err := bot.ParseRequest(c.Request())
 
 	if err != nil {
-		fmt.Println(err, 4)
-
 		if err == linebot.ErrInvalidSignature {
-			c.String(400, linebot.ErrInvalidSignature.Error())
-		} else {
-			c.String(500, "internal")
+			return c.String(400, linebot.ErrInvalidSignature.Error())
 		}
+		return c.String(500, "internal")
 	}
 	customer := model.Customer{}
 	for _, event := range events {
@@ -70,7 +63,6 @@ func HandleWebHookLineAPI(c echo.Context) error {
 				if len(messageText) >= 8 {
 					keyWord = messageText[0:8]
 				}
-				fmt.Println(keyWord)
 				if keyWord == "calendar" || messageText == "booking" {
 					var m string
 					if len(message.Text) > 8 {
@@ -189,7 +181,6 @@ func HandleWebHookLineAPI(c echo.Context) error {
 				} else if keyWord == "promotio" {
 					promotions := []*model.Promotion{}
 					model.DB().Where("type_promotion = ?", "Promotion").Find(&promotions)
-					fmt.Println(len(promotions))
 					m := PromotionsTemplate(promotions)
 					flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(m))
 					if err != nil {
@@ -211,18 +202,17 @@ func HandleWebHookLineAPI(c echo.Context) error {
 
 					location := linebot.NewLocationMessage(chatChannel.Name, chatChannel.Address, Latitude, Longitude)
 
-					res, err := bot.ReplyMessage(event.ReplyToken, location).Do()
+					_, err := bot.ReplyMessage(event.ReplyToken, location).Do()
 					if err != nil {
 						return err
 					}
-					fmt.Println(res)
 					act := model.ActionLog{Name: "location", Status: model.StatusSuccess, Type: model.TypeActionLine, UserID: event.Source.UserID,
 						ChatChannelID: chatChannel.ID, CustomerID: customer.ID}
 					act.CreateAction()
 				} else {
 					model.DB().Where("Input = ?", message.Text).Find(&chatAnswer)
 					if err := model.DB().Where("Input = ?", message.Text).Find(&chatAnswer).Error; err != nil {
-						fmt.Println(err)
+
 					}
 					client.ReplyLineMessage(chatAnswer, event.ReplyToken)
 				}
@@ -239,13 +229,12 @@ func HandleWebHookLineAPI(c echo.Context) error {
 
 			case *linebot.LocationMessage:
 				textMessage := linebot.NewTextMessage(fmt.Sprintf("%v", message))
-				res, err := bot.ReplyMessage(event.ReplyToken, textMessage).Do()
+				_, err := bot.ReplyMessage(event.ReplyToken, textMessage).Do()
 				if err != nil {
 					act := model.ActionLog{Name: "LocationMessage", Status: model.StatusFail, Type: model.TypeActionLine, ChatChannelID: chatChannel.ID, CustomerID: customer.ID}
 					act.CreateAction()
 					return err
 				}
-				fmt.Println(res)
 				act := model.ActionLog{Name: "LocationMessage", Status: model.StatusSuccess, Type: model.TypeActionLine, ChatChannelID: chatChannel.ID, CustomerID: customer.ID}
 				act.CreateAction()
 			case *linebot.StickerMessage:
@@ -259,17 +248,16 @@ func HandleWebHookLineAPI(c echo.Context) error {
 			}
 
 		case linebot.EventTypeFollow:
-			customer := model.Customer{LineID: event.Source.UserID, ChatChannelID: chatChannel.ID}
+			customer := model.Customer{LineID: event.Source.UserID, AccountID: chatChannel.AccountID}
 			settingNames := []string{"LIFFregister"}
 			setting := chatChannel.GetSetting(settingNames)
-			if err := model.DB().FirstOrCreate(&customer, model.Customer{LineID: event.Source.UserID, ChatChannelID: chatChannel.ID}).Error; err != nil {
-				fmt.Println(err)
+			if err := model.DB().FirstOrCreate(&customer, model.Customer{LineID: event.Source.UserID, AccountID: chatChannel.AccountID}).Error; err != nil {
+				return c.JSON(http.StatusBadRequest, err)
 			}
 			jsonFlexMessage := FollowTemplate(chatChannel, setting)
 			flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(jsonFlexMessage))
 			if err != nil {
-				log.Print(err)
-				return err
+				return c.JSON(http.StatusBadRequest, err)
 			}
 			flexMessage := linebot.NewFlexMessage(chatChannel.WelcomeMessage, flexContainer)
 			bot.ReplyMessage(event.ReplyToken, flexMessage).Do()
@@ -277,7 +265,7 @@ func HandleWebHookLineAPI(c echo.Context) error {
 			model.DB().Create(&evenLog)
 			act := model.ActionLog{Name: "follow", Status: model.StatusSuccess, Type: model.TypeActionLine, UserID: event.Source.UserID, ChatChannelID: chatChannel.ID, CustomerID: customer.ID}
 			if err := model.DB().Create(&act).Error; err != nil {
-				fmt.Println(err, "====")
+				return c.JSON(http.StatusBadRequest, err)
 			}
 		case linebot.EventTypeUnfollow:
 			evenLog := model.EventLog{ChatChannelID: chatChannel.ID, ReplyToken: event.ReplyToken, Type: string(event.Type), LineID: event.Source.UserID, CustomerID: customer.ID}
@@ -305,7 +293,6 @@ func ProductListLineTemplate(subProduct []model.SubProduct, dateTime string) str
 		}
 
 		if len(subProduct[t].Bookings) > 0 {
-			fmt.Println(subProduct[t].Bookings[0].Queue < subProduct[t].Amount)
 			if subProduct[t].Bookings[0].Queue < subProduct[t].Amount {
 				buttonTime = buttonTime + fmt.Sprintf(`{"type": "button", "style": "secondary", "margin": "sm", "action": { "type": "message", "label": "%s-%s", "text": "%s" }},`,
 					subProduct[t].Start, subProduct[t].End, "เต็มแล้ว")

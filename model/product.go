@@ -1,8 +1,6 @@
 package model
 
 import (
-	"fmt"
-
 	"github.com/IntouchOpec/base-go-echo/model/orm"
 )
 
@@ -37,7 +35,6 @@ type SubProduct struct {
 // SaveProduct is function create Product.
 func (product *Product) SaveProduct() *Product {
 	if err := DB().Create(&product).Error; err != nil {
-		fmt.Println(err)
 		return nil
 	}
 	return product

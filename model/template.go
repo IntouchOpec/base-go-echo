@@ -58,7 +58,6 @@ func (templateSoc *TemplateSocial) GetTemplateSocial() string {
 	var arr []string
 	subTempDs := []*TemplateSocialDetail{}
 
-	// fmt.Println(templateSoc.TemplateSocialDetails)
 	// var parentIDs string
 	// var flexMessage string
 	arr = append(arr, templateSoc.Souce)

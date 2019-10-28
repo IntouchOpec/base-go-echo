@@ -16,9 +16,7 @@ import (
 func LIFFRegisterHandler(c echo.Context) error {
 	lineID := c.Param("lineID")
 	chatChannel := model.ChatChannel{}
-	fmt.Println(lineID)
 	if err := model.DB().Where("line_id = ?", lineID).Find(&chatChannel).Error; err != nil {
-		fmt.Println(err)
 		return c.NoContent(http.StatusBadRequest)
 	}
 
@@ -53,17 +51,15 @@ func LIIFRegisterSaveCustomer(c echo.Context) error {
 	}
 
 	if err := model.DB().Where("line_ID = ?", lineID).Find(&chatChannel).Error; err != nil {
-		fmt.Println(err)
 		return c.NoContent(http.StatusBadRequest)
 	}
 
-	custo := model.Customer{LineID: req.UserID, ChatChannelID: chatChannel.ID}
+	custo := model.Customer{LineID: req.UserID, AccountID: chatChannel.AccountID}
 	// pictureURL string, displayName string, email string, phoneNumber string
 	bot, err := lib.ConnectLineBot(chatChannel.ChannelSecret, chatChannel.ChannelAccessToken)
 
 	custo.UpdateCustomerByAtt(req.PictureURL, req.DisplayName, req.Email, req.Phone, req.FullName)
 	check := ValidateVoucher(custo.Promotions)
-	fmt.Println(check)
 	if check {
 		return c.NoContent(http.StatusBadRequest)
 	}
@@ -74,7 +70,6 @@ func LIIFRegisterSaveCustomer(c echo.Context) error {
 	}
 
 	if err := model.DB().Model(&custo).Association("Promotions").Append(promotion).Error; err != nil {
-		fmt.Println("err", err)
 		return c.NoContent(http.StatusBadRequest)
 	}
 

@@ -24,7 +24,7 @@ func ProductListHandler(c *Context) error {
 	products := []*model.Product{}
 	a := auth.Default(c)
 	model.DB().Preload("ChatChannel", func(db *gorm.DB) *gorm.DB {
-		return db.Preload("Account", "name = ?", a.User.GetAccountID())
+		return db.Where("chat_channel_id = ?", a.User.GetAccountID())
 	}).Preload("SubProduct").Find(&products)
 	err := c.Render(http.StatusOK, "product-list", echo.Map{
 		"list":  products,
@@ -209,18 +209,15 @@ func ProductChatChannelViewHandler(c *Context) error {
 func ProductChatChannelPostHandler(c *Context) error {
 	id := c.QueryParam("id")
 	chatChannelID := c.FormValue("chat_channel_id")
-	fmt.Println(chatChannelID)
 	product := model.Product{}
 	chatChannel := model.ChatChannel{}
 	db := model.DB()
 
 	if err := db.Find(&chatChannel, chatChannelID).Error; err != nil {
-		fmt.Println("====>1", err)
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
 	if err := db.Find(&product, id).Error; err != nil {
-		fmt.Println("====>2")
 		return c.JSON(http.StatusBadRequest, err)
 	}
 

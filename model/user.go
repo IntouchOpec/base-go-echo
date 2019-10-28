@@ -2,7 +2,6 @@ package model
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/IntouchOpec/base-go-echo/model/orm"
 	"github.com/labstack/gommon/log"
@@ -58,18 +57,14 @@ func (u *User) CheckPassword(password string) error {
 
 // AddUserWithUserNamePwd create user.
 func (u *User) AddUserWithUserNamePwd() *User {
-	fmt.Println(u)
 	u.SetPassword()
 	newDb, err := newDB()
 	if err != nil {
-		fmt.Println(err)
 		return nil
 	}
 	if err := newDb.Create(&u).Error; err != nil {
-		fmt.Println(err)
 		return nil
 	}
-	fmt.Println(u)
 	return u
 }
 

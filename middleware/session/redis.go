@@ -1,7 +1,6 @@
 package session
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/boj/redistore"
@@ -55,7 +54,6 @@ func NewRedisStore(size int, network, address, password string, keyPairs ...[]by
 			return err
 		},
 	}, keyPairs...)
-	fmt.Println(dial(network, address, password))
 
 	if err != nil {
 		return nil, err

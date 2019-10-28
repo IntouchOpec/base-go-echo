@@ -73,7 +73,6 @@ func ActiveRegisterLIFFAPI(c echo.Context) error {
 	if err := model.DB().Preload("Settings", "name = 'host_web'").Where("line_id = ?", LineID).Find(&chatChannel).Error; err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}
-	fmt.Println(chatChannel.Settings[0])
 	// config web Conf.Server.DomainWeb
 	url := fmt.Sprintf("https://%s/register/%s", chatChannel.Settings[0].Value, chatChannel.LineID)
 
