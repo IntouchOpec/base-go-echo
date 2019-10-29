@@ -30,6 +30,15 @@ services:
       - backend
     volumes:
       - ./nginx/:/etc/nginx/conf.d/
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+    
+  certbot:
+    image: certbot/certbot
+    restart: unless-stopped
+    volumes:
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
       
   db:
     image: postgres:11.3
@@ -53,6 +62,9 @@ services:
       - 6379:6379
     networks:
       - backend
+
+volumes:
+  certs:
 
 networks:
   backend:
