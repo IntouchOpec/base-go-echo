@@ -16,7 +16,7 @@ version = "0.0.1"
 
 [server]
 graceful = true
-addr = ":81"
+addr = ":8080"
 
 # Domains
 domain_api = "api.localhost"

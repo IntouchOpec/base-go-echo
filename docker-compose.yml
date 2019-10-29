@@ -17,48 +17,18 @@ services:
       - backend
 
   nginx:
-    image: nginx
-    hostname: localhost
+    image: nginx:latest
     restart: always
     ports:
       - "80:80"
       - "443:443"
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - ./nginx:/etc/nginx:ro
-      - ./letsencrypt/conf:/etc/letsencrypt
-      - ./letsencrypt/html:/tmp/letsencrypt
-    environment:
-      - LE_RENEW_HOOK=docker kill -s HUP @CONTAINER_NAME@
     depends_on: 
       - app
     networks:
       - backend
-
-  letsencrypt:
-    restart: always
-    image: kvaps/letsencrypt-webroot
     volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ./letsencrypt/conf:/etc/letsencrypt
-      - ./letsencrypt/html:/tmp/letsencrypt
-    links:
-      - nginx
-    environment:
-      - DOMAINS=triple-t.cc www.triple-t.cc
-      - EMAIL=intouch.opec@gmail.com
-      - WEBROOT_PATH=/tmp/letsencrypt
-      - EXP_LIMIT=30
-      - CHECK_FREQ=30
-      - CHICKENEGG=
-      - STAGING=
-  # adminer:
-  #   image: adminer
-  #   restart: always
-  #   ports:
-  #     - 8080:8080
-
+      - ./nginx/:/etc/nginx/conf.d/
+      
   db:
     image: postgres:11.3
     container_name: db
