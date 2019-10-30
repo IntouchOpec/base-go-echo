@@ -33,6 +33,7 @@ services:
       - ./public:/var/www/html
       - certbot-etc:/etc/letsencrypt
       - certbot-var:/var/lib/letsencrypt
+      - ./dhparam:/etc/ssl/certs
    
   certbot:
     image: certbot/certbot
@@ -71,6 +72,7 @@ services:
 volumes:
   certbot-etc:
   certbot-var:
+
 networks:
   backend:
     driver: bridge 
