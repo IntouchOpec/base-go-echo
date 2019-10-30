@@ -32,6 +32,8 @@ services:
       - ./nginx/:/etc/nginx/conf.d/
       - ./nginx/triple-t.cc.crt:/etc/nginx/triple-t.cc.crt 
       - ./nginx/triple-t.cc.key:/etc/nginx/triple-t.cc.key 
+      - certs:/etc/letsencrypt
+      - certs-data:/data/letsencrypt
 
   db:
     image: postgres:11.3
@@ -56,6 +58,9 @@ services:
     networks:
       - backend
 
+volumes:
+  certs:
+  certs-data:
 networks:
   backend:
     driver: bridge 
