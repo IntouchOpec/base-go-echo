@@ -44,7 +44,7 @@ services:
       - ./public:/var/www/html
     depends_on:
       - nginx
-    command: certonly --webroot --webroot-path=/var/www/html --email intouch.opec@gmail.com --agree-tos --no-eff-email --staging -d channel2.triple-t.cc -d www.channel2.triple-t.cc 
+    command: certonly --webroot --webroot-path=/var/www/html --email intouch.opec@gmail.com --agree-tos --no-eff-email --staging -d channel2.triple-t.cc 
     
   db:
     image: postgres:11.3
