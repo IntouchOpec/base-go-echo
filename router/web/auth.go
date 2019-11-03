@@ -23,8 +23,7 @@ func LoginHandler(c *Context) error {
 	a := c.Auth()
 
 	if a.User.IsAuthenticated() {
-		acc := a.GetAccount()
-		c.Redirect(http.StatusMovedPermanently, fmt.Sprintf("/admin/%s/dashboard", acc))
+		c.Redirect(http.StatusMovedPermanently, fmt.Sprintf("/admin/dashboard"))
 		return nil
 	}
 	csrfValue := c.Get("_csrf")

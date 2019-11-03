@@ -44,7 +44,7 @@ func DB() *gorm.DB {
 func newDB() (*gorm.DB, error) {
 
 	sqlConnection := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",
-		"db", Conf.DB.Port, "admin", "todos", Conf.DB.Pwd)
+		"localhost", Conf.DB.Port, "admin", "todos", Conf.DB.Pwd)
 	db, err := gorm.Open("postgres", sqlConnection)
 	if err != nil {
 		return nil, err

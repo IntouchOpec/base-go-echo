@@ -27,11 +27,33 @@
                    <div class="table-responsive">
                      <table class="table">
                        <thead class=" text-primary">
+                          <th>LIFFID</th>
+                          <th>View</th>
                         <th>Create At</th>
-                        {{ .list }}
                         <th></th>
                        </thead>
                        <tbody>
+                          {{ with .list }}
+                          {{ range . }}
+                          <tr>
+                              <td>{{.LIFFID}}</td>
+                              <td>{{.View}}</td>
+                              <td class="td-actions text-right">
+                                <a href="/admin/liff/{{ .ID }}">
+                                  <button type="button" rel="tooltip" class="btn btn-success">
+                                    <i class="material-icons">person</i>
+                                  </button>
+                                </a>
+                                <button type="button" rel="tooltip" class="btn btn-warning">
+                                    <i class="material-icons">edit</i>
+                                </button>
+                                <button type="button" rel="tooltip" class="btn btn-danger">
+                                    <i class="material-icons">close</i>
+                                </button>
+                              </td>
+                          </tr>
+                          {{end}}
+                          {{end}}
                        </tbody>
                      </table>
                    </div>

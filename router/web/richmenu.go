@@ -16,7 +16,12 @@ func RichMenuListHandler(c *Context) error {
 	a := auth.Default(c)
 	db := model.DB()
 
-	db.Preload("Account", "ID = ?", a.User.GetAccountID).Find(&chatChannel)
+	if err := db.Preload("Account", "ID = ?", a.User.GetAccountID).Find(&chatChannel); err != nil {
+		return c.Render(http.StatusOK, "rich-menu-list", echo.Map{
+			"list":  "",
+			"title": "rich-menu",
+		})
+	}
 
 	bot, err := lib.ConnectLineBot(chatChannel.ChannelSecret, chatChannel.ChannelAccessToken)
 	if err != nil {

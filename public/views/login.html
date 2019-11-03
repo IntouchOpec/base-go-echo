@@ -53,7 +53,6 @@
         data.append("password", password[0].value);
         data.append("_csrf", _csrf[0].value);
         
-        console.log(email[0].value,password[0].value,_csrf[0].value)
         fetch(window.location.href, {
           method: "POST",
           body: data

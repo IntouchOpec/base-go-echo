@@ -12,11 +12,19 @@ import (
 func LIIFListHandler(c *Context) error {
 	a := auth.Default(c)
 	chatChannel := model.ChatChannel{}
-	model.DB().Where("account_id = ?", a.User.GetAccountID()).Find(&chatChannel)
+	if err := model.DB().Where("account_id = ?", a.User.GetAccountID()).Find(&chatChannel); err != nil {
+		return c.Render(http.StatusOK, "LIFF-list", echo.Map{
+			"list":  "",
+			"title": "LIFF",
+		})
+	}
 
 	bot, err := linebot.New(chatChannel.ChannelID, chatChannel.ChannelSecret)
 	if err != nil {
-
+		return c.Render(http.StatusOK, "LIFF-list", echo.Map{
+			"list":  "",
+			"title": "LIFF",
+		})
 	}
 	res, err := bot.GetLIFF().Do()
 
