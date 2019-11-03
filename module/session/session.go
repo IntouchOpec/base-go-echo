@@ -10,7 +10,7 @@ import (
 func Session() echo.MiddlewareFunc {
 	switch Conf.SessionStore {
 	case REDIS:
-		store, err := es.NewRedisStore(10, "tcp", "localhost:6379", Conf.Redis.Pwd, []byte("secret-key"))
+		store, err := es.NewRedisStore(10, "tcp", Conf.Redis.Server, Conf.Redis.Pwd, []byte("secret-key"))
 		if err != nil {
 			panic(err)
 		}
