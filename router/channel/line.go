@@ -84,16 +84,16 @@ func HandleWebHookLineAPI(c echo.Context) error {
 					}
 					act := model.ActionLog{Name: "calendar", Status: model.StatusSuccess, Type: model.TypeActionLine, UserID: event.Source.UserID, ChatChannelID: chatChannel.ID, CustomerID: customer.ID}
 					act.CreateAction()
-				} else if keyWord == "product " {
+				} else if keyWord == "Service" {
 					t, _ := time.Parse("2006-01-02 15:04", messageText[8:]+" 01:00")
 
-					subProduct := []model.SubProduct{}
-					if err := model.DB().Preload("Bookings", "booked_date = ?", t).Preload("Product").Where("Day = ?", int(t.Weekday())).Find(&subProduct).Error; err != nil {
+					serviceSlot := []model.ServiceSlot{}
+					if err := model.DB().Preload("Bookings", "booked_date = ?", t).Preload("service").Where("Day = ?", int(t.Weekday())).Find(&serviceSlot).Error; err != nil {
 						fmt.Println(err)
 						return nil
 					}
 
-					m := ProductListLineTemplate(subProduct, messageText[8:])
+					m := serviceListLineTemplate(serviceSlot, messageText[8:])
 
 					flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(m))
 					if err != nil {
@@ -106,12 +106,12 @@ func HandleWebHookLineAPI(c echo.Context) error {
 						return err
 					}
 					fmt.Println(res, "=====__")
-					act := model.ActionLog{Name: "product", Status: model.StatusSuccess, Type: model.TypeActionLine, UserID: event.Source.UserID, ChatChannelID: chatChannel.ID, CustomerID: customer.ID}
+					act := model.ActionLog{Name: "service", Status: model.StatusSuccess, Type: model.TypeActionLine, UserID: event.Source.UserID, ChatChannelID: chatChannel.ID, CustomerID: customer.ID}
 					act.CreateAction()
 				} else if keyWord == "booking " {
 					t, _ := time.Parse("2006-01-02 15:04", messageText[8:18]+" 01:00")
-					product := model.Product{}
-					if err := model.DB().Preload("SubProducts", "start = ? and day = ?", messageText[19:24], int(t.Weekday())).Where("Name = ?", messageText[31:]).Find(&product).Error; err != nil {
+					service := model.Service{}
+					if err := model.DB().Preload("ServiceSlots", "start = ? and day = ?", messageText[19:24], int(t.Weekday())).Where("Name = ?", messageText[31:]).Find(&service).Error; err != nil {
 						fmt.Println(err, "err")
 						return nil
 					}
@@ -121,8 +121,8 @@ func HandleWebHookLineAPI(c echo.Context) error {
 						fmt.Println(err, "err")
 						return nil
 					}
-					subProduct := product.SubProducts[0]
-					booking := model.Booking{SubProductID: product.SubProducts[0].ID, BookedDate: t, ChatChannelID: chatChannel.ID, CustomerID: custo.ID}
+					serviceSlot := service.ServiceSlots[0]
+					booking := model.Booking{ServiceSlotID: service.ServiceSlots[0].ID, BookedDate: t, ChatChannelID: chatChannel.ID, CustomerID: custo.ID}
 					_, err := booking.SaveBooking()
 					var m string
 					if err != nil {
@@ -169,7 +169,7 @@ func HandleWebHookLineAPI(c echo.Context) error {
 					} else if keyWord == "comment" {
 
 					} else {
-						m = ThankyouTemplate(chatChannel, booking, subProduct)
+						m = ThankyouTemplate(chatChannel, booking, serviceSlot)
 					}
 					flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(m))
 					if err != nil {
@@ -278,47 +278,47 @@ func HandleWebHookLineAPI(c echo.Context) error {
 
 }
 
-// ProductListLineTemplate
-func ProductListLineTemplate(subProduct []model.SubProduct, dateTime string) string {
+// serviceListLineTemplate
+func serviceListLineTemplate(serviceSlot []model.ServiceSlot, dateTime string) string {
 	var slotTime string
 	var buttonTime string
-	var productList string
+	var serviceList string
 	var count int
 	count = 0
-	for t := 0; t < len(subProduct); t++ {
+	for t := 0; t < len(serviceSlot); t++ {
 		if count == 2 {
 			slotTime = slotTime + fmt.Sprintf(`,{"type": "box", "layout": "horizontal", "margin": "md", "contents":[%s]}`, buttonTime[:len(buttonTime)-1])
 			buttonTime = ""
 			count = 0
 		}
 
-		if len(subProduct[t].Bookings) > 0 {
-			if subProduct[t].Bookings[0].Queue < subProduct[t].Amount {
+		if len(serviceSlot[t].Bookings) > 0 {
+			if serviceSlot[t].Bookings[0].Queue < serviceSlot[t].Amount {
 				buttonTime = buttonTime + fmt.Sprintf(`{"type": "button", "style": "secondary", "margin": "sm", "action": { "type": "message", "label": "%s-%s", "text": "%s" }},`,
-					subProduct[t].Start, subProduct[t].End, "เต็มแล้ว")
+					serviceSlot[t].Start, serviceSlot[t].End, "เต็มแล้ว")
 			} else {
 				buttonTime = buttonTime + fmt.Sprintf(`{"type": "button","style": "primary", "action": { "type": "message", "label": "%s-%s", "text": "%s" }},`,
-					subProduct[t].Start, subProduct[t].End, "booking"+" "+dateTime+" "+subProduct[t].Start+"-"+subProduct[t].End+" "+subProduct[t].Product.Name)
+					serviceSlot[t].Start, serviceSlot[t].End, "booking"+" "+dateTime+" "+serviceSlot[t].Start+"-"+serviceSlot[t].End+" "+serviceSlot[t].Service.Name)
 			}
 		} else {
 			buttonTime = buttonTime + fmt.Sprintf(`{"type": "button","style": "primary", "margin": "sm", "action": { "type": "message", "label": "%s-%s", "text": "%s" }},`,
-				subProduct[t].Start, subProduct[t].End, "booking"+" "+dateTime+" "+subProduct[t].Start+"-"+subProduct[t].End+" "+subProduct[t].Product.Name)
+				serviceSlot[t].Start, serviceSlot[t].End, "booking"+" "+dateTime+" "+serviceSlot[t].Start+"-"+serviceSlot[t].End+" "+serviceSlot[t].Service.Name)
 		}
 
 		count = count + 1
-		if t == len(subProduct)-1 {
+		if t == len(serviceSlot)-1 {
 			slotTime = slotTime + fmt.Sprintf(`,{"type": "box", "layout": "horizontal", "margin": "md", "contents":[%s]}`, buttonTime[:len(buttonTime)-1])
-			productList += fmt.Sprintf(`{"type": "bubble", "hero": { "type": "image", "size": "full", "aspectRatio": "20:13", "aspectMode": "cover", "url": "%s"},
+			serviceList += fmt.Sprintf(`{"type": "bubble", "hero": { "type": "image", "size": "full", "aspectRatio": "20:13", "aspectMode": "cover", "url": "%s"},
 			"body": { "type": "box", "layout": "vertical", "spacing": "sm", "contents": [
 				{ "type": "text", "text": "%s", "wrap": true, "weight": "bold", "size": "xl" },
 				{ "type": "box", "layout": "baseline", "contents": [
 					{ "type": "text", "text": "฿%s", "wrap": true, "weight": "bold", "size": "xl", "flex": 0 }
 				] }
 				%s]
-			}}`, subProduct[t].Product.Image, subProduct[t].Product.Name, strconv.FormatInt(int64(subProduct[t].Product.Price), 10), slotTime)
-		} else if subProduct[t].Product.ID != subProduct[t+1].Product.ID {
+			}}`, serviceSlot[t].Service.Image, serviceSlot[t].Service.Name, strconv.FormatInt(int64(serviceSlot[t].Service.Price), 10), slotTime)
+		} else if serviceSlot[t].Service.ID != serviceSlot[t+1].Service.ID {
 			slotTime = slotTime + fmt.Sprintf(`,{"type": "box", "layout": "horizontal", "margin": "md", "contents":[%s]}`, buttonTime[:len(buttonTime)-1])
-			productList = productList + fmt.Sprintf(`{"type": "bubble", "hero": { "type": "image", "size": "full", "aspectRatio": "20:13", "aspectMode": "cover", "url": "%s"},
+			serviceList = serviceList + fmt.Sprintf(`{"type": "bubble", "hero": { "type": "image", "size": "full", "aspectRatio": "20:13", "aspectMode": "cover", "url": "%s"},
 			"body": { "type": "box", "layout": "vertical", "spacing": "sm", "contents": [
 				{ "type": "text", "text": "%s", "wrap": true, "weight": "bold", "size": "xl" },
 				{ "type": "box", "layout": "baseline", "contents": [
@@ -326,7 +326,7 @@ func ProductListLineTemplate(subProduct []model.SubProduct, dateTime string) str
 				] }
 				%s
 			]
-			}},`, subProduct[t].Product.Image, subProduct[t].Product.Name, strconv.FormatInt(int64(subProduct[t].Product.Price), 10), slotTime)
+			}},`, serviceSlot[t].Service.Image, serviceSlot[t].Service.Name, strconv.FormatInt(int64(serviceSlot[t].Service.Price), 10), slotTime)
 			slotTime = ""
 			count = 0
 			buttonTime = ""
@@ -335,8 +335,8 @@ func ProductListLineTemplate(subProduct []model.SubProduct, dateTime string) str
 	}
 	var nextPage string = `{ "type": "bubble", "body": { "type": "box", "layout": "vertical", "spacing": "sm", "contents": [
 		{ "type": "button", "flex": 1, "gravity": "center", "action": { "type": "uri", "label": "See more", "uri": "https://linecorp.com" } }] }}`
-	var productTamplate string = fmt.Sprintf(`{ "type": "carousel", "contents": [%s, %s]}`, productList, nextPage)
-	return productTamplate
+	var serviceTamplate string = fmt.Sprintf(`{ "type": "carousel", "contents": [%s, %s]}`, serviceList, nextPage)
+	return serviceTamplate
 }
 
 // FollowTemplate
@@ -364,8 +364,8 @@ func FollowTemplate(chatChannel model.ChatChannel, settings map[string]string) s
 }
 
 // ThankyouTemplate
-func ThankyouTemplate(ChatChannel model.ChatChannel, booking model.Booking, subProduct *model.SubProduct) string {
-	var productTamplate string = fmt.Sprintf(`{
+func ThankyouTemplate(ChatChannel model.ChatChannel, booking model.Booking, serviceSlot *model.ServiceSlot) string {
+	var serviceTamplate string = fmt.Sprintf(`{
 		"type": "bubble",
 		"hero": { "type": "image", "url": "%s", "size": "full", "aspectRatio": "20:13", "aspectMode": "cover" },
 		"body": {
@@ -392,8 +392,8 @@ func ThankyouTemplate(ChatChannel model.ChatChannel, booking model.Booking, subP
 		],
 		"flex": 0
 		}
-	  }`, ChatChannel.Image, ChatChannel.Address, subProduct.Start, subProduct.End)
-	return productTamplate
+	  }`, ChatChannel.Image, ChatChannel.Address, serviceSlot.Start, serviceSlot.End)
+	return serviceTamplate
 }
 
 func PromotionsTemplate(promotions []*model.Promotion) string {

@@ -1,5 +1,5 @@
 
-{{define "product-form"}}
+{{define "service-form"}}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -16,11 +16,11 @@
                             <div class="col-md-6">
                                 <div class="card">
                                     <div class="card-header card-header-primary">
-                                        <h4 class="card-title">Product</h4>
+                                        <h4 class="card-title">service</h4>
                                         <p class="card-category">Complete your Chat Channel</p>
                                     </div>
                                     <div class="card-body">
-                                        <form name="create-product" >
+                                        <form name="create-service" >
                                             <input id="_csrf" name="_csrf" value="{{._csrf}}" type="hidden" class="form-control" >
                                             <div class="row">
                                                 <div class="col-md-12 mt-2">
@@ -68,7 +68,7 @@
     });
     (function ($) {
        
-        $("form[name='create-product']").validate({
+        $("form[name='create-service']").validate({
             rules: {
                 Name: {
                     required: true
@@ -122,7 +122,7 @@
                     data.push(priceEncodedKey + "=" + priceEncodedValue)
                     data.push(imageEncodedKey + "=" + imageEncodedValue)
                     data = data.join("&");
-                    fetch("/admin/product", {
+                    fetch("/admin/service", {
                         method: "POST", 
                         headers: {"Content-Type": "application/x-www-form-urlencoded"},
                         body: data

@@ -1,4 +1,4 @@
-{{define "sub-product-form"}}
+{{define "sub-service-form"}}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -15,10 +15,10 @@
                             <div class="col-md-6">
                                 <div class="card">
                                     <div class="card-header card-header-primary">
-                                        <h4 class="card-title">Add Sub Product</h4>
+                                        <h4 class="card-title">Add Sub service</h4>
                                     </div>
                                     <div class="card-body">
-                                        <form name="create-sub-product" >
+                                        <form name="create-sub-service" >
                                             <input id="_csrf" name="_csrf" value="{{._csrf}}" type="hidden" class="form-control" >
                                             <div class="col-md-12 mt-2">
                                                 <div class="form-group">
@@ -75,7 +75,7 @@
             $('input[type="time"][value="00:00"]').each(function(){ 
                 $(this).attr({'value': h + ':' + m});
             });
-            $("form[name='create-sub-product']").validate({
+            $("form[name='create-sub-service']").validate({
                 rules: {
                     Start: {
                         required: true

@@ -192,7 +192,7 @@ func MakeCalenda(date string) string {
 			monthStr = fmt.Sprintf("0%s", monthStr)
 		}
 		contents = contents + fmt.Sprintf(`{ "type": "text", "text": "%s", "size": "sm", "color": "%s", "align": "center", "gravity": "center",
-					"action": { "type": "message", "label": "%s", "text": "product %d-%s-%s"}},`, dayStr, color, day, year, monthStr, dayStr)
+					"action": { "type": "message", "label": "%s", "text": "Service%d-%s-%s"}},`, dayStr, color, day, year, monthStr, dayStr)
 		contents = contents + `{"type": "separator"},`
 		Weekday = int(time.Date(year, month, day, 0, 0, 0, -1, time.UTC).Weekday())
 		if endOfMonth.Day() == day {

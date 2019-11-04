@@ -83,16 +83,16 @@ func Routers() *echo.Echo {
 	e.PATCH("/chatanswer/:id", UpdateChatAnswers)
 	e.DELETE("/chatanswer/:id", DeleteChatAnswer)
 
-	e.GET("/product/:chatChannelID/list", GetProductList)
-	e.GET("/product/:id", GetProduct)
-	e.POST("/product", CreateProduct)
-	e.PATCH("/product/:id", UpdateProduct)
+	e.GET("/service/:chatChannelID/list", GetserviceList)
+	e.GET("/service/:id", Getservice)
+	e.POST("/service", Createservice)
+	e.PATCH("/service/:id", Updateservice)
 
-	// e.GET("/subproduct/:chatChannelID", GetProductList)
-	// e.GET("/subproduct/:id", GetProduct)
-	// e.POST("/subproduct/:chatChannelID/:id", CreateProduct)
-	// e.PATCH("/subproduct/:id", UpdateProduct)
-	// e.DELETE("/product/:id", CreateProduct)
+	// e.GET("/subservice/:chatChannelID", GetserviceList)
+	// e.GET("/subservice/:id", Getservice)
+	// e.POST("/subservice/:chatChannelID/:id", Createservice)
+	// e.PATCH("/subservice/:id", Updateservice)
+	// e.DELETE("/service/:id", Createservice)
 
 	e.GET("/richmenu/:id", GetRichMenu)
 	e.POST("/richmenu/:id", CreateRichMenu)
@@ -129,7 +129,7 @@ func Routers() *echo.Echo {
 	// }
 
 	// chatanswer := e.Group("/chatanswer")
-	// proDuct := e.Group("/product")
+	// Service:= e.Group("/service")
 	// richMenu := e.Group("/richmenu")
 	// chatChannel := e.Group("/chatchannel")
 	// richMenu := e.Group("/richmenu")

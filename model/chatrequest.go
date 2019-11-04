@@ -5,7 +5,7 @@ import "github.com/IntouchOpec/base-go-echo/model/orm"
 // ChatRequest log castomer when customer send something to line OA.
 type ChatRequest struct {
 	orm.ModelBase
-	// ID           uint       `gorm:"primary_key" json:"id"`
+
 	LineID       string     `json:"line_id" gorm:"type:varchar(25)"`
 	Message      string     `json:"message" gorm:"type:varchar(50)"`
 	ReplyToken   string     `json:"reply_token" gorm:"type:varchar(255)"`

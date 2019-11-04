@@ -78,18 +78,18 @@ func ChatChannelDetailHandler(c *Context) error {
 	id := c.Param("id")
 	chatChannel := model.ChatChannel{}
 	a := auth.Default(c)
-	model.DB().Preload("Products").Preload("Customers").Preload("ActionLogs", func(db *gorm.DB) *gorm.DB {
+	model.DB().Preload("Services").Preload("Customers").Preload("ActionLogs", func(db *gorm.DB) *gorm.DB {
 		return db.Preload("Customers")
 	}).Preload("EventLogs").Preload("Account").Where("account_id = ?", a.User.GetAccountID()).Find(&chatChannel, id)
 	customerSum := len(chatChannel.Customers)
-	productSum := len(chatChannel.Products)
+	serviceSum := len(chatChannel.Services)
 	settings := chatChannel.GetSetting([]string{"LIFFregister", "statusLIFFregister", "statusAccessToken", "dateStatusToken"})
 
 	return c.Render(http.StatusOK, "chat-channel-detail", echo.Map{
 		"title":       "chat_channel",
 		"detail":      chatChannel,
 		"customerSum": customerSum,
-		"productSum":  productSum,
+		"serviceSum":  serviceSum,
 		"settings":    settings,
 	})
 }
@@ -163,15 +163,15 @@ func ChatChannelEditHandler(c *Context) error {
 	chatChannel := model.ChatChannel{}
 	a := auth.Default(c)
 	db := model.DB()
-	db.Preload("Products").Preload("Customers").Preload("ActionLogs").Preload("EventLogs").Preload("Account").Where("account_id = ?", a.User.GetAccountID()).Find(&chatChannel, id)
+	db.Preload("Services").Preload("Customers").Preload("ActionLogs").Preload("EventLogs").Preload("Account").Where("account_id = ?", a.User.GetAccountID()).Find(&chatChannel, id)
 	customerSum := len(chatChannel.Customers)
-	productSum := len(chatChannel.Products)
+	serviceSum := len(chatChannel.Services)
 	typeChatChannels := []string{"Facebook", "Line"}
 	return c.Render(http.StatusOK, "chat-channel-form", echo.Map{
 		"title":            "chat_channel",
 		"detail":           chatChannel,
 		"customerSum":      customerSum,
-		"productSum":       productSum,
+		"serviceSum":       serviceSum,
 		"typeChatChannels": typeChatChannels,
 		"mode":             "Edit",
 	})

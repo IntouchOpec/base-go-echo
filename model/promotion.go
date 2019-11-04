@@ -14,7 +14,7 @@ const (
 	PromotionTypeVoucher   PromotionType = "Voucher"
 )
 
-// Promotion discount price product.
+// Promotion discount price service.
 type Promotion struct {
 	orm.ModelBase
 
@@ -33,7 +33,7 @@ type Promotion struct {
 	AccountID     uint           `json:"account_id"`
 	Account       Account        `gorm:"ForeignKey:AccountID"`
 	Settings      []*Setting     `json:"settings" gorm:"many2many:promotion_setting"`
-	Products      []*Product     `json:"products" gorm:"many2many:product_promotion"`
+	services      []*Service     `json:"services" gorm:"many2many:service_promotion"`
 }
 
 // SavePromotion is function create Promotion.

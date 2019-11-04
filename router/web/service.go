@@ -19,77 +19,77 @@ import (
 	"github.com/labstack/echo"
 )
 
-// ProductListHandler
-func ProductListHandler(c *Context) error {
-	products := []*model.Product{}
+// serviceListHandler
+func serviceListHandler(c *Context) error {
+	services := []*model.Service{}
 	a := auth.Default(c)
 	model.DB().Preload("ChatChannel", func(db *gorm.DB) *gorm.DB {
 		return db.Where("chat_channel_id = ?", a.User.GetAccountID())
-	}).Preload("SubProduct").Find(&products)
-	err := c.Render(http.StatusOK, "product-list", echo.Map{
-		"list":  products,
-		"title": "product",
+	}).Preload("ServiceSlot").Find(&services)
+	err := c.Render(http.StatusOK, "service-list", echo.Map{
+		"list":  services,
+		"title": "service",
 	})
 	return err
 }
 
-// ProductDetailHandler
-func ProductDetailHandler(c *Context) error {
-	product := model.Product{}
+// serviceDetailHandler
+func serviceDetailHandler(c *Context) error {
+	service := model.Service{}
 	id := c.Param("id")
 	a := auth.Default(c)
-	model.DB().Preload("Account").Preload("SubProducts").Preload("ChatChannels").Where("account_id = ? ", a.User.GetAccountID()).Find(&product, id)
-	err := c.Render(http.StatusOK, "product-detail", echo.Map{
-		"detail": product,
-		"title":  "product",
+	model.DB().Preload("Account").Preload("ServiceSlots").Preload("ChatChannels").Where("account_id = ? ", a.User.GetAccountID()).Find(&service, id)
+	err := c.Render(http.StatusOK, "service-detail", echo.Map{
+		"detail": service,
+		"title":  "service",
 	})
 	return err
 }
 
-func ProductCreateHandler(c *Context) error {
-	product := model.Product{}
+func serviceCreateHandler(c *Context) error {
+	Service := model.Service{}
 	csrfValue := c.Get("_csrf")
 
-	err := c.Render(http.StatusOK, "product-form", echo.Map{
-		"detail": product,
-		"title":  "product",
+	err := c.Render(http.StatusOK, "service-form", echo.Map{
+		"detail": Service,
+		"title":  "service",
 		"_csrf":  csrfValue,
 	})
 	return err
 }
 
-func ProductEditHandler(c *Context) error {
-	product := model.Product{}
+func serviceEditHandler(c *Context) error {
+	service := model.Service{}
 	id := c.Param("id")
 	a := auth.Default(c)
-	model.DB().Preload("Account").Preload("SubProducts").Preload("ChatChannels").Where("account_id = ? ", a.User.GetAccountID()).Find(&product, id)
-	err := c.Render(http.StatusOK, "product-form", echo.Map{
-		"detail": product,
-		"title":  "product",
+	model.DB().Preload("Account").Preload("ServiceSlots").Preload("ChatChannels").Where("account_id = ? ", a.User.GetAccountID()).Find(&service, id)
+	err := c.Render(http.StatusOK, "service-form", echo.Map{
+		"detail": service,
+		"title":  "service",
 	})
 	return err
 }
 
-func ProductDeleteHandler(c *Context) error {
+func serviceDeleteHandler(c *Context) error {
 	id := c.Param("id")
-	pro := model.DeleteProductByID(id)
+	pro := model.DeleteserviceByID(id)
 	err := c.JSON(http.StatusOK, pro)
 	return err
 }
 
-func SubProductCreateHandler(c *Context) error {
+func ServiceSlotCreateHandler(c *Context) error {
 	messageTypes := []linebot.MessageType{linebot.MessageTypeText, linebot.MessageTypeImage, linebot.MessageTypeVideo, linebot.MessageTypeAudio, linebot.MessageTypeFile, linebot.MessageTypeLocation, linebot.MessageTypeSticker, linebot.MessageTypeTemplate, linebot.MessageTypeImagemap, linebot.MessageTypeFlex}
 
-	sunProduct := model.SubProduct{}
-	err := c.Render(http.StatusOK, "sub-product-form", echo.Map{
-		"detail":       sunProduct,
-		"title":        "product",
+	sunService := model.ServiceSlot{}
+	err := c.Render(http.StatusOK, "sub-service-form", echo.Map{
+		"detail":       sunService,
+		"title":        "service",
 		"messageTypes": messageTypes,
 	})
 	return err
 }
 
-type ProductForm struct {
+type serviceForm struct {
 	Name   string  `form:"name"`
 	Detail string  `form:"detail"`
 	Price  float32 `form:"price"`
@@ -102,8 +102,8 @@ var (
 	ErrInvalidImage = errors.New("Invalid image!")
 )
 
-func ProductPostHandler(c *Context) error {
-	product := ProductForm{}
+func servicePostHandler(c *Context) error {
+	service := serviceForm{}
 	file := c.FormValue("file")
 
 	idx := strings.Index(file, ";base64,")
@@ -136,80 +136,80 @@ func ProductPostHandler(c *Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	if err := c.Bind(&product); err != nil {
+	if err := c.Bind(&service); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	a := auth.Default(c)
-	productModel := model.Product{
-		Name:      product.Name,
-		Detail:    product.Detail,
-		Price:     product.Price,
+	serviceModel := model.Service{
+		Name:      service.Name,
+		Detail:    service.Detail,
+		Price:     service.Price,
 		Image:     fmt.Sprintf("%s.%s", u, fm),
 		AccountID: a.User.GetAccountID(),
 	}
-	productModel.SaveProduct()
+	serviceModel.Saveservice()
 
-	return c.JSON(http.StatusCreated, productModel)
+	return c.JSON(http.StatusCreated, serviceModel)
 }
 
-type SubProductForm struct {
+type ServiceSlotForm struct {
 	Start  string `form:"start" json:"start"`
 	End    string `form:"end" json:"end"`
 	Day    int    `form:"day" json:"day"`
 	Amount int    `form:"amount" json:"amount"`
 }
 
-func SubProductPostHandler(c *Context) error {
+func ServiceSlotPostHandler(c *Context) error {
 	id := c.Param("id")
-	product := model.Product{}
+	Service := model.Service{}
 	db := model.DB()
-	subProductFrom := SubProductForm{}
-	if err := c.Bind(&subProductFrom); err != nil {
+	serviceSlotFrom := ServiceSlotForm{}
+	if err := c.Bind(&serviceSlotFrom); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	db.Find(&product, id)
-	db.Model(&product).Association("SubProducts").Append(&model.SubProduct{Start: subProductFrom.Start, End: subProductFrom.End, Day: subProductFrom.Day, Amount: subProductFrom.Amount})
-	return c.JSON(http.StatusCreated, product)
+	db.Find(&Service, id)
+	db.Model(&Service).Association("ServiceSlots").Append(&model.ServiceSlot{Start: serviceSlotFrom.Start, End: serviceSlotFrom.End, Day: serviceSlotFrom.Day, Amount: serviceSlotFrom.Amount})
+	return c.JSON(http.StatusCreated, Service)
 }
 
-func SubProductEditHandler(c *Context) error {
-	sunProduct := model.SubProduct{}
+func ServiceSlotEditHandler(c *Context) error {
+	sunService := model.ServiceSlot{}
 	id := c.Param("id")
 	a := auth.Default(c)
 	messageTypes := []linebot.MessageType{linebot.MessageTypeText, linebot.MessageTypeImage, linebot.MessageTypeVideo, linebot.MessageTypeAudio, linebot.MessageTypeFile, linebot.MessageTypeLocation, linebot.MessageTypeSticker, linebot.MessageTypeTemplate, linebot.MessageTypeImagemap, linebot.MessageTypeFlex}
-	model.DB().Preload("Product", func(db *gorm.DB) *gorm.DB {
+	model.DB().Preload("service", func(db *gorm.DB) *gorm.DB {
 		return db.Preload("ChatChannels").Where("account_id = ? ", a.User.GetAccountID())
-	}).Find(&sunProduct, id)
-	err := c.Render(http.StatusOK, "sub-product-form", echo.Map{
-		"detail":       sunProduct,
-		"title":        "product",
+	}).Find(&sunService, id)
+	err := c.Render(http.StatusOK, "sub-service-form", echo.Map{
+		"detail":       sunService,
+		"title":        "service",
 		"messageTypes": messageTypes,
 	})
 	return err
 }
 
-func SubProductDeleteHandler(c *Context) error {
+func ServiceSlotDeleteHandler(c *Context) error {
 	id := c.Param("id")
-	subProduct := model.DeleteSubProduct(id)
-	return c.JSON(http.StatusOK, subProduct)
+	serviceSlot := model.DeleteServiceSlot(id)
+	return c.JSON(http.StatusOK, serviceSlot)
 }
 
-func ProductChatChannelViewHandler(c *Context) error {
+func serviceChatChannelViewHandler(c *Context) error {
 	chatChannels := []*model.ChatChannel{}
 	a := auth.Default(c)
 	model.DB().Preload("Account").Where("account_id = ?", a.User.GetAccountID()).Find(&chatChannels)
 
-	err := c.Render(http.StatusOK, "product-chat-channel-form", echo.Map{
+	err := c.Render(http.StatusOK, "service-chat-channel-form", echo.Map{
 		"list_chat_channel": chatChannels,
-		"title":             "product",
+		"title":             "service",
 	})
 	return err
 }
 
-func ProductChatChannelPostHandler(c *Context) error {
+func serviceChatChannelPostHandler(c *Context) error {
 	id := c.QueryParam("id")
 	chatChannelID := c.FormValue("chat_channel_id")
-	product := model.Product{}
+	service := model.Service{}
 	chatChannel := model.ChatChannel{}
 	db := model.DB()
 
@@ -217,13 +217,13 @@ func ProductChatChannelPostHandler(c *Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	if err := db.Find(&product, id).Error; err != nil {
+	if err := db.Find(&service, id).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	if err := db.Model(&product).Association("ChatChannels").Append(&chatChannel).Error; err != nil {
+	if err := db.Model(&service).Association("ChatChannels").Append(&chatChannel).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	return c.JSON(http.StatusCreated, product)
+	return c.JSON(http.StatusCreated, service)
 }

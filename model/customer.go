@@ -6,18 +6,20 @@ import "github.com/IntouchOpec/base-go-echo/model/orm"
 type Customer struct {
 	orm.ModelBase
 
-	FullName    string       `json:"full_name" gorm:"type:varchar(50);"`
-	PictureURL  string       `json:"picture_url"`
-	DisplayName string       `json:"display_name"`
-	LineID      string       `json:"line_id" gorm:"type:varchar(255)"`
-	Email       string       `json:"email" gorm:"type:varchar(25)"`
-	PhoneNumber string       `json:"phone_number" gorm:"type:varchar(25)"`
-	AccountID   uint         `json:"chat_channel_id" gorm:"not null;"`
-	Accoutn     Account      `json:"chat_channel" gorm:"ForeignKey:AccountID"`
-	Promotions  []*Promotion `gorm:"many2many:promotion_customer" json:"promotions"`
-	EventLogs   []*EventLog  `json:"even_logs"`
-	ActionLogs  []*ActionLog `json:"action_logs"`
-	Bookings    []*Booking   `json:"bookings"`
+	FullName       string       `json:"full_name" gorm:"type:varchar(50);"`
+	PictureURL     string       `json:"picture_url"`
+	DisplayName    string       `json:"display_name"`
+	LineID         string       `json:"line_id" gorm:"type:varchar(255)"`
+	Email          string       `json:"email" gorm:"type:varchar(25)"`
+	PhoneNumber    string       `json:"phone_number" gorm:"type:varchar(25)"`
+	AccountID      uint         `json:"chat_channel_id" gorm:"not null;"`
+	CustomerTpyeID uint         `json:"customer_type_id"`
+	Accout         Account      `json:"chat_channel" gorm:"ForeignKey:AccountID"`
+	CustomerTpye   CustomerTpye `json:"customer" gorm:"ForeignKey:CustomerTpyeID"`
+	Promotions     []*Promotion `gorm:"many2many:promotion_customer" json:"promotions"`
+	EventLogs      []*EventLog  `json:"even_logs"`
+	ActionLogs     []*ActionLog `json:"action_logs"`
+	Bookings       []*Booking   `json:"bookings"`
 }
 
 // LoginRespose is instacne respose line json
@@ -28,6 +30,13 @@ type LoginRespose struct {
 	ExpiresIn    int    `json:"expires_in"`
 	Scope        string `json:"scope"`
 	IDToken      string `json:"id_token"`
+}
+
+type CustomerTpye struct {
+	orm.ModelBase
+	Name      string  `json:"name" gorm:"type:vachat(25)"`
+	AccoutnID uint    `json:"acount_id" gorm:"not null;"`
+	Accout    Account `json:"chat_channel" gorm:"ForeignKey:AccountID"`
 }
 
 // SaveCustomer is function create Customer.

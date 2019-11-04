@@ -15,8 +15,8 @@ type Booking struct {
 	LineID        string      `json:"line_id" gorm:"type:varchar(50)"`
 	CustomerID    uint        `json:"customer_id"`
 	Customer      Customer    `json:"customer" gorm:"ForeignKey:CustomerID"`
-	SubProductID  uint        `json:"sub_product_id"`
-	SubProduct    SubProduct  `json:"sub_product" gorm:"ForeignKey:SubProductID"`
+	ServiceSlotID uint        `json:"sub_service_id"`
+	ServiceSlot   ServiceSlot `json:"sub_service" gorm:"ForeignKey:ServiceSlotID"`
 	ChatChannelID uint        `json:"chat_chaneel_id"`
 	ChatChannel   ChatChannel `gorm:"ForeignKey:ChatChannelID"`
 	BookStatus    int         `json:"booking_status"`
@@ -49,10 +49,10 @@ type BookingState struct {
 func (booking *Booking) SaveBooking() (*Booking, error) {
 	db := DB()
 	booked := Booking{}
-	db.Preload("SubProduct").Where("Booked_Date = ? and Sub_Product_ID = ?", booking.BookedDate, booking.SubProductID).Last(&booked)
-	if booked.SubProduct.Amount == 0 {
+	db.Preload("ServiceSlot").Where("Booked_Date = ? and Sub_service_ID = ?", booking.BookedDate, booking.ServiceSlotID).Last(&booked)
+	if booked.ServiceSlot.Amount == 0 {
 		booking.Queue = 1
-	} else if booked.SubProduct.Amount > booked.Queue {
+	} else if booked.ServiceSlot.Amount > booked.Queue {
 		booking.Queue = booked.Queue + 1
 	} else {
 		return nil, errors.New("can't insert booking case queue full")

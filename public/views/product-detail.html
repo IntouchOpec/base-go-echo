@@ -1,4 +1,4 @@
-{{define "product-detail"}}
+{{define "service-detail"}}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -37,7 +37,7 @@
                         <div class="card">
                             <div class="card-header card-header-primary d-flex justify-content-between">
                                 <h4 class="card-title ">channel</h4>
-                                <a href="/admin/product/{{.detail.ID}}/chatchannel_product/create">
+                                <a href="/admin/service/{{.detail.ID}}/chatchannel_service/create">
                                     <button class="btn btn-info">
                                     <i class="material-icons">add</i>
                                     Create
@@ -70,7 +70,7 @@
                     <div class="card">
                         <div class="card-header card-header-primary d-flex justify-content-between">
                             <h4 class="card-title ">slot</h4>
-                            <a href="/admin/product/{{.detail.ID}}/sub_product/create">
+                            <a href="/admin/service/{{.detail.ID}}/sub_service/create">
                                 <button class="btn btn-info">
                                 <i class="material-icons">add</i>
                                 Create
@@ -91,7 +91,7 @@
                                         <th></th>
                                     </thead>
                                     <tbody>
-                                    {{ with .detail.SubProducts }}
+                                    {{ with .detail.ServiceSlots }}
                                     {{ range . }}
                                         <tr>
                                             <td></td>
@@ -102,12 +102,12 @@
                                             <td>{{ ((.CreatedAt).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
                                             <td><input type="checkbox" checked="{{.Active}}" data-toggle="toggle"></td>
                                             <td class="td-actions text-right">
-                                                <a href="/productsub/{{ .ID }}/edit">
+                                                <a href="/servicesub/{{ .ID }}/edit">
                                                     <button type="button" rel="tooltip" class="btn btn-warning">
                                                         <i class="material-icons">edit</i>
                                                     </button>
                                                 </a>
-                                                <a href="/productsub/{{ .ID }}/delete">
+                                                <a href="/servicesub/{{ .ID }}/delete">
                                                     <button type="button" rel="tooltip" class="btn btn-danger">
                                                         <i class="material-icons">close</i>
                                                     </button>

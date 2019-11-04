@@ -28,7 +28,7 @@ type ChatChannel struct {
 	Customers          []*Customer  `json:"customer"`
 	EventLogs          []*EventLog  `json:"event_logs"`
 	ActionLogs         []*ActionLog `json:"action_logs"`
-	Products           []*Product   `json:"products" gorm:"many2many:product_chat_channel"`
+	Services           []*Service   `json:"services" gorm:"many2many:service_chat_channel"`
 	Promotions         []*Promotion `json:"promotions" gorm:"many2many:chat_channel_promotion"`
 }
 

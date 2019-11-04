@@ -31,7 +31,7 @@ func PromotionDetailHandler(c *Context) error {
 	id := c.Param("id")
 	a := auth.Default(c)
 
-	model.DB().Preload("Account").Preload("Products").Preload("Customers").Preload("ChatChannels").Where("account_id = ?", a.User.GetAccountID()).Find(&promotion, id)
+	model.DB().Preload("Account").Preload("services").Preload("Customers").Preload("ChatChannels").Where("account_id = ?", a.User.GetAccountID()).Find(&promotion, id)
 	sumCustomer := len(promotion.Customers)
 	return c.Render(http.StatusOK, "promotion-detail", echo.Map{
 		"detail":      promotion,
@@ -96,7 +96,7 @@ func PromotionEditHandler(c *Context) error {
 	id := c.Param("id")
 	a := auth.Default(c)
 
-	model.DB().Preload("Account").Preload("Products").Preload("Customers").Preload("ChatChannels").Where("account_id = ?", a.User.GetAccountID()).Find(&promotion, id)
+	model.DB().Preload("Account").Preload("services").Preload("Customers").Preload("ChatChannels").Where("account_id = ?", a.User.GetAccountID()).Find(&promotion, id)
 	return c.Render(http.StatusOK, "promotion-form", echo.Map{
 		"detail": promotion,
 		"title":  "promotion",

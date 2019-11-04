@@ -37,8 +37,8 @@
                               <tr>
                                 <td></td>
                                 <td>{{ ((.BookedDate).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
-                                <td>{{ .SubProduct.Start }}</td>
-                                <td>{{ .SubProduct.End }}</td>
+                                <td>{{ .ServiceSlot.Start }}</td>
+                                <td>{{ .ServiceSlot.End }}</td>
                                 <td>{{ .Queue }}</td>
                                 <td>{{ .Customer.FullName }}</td>
                                 <td>{{ if (eq .BookState 0) }}Padding{{ else if (eq .BookState 1) }}Book{{ else }}reject{{ end }}</td>

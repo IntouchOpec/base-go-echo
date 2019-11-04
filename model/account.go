@@ -8,6 +8,7 @@ type Account struct {
 
 	// ID   uint64 `json:"id,omitempty"`
 	Name         string         `json:"name" gorm:"type:varchar(25)"`
+	Type         string         `json:"type" gorm:"type:varchar(25)"`
 	Settings     []*Setting     `json:"settings" gorm:"many2many:account_setting"`
 	ChatChannels []*ChatChannel `json:"chat_channels"`
 }

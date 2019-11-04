@@ -61,6 +61,7 @@ type TestModel struct {
 // Initialize auto migration.
 func Initialize() {
 	newDb := DB()
+	newDb.AutoMigrate(&CustomerTpye{})
 	newDb.AutoMigrate(&Customer{})
 	newDb.AutoMigrate(&Promotion{})
 	newDb.AutoMigrate(&Account{})
@@ -69,14 +70,14 @@ func Initialize() {
 	newDb.AutoMigrate(&ChatChannel{})
 	newDb.AutoMigrate(&ChatRequest{})
 	newDb.AutoMigrate(&EventLog{})
-	newDb.AutoMigrate(&Product{})
-	newDb.AutoMigrate(&SubProduct{})
+	newDb.AutoMigrate(&Service{})
+	newDb.AutoMigrate(&ServiceSlot{})
 	newDb.AutoMigrate(&Booking{})
 	newDb.AutoMigrate(&Account{})
 	newDb.AutoMigrate(&LoginRespose{})
 	newDb.AutoMigrate(&ActionLog{})
 	newDb.AutoMigrate(&Setting{})
-
+	newDb.AutoMigrate(&Place{})
 }
 
 // CacheStore use cache MEMCACHED or REDIS.

@@ -1,50 +1,50 @@
 version: '3'
 
 services:
-  app: 
-    build:
-      context: . # Use an image built from the specified dockerfile in the current directory.
-      dockerfile: Dockerfile
-    ports:
-      - "8080:8080" # Forward the exposed port 8080 on the container to port 8080 on the host machine
-    restart: on-failure
-    depends_on: 
-      - redis
-      - db
-    networks:
-      - backend
+  # app: 
+  #   build:
+  #     context: . # Use an image built from the specified dockerfile in the current directory.
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "8080:8080" # Forward the exposed port 8080 on the container to port 8080 on the host machine
+  #   restart: on-failure
+  #   depends_on: 
+  #     - redis
+  #     - db
+  #   networks:
+  #     - backend
 
-  nginx:
-    image: nginx:latest
-    restart: always
-    links: 
-      - app:api.app
-      - app:web.app
-      - app:channel.app
-    ports:
-      - "80:80"
-      - "443:443"
-    depends_on: 
-      - app
-    networks:
-      - backend
-    volumes:
-      - ./nginx/:/etc/nginx/conf.d/
-      - ./public:/var/www/html
-      - certbot-etc:/etc/letsencrypt
-      - certbot-var:/var/lib/letsencrypt
-      - ./dhparam:/etc/ssl/certs
+  # nginx:
+  #   image: nginx:latest
+  #   restart: always
+  #   links: 
+  #     - app:api.app
+  #     - app:web.app
+  #     - app:channel.app
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   depends_on: 
+  #     - app
+  #   networks:
+  #     - backend
+  #   volumes:
+  #     - ./nginx/:/etc/nginx/conf.d/
+  #     - ./public:/var/www/html
+  #     - certbot-etc:/etc/letsencrypt
+  #     - certbot-var:/var/lib/letsencrypt
+  #     - ./dhparam:/etc/ssl/certs
    
-  certbot:
-    image: certbot/certbot
-    container_name: certbot
-    volumes:
-      - certbot-etc:/etc/letsencrypt
-      - certbot-var:/var/lib/letsencrypt
-      - ./public:/var/www/html
-    depends_on:
-      - nginx
-    command: certonly --webroot --webroot-path=/var/www/html --email intouch.opec@gmail.com --agree-tos --no-eff-email --staging -d channel2.triple-t.cc 
+  # certbot:
+  #   image: certbot/certbot
+  #   container_name: certbot
+  #   volumes:
+  #     - certbot-etc:/etc/letsencrypt
+  #     - certbot-var:/var/lib/letsencrypt
+  #     - ./public:/var/www/html
+  #   depends_on:
+  #     - nginx
+  #   command: certonly --webroot --webroot-path=/var/www/html --email intouch.opec@gmail.com --agree-tos --no-eff-email --staging -d channel2.triple-t.cc 
     
   db:
     image: postgres:11.3
@@ -68,6 +68,20 @@ services:
       - 6379:6379
     networks:
       - backend
+
+  pgadmin:
+    container_name: pgadmin_container
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: pgadmin4@pgadmin.org
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    networks:
+      - backend
+    links: 
+      - db:db
+    restart: unless-stopped
 
 volumes:
   certbot-etc:

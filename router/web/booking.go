@@ -22,8 +22,8 @@ func BookingListHandler(c *Context) error {
 			"title": "Book",
 		})
 	}
-	if err := model.DB().Preload("SubProduct", func(db *gorm.DB) *gorm.DB {
-		return db.Preload("Product")
+	if err := model.DB().Preload("ServiceSlot", func(db *gorm.DB) *gorm.DB {
+		return db.Preload("service")
 	}).Preload("Customer").Where("chat_channel_id = ?", chatChannel.ID).Find(&bookings).Error; err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}
