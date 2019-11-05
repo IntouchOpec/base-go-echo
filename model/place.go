@@ -7,25 +7,23 @@ import (
 type Place struct {
 	orm.ModelBase
 
-	Name   string `json:"name" gorm:"type:varchar(50)"`
-	Detail string `json:"detail"`
+	Name   string `json:"name" form:"name" gorm:"type:varchar(50)"`
+	Detail string `json:"detail" form:"detail"`
+	Active bool   `json:"active" form:"active"`
 }
 
-func (pla *Place) CreatePlace() (*Place, error) {
+func (pla *Place) CreatePlace() error {
 	if err := DB().Create(&pla).Error; err != nil {
-		return nil, err
+		return err
 	}
-	return pla, nil
+	return nil
 }
 
-func (pla *Place) Update(id string) (*Place, error) {
-	if err := DB().Find(&pla).Error; err != nil {
-		return nil, err
-	}
+func (pla *Place) Update() error {
 	if err := DB().Save(&pla).Error; err != nil {
-		return nil, err
+		return err
 	}
-	return pla, nil
+	return nil
 }
 
 func GetPlaceList(AccountID uint) ([]*Place, error) {
@@ -36,10 +34,24 @@ func GetPlaceList(AccountID uint) ([]*Place, error) {
 	return places, nil
 }
 
-func GetPlaceDetail(id string) (*Place, error) {
+func GetPlaceDetail(id string, AccountID uint) (*Place, error) {
 	place := Place{}
+	if err := DB().Where("account_id = ?", AccountID).Find(&place, id).Error; err != nil {
+		return nil, err
+	}
+	return &place, nil
+}
+
+func DeletePlaceByID(id string) (*Place, error) {
+	place := Place{}
+
 	if err := DB().Find(&place, id).Error; err != nil {
 		return nil, err
 	}
+
+	if err := DB().Delete(&place).Error; err != nil {
+		return nil, err
+	}
+
 	return &place, nil
 }

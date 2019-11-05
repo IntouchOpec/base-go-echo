@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/jinzhu/gorm"
 
@@ -43,26 +44,26 @@ func ChatChannelListHandler(c *Context) error {
 }
 
 func ChatChannelGetChannelAccessTokenHandler(c *Context) error {
-	// id := c.Param("id")
-	// chatChannel := model.ChatChannel{}
-	// a := auth.Default(c)
-	// db := model.DB()
-	// db.Preload("Account").Where("account_id = ?", a.User.GetAccountID()).Find(&chatChannel, id)
-	// bot, err := linebot.New(chatChannel.ChannelID, chatChannel.ChannelSecret)
-	// if err != nil {
-	// 	return c.NoContent(http.StatusBadRequest)
-	// }
-	// res, err := bot.IssueAccessToken(chatChannel.ChannelID, chatChannel.ChannelSecret).Do()
-	// if err != nil {
-	// 	return c.NoContent(http.StatusBadRequest)
-	// }
+	id := c.Param("id")
+	chatChannel := model.ChatChannel{}
+	a := auth.Default(c)
+	db := model.DB()
+	db.Preload("Account").Where("account_id = ?", a.User.GetAccountID()).Find(&chatChannel, id)
+	bot, err := linebot.New(chatChannel.ChannelID, chatChannel.ChannelSecret)
+	if err != nil {
+		return c.NoContent(http.StatusBadRequest)
+	}
+	res, err := bot.IssueAccessToken(chatChannel.ChannelID, chatChannel.ChannelSecret).Do()
+	if err != nil {
+		return c.NoContent(http.StatusBadRequest)
+	}
 
-	// chatChannel.ChannelAccessToken = res.AccessToken
-	// if err := db.Save(&chatChannel).Error; err != nil {
-	// 	return c.NoContent(http.StatusInternalServerError)
-	// }
+	chatChannel.ChannelAccessToken = res.AccessToken
+	if err := db.Save(&chatChannel).Error; err != nil {
+		return c.NoContent(http.StatusInternalServerError)
+	}
 
-	// db.Model(&chatChannel).Association("Settings").Append(&model.Setting{Name: "statusAccessToken", Value: "success"}, model.Setting{Name: "dateStatusToken", Value: fmt.Sprintf("%s", time.Now())})
+	db.Model(&chatChannel).Association("Settings").Append(&model.Setting{Name: "statusAccessToken", Value: "success"}, model.Setting{Name: "dateStatusToken", Value: fmt.Sprintf("%s", time.Now())})
 	return c.JSON(http.StatusOK, "res")
 }
 

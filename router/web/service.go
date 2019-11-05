@@ -20,7 +20,7 @@ import (
 )
 
 // serviceListHandler
-func serviceListHandler(c *Context) error {
+func ServiceListHandler(c *Context) error {
 	services := []*model.Service{}
 	a := auth.Default(c)
 	model.DB().Preload("ChatChannel", func(db *gorm.DB) *gorm.DB {
@@ -34,7 +34,7 @@ func serviceListHandler(c *Context) error {
 }
 
 // serviceDetailHandler
-func serviceDetailHandler(c *Context) error {
+func ServiceDetailHandler(c *Context) error {
 	service := model.Service{}
 	id := c.Param("id")
 	a := auth.Default(c)
@@ -46,7 +46,7 @@ func serviceDetailHandler(c *Context) error {
 	return err
 }
 
-func serviceCreateHandler(c *Context) error {
+func ServiceCreateHandler(c *Context) error {
 	Service := model.Service{}
 	csrfValue := c.Get("_csrf")
 
@@ -58,7 +58,7 @@ func serviceCreateHandler(c *Context) error {
 	return err
 }
 
-func serviceEditHandler(c *Context) error {
+func ServiceEditHandler(c *Context) error {
 	service := model.Service{}
 	id := c.Param("id")
 	a := auth.Default(c)
@@ -70,7 +70,7 @@ func serviceEditHandler(c *Context) error {
 	return err
 }
 
-func serviceDeleteHandler(c *Context) error {
+func ServiceDeleteHandler(c *Context) error {
 	id := c.Param("id")
 	pro := model.DeleteserviceByID(id)
 	err := c.JSON(http.StatusOK, pro)
@@ -102,7 +102,7 @@ var (
 	ErrInvalidImage = errors.New("Invalid image!")
 )
 
-func servicePostHandler(c *Context) error {
+func ServicePostHandler(c *Context) error {
 	service := serviceForm{}
 	file := c.FormValue("file")
 
@@ -194,7 +194,7 @@ func ServiceSlotDeleteHandler(c *Context) error {
 	return c.JSON(http.StatusOK, serviceSlot)
 }
 
-func serviceChatChannelViewHandler(c *Context) error {
+func ServiceChatChannelViewHandler(c *Context) error {
 	chatChannels := []*model.ChatChannel{}
 	a := auth.Default(c)
 	model.DB().Preload("Account").Where("account_id = ?", a.User.GetAccountID()).Find(&chatChannels)
@@ -206,7 +206,7 @@ func serviceChatChannelViewHandler(c *Context) error {
 	return err
 }
 
-func serviceChatChannelPostHandler(c *Context) error {
+func ServiceChatChannelPostHandler(c *Context) error {
 	id := c.QueryParam("id")
 	chatChannelID := c.FormValue("chat_channel_id")
 	service := model.Service{}

@@ -67,6 +67,12 @@
                     <p>LIFF</p>
                 </a>
             </li>
+            <li class="nav-item {{ if (eq .title "place") }}active{{ end }}">
+                <a class="nav-link" href="/admin/place">
+                    <i class="material-icons">meeting_room</i>
+                    <p>place</p>
+                </a>
+            </li> 
             <li class="nav-item {{ if (eq .title "setting") }}active{{ end }}">
                 <a class="nav-link" href="/admin/setting">
                     <i class="material-icons">settings_applications</i>

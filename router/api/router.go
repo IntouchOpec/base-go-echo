@@ -118,6 +118,12 @@ func Routers() *echo.Echo {
 	e.GET("/customer/:id", GetCustomerDetail)
 	e.PATCH("/customer/:id", UpdateCustomer)
 
+	e.GET("/place/:chatChannelID/list", GetPlaceList)
+	e.GET("/place/:id", GetPlaceDetail)
+	e.POST("/place", CreatePlace)
+	e.PATCH("/place/:id", UpdatePlace)
+	e.DELETE("/place/:id", DeletePlace)
+
 	//
 	e.GET("/json/encode", handler(JsonEncodeHandler))
 

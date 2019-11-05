@@ -100,10 +100,10 @@ func Routers() *echo.Echo {
 		managent.GET("/chat_answer/:id/edit", handler(ChatAnswerEditHandler))
 		managent.DELETE("/chat_answer/:id", handler(ChatAnswerDeleteHandler))
 
-		managent.GET("/service", handler(serviceListHandler))
-		managent.GET("/service/create", handler(serviceCreateHandler))
-		managent.GET("/service/:id", handler(serviceDetailHandler))
-		managent.POST("/service", handler(servicePostHandler))
+		managent.GET("/Service", handler(ServiceListHandler))
+		managent.GET("/Service/create", handler(ServiceCreateHandler))
+		managent.GET("/Service/:id", handler(ServiceDetailHandler))
+		managent.POST("/Service", handler(ServicePostHandler))
 
 		managent.GET("/promotion", handler(PromotionListHandler))
 		managent.POST("/promotion", handler(PromotionPostHandler))
@@ -121,15 +121,21 @@ func Routers() *echo.Echo {
 		managent.GET("/richmenu/:id", handler(RichMenuListHandler))
 		managent.POST("/richmenu", handler(RichMenuListHandler))
 		managent.GET("/setting", handler(SettingHandler))
-		managent.GET("/service/:id/sub_service/create", handler(ServiceSlotCreateHandler))
-		managent.POST("/service/:id/sub_service/create", handler(ServiceSlotPostHandler))
-		managent.GET("/service/:id/chatchannel_service/create", handler(serviceChatChannelViewHandler))
-		managent.POST("/service/:id/chatchannel_service/create", handler(serviceChatChannelPostHandler))
+		managent.GET("/Service/:id/sub_Service/create", handler(ServiceSlotCreateHandler))
+		managent.POST("/Service/:id/sub_Service/create", handler(ServiceSlotPostHandler))
+		managent.GET("/Service/:id/chatchannel_Service/create", handler(ServiceChatChannelViewHandler))
+		managent.POST("/Service/:id/chatchannel_Service/create", handler(ServiceChatChannelPostHandler))
 		managent.GET("/LIFF", handler(LIIFListHandler))
 		managent.GET("/LIFF/create", handler(LIIFListHandler))
 		managent.GET("/LIFF/:id", handler(LIIFListHandler))
 		managent.POST("/LIFF", handler(LIIFListHandler))
 		managent.GET("/LIFF/create", handler(LIFFCreateHandler))
+
+		managent.GET("/place", handler(PromotionListHandler))
+		managent.POST("/place", handler(PromotionPostHandler))
+		managent.GET("/place/create", handler(PromotionFormHandler))
+		managent.GET("/place/:id", handler(PromotionDetailHandler))
+		managent.DELETE("/place/:id", handler(PromotionDetailHandler))
 	}
 
 	return e

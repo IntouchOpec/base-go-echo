@@ -83,6 +83,7 @@ type User struct {
 	Roles         []*Role `gorm:"many2many:user_role" json:"roles"`
 	Account       Account `gorm:"ForeignKey:AccountID"`
 	Authenticated bool    `form:"-" db:"-" json:"-"`
+	LineID        string  `form:"line_id" json:"line_id" gorm:"type:varchar(50)"`
 }
 
 type Role struct {
