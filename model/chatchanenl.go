@@ -11,25 +11,25 @@ type ChatChannels []ChatChannel
 type ChatChannel struct {
 	orm.ModelBase
 
-	ChannelID          string       `json:"channel_id" form:"channel_id" binding:"required" gorm:"type:varchar(25);unique_index"`
-	Name               string       `json:"name" form:"name" binding:"required" gorm:"type:varchar(25)"`
-	LineID             string       `json:"line_id" form:"line_id" binding:"required" gorm:"type:varchar(25);unique_index"`
-	ChannelSecret      string       `json:"channel_secret" form:"channel_secret" binding:"required" gorm:"type:varchar(255)"`
-	ChannelAccessToken string       `json:"channel_access_token" form:"channel_access_token" binding:"required" gorm:"type:varchar(255)"`
-	Type               string       `form:"type" json:"type"  gorm:"type:varchar(10)"`
-	PhoneNumber        string       `json:"phone_number" form:"phone_number" binding:"required" gorm:"type:varchar(10)"`
-	AccountID          uint         `form:"account_id" json:"account_id" gorm:"not null;"`
-	Image              string       `json:"image" form:"image" binding:"required" gorm:"type:varchar(255)"`
-	WebSite            string       `json:"website" form:"website" binding:"required" gorm:"type:varchar(255)"`
-	WelcomeMessage     string       `json:"welcome_message" form:"welcome_message" binding:"required" gorm:"type:varchar(100)"`
-	Address            string       `json:"address" form:"address" binding:"required" gorm:"type:varchar(100)"`
-	Account            Account      `gorm:"ForeignKey:AccountID"`
-	Settings           []*Setting   `gorm:"many2many:setting_chat_channel;" json:"settings" form:"settings"`
-	Customers          []*Customer  `json:"customer"`
-	EventLogs          []*EventLog  `json:"event_logs"`
-	ActionLogs         []*ActionLog `json:"action_logs"`
-	Services           []*Service   `json:"services" gorm:"many2many:service_chat_channel"`
-	Promotions         []*Promotion `json:"promotions" gorm:"many2many:chat_channel_promotion"`
+	ChaChannelID          string       `json:"cha_channel_id" form:"channel_id" binding:"required" gorm:"type:varchar(25);unique_index"`
+	ChaName               string       `json:"cha_name" form:"name" binding:"required" gorm:"type:varchar(25)"`
+	ChaLineID             string       `json:"cha_line_id" form:"line_id" binding:"required" gorm:"type:varchar(25);unique_index"`
+	ChaChannelSecret      string       `json:"cha_channel_secret" form:"channel_secret" binding:"required" gorm:"type:varchar(255)"`
+	ChaChannelAccessToken string       `json:"cha_channel_access_token" form:"channel_access_token" binding:"required" gorm:"type:varchar(255)"`
+	ChaType               string       `form:"cha_type" json:"type"  gorm:"type:varchar(10)"`
+	ChaPhoneNumber        string       `json:"cha_phone_number" form:"phone_number" binding:"required" gorm:"type:varchar(10)"`
+	ChaAccountID          uint         `form:"cha_account_id" json:"account_id" gorm:"not null;"`
+	ChaImage              string       `json:"cha_image" form:"image" binding:"required" gorm:"type:varchar(255)"`
+	ChaWebSite            string       `json:"cha_website" form:"website" binding:"required" gorm:"type:varchar(255)"`
+	ChaWelcomeMessage     string       `json:"cha_welcome_message" form:"welcome_message" binding:"required" gorm:"type:varchar(100)"`
+	ChaAddress            string       `json:"cha_address" form:"address" binding:"required" gorm:"type:varchar(100)"`
+	Account               Account      `gorm:"ForeignKey:ChaAccountID"`
+	Settings              []*Setting   `gorm:"many2many:setting_chat_channel;" json:"settings" form:"settings"`
+	Customers             []*Customer  `json:"customer"`
+	EventLogs             []*EventLog  `json:"event_logs"`
+	ActionLogs            []*ActionLog `json:"action_logs"`
+	Services              []*Service   `json:"services" gorm:"many2many:service_chat_channel"`
+	Promotions            []*Promotion `json:"promotions" gorm:"many2many:chat_channel_promotion"`
 }
 
 // SaveChatChannel router create chatchannel.

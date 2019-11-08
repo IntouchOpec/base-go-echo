@@ -6,15 +6,15 @@ import "github.com/IntouchOpec/base-go-echo/model/orm"
 type Customer struct {
 	orm.ModelBase
 
-	FullName       string       `json:"full_name" gorm:"type:varchar(50);"`
-	PictureURL     string       `json:"picture_url"`
-	DisplayName    string       `json:"display_name"`
-	LineID         string       `json:"line_id" gorm:"type:varchar(255)"`
-	Email          string       `json:"email" gorm:"type:varchar(25)"`
-	PhoneNumber    string       `json:"phone_number" gorm:"type:varchar(25)"`
-	AccountID      uint         `json:"chat_channel_id" gorm:"not null;"`
+	CusFullName    string       `json:"cus_full_name" gorm:"type:varchar(50);"`
+	CusPictureURL  string       `json:"cus_picture_url"`
+	CusDisplayName string       `json:"cus_display_name"`
+	CusLineID      string       `json:"cus_line_id" gorm:"type:varchar(255)"`
+	CusEmail       string       `json:"cus_email" gorm:"type:varchar(25)"`
+	CusPhoneNumber string       `json:"cus_phone_number" gorm:"type:varchar(25)"`
+	CusAccountID   uint         `json:"cus_chat_channel_id" gorm:"not null;"`
 	CustomerTpyeID uint         `json:"customer_type_id"`
-	Accout         Account      `json:"chat_channel" gorm:"ForeignKey:AccountID"`
+	Accout         Account      `json:"account" gorm:"ForeignKey:CusAccountID"`
 	CustomerTpye   CustomerTpye `json:"customer" gorm:"ForeignKey:CustomerTpyeID"`
 	Promotions     []*Promotion `gorm:"many2many:promotion_customer" json:"promotions"`
 	EventLogs      []*EventLog  `json:"even_logs"`
@@ -74,13 +74,13 @@ func (customer *Customer) UpdateCustomer(id int) *Customer {
 
 // UpdateCustomerByAtt update by atti
 func (customer *Customer) UpdateCustomerByAtt(pictureURL string, displayName string, email string, phoneNumber string, FillName string) *Customer {
-	if err := DB().Preload("Promotions").Where("line_id = ? and chat_channel_id = ?", customer.LineID, customer.AccountID).Find(&customer).Error; err != nil {
+	if err := DB().Preload("Promotions").Where("line_id = ? and chat_channel_id = ?", customer.CusLineID, customer.CusAccountID).Find(&customer).Error; err != nil {
 		return nil
 	}
-	customer.PictureURL = pictureURL
-	customer.DisplayName = displayName
-	customer.Email = email
-	customer.PhoneNumber = phoneNumber
+	customer.CusPictureURL = pictureURL
+	customer.CusDisplayName = displayName
+	customer.CusEmail = email
+	customer.CusPhoneNumber = phoneNumber
 
 	if err := DB().Save(&customer).Error; err != nil {
 		return nil

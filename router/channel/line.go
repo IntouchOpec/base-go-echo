@@ -180,7 +180,7 @@ func HandleWebHookLineAPI(c echo.Context) error {
 					bot.ReplyMessage(event.ReplyToken, flexMessage).Do()
 				} else if keyWord == "promotio" {
 					promotions := []*model.Promotion{}
-					model.DB().Where("type_promotion = ?", "Promotion").Find(&promotions)
+					model.DB().Where("promotion_type = ?", "Promotion").Find(&promotions)
 					m := PromotionsTemplate(promotions)
 					flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(m))
 					if err != nil {

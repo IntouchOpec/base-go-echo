@@ -6,14 +6,14 @@ import "github.com/IntouchOpec/base-go-echo/model/orm"
 type ChatRequest struct {
 	orm.ModelBase
 
-	LineID       string     `json:"line_id" gorm:"type:varchar(25)"`
-	Message      string     `json:"message" gorm:"type:varchar(50)"`
-	ReplyToken   string     `json:"reply_token" gorm:"type:varchar(255)"`
-	MessageType  string     `json:"message_type" gorm:"type:varchar(25)"`
-	ChatAnswerID uint       `form:"chat_answer_id" json:"chat_answer_id" gorm:"not null;"`
-	ChatAnswer   ChatAnswer `gorm:"foreignkey:ID"`
-	AccountID    uint       `form:"account_id" json:"account_id" gorm:"not null;"`
-	Account      Account    `gorm:"ForeignKey:id"`
+	ReqLineID       string     `json:"req_line_id" gorm:"type:varchar(25)"`
+	ReqMessage      string     `json:"req_message" gorm:"type:varchar(50)"`
+	ReqReplyToken   string     `json:"req_reply_token" gorm:"type:varchar(255)"`
+	ReqMessageType  string     `json:"req_message_type" gorm:"type:varchar(25)"`
+	ReqChatAnswerID uint       `form:"req_chat_answer_id" json:"chat_answer_id" gorm:"not null;"`
+	ChatAnswer      ChatAnswer `json:"chat_answer" gorm:"ForeignKey:ReqChatAnswerID"`
+	ReqAccountID    uint       `form:"req_account_id" json:"account_id" gorm:"not null;"`
+	Account         Account    `json:"account" gorm:"ForeignKey:ReqAccountID"`
 }
 
 // SaveChatRequest is function create chat answer.

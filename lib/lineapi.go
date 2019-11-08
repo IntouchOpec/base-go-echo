@@ -32,7 +32,7 @@ func ConnectLineBot(ChannelSecret string, ChannelAccsssToken string) (*linebot.C
 func (client *ClientLine) ReplyLineMessage(chatAws model.ChatAnswer, replyToken string) {
 	// chatAws.
 	// message := ""
-	switch typeReply := chatAws.TypeReply; typeReply {
+	switch replyType := chatAws.TypeReply; replyType {
 	case linebot.MessageTypeText:
 		textMessage := linebot.NewTextMessage("My name is John Wick")
 		client.ReplyMessage(replyToken, textMessage).Do()

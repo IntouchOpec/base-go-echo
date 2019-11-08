@@ -12,32 +12,27 @@ const (
 	StatusFail ActionStatus = "fail"
 )
 
-// ActionType is
-type ActionType string
+type ActionChannel string
 
 const (
-	// TypeFacebook
-	TypeActionFacebook ActionType = "facebook"
-	// TypeLine
-	TypeActionLine ActionType = "line"
-	// TypeActionWeb
-	TypeActionWeb ActionType = "web"
-	// TypeActionAPI
-	TypeActionAPI ActionType = "api"
+	ActionChannelFacebook ActionChannel = "facebook"
+	ActionChannelLine     ActionChannel = "line"
+	ActionChannelWeb      ActionChannel = "web"
+	ActionChannelAPI      ActionChannel = "api"
 )
 
 // Action source action all
 type ActionLog struct {
 	orm.ModelBase
 
-	Name          string       `json:"name" gorm:"type:varchar(25)"`
-	Status        ActionStatus `json:"status" gorm:"type:varchar(10)"`
-	Type          ActionType   `json:"type" gorm:"type:varchar(10)"`
-	UserID        string       `json:"user_id" gorm:"type:varchar(55)"`
-	ChatChannelID uint         `json:"chat_channel_id"`
-	ChatChannel   ChatChannel  `json:"chat_channel" gorm:"ForeignKey:ServiceID;"`
-	CustomerID    uint         `json:"customer_id"`
-	Customer      *Customer    `json:"customer" gorm:"ForeignKey:CustomerID"`
+	ActName          string        `json:name" gorm:"type:varchar(25)"`
+	ActStatus        ActionStatus  `json:"act_status" gorm:"type:varchar(10)"`
+	ActChannel       ActionChannel `json:"act_channel" gorm:"type:varchar(10)"`
+	ActUserID        string        `json:"act_user_id" gorm:"type:varchar(55)"`
+	ActChatChannelID uint          `json:"act_chat_channel_id"`
+	ChatChannel      ChatChannel   `json:"chat_channel" gorm:"ForeignKey:ServiceID;"`
+	CustomerID       uint          `json:"customer_id"`
+	Customer         *Customer     `json:"customer" gorm:"ForeignKey:CustomerID"`
 }
 
 // CreateAction create action record

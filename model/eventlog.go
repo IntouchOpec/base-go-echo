@@ -5,14 +5,14 @@ import "github.com/IntouchOpec/base-go-echo/model/orm"
 // EventLog log event line OA.
 type EventLog struct {
 	orm.ModelBase
-	ReplyToken    string       `json:"reply_token" gorm:"type:varchar(255)"`
-	Type          string       `json:"type" gorm:"type:varchar(10)"`
-	LineID        string       `json:"line_id" gorm:"type:varchar(255)"`
-	ChatChannelID uint         `form:"chat_channel_id" json:"chat_channel_id" gorm:"not null;"`
-	ChatChannel   *ChatChannel `gorm:"ForeignKey:ChatChannelID"`
-	CustomerID    uint         `json:"customer_id"`
-	Customer      *Customer    `json:"customer" gorm:"ForeignKey:CustomerID"`
-	Text          string       `json:"text"`
+	EvenReplyToken    string       `json:"even_reply_token" gorm:"type:varchar(255)"`
+	EvenType          string       `json:"even_type" gorm:"type:varchar(10)"`
+	EvenLineID        string       `json:"even_line_id" gorm:"type:varchar(255)"`
+	EvenChatChannelID uint         `form:"even_chat_channel_id" json:"chat_channel_id" gorm:"not null;"`
+	EvenText          string       `json:"even_text"`
+	EvenCustomerID    uint         `json:"even_customer_id"`
+	ChatChannel       *ChatChannel `json:"chat_channel" gorm:"ForeignKey:EvenChatChannelID"`
+	Customer          *Customer    `json:"customer" gorm:"ForeignKey:EvenCustomerID"`
 }
 
 // SaveEventLog is function create EventLog.

@@ -9,7 +9,7 @@ import (
 type PromotionType string
 
 const (
-	PromotionTypePromotion PromotionType = "Promotion"
+	PromotionPromotionType PromotionType = "Promotion"
 	PromotionTypeCoupon    PromotionType = "Coupon"
 	PromotionTypeVoucher   PromotionType = "Voucher"
 )
@@ -18,22 +18,22 @@ const (
 type Promotion struct {
 	orm.ModelBase
 
-	Title         string         `form:"title" json:"title"`
-	TypePromotion string         `form:"type_promotion" json:"type_promotion" gorm:"type:varchar(25)"`
-	Discount      int            `form:"discount" json:"discount"`
-	Amount        int            `form:"amount" json:"amount"`
-	Code          string         `form:"code" json:"code" gorm:"type:varchar(25)"`
-	Name          string         `form:"name" json:"name" gorm:"type:varchar(25)"`
-	StartDate     time.Time      `from:"start_time" gorm:"column:start_time" json:"start_time"`
-	EndDate       time.Time      `from:"end_time" gorm:"column:end_time" json:"end_time"`
-	Condition     string         `form:"condition" json:"condition"`
-	Image         string         `form:"image" json:"image" gorm:"type:varchar(255)"`
-	Customers     []*Customer    `gorm:"many2many:promotion_customer" json:"customer"`
-	ChatChannels  []*ChatChannel `json:"chat_channels" gorm:"many2many:chat_channel_promotion"`
-	AccountID     uint           `json:"account_id"`
-	Account       Account        `gorm:"ForeignKey:AccountID"`
-	Settings      []*Setting     `json:"settings" gorm:"many2many:promotion_setting"`
-	services      []*Service     `json:"services" gorm:"many2many:service_promotion"`
+	PromTitle         string             `form:"title" json:"prom_title" gorm:"type:varchar(50)"`
+	PromPromotionType string             `form:"promotion_type" json:"prom_promotion_type" gorm:"type:varchar(25)"`
+	PromDiscount      int                `form:"discount" json:"prom_discount"`
+	PromAmount        int                `form:"amount" json:"prom_amount"`
+	PromCode          string             `form:"code" json:"prom_code" gorm:"type:varchar(25)"`
+	PromName          string             `form:"name" json:"prom_name" gorm:"type:varchar(25)"`
+	PromStartDate     time.Time          `from:"start_time" gorm:"column:start_time" json:"prom_start_time"`
+	PromEndDate       time.Time          `from:"end_time" gorm:"column:end_time" json:"prom_end_time"`
+	PromCondition     string             `form:"condition" json:"prom_condition"`
+	PromImage         string             `form:"image" json:"prom_image" gorm:"type:varchar(255)"`
+	PromAccountID     uint               `json:"prom_account_id"`
+	Customers         []*Customer        `gorm:"many2many:promotion_customer" json:"customer"`
+	ChatChannels      []*ChatChannel     `json:"chat_channels" gorm:"many2many:chat_channel_promotion"`
+	Account           Account            `gorm:"ForeignKey:PromAccountID"`
+	Settings          []*Setting         `json:"settings" gorm:"many2many:promotion_setting"`
+	ProviderServices  []*ProviderService `json:"provider_service" gorm:"many2many:promotion_provider_service"`
 }
 
 // SavePromotion is function create Promotion.

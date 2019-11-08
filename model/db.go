@@ -71,7 +71,7 @@ func Initialize() {
 	newDb.AutoMigrate(&ChatRequest{})
 	newDb.AutoMigrate(&EventLog{})
 	newDb.AutoMigrate(&Service{})
-	newDb.AutoMigrate(&ServiceSlot{})
+	// newDb.AutoMigrate(&ServiceSlot{})
 	newDb.AutoMigrate(&Booking{})
 	newDb.AutoMigrate(&Account{})
 	newDb.AutoMigrate(&LoginRespose{})

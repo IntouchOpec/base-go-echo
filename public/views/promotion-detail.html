@@ -25,7 +25,7 @@
                                 <h2 class="card-category text-gray">{{ .detail.Title }}</h2>
                                 <h2 class="card-category text-gray">{{ .detail.Name }}</h2>
                                 <h2 class="card-category text-gray">{{ .detail.Code }}</h2>
-                                <h6 class="card-category text-gray">{{ .detail.TypePromotion }}</h6>
+                                <h6 class="card-category text-gray">{{ .detail.PromotionType }}</h6>
                                 <h6 class="card-category text-gray">{{ ((.detail.StartDate).AddDate 0 1 0).Format "Mon Jan 2 2006" }} - {{ ((.detail.EndDate).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</h6>
                                 <div class="d-flex justify-content-center">
                                     <button type="button" class="btn btn-warning"><i class="material-icons">edit</i>edit</button>

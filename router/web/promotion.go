@@ -42,7 +42,7 @@ func PromotionDetailHandler(c *Context) error {
 
 func PromotionFormHandler(c *Context) error {
 	promotion := model.Promotion{}
-	promotionTypes := []model.PromotionType{model.PromotionTypePromotion, model.PromotionTypeCoupon, model.PromotionTypeVoucher}
+	promotionTypes := []model.PromotionType{model.PromotionPromotionType, model.PromotionTypeCoupon, model.PromotionTypeVoucher}
 	return c.Render(http.StatusOK, "promotion-form", echo.Map{
 		"detail":         promotion,
 		"title":          "promotion",
@@ -52,7 +52,7 @@ func PromotionFormHandler(c *Context) error {
 
 type PromotionForm struct {
 	Title         string    `form:"title"`
-	TypePromotion string    `form:"type_promotion"`
+	PromotionType string    `form:"promotion_type"`
 	Discount      int       `form:"discount"`
 	Amount        int       `form:"amount"`
 	Code          string    `form:"code"`
@@ -75,7 +75,7 @@ func PromotionPostHandler(c *Context) error {
 	}
 	promotionModel := model.Promotion{
 		Title:         promotion.Title,
-		TypePromotion: promotion.TypePromotion,
+		PromotionType: promotion.PromotionType,
 		Discount:      promotion.Discount,
 		Amount:        promotion.Amount,
 		Code:          promotion.Code,

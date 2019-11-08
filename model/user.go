@@ -105,7 +105,7 @@ func (u *User) Login() {
 }
 
 func (u *User) GetAccount() string {
-	return u.Account.Name
+	return u.Account.AccName
 }
 
 func (u *User) GetAccountID() uint {

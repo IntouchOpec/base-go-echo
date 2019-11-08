@@ -131,8 +131,8 @@ func Routers() *echo.Echo {
 		managent.POST("/LIFF", handler(LIIFListHandler))
 		managent.GET("/LIFF/create", handler(LIFFCreateHandler))
 
-		managent.GET("/place", handler(PromotionListHandler))
-		managent.POST("/place", handler(PromotionPostHandler))
+		managent.GET("/place", handler(PlaceListHandler))
+		managent.POST("/place", handler(place))
 		managent.GET("/place/create", handler(PromotionFormHandler))
 		managent.GET("/place/:id", handler(PromotionDetailHandler))
 		managent.DELETE("/place/:id", handler(PromotionDetailHandler))

@@ -30,8 +30,8 @@
                                                 </div>
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
-                                                        <label class="bmd-label-floating" >TypePromotion</label>
-                                                        <select name="TypePromotion" class="form-control" id="TypePromotion" data-style="btn btn-link" id="exampleFormControlSelect2">
+                                                        <label class="bmd-label-floating" >PromotionType</label>
+                                                        <select name="PromotionType" class="form-control" id="PromotionType" data-style="btn btn-link" id="exampleFormControlSelect2">
                                                             {{ with .promotionTypes }}
                                                             {{ range . }}
                                                                 <option value="{{.}}">{{.}}</option>
@@ -114,7 +114,7 @@
                 Title: {
                     required: true
                 },
-                TypePromotion: {
+                PromotionType: {
                     required: true
                 },
                 Discount: {
@@ -146,8 +146,8 @@
                 Title: {
                     required: "Please enter a valid Title"
                 },
-                TypePromotion: {
-                    required: "Please enter a valid TypePromotion"
+                PromotionType: {
+                    required: "Please enter a valid PromotionType"
                 },
                 Discount: {
                     required: "Please enter a valid Discount"
@@ -176,7 +176,7 @@
             },
             submitHandler: function(form) {
                 let _csrf = $("#_csrf").val()
-                let TypePromotion = $("#TypePromotion").val()
+                let PromotionType = $("#PromotionType").val()
                 let Title = $("#Title").val()
                 let Discount = $("#Discount").val()
                 let Amount = $("#Amount").val()
@@ -187,7 +187,7 @@
                 let Condition = $("#Condition").val()
                 let Image =  $("#Image")
 
-                let typePromotionEncodedKey = encodeURIComponent("type_promotion") 
+                let typePromotionEncodedKey = encodeURIComponent("promotion_type") 
                 let titleEncodedKey = encodeURIComponent("title") 
                 let discountEncodedKey = encodeURIComponent("discount") 
                 let amountEncodedKey = encodeURIComponent("amount") 
@@ -198,7 +198,7 @@
                 let conditionEncodedKey = encodeURIComponent("condition") 
                 let imageEncodedKey = encodeURIComponent("file") 
 
-                let typePromotionEncodedValue = encodeURIComponent(TypePromotion)
+                let typePromotionEncodedValue = encodeURIComponent(PromotionType)
                 let titleEncodedValue = encodeURIComponent(Title)
                 let discountEncodedValue = encodeURIComponent(Discount)
                 let amountEncodedValue = encodeURIComponent(Amount)
