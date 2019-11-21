@@ -24,17 +24,12 @@
                                             <div class="row">
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
-                                                        <label class="bmd-label-floating" >Title</label>
-                                                        <input name="name" id="name" type="text" class="form-control" >
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-12 mt-2">
-                                                    <div class="form-group">
-                                                        <label class="bmd-label-floating" >PromotionType</label>
-                                                        <select name="PromotionType" class="form-control" id="PromotionType" data-style="btn btn-link" id="exampleFormControlSelect2">
-                                                            {{ with .promotionTypes }}
+                                                        <label class="bmd-label-floating">chat channel</label>
+                                                        <select name="chatChannelID" id="chatChannelID" class="form-control"  data-style="btn btn-link" >
+                                                            <option value="">choive chat channel </option>
+                                                            {{ with .chatChannels }}
                                                             {{ range . }}
-                                                                <option value="{{.}}">{{.}}</option>
+                                                                <option value="{{.ID}}">{{.ChaName}}</option>
                                                             {{ end }}
                                                             {{ end }}
                                                         </select>
@@ -42,50 +37,22 @@
                                                 </div>
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
-                                                        <label class="bmd-label-floating" >Discount</label>
-                                                        <input name="Discount" id="Discount" type="text" class="form-control" >
+                                                        <label class="bmd-label-floating" >URL</label>
+                                                        <input name="URL" id="URL" type="text" class="form-control" >
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
-                                                        <label class="bmd-label-floating" >Amount</label>
-                                                        <input name="Amount" id="Amount" type="text" class="form-control" >
+                                                        <label class="bmd-label-floating" >LIFF type</label>
+                                                        <select name="LIFF_type" id="LIFF_type" class="form-control"  data-style="btn btn-link" >
+                                                            <option value="">choive LIFF type </option>
+                                                            {{ with .LIFFViewTypes }}
+                                                            {{ range . }}
+                                                                <option value="{{.}}">{{.}}</option>
+                                                            {{ end }}
+                                                            {{ end }}
+                                                        </select>
                                                     </div>
-                                                </div>
-                                                <div class="col-md-12 mt-2">
-                                                    <div class="form-group">
-                                                        <label class="bmd-label-floating" >Code</label>
-                                                        <input name="name" id="name" type="text" class="form-control" >
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-12 mt-2">
-                                                    <div class="form-group">
-                                                        <label class="bmd-label-floating" >Name</label>
-                                                        <input name="name" id="name" type="text" class="form-control" >
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-12 mt-2">
-                                                    <div class="form-group">
-                                                        <label class="bmd-label-floating" >StartDate</label>
-                                                        <input name="StartDate" id="StartDate" class="form-control" type="date">
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-12 mt-2">
-                                                    <div class="form-group">
-                                                        <label class="bmd-label-floating" >EndDate</label>
-                                                        <input name="EndDate" id="EndDate" class="form-control" type="date">
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-12 mt-2">
-                                                    <div class="form-group">
-                                                        <label class="bmd-label-floating" >Condition</label>
-                                                        <textarea name="Condition" id="Condition" type="text" class="form-control" >
-                                                        </textarea>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-12 mt-2">
-                                                    <input name="Image" type="file">
-                                                    <p><strong>Image:</strong> Choose any file on your computer and its name will be displayed in an alert dialog box.</p>
                                                 </div>
                                             </div>
                                             <input type="submit" rel="tooltip" value="Submit" class="btn btn-success">
@@ -106,13 +73,58 @@
     (function ($) {
         $("form[name='create-promotion']").validate({
             rules: {
-                
+                URL: { required: true },
+                LIFF_type: { required: true },
+                chatChannelID: { required: true },
             },
             messages: {
-               
+                URL: { required: "Please enter a valid URL"},
+                LIFF_type: { required: "Please enter a valid LIFFType"},
+                chatChannelID: { required: "Please enter a valid chatChannelID"},
             },
             submitHandler: function(form) {
+                let _csrf = $("#_csrf").val()
+                let URL =  $("#URL").val()
+                let LIFFType = $("#LIFF_type").val()
+                let chatChannelID = $("#chatChannelID").val()
+
+                let encodedKey = encodeURIComponent("_csrf");
+                let encodedValue = encodeURIComponent(_csrf);
+
+                let chatChannelIDEncodedKey = encodeURIComponent("chat_channel_id");
+                let chatChannelIDEncodedValue = encodeURIComponent(chatChannelID);
                 
+                let URLEncodedKey = encodeURIComponent("url");
+                let URLEncodedValue = encodeURIComponent(URL);
+
+                let LIFFTypeEncodedKey = encodeURIComponent("type");
+                let LIFFTypeEncodedValue = encodeURIComponent(LIFFType);
+
+                let data = []
+                
+                data.push(encodedKey + "=" + encodedValue)
+                data.push(chatChannelIDEncodedKey + "=" + chatChannelIDEncodedValue)
+                data.push(URLEncodedKey + "=" + URLEncodedValue)
+                data.push(LIFFTypeEncodedKey + "=" + LIFFTypeEncodedValue)
+                data = data.join("&");
+                fetch(window.location.href, {
+                    method: "POST", 
+                    headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                    body: data
+                })
+                .then(res => {
+                    if (res.status === 201) {
+                        let data = {}
+                        Swal.fire("success", "", "success").then(() => {
+                            data = res.json()
+                        })
+                        return data
+                    }
+                })
+                .then(json => {
+                    window.location = json.redirect
+                })
+                .catch(err => Swal.fire("fial", "", "warning"))
             }
         })
         

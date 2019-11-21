@@ -7,28 +7,17 @@ import (
 // service souce service and service.
 type Service struct {
 	orm.ModelBase
-	SerName      string         `form:"name" json:"ser_name" gorm:"type:varchar(25)"`
-	SerDetail    string         `form:"detail" json:"ser_detail" gorm:"type:varchar(25)"`
-	SerPrice     float32        `form:"price" json:"ser_price"`
-	SerActive    bool           `form:"active" json:"ser_active"`
-	SerAccountID uint           `form:"account_id" json:"ser_account_id" gorm:"not null;"`
-	SerImage     string         `form:"image" json:"ser_image" gorm:"type:varchar(255)"`
-	Account      Account        `json:"account" gorm:"ForeignKey:id"`
-	ChatChannels []*ChatChannel `json:"chat_channels" gorm:"many2many:service_chat_channel"`
+	SerName          string             `form:"name" json:"ser_name" gorm:"type:varchar(25)"`
+	SerDetail        string             `form:"detail" json:"ser_detail" gorm:"type:varchar(25)"`
+	SerPrice         float32            `form:"price" json:"ser_price"`
+	SerActive        bool               `form:"active" json:"ser_active"`
+	SerAccountID     uint               `form:"account_id" json:"ser_account_id" gorm:"not null;"`
+	SerTime          string             `form:"time" json:"ser_time" gorm:"type:varchar(10)"`
+	SerImage         string             `form:"image" json:"ser_image" gorm:"type:varchar(255)"`
+	Account          Account            `json:"account" gorm:"ForeignKey:id"`
+	ChatChannels     []*ChatChannel     `json:"chat_channels" gorm:"many2many:service_chat_channel"`
+	ProviderServices []*ProviderService `json:"provider_services" gorm:"many2many:ProviderService"`
 }
-
-// ServiceSlot service set.
-// type ServiceSlot struct {
-// 	orm.ModelBase
-// 	Start     string     `json:"start"`
-// 	End       string     `json:"end"`
-// 	Day       int        `json:"day"`
-// 	Amount    int        `json:"amount"`
-// 	Active    bool       `json:"active"`
-// 	ServiceID uint       `json:"service_id"`
-// 	Bookings  []*Booking `json:"bookings"`
-// 	Service   Service    `json:"service" gorm:"ForeignKey:ServiceID;"`
-// }
 
 // Saveservice is function create service.
 func (service *Service) Saveservice() *Service {
@@ -70,12 +59,12 @@ func (service *Service) Updateservice(id int) *Service {
 // 	return subservice
 // }
 
-func Getservice(chatchannelID int) *[]Service {
+func GetServiceList(accID uint) (*[]Service, error) {
 	services := []Service{}
-	if err := DB().Where("").Find(&services).Error; err != nil {
-		return nil
+	if err := DB().Where("ser_account_id = ?", accID).Find(&services).Error; err != nil {
+		return nil, err
 	}
-	return &services
+	return &services, nil
 }
 
 func GetserviceByID(chatchannelID, id int) *Service {

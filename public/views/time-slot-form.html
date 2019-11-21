@@ -1,0 +1,282 @@
+
+{{define "time-slot-form"}}
+<!DOCTYPE html>
+<html lang="en">
+
+{{ template "header" .title }}
+
+<body class="">
+    <div class="wrapper ">
+    {{ template "sidebar" .base }}
+        <div class="main-panel">
+            {{ template "navbar" .title }}
+            <div class="content">
+                <div class="container-fluid">
+                    <div class="row">
+                            <div class="col-md-7">
+                                <div class="card">
+                                    <div class="card-header card-header-primary">
+                                        <h4 class="card-title">{{.mode}} time-slot</h4>
+                                    </div>
+                                    <div class="card-body">
+                                        <form class="form-group" name="create-time-slot">
+                                            <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden" class="form-control" >
+                                            <div>
+                                                <label class="bmd-label-floating" >day</label>
+                                            </div>
+                                            <div class="form-check form-check-inline" id="form-day" name="day-weeks-list">
+                                                {{range $i, $day := .DayWeeks}}
+                                                    <div class="form-check mx-2">
+                                                        <label class="form-check-label">
+                                                            <input class="form-check-input" type="checkbox" name="{{ $day }}" value='{ "id": {{$i}}, "name": "{{ $day }}" }'>
+                                                            {{ $day }}
+                                                            <span class="form-check-sign">
+                                                                <span class="check"></span>
+                                                            </span>
+                                                        </label>
+                                                    </div>
+                                                {{ end }}
+                                            </div>
+                                            <div>
+                                                <label class="bmd-label-floating" >service</label>
+                                            </div>
+                                            <div class="form-check form-check-inline" id="service-list">
+                                                {{ with .ProviderServices }}
+                                                {{ range . }}
+                                                    <div name="servic-list" class="form-check mx-2">
+                                                        <label class="form-check-label">
+                                                            <input name="service" class="form-check-input" type="checkbox" value='{ "id": {{ .ID }}, "ser_name": "{{ .Service.SerName }}", "ser_time": "{{ .Service.SerTime }}" }'>
+                                                            {{ .Service.SerName }}
+                                                            <span class="form-check-sign">
+                                                                <span class="check"></span>
+                                                            </span>
+                                                        </label>
+                                                    </div>
+                                                {{ end }}
+                                                {{ end }}
+                                            </div>
+                                            <div id="input-service-list">       
+                                            </div>
+                                            <input type="submit" rel="tooltip" value="Submit" class="btn btn-success">
+
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {{ template "footer" }}
+            </div>
+        </div>
+    </div>
+  {{ template "script" }}
+  <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+  <script>
+
+    (function ($) {
+        let rules = { }
+        let messages = {}
+
+        $("#form-day input[type='checkbox']").each(function( ) {
+            $(this).click(function (){
+                let checked = $(this).prop("checked")
+                let name = $(this).attr('name')
+                let value = $(this).val()
+
+                if (checked === true){
+                    $("#input-service-list").append(` 
+                    <div class="${name}">
+                        <label class="bmd-label-floating" >${name}</label>
+                        <div class="form-group row">
+                            <div class="col-md-5 mt-2">
+                                <div class="form-group">
+                                    <label class="bmd-label-floating" >from</label>
+                                    <input name="form_${name}" id="${value}" type="time" class="form-control" >
+                                </div>
+                            </div>
+                            <div class="col-md-5 mt-2">
+                                <div class="form-group">
+                                    <label class="bmd-label-floating" >to</label>
+                                    <input name="to_${name}" id="${value}" type="time" class="form-control" >
+                                </div>
+                            </div>
+                        </div>
+                    </div>`)
+                } else {
+                    $(`div .${name}`).remove()
+                }
+            })
+        })
+        
+        let createTimeslot = $("form[name='create-time-slot']")
+        let dayWeeksData = []
+        let servicesData = []
+        let timeSlots = {}
+
+        createTimeslot.on("submit", function () {
+            dayWeeksData = []
+            servicesData = []
+            timeSlots = {}
+
+
+            $("#input-service-list input[type='time']").each(function( ) {
+                let name = $(this).attr('name')
+                timeSlots[name] =  $(this).val();
+                $(this).rules("add", 
+                {
+                    required:  { required : true },
+                    messages:  { required: `Please enyer a valid ${name}`  },
+                })
+            })
+
+            let serviceList = $("#service-list input[type='checkbox']")
+            let dayWeeksList = $("#form-day input[type='checkbox']")
+            
+            let isServiceValidate = false
+            let isDayWeekValidateService = false
+
+            serviceList.each(function(index) {
+                if ($(this).is(":checked")) {
+                    isServiceValidate = $(this).is(":checked")
+                    servicesData.push($(this).val())
+                }
+
+                if (serviceList.length - 1 === index && !isServiceValidate) {
+                    serviceList.rules("add", {   
+                        required:  { required : true },
+                        messages:  { required: `You must check at least 1 box`  },
+                    })
+                }
+            })
+
+            dayWeeksList.each(function(index) {
+                if ($(this).is(":checked")) {
+                    isDayWeekValidateService = $(this).is(":checked")
+                    dayWeeksData.push($(this).val())
+                }
+
+                if (dayWeeksList.length - 1 === index && !isDayWeekValidateService) {
+                    dayWeeksList.rules("add", {   
+                        required:  { required : true },
+                        messages:  { required: `You must check at least 1 box`  },
+                    })
+                }
+            })
+
+            
+        })
+        function removeTimes (startTime, endTime) {
+            let times = [ 0, 0, 0 ]
+            let max = times.length
+
+            let a = (endTime || '').split(':')
+            let b = (startTime || '').split(':')
+
+            for (let i = 0; i < max; i++) {
+                a[i] = isNaN(parseInt(a[i])) ? 0 : parseInt(a[i])
+                b[i] = isNaN(parseInt(b[i])) ? 0 : parseInt(b[i])
+            }
+
+            for (let i = 0; i < max; i++) {
+                times[i] = a[i] - b[i]
+            }
+
+            let hours = times[0]
+            let minutes = times[1]
+            let seconds = times[2]
+
+            if (seconds >= 60) {
+                let m = (seconds / 60) << 0
+                minutes += m
+                seconds -= 60 * m
+            }
+
+            if (minutes >= 60) {
+                let h = (minutes / 60) << 0
+                hours += h
+                minutes -= 60 * h
+            }
+
+            return ('0' + hours).slice(-2) + ':' + ('0' + minutes).slice(-2) + ':' + ('0' + seconds).slice(-2)
+        }
+        function timeToMinutes (arrTime) {
+            let minutes = (+arrTime[0]) * 60 + (+arrTime[1]);
+            return minutes
+        }
+        function addMinutes(time, minsToAdd) {
+            function D(J){ return (J<10? '0':'') + J;};
+            let piece = time.split(':');
+            let mins = piece[0]*60 + +piece[1] + +minsToAdd;
+
+            return D(mins%(24*60)/60 | 0) + ':' + D(mins%60);  
+        }
+        createTimeslot.validate({
+            rules,
+            messages,
+            submitHandler: function(form) {
+               let minutesService = ""
+                let minutesSlot = ""
+                let dayWeek = {}
+                let timeSlot = ""
+                let timeSlotData = {}
+                let serviceData = {}
+                let timeSlotsReq = []
+               dayWeeksData.map(value => {
+                dayWeek = JSON.parse(value)
+
+                timeSlot = timeSlots[`form_${dayWeek.name}`]
+                servicesData.map(v => {
+                    serviceData = JSON.parse(v)
+                    minutesService = timeToMinutes(serviceData.ser_time.split(':'))
+                    minutesSlot = removeTimes(timeSlots[`form_${dayWeek.name}`], timeSlots[`to_${dayWeek.name}`])
+
+                    let i = 0;
+
+                    while(i < timeToMinutes(minutesSlot.split(':')) / minutesService)  {
+                        timeSlotData = {}
+                        timeSlotData.time_start = timeSlot
+                        timeSlot = addMinutes(timeSlot, minutesService)
+                        timeSlotData.time_end = timeSlot
+                        timeSlotData.time_day = dayWeek.id
+                        timeSlotData.time_provider_service_id = serviceData.id
+                        timeSlotsReq.push(timeSlotData)
+                        i++;
+                    }
+                })
+               })
+                let _csrf = $("#_csrf").val()
+
+                let encodedKey = encodeURIComponent("_csrf");
+                let encodedValue = encodeURIComponent(_csrf);
+                let timeSlotsEncodedKey = encodeURIComponent("timeSlots");
+                let timeSlotsEncodedValue = encodeURIComponent(JSON.stringify(timeSlotsReq));
+                let data = []
+
+                data.push(encodedKey + "=" + encodedValue)
+                data.push(timeSlotsEncodedKey + "=" + timeSlotsEncodedValue)
+                data = data.join("&");
+                fetch(window.location.href, {
+                    method: "POST", 
+                    headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                    body: data
+                })
+                .then(res => {
+                    if (res.status === 201) {
+                        Swal.fire("success", "", "success") 
+                        return res.json()
+                    }
+                })
+                .then(json => {
+                    window.location = json
+                })
+                .catch(err => Swal.fire("fial", "", "warning"))
+            }
+        })
+    })(jQuery)
+  </script>
+</body>
+
+</html>
+
+{{end}}

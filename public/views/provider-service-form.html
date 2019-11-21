@@ -1,0 +1,118 @@
+
+{{define "provider-service-form"}}
+<!DOCTYPE html>
+<html lang="en">
+
+{{ template "header" .title }}
+
+<body class="">
+    <div class="wrapper ">
+    {{ template "sidebar" .base }}
+        <div class="main-panel">
+            {{ template "navbar" .title }}
+            <div class="content">
+                <div class="container-fluid">
+                    <div class="row">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header card-header-primary">
+                                        <h4 class="card-title">{{.mode}} provider-service {{ .provider.ProvName }}</h4>
+                                    </div>
+                                    <div class="card-body">
+                                        <form name="create-provider-service" >
+                                            <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden" class="form-control" >
+                                            <div class="row">
+                                                <div class="col-md-12 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="bmd-label-floating" >Price</label>
+                                                        <input name="price" id="price" type="text" class="form-control" >
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="bmd-label-floating" ></label>
+                                                        <select name="provider-serviceType" class="form-control" data-style="btn btn-link" id="service_id">
+                                                            {{ with .services }}
+                                                            {{ range . }}
+                                                                <option value="{{.ID}}">{{.SerName}}</option>
+                                                            {{ end }}
+                                                            {{ end }}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            <input type="submit" rel="tooltip" value="Submit" class="btn btn-success">
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {{ template "footer" }}
+            </div>
+        </div>
+    </div>
+  {{ template "script" }}
+  <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+  <script>
+   
+    (function ($) {
+        $("form[name='create-provider-service']").validate({
+            rules: {
+                service_id: {
+                    required: true
+                },
+                price: {
+                    required: true
+                },
+            },
+            messages: {
+                service_id: {
+                    required: "Please enter a valid service"
+                },
+                price: {
+                    required: "Please enter a valid price"
+                },
+            },
+            submitHandler: function(form) {
+                let _csrf = $("#_csrf").val()
+                let service_id = $("#service_id").val()
+                let price = $("#price").val()
+
+                let encodedKey = encodeURIComponent("_csrf");
+                let encodedValue = encodeURIComponent(_csrf);
+                let serviceEncodedKey = encodeURIComponent("service_id");
+                let serviceEncodedValue = encodeURIComponent(service_id);
+                let priceEncodedKey = encodeURIComponent("price");
+                let priceEncodedValue = encodeURIComponent(price);
+                let data = []
+
+                data.push(encodedKey + "=" + encodedValue)
+                data.push(serviceEncodedKey + "=" + serviceEncodedValue)
+                data.push(priceEncodedKey + "=" + priceEncodedValue)
+
+                data = data.join("&");
+                fetch(window.location.href, {
+                    method: "POST", 
+                    headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                    body: data
+                })
+                .then(res => {
+                    if (res.status === 201) {
+                        Swal.fire("success", "", "success") 
+                        return res.json()
+                    } 
+                })
+                .then(redirect => {
+                    window.location = redirect
+                })
+                .catch(err => Swal.fire("fial", "", "warning"))
+            }
+        })
+    })(jQuery)
+  </script>
+</body>
+
+</html>
+
+{{end}}

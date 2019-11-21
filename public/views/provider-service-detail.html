@@ -1,0 +1,66 @@
+
+{{define "provider-service-detail"}}
+<!DOCTYPE html>
+<html lang="en">
+
+{{ template "header" .title }}
+
+<body class="">
+  <input type="hidden" id="_csrf" value="{{._csrf}}" />
+  <div class="wrapper ">
+   {{ template "sidebar" .base }}
+    <div class="main-panel">
+        {{ template "navbar" .title }}
+        <div class="content">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header  card-header-primary d-flex justify-content-between">
+                            <h4 class="card-title ">{{ .detail.ProvName }}</h4>
+                            <a href="/admin/time_slot/{{ .detail.ID }}/create">
+                                <button class="btn btn-info">
+                                  <i class="material-icons">add</i>
+                                  Add time slot
+                                </button>
+                            </a>
+                        </div>
+                        {{ with .detail.ProviderServices }}
+                        {{ range . }}
+                            <div class="card-body">
+                                {{ .Service.SerName}}
+                                <hr/>   
+                                <div class="row m-0 p-0">
+                                    {{ $length := len .TimeSlots }} {{ if eq $length 0 }}
+                                        <h4 >ไม่ไม่มีตารางเวลา</h4>
+                                    {{ else }}
+                                        {{ with .TimeSlots }}
+                                        {{ range . }}
+                                            <button type="button" class="col-2 btn btn-success">
+                                                {{.TimeStart}} - {{.TimeEnd}}
+                                            </button>
+                                        {{ end }}
+                                        {{ end }}
+                                    {{ end }}
+                                </div>
+                            </div>
+                        {{ end }}
+                        {{ end }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{ template "footer" }}
+    </div>
+  </div>
+ 
+  {{ template "script" }}
+    <script>
+        (function ($) {
+            
+        })(jQuery);
+    </script>
+</body>
+
+</html>
+
+{{end}}

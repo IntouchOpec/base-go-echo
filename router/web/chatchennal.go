@@ -32,14 +32,20 @@ type ChatChannelForm struct {
 	Image              string `form:"Image"`
 }
 
-// ChatChannelListHandler
 func ChatChannelListHandler(c *Context) error {
 	chatChannels := []*model.ChatChannel{}
 	a := auth.Default(c)
-	model.DB().Preload("Account").Where("account_id = ?", a.User.GetAccountID()).Find(&chatChannels)
+	queryPar := c.QueryParams()
+	page, limit := SetPagination(queryPar)
+	var total int
+	db := model.DB()
+	filterChatChannel := db.Preload("Account").Where("cha_account_id = ?", a.User.GetAccountID()).Find(&chatChannels).Count(&total)
+	filterChatChannel.Limit(limit).Offset(page).Find(&chatChannels)
+	pagination := MakePagination(total, page, limit)
 	return c.Render(http.StatusOK, "chat-channel-list", echo.Map{
-		"title": "chat_channel",
-		"list":  chatChannels,
+		"title":      "chat_channel",
+		"list":       chatChannels,
+		"pagination": pagination,
 	})
 }
 
@@ -48,23 +54,60 @@ func ChatChannelGetChannelAccessTokenHandler(c *Context) error {
 	chatChannel := model.ChatChannel{}
 	a := auth.Default(c)
 	db := model.DB()
-	db.Preload("Account").Where("account_id = ?", a.User.GetAccountID()).Find(&chatChannel, id)
-	bot, err := linebot.New(chatChannel.ChannelID, chatChannel.ChannelSecret)
+	db.Preload("Account").Where("cha_account_id = ?", a.User.GetAccountID()).Find(&chatChannel, id)
+	bot, err := linebot.New(chatChannel.ChaChannelID, chatChannel.ChaChannelSecret)
 	if err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}
-	res, err := bot.IssueAccessToken(chatChannel.ChannelID, chatChannel.ChannelSecret).Do()
+	res, err := bot.IssueAccessToken(chatChannel.ChaChannelID, chatChannel.ChaChannelSecret).Do()
 	if err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}
 
-	chatChannel.ChannelAccessToken = res.AccessToken
+	chatChannel.ChaChannelAccessToken = res.AccessToken
 	if err := db.Save(&chatChannel).Error; err != nil {
 		return c.NoContent(http.StatusInternalServerError)
 	}
+	db.Model(&chatChannel).Association("Settings").Append(
+		&model.Setting{Name: "statusAccessToken", Value: "success"},
+		model.Setting{Name: "dateStatusToken", Value: fmt.Sprintf("%s", time.Now())})
 
-	db.Model(&chatChannel).Association("Settings").Append(&model.Setting{Name: "statusAccessToken", Value: "success"}, model.Setting{Name: "dateStatusToken", Value: fmt.Sprintf("%s", time.Now())})
-	return c.JSON(http.StatusOK, "res")
+	return c.JSON(http.StatusOK, res)
+}
+
+func ChatChannelAddRegisterLIFF(c *Context) error {
+	id := c.Param("id")
+	chatChannel := model.ChatChannel{}
+	a := auth.Default(c)
+	db := model.DB()
+	if err := db.Preload("Account").Where("cha_account_id = ?", a.User.GetAccountID()).Find(&chatChannel, id).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	bot, err := linebot.New(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
+	if bot == nil {
+		return c.NoContent(http.StatusBadRequest)
+	}
+	URLRegister := fmt.Sprintf("https://%s/register/%s", Conf.Server.DomainLineChannel, chatChannel.ChaLineID)
+	view := linebot.View{Type: "full", URL: URLRegister}
+	var status string = "success"
+	var LIFFID string = ""
+	res, err := bot.AddLIFF(view).Do()
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	} else {
+		LIFFID = res.LIFFID
+	}
+	fmt.Println(err != nil)
+	if err := model.DB().Model(&chatChannel).Association("Settings").Append(
+		&model.Setting{Name: "LIFFregister", Value: LIFFID},
+		&model.Setting{Name: "statusLIFFregister", Value: status},
+		&model.Setting{Name: "statusAccessToken", Value: status},
+		&model.Setting{Name: "dateStatusToken", Value: status},
+	).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, chatChannel)
+	}
+	return c.JSON(http.StatusOK, res)
 }
 
 type SettingResponse struct {
@@ -81,7 +124,7 @@ func ChatChannelDetailHandler(c *Context) error {
 	a := auth.Default(c)
 	model.DB().Preload("Services").Preload("Customers").Preload("ActionLogs", func(db *gorm.DB) *gorm.DB {
 		return db.Preload("Customers")
-	}).Preload("EventLogs").Preload("Account").Where("account_id = ?", a.User.GetAccountID()).Find(&chatChannel, id)
+	}).Preload("EventLogs").Preload("Account").Where("cha_account_id = ?", a.User.GetAccountID()).Find(&chatChannel, id)
 	customerSum := len(chatChannel.Customers)
 	serviceSum := len(chatChannel.Services)
 	settings := chatChannel.GetSetting([]string{"LIFFregister", "statusLIFFregister", "statusAccessToken", "dateStatusToken"})
@@ -121,21 +164,24 @@ func ChatChannelCreatePostHandler(c *Context) error {
 
 	a := auth.Default(c)
 	chatChannelModel := model.ChatChannel{
-		ChannelID:          chatChannel.ChannelID,
-		Name:               chatChannel.Name,
-		LineID:             chatChannel.LineID,
-		ChannelSecret:      chatChannel.ChannelSecret,
-		ChannelAccessToken: chatChannel.ChannelAccessToken,
-		Type:               chatChannel.Type,
-		PhoneNumber:        chatChannel.PhoneNumber,
-		AccountID:          a.User.GetAccountID(),
-		Image:              chatChannel.Image,
-		WebSite:            chatChannel.WebSite,
-		WelcomeMessage:     chatChannel.WelcomeMessage,
-		Address:            chatChannel.Address,
-		Settings:           *settingsModel,
+		ChaChannelID:          chatChannel.ChannelID,
+		ChaName:               chatChannel.Name,
+		ChaLineID:             chatChannel.LineID,
+		ChaChannelSecret:      chatChannel.ChannelSecret,
+		ChaChannelAccessToken: chatChannel.ChannelAccessToken,
+		ChaType:               chatChannel.Type,
+		ChaPhoneNumber:        chatChannel.PhoneNumber,
+		ChaAccountID:          a.User.GetAccountID(),
+		ChaImage:              chatChannel.Image,
+		ChaWebSite:            chatChannel.WebSite,
+		ChaWelcomeMessage:     chatChannel.WelcomeMessage,
+		ChaAddress:            chatChannel.Address,
+		Settings:              *settingsModel,
 	}
-	chatChannelModel.SaveChatChannel()
+	if err := chatChannelModel.SaveChatChannel(); err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
 	if chatChannel.Type == "Line" {
 		bot, err := linebot.New(chatChannel.ChannelID, chatChannel.ChannelSecret)
 		if err != nil {
@@ -144,18 +190,24 @@ func ChatChannelCreatePostHandler(c *Context) error {
 		URLRegister := fmt.Sprintf("https://%s/register/%s", Conf.Server.DomainLineChannel, chatChannel.LineID)
 		view := linebot.View{Type: "full", URL: URLRegister}
 		var status string = "success"
+		var LIFFID string = ""
 		res, err := bot.AddLIFF(view).Do()
 		if err != nil {
 			status = "error"
+		} else {
+			LIFFID = res.LIFFID
 		}
-		model.DB().Model(&chatChannelModel).Association("Settings").Append(
-			&model.Setting{Name: "LIFFregister", Value: res.LIFFID},
+		if err := model.DB().Model(&chatChannelModel).Association("Settings").Append(
+			&model.Setting{Name: "LIFFregister", Value: LIFFID},
 			&model.Setting{Name: "statusLIFFregister", Value: status},
 			&model.Setting{Name: "statusAccessToken", Value: status},
 			&model.Setting{Name: "dateStatusToken", Value: status},
-		)
+		).Error; err != nil {
+			return c.JSON(http.StatusBadRequest, chatChannelModel)
+		}
 	}
-	return c.JSON(http.StatusCreated, chatChannelModel)
+	redirect := fmt.Sprintf("/admin/chat_channel/%d", chatChannelModel.ID)
+	return c.JSON(http.StatusCreated, redirect)
 }
 
 // ChatChannelEditHandler
@@ -164,7 +216,10 @@ func ChatChannelEditHandler(c *Context) error {
 	chatChannel := model.ChatChannel{}
 	a := auth.Default(c)
 	db := model.DB()
-	db.Preload("Services").Preload("Customers").Preload("ActionLogs").Preload("EventLogs").Preload("Account").Where("account_id = ?", a.User.GetAccountID()).Find(&chatChannel, id)
+	if err := db.Preload("Services").Preload("Customers").Preload("ActionLogs").Preload("EventLogs").Preload("Account").Where("cha_account_id = ?",
+		a.User.GetAccountID()).Find(&chatChannel, id).Error; err != nil {
+		return c.Render(http.StatusOK, "404-page", echo.Map{})
+	}
 	customerSum := len(chatChannel.Customers)
 	serviceSum := len(chatChannel.Services)
 	typeChatChannels := []string{"Facebook", "Line"}

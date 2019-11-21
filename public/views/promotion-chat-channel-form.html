@@ -1,0 +1,96 @@
+
+{{define "promotion-chat-channel-form"}}
+<!DOCTYPE html>
+<html lang="en">
+
+{{ template "header" .title }}
+
+<body class="">
+    <div class="wrapper ">
+    {{ template "sidebar" .base }}
+        <div class="main-panel">
+            <div class="content">
+                <div class="container-fluid">
+                    <div class="row">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header card-header-primary">
+                                        <h4 class="card-title">{{.mode}} promotion chat_channel</h4>
+                                    </div>
+                                    <div class="card-body">
+                                        <form name="create-promotion" >
+                                            <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden" class="form-control" >
+                                            <div class="row">
+                                                <div class="col-md-12 mt-2">
+                                                    <div class="form-group">
+                                                        <label for="exampleFormControlSelect2">chat_channel</label>
+                                                        <select class="form-control " data-style="btn btn-link" id="chat_channel_id">
+                                                            {{ with .chatChannels }}
+                                                            {{ range . }}
+                                                                <option value="{{.ID}}">{{.ChaName}}</option>
+                                                            {{ end }}
+                                                            {{ end }}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <input type="submit" rel="tooltip" value="Submit" class="btn btn-success">
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {{ template "footer" }}
+            </div>
+        </div>
+    </div>
+  {{ template "script" }}
+  <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+  <script>
+   
+    (function ($) {
+        $("form[name='create-promotion']").validate({
+            rules: {
+                chat_channel_id: {
+                    required: true
+                }
+            },
+            messages: {
+                chat_channel_id: {
+                    required: "Please enter a valid Title"
+                }
+            },
+            submitHandler: function(form) {
+                let data = new URLSearchParams();
+                let _csrf = $("#_csrf").val()
+                let chat_channel_id = $("#chat_channel_id").val()
+
+                data.append("_csrf", _csrf)
+                data.append("chat_channel_id", chat_channel_id)
+                fetch(window.location.href, {
+                    method: "POST", 
+                    body: data
+                })
+                .then(res => {
+                    if (res.status === 200) {
+                        Swal.fire("success", "", "success")
+                        return res.json()
+                    }
+                    Swal.fire("fial", "", "warning")
+                })
+                .then(json => {
+                    console.log(json)
+                    window.location = json
+                })
+                .catch(err => Swal.fire("fial", "", "warning"))
+            }
+        })
+    })(jQuery)
+  </script>
+</body>
+
+</html>
+
+{{end}}

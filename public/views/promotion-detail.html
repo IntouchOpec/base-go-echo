@@ -18,15 +18,15 @@
                         <div class="card card-profile">
                             <div class="card-avatar">
                                 <a href="#pablo">
-                                    <img class="img" src="{{ .detail.Image }}" />
+                                    <img class="img" src="{{ .detail.PromImage }}" />
                                 </a>
                             </div>
                             <div class="card-body">
-                                <h2 class="card-category text-gray">{{ .detail.Title }}</h2>
-                                <h2 class="card-category text-gray">{{ .detail.Name }}</h2>
-                                <h2 class="card-category text-gray">{{ .detail.Code }}</h2>
-                                <h6 class="card-category text-gray">{{ .detail.PromotionType }}</h6>
-                                <h6 class="card-category text-gray">{{ ((.detail.StartDate).AddDate 0 1 0).Format "Mon Jan 2 2006" }} - {{ ((.detail.EndDate).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</h6>
+                                <h2 class="card-category text-gray">{{ .detail.PromTitle }}</h2>
+                                <h2 class="card-category text-gray">{{ .detail.PromName }}</h2>
+                                <h2 class="card-category text-gray">{{ .detail.PromCode }}</h2>
+                                <h6 class="card-category text-gray">{{ .detail.PromType }}</h6>
+                                <h6 class="card-category text-gray">{{ ((.detail.PromStartDate).AddDate 0 1 0).Format "Mon Jan 2 2006" }} - {{ ((.detail.PromEndDate).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</h6>
                                 <div class="d-flex justify-content-center">
                                     <button type="button" class="btn btn-warning"><i class="material-icons">edit</i>edit</button>
                                     <button type="button" class="btn btn-danger"><i class="material-icons">delete</i>delete</button>
@@ -41,7 +41,7 @@
                                     <i class="material-icons">monetization_on</i>
                                 </div>
                                 <p class="card-category">discount</p>
-                                <h3 class="card-title"> {{ .detail.Discount }}
+                                <h3 class="card-title"> {{ .detail.PromDiscount }}
                                 </h3>
                             </div>
                         </div>
@@ -53,7 +53,7 @@
                                     <i class="material-icons">account_balance_wallet</i>
                                 </div>
                                 <p class="card-category">used</p>
-                                <h3 class="card-title"> {{ .detail.Amount }}
+                                <h3 class="card-title"> {{ .detail.PromAmount }}
                                 </h3>
                             </div>
                         </div>
@@ -65,7 +65,7 @@
                         <div class="card">
                             <div class="card-header card-header-primary d-flex justify-content-between">
                                 <h4 class="card-title ">chat channel</h4>
-                                <a href="/admin/promotion/create">
+                                <a href="/admin/promotion_channel/{{ .detail.ID }}/create">
                                     <button class="btn btn-info">
                                     <i class="material-icons">add</i>
                                     Add Channel
@@ -79,12 +79,13 @@
                                             <th>Name</th>
                                             <th>Type</th>
                                         </thead>
+                                        {{.detail.ChatChannels}}
                                         <tbody>
                                             {{ with .detail.ChatChannels }}
                                             {{ range . }}
                                             <tr>
-                                                <td>{{ .Name }}</td>
-                                                <td>{{ .Type }}</td>
+                                                <td>{{ .ChaName }}</td>
+                                                <td>{{ .ChaType }}</td>
                                             </tr>
                                             {{ end }}
                                             {{ end }}

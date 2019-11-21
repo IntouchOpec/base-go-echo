@@ -4,19 +4,26 @@ import (
 	"net/http"
 
 	"github.com/IntouchOpec/base-go-echo/model"
+	"github.com/IntouchOpec/base-go-echo/module/auth"
 	"github.com/labstack/echo"
 )
 
 // CustomerListHandler
 func CustomerListHandler(c *Context) error {
 	customers := []*model.Customer{}
+	queryPar := c.QueryParams()
+	page, limit := SetPagination(queryPar)
+	var total int
+	db := model.DB()
+	a := auth.Default(c)
+	filterCustomer := db.Where("cus_account_id = ?", a.GetAccountID()).Find(&customers).Count(&total)
+	filterCustomer.Limit(limit).Offset(page).Find(&customers)
+	pagination := MakePagination(total, page, limit)
 
-	if err := model.DB().Find(&customers).Error; err != nil {
-		return c.NoContent(http.StatusBadRequest)
-	}
 	err := c.Render(http.StatusOK, "customer-list", echo.Map{
-		"list":  customers,
-		"title": "customer",
+		"list":       customers,
+		"title":      "customer",
+		"pagination": pagination,
 	})
 	return err
 }

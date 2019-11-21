@@ -16,15 +16,15 @@
                     <div class="card card-profile">
                         <div class="card-avatar">
                             <a href="#pablo">
-                                <img class="img" src="/images/{{ .detail.Image }}" />
+                                <img class="img" src="/images/{{ .detail.PlacImage }}" />
                             </a>
                         </div>
                         <div class="card-body">
-                                
-                            <h6 class="card-category text-gray">{{ .detail.Name }}</h6>
-                            <h6 class="card-category text-gray">{{ .detail.Price }}</h6>
-                            <h6 class="card-category text-gray">{{ .detail.Detail }}</h6>
-                            <h6 class="card-category text-gray"><input type="checkbox" checked data-toggle="toggle" checked="{{.Active}}"></h6>
+                            <h6 class="card-category text-gray">{{ .detail.PlacName }}</h6>
+                            <h6 class="card-category text-gray">{{ .detail.PlacDetail }}</h6>
+                            <h6 class="card-category text-gray">{{ .detail.PlacAmount }}</h6>
+                            <h6 class="card-category text-gray">{{ .detail.PlacType }}</h6>
+                            <h6 class="card-category text-gray"><input type="checkbox" checked data-toggle="toggle" checked="{{.PlacActive}}"></h6>
                             <div class="d-flex justify-content-center">
                                 <button type="button" class="btn btn-warning"><i class="material-icons">edit</i>edit</button>
                                 <button type="button" class="btn btn-danger"><i class="material-icons">delete</i>delete</button>

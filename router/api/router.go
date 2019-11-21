@@ -55,6 +55,7 @@ func Routers() *echo.Echo {
 
 	e.POST("/user", UserRegisterHandler)
 	e.GET("/user", GetUserList)
+	e.PUT("/user/:id", UpdateUser)
 
 	e.GET("/account", GetAccontList)
 	e.GET("/account/:chatChannelID/list", GetAccontList)
@@ -83,7 +84,7 @@ func Routers() *echo.Echo {
 	e.PATCH("/chatanswer/:id", UpdateChatAnswers)
 	e.DELETE("/chatanswer/:id", DeleteChatAnswer)
 
-	e.GET("/service/:chatChannelID/list", GetserviceList)
+	// e.GET("/service/:chatChannelID/list", GetserviceList)
 	e.GET("/service/:id", Getservice)
 	e.POST("/service", Createservice)
 	e.PATCH("/service/:id", Updateservice)

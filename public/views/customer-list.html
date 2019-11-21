@@ -31,14 +31,15 @@
                          <th></th>
                        </thead>
                        <tbody>
+                        {{if not .list}}<tr><td colspan="8" class="text-center">No content</td></tr> {{end}}
                          {{ with .list }}
                            {{ range . }}
                              <tr>
                                <td></td>
-                               <td>{{ .LineID }}</td>
-                               <td>{{ .FullName }}</td>
-                               <td>{{ .PhoneNumber }}</td>
-                               <td>{{ .Email }}</td>
+                               <td>{{ .CusLineID }}</td>
+                               <td>{{ .CusFullName }}</td>
+                               <td>{{ .CusPhoneNumber }}</td>
+                               <td>{{ .CusEmail }}</td>
                                <td>{{ ((.CreatedAt).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
                                <td class="td-actions text-right">
                                   <a href="/admin/customer/{{ .ID }}">
@@ -58,6 +59,11 @@
                          {{ end }}
                        </tbody>
                      </table>
+                     <div class="row p-0 m-0">
+                        <div class="ml-auto">
+                          {{ template "pagination" .pagination }}
+                        </div>
+                      </div>
                    </div>
                  </div>
                </div>

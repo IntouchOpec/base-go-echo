@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	// . "github.com/IntouchOpec/base-go-echo/conf"
+	. "github.com/IntouchOpec/base-go-echo/conf"
 	"github.com/IntouchOpec/base-go-echo/lib"
 	"github.com/IntouchOpec/base-go-echo/model"
 	"github.com/labstack/echo"
@@ -16,17 +16,22 @@ import (
 func LIFFRegisterHandler(c echo.Context) error {
 	lineID := c.Param("lineID")
 	chatChannel := model.ChatChannel{}
-	if err := model.DB().Where("line_id = ?", lineID).Find(&chatChannel).Error; err != nil {
+	customerTypes := []model.CustomerType{}
+	db := model.DB()
+	if err := db.Where("cha_line_id = ?", lineID).Find(&chatChannel).Error; err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}
 
-	// custo := model.Customer{}
-	// if err := model.DB().FirstOrCreate(&custo).Error; err != nil {
-	// 	return err
-	// }
-	// APIRegister := fmt.Sprintf("https://%s/register/%s", Conf.Server.DomainLineChannel, lineID)
+	custo := model.Customer{}
+	if err := db.FirstOrCreate(&custo).Error; err != nil {
+		return err
+	}
+	db.Where("account_id = ?", chatChannel.ChaAccountID).Find(&customerTypes)
+	fmt.Println(customerTypes, chatChannel.ChaAccountID)
+	APIRegister := fmt.Sprintf("https://%s/register/%s", Conf.Server.DomainLineChannel, lineID)
 	err := c.Render(http.StatusOK, "register", echo.Map{
-		// "web": APIRegister,
+		"web":           APIRegister,
+		"customerTypes": customerTypes,
 	})
 	return err
 }
@@ -38,6 +43,7 @@ type LineReqRegister struct {
 	PictureURL  string `json:"pictureUrl"`
 	Email       string `json:"email"`
 	Phone       string `json:"phone"`
+	Type        string `json:"type"`
 	AccessToken string `json:"accessToken"`
 }
 
@@ -50,22 +56,24 @@ func LIIFRegisterSaveCustomer(c echo.Context) error {
 		return err
 	}
 
-	if err := model.DB().Where("line_ID = ?", lineID).Find(&chatChannel).Error; err != nil {
+	if err := model.DB().Where("cha_line_ID = ?", lineID).Find(&chatChannel).Error; err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}
 
-	custo := model.Customer{LineID: req.UserID, AccountID: chatChannel.AccountID}
+	custo := model.Customer{CusLineID: req.UserID, CusAccountID: chatChannel.ChaAccountID}
 	// pictureURL string, displayName string, email string, phoneNumber string
-	bot, err := lib.ConnectLineBot(chatChannel.ChannelSecret, chatChannel.ChannelAccessToken)
-
-	custo.UpdateCustomerByAtt(req.PictureURL, req.DisplayName, req.Email, req.Phone, req.FullName)
+	bot, err := lib.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
+	if err != nil {
+		return c.NoContent(http.StatusBadRequest)
+	}
+	custo.UpdateCustomerByAtt(req.PictureURL, req.DisplayName, req.Email, req.Phone, req.FullName, req.Type)
 	check := ValidateVoucher(custo.Promotions)
 	if check {
 		return c.NoContent(http.StatusBadRequest)
 	}
 	promotion := model.Promotion{}
 
-	if err := model.DB().Where("name = ?", "register_voucher").Find(&promotion).Error; err != nil {
+	if err := model.DB().Where("prom_name = ?", "register_voucher").Find(&promotion).Error; err != nil {
 		return err
 	}
 
@@ -81,7 +89,7 @@ func LIIFRegisterSaveCustomer(c echo.Context) error {
 		return err
 	}
 
-	flexMessage := linebot.NewFlexMessage(chatChannel.WelcomeMessage, flexContainer)
+	flexMessage := linebot.NewFlexMessage(chatChannel.ChaWelcomeMessage, flexContainer)
 
 	if _, err = bot.PushMessage(req.UserID, flexMessage).Do(); err != nil {
 		log.Print(err)
@@ -93,7 +101,7 @@ func LIIFRegisterSaveCustomer(c echo.Context) error {
 
 func ValidateVoucher(promotions []*model.Promotion) bool {
 	for index := 0; index < len(promotions); index++ {
-		if promotions[index].Name == "register_voucher" {
+		if promotions[index].PromName == "register_voucher" {
 			return true
 		}
 	}
@@ -102,8 +110,8 @@ func ValidateVoucher(promotions []*model.Promotion) bool {
 
 func VoucherTemplate(promotion *model.Promotion) string {
 	settings := promotion.GetSettingPromotion([]string{"displayText", "TitleName"})
-	StartDateStr := promotion.StartDate.Format("02-12-2006")
-	EndDateStr := promotion.EndDate.Format("02-12-2006")
+	StartDateStr := promotion.PromStartDate.Format("02-12-2006")
+	EndDateStr := promotion.PromEndDate.Format("02-12-2006")
 	temp := fmt.Sprintf(`{
 		"type": "bubble",
 		"hero": { "type": "image", "url": "%s", "size": "full", "aspectRatio": "20:13", "aspectMode": "cover" },
@@ -131,6 +139,6 @@ func VoucherTemplate(promotion *model.Promotion) string {
 		  ],
 		  "flex": 0
 		}
-	  }`, promotion.Image, settings["TitleName"], StartDateStr, EndDateStr, settings["displayText"], promotion.Code)
+	  }`, promotion.PromImage, settings["TitleName"], StartDateStr, EndDateStr, settings["displayText"], promotion.PromCode)
 	return temp
 }

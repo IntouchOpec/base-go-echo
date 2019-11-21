@@ -1,0 +1,179 @@
+
+{{define "provider-detail"}}
+<!DOCTYPE html>
+<html lang="en">
+
+{{ template "header" .title }}
+
+<body class="">
+  <input type="hidden" id="_csrf" value="{{._csrf}}" />
+  <div class="wrapper ">
+   {{ template "sidebar" .base }}
+    <div class="main-panel">
+        {{ template "navbar" .title }}
+        <div class="content">
+            <div class="row">
+                <div class="col-md-5">
+                    <div class="card card-profile">
+                        <div class="card-avatar">
+                            <a href="#pablo">
+                                <img class="img" src="/images/{{ .detail.ProvImage }}" />
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            <h6 class="card-category text-gray">{{ .detail.ProvName }}</h6>
+                            <h6 class="card-category text-gray">{{ .detail.ProvLineID }}</h6>
+                            <h6 class="card-category text-gray">{{ .detail.ProvDetail }}</h6>
+                            <div class="d-flex justify-content-center">
+                                <button type="button" class="btn btn-warning"><i class="material-icons">edit</i>edit</button>
+                                <button type="button" class="btn btn-danger"><i class="material-icons">delete</i>delete</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header card-header-primary d-flex justify-content-between">
+                            <h4 class="card-title ">service list</h4>
+                            <a href="/admin/provider_service/{{ .detail.ID }}/create">
+                                <button class="btn btn-info">
+                                <i class="material-icons">add</i>
+                                    Create
+                                </button>
+                            </a>
+                            <a href="/admin/provider_service/{{ .detail.ID }}">
+                                <button class="btn btn-info">
+                                <i class="material-icons">av_timer</i>
+                                    time slot
+                                </button>
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead class=" text-primary">
+                                        <th>Name</th>
+                                        <th>Price</th>
+                                        <th>CreatedAt</th>
+                                        <th></th>
+                                    </thead>
+                                    <tbody>
+                                        {{ with .detail.ProviderServices }}
+                                        {{ range . }}
+                                            <tr>
+                                                <td>{{ .Service.SerName }}</td>
+                                                <td>{{ .PSPrice }}</td>
+                                                <td>{{ ((.CreatedAt).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
+                                                <td class="td-actions text-right">
+                                                    <a href="/admin/provider_service/{{ .ID }}/edit">
+                                                        <button type="button" rel="tooltip" class="btn btn-warning">
+                                                            <i class="material-icons">edit</i>
+                                                        </button>
+                                                    </a>
+                                                    <a href="/admin/provider_service/{{ .ID }}/detail">
+                                                        <button type="button" rel="tooltip" class="btn btn-danger">
+                                                            <i class="material-icons">close</i>
+                                                        </button>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        {{ end }}
+                                        {{ end }}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-7">
+                    <div class="card">
+                        <div class="card-header card-header-primary d-flex justify-content-between">
+                            <h4 class="card-title ">booking list</h4>
+                            <a href="/admin/provider_booking/{{ .detail.ID }}/create">
+                                <button class="btn btn-info">
+                                <i class="material-icons">add</i>
+                                    Create
+                                </button>
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead class=" text-primary">
+                                        
+                                        <th>CreatedAt</th>
+                                        <th></th>
+                                    </thead>
+                                    <tbody>
+                                        {{ with .list }}
+                                        {{ range . }}
+                                        
+                                        {{ end }}
+                                        {{ end }}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{ template "footer" }}
+    </div>
+  </div>
+ 
+  {{ template "script" }}
+    <script>
+        (function ($) {
+            $("#get_access_token").on("click",function () {
+                let _csrf = $("#_csrf").val()
+                const data = new URLSearchParams();
+                data.append("_csrf", _csrf);
+                fetch(window.location.href+"/channel_access_token",{
+                    method: "PATCH",
+                    body: data
+                }).then(res => {
+                    return res.json();
+                }).then(data => {
+                    Swal.fire(
+                    'New Access Token',
+                    '',
+                    'success'
+                    )
+                    $("#access_token").text(data.access_token)
+                }).catch(err => Swal.fire(
+                    'New Access Token',
+                    '',
+                    'error'
+                    ))
+            })
+
+            $("#add_LIIF_register").on("click",function () {
+                let _csrf = $("#_csrf").val()
+                const data = new URLSearchParams();
+                data.append("_csrf", _csrf);
+                fetch(window.location.href+"/add_liff_register",{
+                    method: "PATCH",
+                    body: data
+                }).then(res => {
+                    if (res.status === 200) {
+                        return res.json();
+                    }
+                }).then(data => {
+                    Swal.fire(
+                    'New Access Token',
+                    '',
+                    'success'
+                    )
+                    $("#add_LIIF_register").remove()
+                }).catch(err => Swal.fire(
+                    'New Access Token',
+                    '',
+                    'error'
+                ))
+            })
+        })(jQuery);
+    </script>
+</body>
+
+</html>
+
+{{end}}

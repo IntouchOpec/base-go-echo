@@ -87,3 +87,23 @@ func GetUserList(c echo.Context) error {
 	return c.JSON(200, users)
 
 }
+
+func UpdateUser(c echo.Context) error {
+	id := c.Param("id")
+
+	user, err := model.GetUserDetail(id)
+
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	if err := c.Bind(&user); err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	if err := user.UpdateUser(); err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	return c.JSON(http.StatusAccepted, user)
+}

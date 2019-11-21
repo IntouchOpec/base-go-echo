@@ -165,3 +165,18 @@ func DeleteUser(id string) *User {
 	}
 	return &user
 }
+
+func (user *User) UpdateUser() error {
+	if err := DB().Save(&user).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func GetUserDetail(id string) (*User, error) {
+	u := User{}
+	if err := DB().Find(&u).Error; err != nil {
+		return nil, err
+	}
+	return &u, nil
+}

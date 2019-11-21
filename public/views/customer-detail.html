@@ -19,34 +19,34 @@
                         <div class="card card-profile">
                           <div class="card-avatar">
                             <a href="#pablo">
-                              {{ if (eq .customer.DisplayName "") }}
+                              {{ if (eq .customer.CusDisplayName "") }}
                                 <img class="img" src="https://icon-library.net/images/person-image-icon/person-image-icon-6.jpg" />
                               {{ else }}
-                                <img class="img" src="{{ .customer.PictureURL }}" />
+                                <img class="img" src="{{ .customer.CusPictureURL }}" />
                               {{ end }}
                             </a>
                           </div>
                           <div class="card-body">
-                            <h4 class="card-title">{{ .customer.LineID }}</h4>
-                            {{ if (eq .customer.DisplayName "") }}
+                            <h4 class="card-title">{{ .customer.CusLineID }}</h4>
+                            {{ if (eq .customer.CusDisplayName "") }}
                               <h6 class="card-category text-gray">-</h6>
                             {{ else }}
-                              <h6 class="card-category text-gray">{{ .customer.DisplayName }}</h6>
+                              <h6 class="card-category text-gray">{{ .customer.CusDisplayName }}</h6>
                             {{ end }}
-                            {{ if (eq .customer.FullName "") }}
+                            {{ if (eq .customer.CusFullName "") }}
                               <h6 class="card-category text-gray">-</h6>
                             {{ else }}
-                              <h6 class="card-category text-gray">{{ .customer.FullName }}</h6>
+                              <h6 class="card-category text-gray">{{ .customer.CusFullName }}</h6>
                             {{ end }}
-                            {{ if (eq .customer.Email "") }}
+                            {{ if (eq .customer.CusEmail "") }}
                               <h6 class="card-category text-gray">-</h6>
                             {{ else }}
-                              <h6 class="card-category text-gray">{{ .customer.Email }}</h6>
+                              <h6 class="card-category text-gray">{{ .customer.CusEmail }}</h6>
                             {{ end }}
-                            {{ if (eq .customer.PhoneNumber "") }}
+                            {{ if (eq .customer.CusPhoneNumber "") }}
                               <h6 class="card-category text-gray">-</h6>
                             {{ else }}
-                              <h6 class="card-category text-gray">{{ .customer.PhoneNumber }}</h6>
+                              <h6 class="card-category text-gray">{{ .customer.CusPhoneNumber }}</h6>
                             {{ end }}
                           </div>
                         </div>
@@ -69,10 +69,10 @@
                               <th>CreatedAt</th>
                             </thead>
                             <tbody>
-                              {{ with .customer.Bookings }}
+                              {{ with .customer.Transactions }}
                               {{ range . }}
                               <tr>
-                                <td>{{ .Queue }}</td>
+                                <td>{{ .BooQueue }}</td>
                                 <td>{{ .BookStatus }}</td>
                                 <td>{{ .BookState }}</td>
                                 <td>{{ .BookedDate }}</td>
@@ -100,6 +100,7 @@
                             <th>ReplyToken</th>
                             <th>Type</th>
                             <th>LineID</th>
+                            <th>ChatChannel</th>
                             <th>Text</th>
                             <th>CreatedAt</th>
                         </thead>
@@ -107,10 +108,11 @@
                             {{ with .customer.EventLogs }}
                             {{ range . }}
                             <tr>
-                              <td>{{.ReplyToken}}</td>
-                              <td>{{.Type}}</td>
-                              <td>{{.LineID}}</td>
-                              <td>{{.Text}}</td>
+                              <td>{{ .EvenReplyToken }}</td>
+                              <td>{{ .EvenType }}</td>
+                              <td>{{ .EvenLineID }}</td>
+                              <td>{{ .EvenChatChannelID }}</td>
+                              <td>{{ .EvenText }}</td>
                               <td>{{ ((.CreatedAt).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
                             </tr>
                             {{ end }} 
@@ -132,16 +134,14 @@
                               <thead class=" text-primary">
                                   <th>Name</th>
                                   <th>Status</th>
-                                  <th>Type</th>
                                   <th>CreatedAt</th>
                               </thead>
                               <tbody>
                                   {{ with .customer.ActionLogs }}
                                   {{ range . }}
                                   <tr>
-                                  <td>{{ .Name }}</td>
-                                  <td>{{ .Status }}</td>
-                                  <td>{{ .Type }}</td>
+                                  <td>{{ .ActName }}</td>
+                                  <td>{{ .ActStatus }}</td>
                                   <td>{{ ((.CreatedAt).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
                                   </tr>
                                   {{ end }} 

@@ -27,7 +27,7 @@ func RegisterCustomerByLine(c echo.Context) error {
 	enCodeURLLocal := url.QueryEscape("https%3A%2F%2F15e330d8.ngrok.io%2Fauth")
 	url := "https://api.line.me/oauth2/v2.1/token"
 	payload := fmt.Sprintf("grant_type=authorization_code&code=%s&redirect_uri=%s&client_id=%s&client_secret=%s",
-		code, enCodeURLLocal, chatChannel.ChannelID, chatChannel.ChannelSecret)
+		code, enCodeURLLocal, chatChannel.ChaChannelID, chatChannel.ChaChannelSecret)
 
 	req, _ := http.NewRequest("POST", url, strings.NewReader(payload))
 

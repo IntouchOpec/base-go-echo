@@ -1,0 +1,156 @@
+
+{{define "provider-form"}}
+<!DOCTYPE html>
+<html lang="en">
+
+{{ template "header" .title }}
+
+<body class="">
+    <div class="wrapper ">
+    {{ template "sidebar" .base }}
+        <div class="main-panel">
+            {{ template "navbar" .title }}
+            <div class="content">
+                <div class="container-fluid">
+                    <div class="row">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header card-header-primary">
+                                        <h4 class="card-title">{{.mode}} provider</h4>
+                                    </div>
+                                    <div class="card-body">
+                                        <form name="create-provider" >
+                                            <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden" class="form-control" >
+                                            <div class="row">
+                                                <div class="col-md-12 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="bmd-label-floating" >name</label>
+                                                        <input name="name" id="name" class="form-control">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="bmd-label-floating" >line id</label>
+                                                        <input name="line_id" id="line_id" class="form-control">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="bmd-label-floating" >detail</label>
+                                                        <textarea name="detail" id="detail" type="text" class="form-control" ></textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12 mt-2">
+                                                    <input id="Image" name="Image" type="file">
+                                                    <p><strong>Image:</strong> Choose any file on your computer and its name will be displayed in an alert dialog box.</p>
+                                                </div>
+                                            </div>
+                                            <input type="submit" rel="tooltip" value="Submit" class="btn btn-success">
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {{ template "footer" }}
+            </div>
+        </div>
+    </div>
+  {{ template "script" }}
+  <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+  <script>
+    (function ($) {
+        const toBase64 = file => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+        $("form[name='create-provider']").validate({
+            rules: {
+                name: {
+                    required: true
+                },
+                line_id: {
+                    required: true
+                },
+                detail: {
+                    required: true
+                },
+                Image: {
+                    required: true
+                },
+            },
+            messages: {
+                name:  {
+                    required: "Please enter a valid name"
+                },
+                line_id:  {
+                    required: "Please enter a valid line_id"
+                },
+                detail:  {
+                    required: "Please enter a valid detail"
+                },
+                Image:  {
+                    required: "Please enter a valid Image"
+                },
+            },
+            submitHandler: function(form) {
+                let _csrf = $("#_csrf").val()
+                let name = $("#name").val()
+                let line_id = $("#line_id").val()
+                let detail = $("#detail").val()
+                let Image =  $("#Image")
+
+                let imageEncodedKey = encodeURIComponent("file") 
+
+                let encodedKey = encodeURIComponent("_csrf");
+                let encodedValue = encodeURIComponent(_csrf);
+
+                let encodenameKey = encodeURIComponent("prov_name")
+                let nameEncodeCalue = encodeURIComponent(name)
+                let encodeline_idKey = encodeURIComponent("prov_line_id")
+                let line_idEncodeCalue = encodeURIComponent(line_id)
+                let encodedetailKey = encodeURIComponent("prov_detail")
+                let detailEncodeCalue = encodeURIComponent(detail)
+                
+
+                let data = []
+
+                toBase64(Image[0].files[0]).then(base64Image => {
+                    
+                    Image = JSON.stringify(base64Image)
+                    let imageEncodedValue = encodeURIComponent(Image);
+                    data.push(encodedKey + "=" + encodedValue)
+                    data.push(encodenameKey + "=" + nameEncodeCalue)
+                    data.push(encodeline_idKey + "=" + line_idEncodeCalue)
+                    data.push(encodedetailKey + "=" + detailEncodeCalue)
+                    data.push(imageEncodedKey + "=" + imageEncodedValue) 
+                    data = data.join("&");
+                    console.log(detail, line_id, name)
+                    fetch(window.location.href, {
+                        method: "POST", 
+                        headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                        body: data
+                    })
+                    .then(res => {
+                        if (res.status === 201){ 
+                            Swal.fire("success", "", "success") 
+                            return res.json()
+                        }
+                    })
+                    .then(json => {
+                        window.location = json
+                    })
+                    .catch(err => Swal.fire("fial", "", "warning"))
+                })
+            }
+        })
+    })(jQuery)
+  </script>
+</body>
+
+</html>
+
+{{end}}

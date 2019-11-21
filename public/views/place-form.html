@@ -19,13 +19,19 @@
                                         <h4 class="card-title">{{.mode}} place</h4>
                                     </div>
                                     <div class="card-body">
-                                        <form name="create-promotion" >
+                                        <form name="create-place" >
                                             <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden" class="form-control" >
                                             <div class="row">
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating" >Name</label>
                                                         <input name="name" id="name" type="text" class="form-control" >
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="bmd-label-floating" >amount</label>
+                                                        <input name="amount" id="amount" type="text" class="form-control" >
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12 mt-2">
@@ -52,7 +58,7 @@
   <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
   <script>
     (function ($) {
-        $("form[name='create-promotion']").validate({
+        $("form[name='create-place']").validate({
             rules: {
                 name: {
                     required: true                
@@ -70,7 +76,21 @@
                 },
             },
             submitHandler: function(form) {
-                    
+                fetch(window.location.href, {
+                method: "POST",
+                body: data
+                })
+                .then(res => {
+                if (res.status === 201) {
+                    return res.json();
+                }
+                })
+                .then(data => {
+                    location.replace(data.redirect)
+                })
+				.catch(err => {
+					console.log("error", err);
+				})
             }
         })
         

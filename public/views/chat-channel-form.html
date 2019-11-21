@@ -186,9 +186,9 @@
                     method: "POST", 
                     body: data
                 })
-                .then(res => res.json())
+                .then(res =>  res.status === 201 && res.json())
                 .then(json => {
-                    if (res.status === 201) Swal.fire("success", "", "success") 
+                    window.location.href = json
                 })
                 .catch(err => Swal.fire("fial", "", "warning"))
             }

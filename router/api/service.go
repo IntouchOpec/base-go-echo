@@ -22,12 +22,12 @@ func Createservice(c echo.Context) error {
 	return nil
 }
 
-func GetserviceList(c echo.Context) error {
-	chatchannelID := c.Param("chatChannelID")
-	chatChannelIDInt, _ := strconv.Atoi(chatchannelID)
+func GetServiceList(c echo.Context) error {
+	// chatchannelID := c.Param("chatChannelID")
+	// chatChannelIDInt, _ := strconv.Atoi(chatchannelID)
 
-	services := model.Getservice(chatChannelIDInt)
-	return c.JSON(http.StatusOK, services)
+	// services := model.GetServiceList(chatChannelIDInt)
+	return c.JSON(http.StatusOK, "services")
 }
 
 func Getservice(c echo.Context) error {
@@ -50,14 +50,14 @@ func Updateservice(c echo.Context) error {
 	return c.JSON(http.StatusOK, service)
 }
 
-func UpdateserviceSlot(c echo.Context) error {
-	id := c.Param("id")
-	idInt, _ := strconv.Atoi(id)
-	subCustomer := model.ServiceSlot{}
-	if err := c.Bind(&subCustomer).Error; err != nil {
-		return c.NoContent(http.StatusBadRequest)
-	}
-	subCustomer.UpdateServiceSlot(idInt)
+// func UpdateserviceSlot(c echo.Context) error {
+// 	id := c.Param("id")
+// 	idInt, _ := strconv.Atoi(id)
+// 	subCustomer := model.ServiceSlot{}
+// 	if err := c.Bind(&subCustomer).Error; err != nil {
+// 		return c.NoContent(http.StatusBadRequest)
+// 	}
+// 	subCustomer.UpdateServiceSlot(idInt)
 
-	return c.JSON(http.StatusOK, subCustomer)
-}
+// 	return c.JSON(http.StatusOK, subCustomer)
+// }

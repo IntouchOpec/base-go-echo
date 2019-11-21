@@ -1,8 +1,10 @@
 package web
 
 import (
+	"fmt"
 	"net/http"
 
+	"github.com/IntouchOpec/base-go-echo/lib"
 	"github.com/IntouchOpec/base-go-echo/model"
 	"github.com/IntouchOpec/base-go-echo/module/auth"
 	"github.com/labstack/echo"
@@ -12,36 +14,43 @@ import (
 func LIIFListHandler(c *Context) error {
 	a := auth.Default(c)
 	chatChannel := model.ChatChannel{}
-	if err := model.DB().Where("account_id = ?", a.User.GetAccountID()).Find(&chatChannel); err != nil {
-		return c.Render(http.StatusOK, "LIFF-list", echo.Map{
-			"list":  "",
-			"title": "LIFF",
+	chatChannels := []model.ChatChannel{}
+	db := model.DB()
+	ChatChannelID := c.QueryParam("chat_channel_id")
+	filterChatChannel := db.Where("cha_account_id = ?", a.GetAccountID()).Find(&chatChannels)
+	filterChatChannel.Find(&chatChannel, ChatChannelID)
+
+	bot, err := linebot.New(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
+
+	if err != nil {
+		return c.Render(http.StatusBadRequest, "LIFF-list", echo.Map{
+			"list":         "",
+			"title":        "LIFF",
+			"detail":       chatChannel,
+			"chatChannels": chatChannels,
 		})
 	}
 
-	bot, err := linebot.New(chatChannel.ChannelID, chatChannel.ChannelSecret)
-	if err != nil {
-		return c.Render(http.StatusOK, "LIFF-list", echo.Map{
-			"list":  "",
-			"title": "LIFF",
-		})
-	}
 	res, err := bot.GetLIFF().Do()
 
 	return c.Render(http.StatusOK, "LIFF-list", echo.Map{
-		"list":  res,
-		"title": "LIFF",
+		"list":         &res,
+		"detail":       chatChannel,
+		"title":        "LIFF",
+		"chatChannels": chatChannels,
 	})
 }
 
 func LIFFCreateHandler(c *Context) error {
 	a := auth.Default(c)
-	var chatChannel model.ChatChannel
-	model.DB().Where("account_id = ?", a.User.GetAccountID()).Find(&chatChannel)
+	chatChannels := []model.ChatChannel{}
+
+	model.DB().Where("cha_account_id = ?", a.GetAccountID()).Find(&chatChannels)
 	LIFFViewTypes := []linebot.LIFFViewType{linebot.LIFFViewTypeCompact, linebot.LIFFViewTypeTall, linebot.LIFFViewTypeFull}
 	return c.Render(http.StatusOK, "LIFF-form", echo.Map{
 		"title":         "LIFF",
 		"LIFFViewTypes": LIFFViewTypes,
+		"chatChannels":  chatChannels,
 	})
 }
 
@@ -55,19 +64,41 @@ func LIFFPostHanlder(c *Context) error {
 
 	var LIFFview LIFFForm
 	var chatChannel model.ChatChannel
+	chatChannelID := c.QueryParam("chat_channel_id")
 
 	if err := c.Bind(&LIFFview); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	LIFFModel := linebot.View{Type: LIFFview.Type, URL: LIFFview.URL}
 
-	model.DB().Where("account_id = ?", a.User.GetAccountID()).Find(&chatChannel)
+	if err := model.DB().Where("cha_account_id = ?", a.GetAccountID()).Find(&chatChannel, chatChannelID).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
 
-	bot, _ := linebot.New(chatChannel.ChannelID, chatChannel.ChannelSecret)
+	bot, _ := linebot.New(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
 	res, err := bot.AddLIFF(LIFFModel).Do()
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	return c.JSON(http.StatusCreated, res)
+	redirect := fmt.Sprintf("/admin/LIFF")
+	return c.JSON(http.StatusCreated, echo.Map{
+		"detail":   res,
+		"redirect": redirect,
+	})
 
+}
+
+func LIFFRemoveHanlder(c *Context) error {
+	a := auth.Default(c)
+	var chatChannel model.ChatChannel
+	chatChannelID := c.QueryParam("chat_channel_id")
+	db := model.DB()
+	id := c.Param("id")
+	db.Where("cha_account_id = ?", a.GetAccountID()).Find(&chatChannel, chatChannelID)
+	bot, err := lib.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	res := bot.DeleteRichMenu(id)
+	return c.JSON(http.StatusOK, res)
 }

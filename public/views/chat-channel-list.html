@@ -37,14 +37,15 @@
                           <th></th>
                        </thead>
                        <tbody>
+                        {{if not .list}}<tr><td colspan="8" class="text-center">No content</td></tr> {{end}}
                          {{ with .list }}
                            {{ range . }}
                              <tr>
                               <td></td>
-                              <td>{{ .ChannelID }}</td>
-                              <td>{{ .Name }}</td>
-                              <td>{{ .LineID }}</td>
-                              <td>{{ .Type }}</td>
+                              <td>{{ .ChaChannelID }}</td>
+                              <td>{{ .ChaName }}</td>
+                              <td>{{ .ChaLineID }}</td>
+                              <td>{{ .ChaType }}</td>
                               <td>{{ ((.CreatedAt).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
                               <td class="td-actions text-right">
                                 <a href="/admin/chat_channel/{{ .ID }}">
@@ -68,6 +69,11 @@
                          {{ end }}
                        </tbody>
                      </table>
+                     <div class="row p-0 m-0">
+                      <div class="ml-auto">
+                        {{ template "pagination" .pagination }}
+                      </div>
+                     </div>
                    </div>
                  </div>
                </div>

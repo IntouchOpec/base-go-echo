@@ -19,16 +19,18 @@ const (
 type Booking struct {
 	orm.ModelBase
 
-	BooQueue         int         `json:"boo_queue" `
-	BooLineID        string      `json:"boo_line_id" gorm:"type:varchar(50)"`
-	BooCustomerID    uint        `json:"bpp_customer_id"`
-	Customer         Customer    `json:"customer" gorm:"ForeignKey:BooCustomerID"`
-	BooChatChannelID uint        `json:"boo_chat_chaneel_id"`
-	ChatChannel      ChatChannel `gorm:"ForeignKey:BooChatChannelID"`
-	BooStatus        BookStatus  `json:"boo_status"`
-	BookedDate       time.Time   `gorm:"column:booked_date" json:"booked_date"`
-	BooTimeSlotID    TimeSlot    `josn:"boo_time_slot_id"`
-	TimeSlot         TimeSlot    `josn:"time_slot" gorm:"ForeignKey:BooTimeSlotID"`
+	BooQueue             int             `json:"boo_queue" `
+	BooLineID            string          `json:"boo_line_id" gorm:"type:varchar(50)"`
+	BooProviderServiceID uint            `json:"boo_provider_service_id"`
+	BooCustomerID        uint            `json:"bpp_customer_id"`
+	BooChatChannelID     uint            `json:"boo_chat_chaneel_id"`
+	ProviderService      ProviderService `json:"provider_service" gorm:"ForeignKey:BooProviderServiceID"`
+	Customer             Customer        `json:"customer" gorm:"ForeignKey:BooCustomerID"`
+	ChatChannel          ChatChannel     `gorm:"ForeignKey:BooChatChannelID"`
+	BooStatus            BookStatus      `json:"boo_status"`
+	BookedDate           time.Time       `gorm:"column:booked_date" json:"booked_date"`
+	BooTimeSlotID        TimeSlot        `josn:"boo_time_slot_id"`
+	TimeSlot             TimeSlot        `josn:"time_slot" gorm:"ForeignKey:BooTimeSlotID"`
 }
 
 // BookingStatus is status of booking.

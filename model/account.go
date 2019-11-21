@@ -58,11 +58,7 @@ func (acc *Account) CreateAccount() *Account {
 }
 
 // UpdateAccount edit account soucre.
-func (acc *Account) UpdateAccount(id string) *Account {
-
-	if err := DB().Find(&acc, id).Error; err != nil {
-		return nil
-	}
+func (acc *Account) UpdateAccount() *Account {
 
 	if err := DB().Save(&acc).Error; err != nil {
 		return nil

@@ -1,0 +1,155 @@
+
+{{define "rich-menu-form"}}
+<!DOCTYPE html>
+<html lang="en">
+
+{{ template "header" .title }}
+
+<body class="">
+    <div class="wrapper ">
+    {{ template "sidebar" .base }}
+        <div class="main-panel">
+            {{ template "navbar" .title }}
+            <div class="content">
+                <div class="container-fluid">
+                    <div class="row">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header card-header-primary">
+                                        <h4 class="card-title">{{.mode}} Rich Menu</h4>
+                                    </div>
+                                    <div class="card-body">
+                                        <form name="create-rich-menu" >
+                                            <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden" class="form-control" >
+                                            <div class="row">
+                                                <div class="col-md-12 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="bmd-label-floating" >Chat Channel</label>
+                                                        <select name="ChatChannelID" class="form-control" data-style="btn btn-link" id="ChatChannelID">
+                                                            <option value="">choive Chat Channels</option>
+                                                            {{ with .chatChannels }}
+                                                            {{ range . }}
+                                                                <option value='{{.ID }}'>{{.ChaName}}</option>
+                                                            {{ end }}
+                                                            {{ end }}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="bmd-label-floating" >Size</label>
+                                                        <select name="Size" class="form-control" data-style="btn btn-link" id="Size">
+                                                            <option value="">choive size rich menu</option>
+                                                            {{ with .sizes }}
+                                                            {{ range . }}
+                                                                <option value='{ "Width": {{.Size.Width}}, "Height": {{.Size.Height}} }'>{{.Name}}</option>
+                                                            {{ end }}
+                                                            {{ end }}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="bmd-label-floating" >Name</label>
+                                                        <input name="Name" id="Name" type="text" class="form-control" >
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="bmd-label-floating" >Chat Bar Text</label>
+                                                        <input name="ChatBarText" id="ChatBarText" type="text" class="form-control" >
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="bmd-label-floating" >Areas</label>
+                                                        <textarea name="Areas" id="Areas" type="text" class="form-control" ></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <input type="submit" rel="tooltip" value="Submit" class="btn btn-success">
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {{ template "footer" }}
+            </div>
+        </div>
+    </div>
+  {{ template "script" }}
+  <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+  <script>
+    (function ($) {
+        $("form[name='create-rich-menu']").validate({
+            rules: {
+                Size: { required: true },
+                Name: { required: true },
+                ChatBarText: { required: true },
+                Areas: { required: true },
+                ChatChannelID: { required: true },
+            },
+            messages: {
+                Size: { required: `Please enter a valid Size` },
+                Name: { required: `Please enter a valid Name` },
+                ChatBarText: { required: `Please enter a valid ChatBarText` },
+                Areas: { required: `Please enter a valid Areas` },
+                ChatChannelID: { required: `Please enter a valid ChatChannelID` },
+            },
+            submitHandler: function(form) {
+                let _csrf = $("#_csrf").val()
+                let Size = $("#Size").val()
+                let Name = $("#Name").val()
+                let ChatBarText = $("#ChatBarText").val()
+                let Areas = $("#Areas").val()
+                let ChatChannelID = $("#ChatChannelID").val()
+
+                let SizeEncodeValue = encodeURIComponent(Size)
+                let SizeEncodeKey = encodeURIComponent("Size")
+                let ChatChannelIDEncodeValue = encodeURIComponent(ChatChannelID)
+                let ChatChannelIDEncodeKey = encodeURIComponent("ChatChannelID")
+                let NameEncodeValue = encodeURIComponent(Name)
+                let NameEncodeKey = encodeURIComponent("Name")
+                let ChatBarTextEncodeValue = encodeURIComponent(ChatBarText)
+                let ChatBarTextEncodeKey = encodeURIComponent("ChatBarText")
+                let AreasEncodeValue = encodeURIComponent(Areas)
+                let AreasEncodeKey = encodeURIComponent("Areas")
+                let encodeKey = encodeURIComponent("_csrf");
+                let encodeValue = encodeURIComponent(_csrf);
+                let data = []
+                
+                data.push(encodeKey + "=" + encodeValue)
+                data.push(SizeEncodeKey + "=" + SizeEncodeValue)
+                data.push(NameEncodeKey + "=" + NameEncodeValue)
+                data.push(ChatBarTextEncodeKey + "=" + ChatBarTextEncodeValue)
+                data.push(AreasEncodeKey + "=" + AreasEncodeValue)
+                data.push(ChatChannelIDEncodeKey + "=" + ChatChannelIDEncodeValue)
+                data = data.join("&");
+
+                fetch(window.location.href, {
+                    method: "POST", 
+                    headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                    body: data
+                })
+                .then(res => {
+                    if (res.status === 201) {
+                        Swal.fire("success", "", "success") 
+                        return res.json()
+                    }
+                })
+                .then(json => {
+                    window.location = json.redirect
+                })
+                .catch(err => Swal.fire("fial", "", "warning"))
+            }
+        })
+        
+    })(jQuery)
+  </script>
+</body>
+
+</html>
+
+{{end}}

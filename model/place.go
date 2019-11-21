@@ -1,6 +1,8 @@
 package model
 
 import (
+	"time"
+
 	"github.com/IntouchOpec/base-go-echo/model/orm"
 )
 
@@ -11,16 +13,34 @@ const (
 	// PlaceRoom PlaceType = "room"
 )
 
+const formatDate string = "2006-01-02 15:04"
+
 type Place struct {
 	orm.ModelBase
 
-	PlacName      string  `json:"plac_name" form:"name" gorm:"type:varchar(50)"`
-	PlacDetail    string  `json:"plac_detail" form:"detail"`
-	PlacActive    bool    `json:"plac_active" form:"active"`
-	PlacType      string  `json:"plac_type" gorm:"type:varchar(50)"`
-	PlacAmount    int     `json:"plac_amount"`
-	PlacAccountID uint    `json:"plac_account_id"`
-	Account       Account `json:"account" gorm:"ForeignKey:PlacAccountID"`
+	PlacName      string         `json:"plac_name" form:"name" gorm:"type:varchar(50)"`
+	PlacDetail    string         `json:"plac_detail" form:"detail"`
+	PlacActive    bool           `json:"plac_active" form:"active"`
+	PlacType      string         `json:"plac_type" gorm:"type:varchar(50)"`
+	PlacAmount    int            `json:"plac_amount"`
+	PlacImage     string         `json:"plac_image" gorm:"type:varchar(255)"`
+	ChatChannels  []*ChatChannel `json:"chat_channels" `
+	PlacAccountID uint           `json:"plac_account_id"`
+	Account       Account        `json:"account" gorm:"ForeignKey:PlacAccountID"`
+	MasterPlaces  []*MasterPlace `json:"master_places"`
+}
+
+type MasterPlace struct {
+	orm.ModelBase
+
+	MPlaID        uint      `json:"mpla_id"`
+	MPlaAmount    int       `json:"mpla_amount"`
+	MPlaAccountID uint      `json:"plac_account_id"`
+	MPlaDay       time.Time `json:"mpla_day"`
+	MPlaFrom      time.Time `json:"mpla_from"`
+	MPlaTo        time.Time `json:"mpla_to"`
+	Place         Place     `json:"place" gorm:"ForeignKey:MPlaID"`
+	Account       Account   `json:"account" gorm:"ForeignKey:MPlaAccountID"`
 }
 
 func (pla *Place) CreatePlace() error {
@@ -65,4 +85,30 @@ func DeletePlaceByID(id string) (*Place, error) {
 	}
 
 	return &place, nil
+}
+
+func (mpla *MasterPlace) CreateMasterPlace() (*MasterPlace, error) {
+	if err := DB().Create(&mpla).Error; err != nil {
+		return nil, err
+	}
+	return nil, nil
+}
+
+func (mpla *MasterPlace) UpdateMasterPlace() error {
+	if err := DB().Save(&mpla).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func GetMasterPlace(from, to, day time.Time) (*MasterPlace, error) {
+	startDate, _ := time.Parse(formatDate, "2019-07-09")
+	endDate, _ := time.Parse(formatDate, "2019-07-15")
+
+	mpla := MasterPlace{}
+	if err := DB().Where("mpla_day = ? and mpla_to >= ? and mpla_to <= ? and mpla_from >= ? and mpla_from <= ?",
+		day, startDate, startDate, endDate, endDate).Find(&mpla).Error; err != nil {
+		return nil, err
+	}
+	return &mpla, nil
 }

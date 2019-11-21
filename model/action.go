@@ -25,20 +25,28 @@ const (
 type ActionLog struct {
 	orm.ModelBase
 
-	ActName          string        `json:name" gorm:"type:varchar(25)"`
+	ActName          string        `json:"act_name" gorm:"type:varchar(25)"`
 	ActStatus        ActionStatus  `json:"act_status" gorm:"type:varchar(10)"`
 	ActChannel       ActionChannel `json:"act_channel" gorm:"type:varchar(10)"`
 	ActUserID        string        `json:"act_user_id" gorm:"type:varchar(55)"`
 	ActChatChannelID uint          `json:"act_chat_channel_id"`
-	ChatChannel      ChatChannel   `json:"chat_channel" gorm:"ForeignKey:ServiceID;"`
-	CustomerID       uint          `json:"customer_id"`
-	Customer         *Customer     `json:"customer" gorm:"ForeignKey:CustomerID"`
+	ActCustomerID    uint          `json:"act_customer_id"`
+	ChatChannel      ChatChannel   `json:"chat_channel" gorm:"ForeignKey:ActChatChannelID;"`
+	Customer         *Customer     `json:"customer" gorm:"ForeignKey:ActCustomerID"`
 }
 
 // CreateAction create action record
 func (act *ActionLog) CreateAction() (*ActionLog, error) {
-	// if err := db.Create(&act).Error; err != nil {
-	// 	return nil, err
-	// }
+	if err := db.Create(&act).Error; err != nil {
+		return nil, err
+	}
 	return act, nil
+}
+
+func (act *ActionLog) GetActionList(accID uint) ([]*ActionLog, error) {
+	acts := []*ActionLog{}
+	if err := DB().Where("account_id = ?", accID).Find(&acts).Error; err != nil {
+		return nil, err
+	}
+	return acts, nil
 }

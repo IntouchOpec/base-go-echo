@@ -1,6 +1,7 @@
 package web
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -14,13 +15,20 @@ import (
 // PromotionListHandler
 func PromotionListHandler(c *Context) error {
 	promotions := []*model.Promotion{}
+	a := auth.Default(c)
+	queryPar := c.QueryParams()
+	page, limit := SetPagination(queryPar)
+	var total int
+	db := model.DB()
 
-	if err := model.DB().Find(&promotions).Error; err != nil {
-		return c.NoContent(http.StatusBadRequest)
-	}
+	filterPromotion := db.Where("prom_account_id = ?", a.GetAccountID()).Find(&promotions).Count(&total)
+	filterPromotion.Limit(limit).Offset(page).Find(&promotions)
+	pagination := MakePagination(total, page, limit)
+
 	err := c.Render(http.StatusOK, "promotion-list", echo.Map{
-		"list":  promotions,
-		"title": "promotion",
+		"list":       promotions,
+		"title":      "promotion",
+		"pagination": pagination,
 	})
 	return err
 }
@@ -31,7 +39,11 @@ func PromotionDetailHandler(c *Context) error {
 	id := c.Param("id")
 	a := auth.Default(c)
 
-	model.DB().Preload("Account").Preload("services").Preload("Customers").Preload("ChatChannels").Where("account_id = ?", a.User.GetAccountID()).Find(&promotion, id)
+	err := model.DB().Preload("Account").Preload("Customers").Preload("ChatChannels").Where("prom_account_id = ?",
+		a.User.GetAccountID()).Find(&promotion, id)
+	if err != nil {
+		fmt.Println(err, "===")
+	}
 	sumCustomer := len(promotion.Customers)
 	return c.Render(http.StatusOK, "promotion-detail", echo.Map{
 		"detail":      promotion,
@@ -69,22 +81,22 @@ func PromotionPostHandler(c *Context) error {
 	if err := c.Bind(&promotion); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	file, err := lib.UploadteImage(file)
+	fileUrl, _, err := lib.UploadteImage(file)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	promotionModel := model.Promotion{
-		Title:         promotion.Title,
-		PromotionType: promotion.PromotionType,
-		Discount:      promotion.Discount,
-		Amount:        promotion.Amount,
-		Code:          promotion.Code,
-		Name:          promotion.Name,
-		StartDate:     promotion.StartDate,
-		EndDate:       promotion.EndDate,
-		Condition:     promotion.Condition,
-		Image:         file,
-		AccountID:     a.User.GetAccountID(),
+		PromTitle:     promotion.Title,
+		PromType:      promotion.PromotionType,
+		PromDiscount:  promotion.Discount,
+		PromAmount:    promotion.Amount,
+		PromCode:      promotion.Code,
+		PromName:      promotion.Name,
+		PromStartDate: promotion.StartDate,
+		PromEndDate:   promotion.EndDate,
+		PromCondition: promotion.Condition,
+		PromImage:     fileUrl,
+		PromAccountID: a.User.GetAccountID(),
 	}
 
 	promotionModel.SavePromotion()
@@ -101,4 +113,41 @@ func PromotionEditHandler(c *Context) error {
 		"detail": promotion,
 		"title":  "promotion",
 	})
+}
+
+func PromotionChannelFormHandler(c *Context) error {
+	chatChannels := []*model.ChatChannel{}
+	a := auth.Default(c)
+
+	if err := model.DB().Where("cha_account_id = ?", a.User.GetAccountID()).Find(&chatChannels).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	return c.Render(http.StatusOK, "promotion-chat-channel-form", echo.Map{
+		"chatChannels": chatChannels,
+		"title":        "promotion",
+		"mode":         "Create",
+	})
+}
+
+func PromotionChannelAddHandler(c *Context) error {
+	a := auth.Default(c)
+	id := c.Param("id")
+	pro := model.Promotion{}
+	chatChannel := model.ChatChannel{}
+	chatChannelID := c.FormValue("chat_channel_id")
+	db := model.DB()
+	fmt.Println(id, "id")
+	if err := db.Where("cha_account_id = ?", a.User.GetAccountID()).Find(&chatChannel, chatChannelID).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	if err := db.Where("prom_account_id = ?", a.User.GetAccountID()).Find(&pro, id).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	if err := db.Model(&pro).Association("ChatChannels").Append(&chatChannel).Error; err != nil {
+		fmt.Println(chatChannel)
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	redirect := fmt.Sprintf("/admin/promotion/%s", chatChannel.ID)
+	return c.JSON(http.StatusOK, redirect)
 }

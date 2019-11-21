@@ -32,7 +32,7 @@ func ConnectLineBot(ChannelSecret string, ChannelAccsssToken string) (*linebot.C
 func (client *ClientLine) ReplyLineMessage(chatAws model.ChatAnswer, replyToken string) {
 	// chatAws.
 	// message := ""
-	switch replyType := chatAws.TypeReply; replyType {
+	switch replyType := chatAws.AnsTypeReply; replyType {
 	case linebot.MessageTypeText:
 		textMessage := linebot.NewTextMessage("My name is John Wick")
 		client.ReplyMessage(replyToken, textMessage).Do()
@@ -56,7 +56,7 @@ func (client *ClientLine) ReplyLineMessage(chatAws model.ChatAnswer, replyToken 
 	case linebot.MessageTypeImagemap:
 		// message := FlexMessage(chatAws.Source)
 	case linebot.MessageTypeFlex:
-		flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(chatAws.Source))
+		flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(chatAws.AnsSource))
 		if err != nil {
 			log.Println(err)
 		}

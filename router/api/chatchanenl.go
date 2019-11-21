@@ -74,10 +74,10 @@ func ActiveRegisterLIFFAPI(c echo.Context) error {
 		return c.NoContent(http.StatusBadRequest)
 	}
 	// config web Conf.Server.DomainWeb
-	url := fmt.Sprintf("https://%s/register/%s", chatChannel.Settings[0].Value, chatChannel.LineID)
+	url := fmt.Sprintf("https://%s/register/%s", chatChannel.Settings[0].Value, chatChannel.ChaLineID)
 
 	view := linebot.View{Type: "full", URL: url}
-	bot, err := lib.ConnectLineBot(chatChannel.ChannelSecret, chatChannel.ChannelAccessToken)
+	bot, err := lib.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
 	if err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}
@@ -104,13 +104,13 @@ func GetChannelAccessToken(c echo.Context) error {
 	// if err := db.Find(&chatChannel, id).Error; err != nil {
 	// 	return c.NoContent(http.StatusNotFound)
 	// }
-	// bot, err := linebot.New(chatChannel.ChannelID, chatChannel.ChannelSecret)
+	// bot, err := linebot.New(chatChannel.ChaChannelID, chatChannel.ChaChannelSecret)
 
 	// if err != nil {
 	// 	return c.NoContent(http.StatusBadRequest)
 	// }
 
-	// res, err := bot.IssueAccessToken(chatChannel.ChannelID, chatChannel.ChannelSecret).Do()
+	// res, err := bot.IssueAccessToken(chatChannel.ChaChannelID, chatChannel.ChaChannelSecret).Do()
 	// if err != nil {
 	// 	return c.NoContent(http.StatusBadRequest)
 	// }

@@ -14,13 +14,35 @@
             <div class="row">
                 <div class="col-md-4">
                     <div class="card card-profile">
-                        <div class="card-avatar">
-                            <a href="#pablo">
-                                <img class="img" src="{{ .detail.Image }}" />
-                            </a>
-                        </div>
                         <div class="card-body">
-
+                            <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden" class="form-control" >
+                            <div id="form-upload-image">
+                                {{ if not .ImageRichMenu.Value }} 
+                                    ไม่มีรูป rich menu
+                                    <form name="upload-rich-menu" >
+                                        <div class="col-md-10 mt-2">
+                                            <input id="Image" name="Image" type="file">
+                                        </div>
+                                        <div class="col-md-10 mt-2">
+                                            <input type="submit" rel="tooltip" value="Submit" class="btn btn-success">
+                                        </div>
+                                    </form>
+                                {{ end }}
+                            </div>
+                            <input name="RichMenuID" id="RichMenuID" value="{{ .detail.RichMenuID }}" type="hidden" class="form-control" >
+                            <div>RichMenuID: {{ .detail.RichMenuID }}</div>
+                            <div>
+                                Size: 
+                                    Width: {{.detail.Size.Width}}
+                                    Height: {{.detail.Size.Height}}
+                            </div>
+                            <div>Selected: {{ .detail.Selected }}</div>
+                            <div>Name: {{ .detail.Name }}</div>
+                            <div>ChatBarText: {{ .detail.ChatBarText }}</div>
+                            <button type="button" id="Active-btn" class="btn">
+                                <i class="material-icons">touch_app</i>
+                                Active Rich Menu
+                            </button>
                             <div class="d-flex justify-content-center">
                                 <button type="button" class="btn btn-warning"><i class="material-icons">edit</i>edit</button>
                                 <button type="button" class="btn btn-danger"><i class="material-icons">delete</i>delete</button>
@@ -28,45 +50,10 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-8">
-                    <div class="col-md-12">
-                        <div class="card">
-                            <div class="card-header card-header-primary">
-                                <h4 class="card-title ">channel</h4>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table">
-                                        <thead>
-                                            <th>Name</th>
-                                            <th>Type</th>
-                                        </thead>
-                                        <tbody>
-                                            {{ with .detail.ChatChannels }}
-                                            {{ range . }}
-                                                <tr>
-                                                    {{.RichMenuID}}
-                                                </tr>
-                                            {{ end }}
-                                            {{ end }}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
+                <div class="col-md-4">
+                        <div class="card" id="image-card">
+                            <img src="{{.ImageRichMenu.Value}}" class="w-100 h-100">
                         </div>
-                    </div>
-                    <div class="col-md-12">
-                    <div class="card">
-                        <div class="card-header card-header-primary">
-                            <h4 class="card-title ">slot</h4>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                
-                            </div>
-                        </div>
-                    </div>
-                    </div>
                 </div>
             </div>
          </div>
@@ -75,6 +62,80 @@
     </div>
   </div>
   {{ template "script" }}
+  <script>
+      (function ($) {
+        $("#Active-btn").click(function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const cha_account_id = urlParams.get('cha_account_id');
+            const RichMenuID = $("#RichMenuID").val()
+            let data = [] 
+            let _csrf = $("#_csrf").val()
+
+            let encodedKey = encodeURIComponent("_csrf");
+            let encodedValue = encodeURIComponent(_csrf);
+            let ChatChannelIDEncodedKey = encodeURIComponent("cha_account_id");
+            let ChatChannelIDEncodedValue = encodeURIComponent(cha_account_id);
+
+            data.push(encodedKey + "=" + encodedValue)
+            data.push(ChatChannelIDEncodedKey + "=" + ChatChannelIDEncodedValue)
+            data = data.join("&");
+            fetch(`/admin/richmenu/${RichMenuID}/active`, {
+                method: "PATCH",
+                headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                body: data
+            }).then(res => {
+                if (res.status === 200) {
+                    Swal.fire("success", "", "success") 
+                }
+            }).catch(err => {
+
+            })
+
+        });
+        const toBase64 = file => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+        $("form[name='upload-rich-menu']").validate({
+            rules: {Image : {required: true}},
+            messages: {Image : {required: 'Please enter a valid '}},
+            submitHandler: function(form) {
+                let _csrf = $("#_csrf").val()
+                let encodedKey = encodeURIComponent("_csrf");
+                let encodedValue = encodeURIComponent(_csrf);
+                let data = []
+                let Image =  $("#Image")
+
+                data.push(encodedKey + "=" + encodedValue)
+                toBase64(Image[0].files[0]).then(base64Image => {
+                    let imageEncodedKey = encodeURIComponent("file") 
+                    let imageEncodedValue = encodeURIComponent(base64Image);
+                    data.push(imageEncodedKey + "=" + imageEncodedValue) 
+                    data = data.join("&");
+                    fetch(window.location.href, {
+                        method: "PATCH", 
+                        headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                        body: data
+                    })
+                    .then(res => {
+                        if (res.status === 201){ 
+                            Swal.fire("success", "", "success") 
+                            $("#form-upload-image").remove()
+                            return res.json()
+                        }
+                    })
+                    .then(json => {
+                        console.log(json)
+                        $("#image-card").append(` <img src="${json.Value}" class="w-100 h-100">`)
+                    })
+                    .catch(err => Swal.fire("fial", "", "warning"))
+                })
+            }
+        })
+      })(jQuery)
+  </script>
 </body>
 
 </html>

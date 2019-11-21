@@ -16,7 +16,7 @@
              <div class="col-md-12">
                <div class="card">
                  <div class="card-header card-header-primary d-flex justify-content-between">
-                  <h4 class="card-title ">customer list</h4>
+                  <h4 class="card-title ">admin list</h4>
                   <a href="/admin/user/create">
                     <button class="btn btn-info">
                       <i class="material-icons">add</i>
@@ -39,6 +39,7 @@
                         <th></th>
                        </thead>
                        <tbody>
+                        {{if not .list}}<tr><td colspan="8" class="text-center">No content</td></tr> {{end}}
                          {{ with .list }}
                            {{ range . }}
                              <tr>
@@ -50,7 +51,6 @@
                               <td>{{.FirstName}}</td>
                               <td>{{.Admin}}</td>
                                <td>{{ ((.CreatedAt).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
-                               
                                <td class="td-actions text-right">
                                   <a href="/admin/user/{{ .ID }}" >
                                     <button type="button" rel="tooltip" class="btn btn-success">
@@ -73,6 +73,11 @@
                          {{ end }}
                        </tbody>
                      </table>
+                     <div class="row p-0 m-0">
+                      <div class="ml-auto">
+                        {{ template "pagination" .pagination }}
+                      </div>
+                     </div>
                    </div>
                  </div>
                </div>

@@ -1,25 +1,30 @@
 package model
 
-import "github.com/IntouchOpec/base-go-echo/model/orm"
+import (
+	"strconv"
+
+	"github.com/IntouchOpec/base-go-echo/model/orm"
+)
 
 // Customer follow Line OA.
 type Customer struct {
 	orm.ModelBase
 
-	CusFullName    string       `json:"cus_full_name" gorm:"type:varchar(50);"`
-	CusPictureURL  string       `json:"cus_picture_url"`
-	CusDisplayName string       `json:"cus_display_name"`
-	CusLineID      string       `json:"cus_line_id" gorm:"type:varchar(255)"`
-	CusEmail       string       `json:"cus_email" gorm:"type:varchar(25)"`
-	CusPhoneNumber string       `json:"cus_phone_number" gorm:"type:varchar(25)"`
-	CusAccountID   uint         `json:"cus_chat_channel_id" gorm:"not null;"`
-	CustomerTpyeID uint         `json:"customer_type_id"`
-	Accout         Account      `json:"account" gorm:"ForeignKey:CusAccountID"`
-	CustomerTpye   CustomerTpye `json:"customer" gorm:"ForeignKey:CustomerTpyeID"`
-	Promotions     []*Promotion `gorm:"many2many:promotion_customer" json:"promotions"`
-	EventLogs      []*EventLog  `json:"even_logs"`
-	ActionLogs     []*ActionLog `json:"action_logs"`
-	Bookings       []*Booking   `json:"bookings"`
+	CusFullName    string         `json:"cus_full_name" gorm:"type:varchar(50);"`
+	CusPictureURL  string         `json:"cus_picture_url"`
+	CusDisplayName string         `json:"cus_display_name"`
+	CusLineID      string         `json:"cus_line_id" gorm:"type:varchar(255)"`
+	CusEmail       string         `json:"cus_email" gorm:"type:varchar(25)"`
+	CusPhoneNumber string         `json:"cus_phone_number" gorm:"type:varchar(25)"`
+	CusAccountID   uint           `json:"cus_account_id" gorm:"not null;"`
+	CustomerTypeID uint           `json:"customer_type_id"`
+	Account        Account        `json:"account" gorm:"ForeignKey:CusAccountID"`
+	CustomerType   CustomerType   `json:"customer" gorm:"ForeignKey:CustomerTypeID"`
+	Promotions     []*Promotion   `gorm:"many2many:promotion_customer" json:"promotions"`
+	EventLogs      []*EventLog    `json:"even_logs"`
+	ActionLogs     []*ActionLog   `json:"action_logs"`
+	Bookings       []*Booking     `json:"bookings"`
+	Transactions   []*Transaction `json:"transactions"`
 }
 
 // LoginRespose is instacne respose line json
@@ -32,10 +37,10 @@ type LoginRespose struct {
 	IDToken      string `json:"id_token"`
 }
 
-type CustomerTpye struct {
+type CustomerType struct {
 	orm.ModelBase
-	Name      string  `json:"name" gorm:"type:vachat(25)"`
-	AccoutnID uint    `json:"acount_id" gorm:"not null;"`
+	Name      string  `json:"name" gorm:"type:varchar(25)"`
+	AccountID uint    `json:"account_id" gorm:"not null;"`
 	Accout    Account `json:"chat_channel" gorm:"ForeignKey:AccountID"`
 }
 
@@ -73,7 +78,7 @@ func (customer *Customer) UpdateCustomer(id int) *Customer {
 }
 
 // UpdateCustomerByAtt update by atti
-func (customer *Customer) UpdateCustomerByAtt(pictureURL string, displayName string, email string, phoneNumber string, FillName string) *Customer {
+func (customer *Customer) UpdateCustomerByAtt(pictureURL, displayName, email, phoneNumber, FillName, Type string) *Customer {
 	if err := DB().Preload("Promotions").Where("line_id = ? and chat_channel_id = ?", customer.CusLineID, customer.CusAccountID).Find(&customer).Error; err != nil {
 		return nil
 	}
@@ -81,6 +86,8 @@ func (customer *Customer) UpdateCustomerByAtt(pictureURL string, displayName str
 	customer.CusDisplayName = displayName
 	customer.CusEmail = email
 	customer.CusPhoneNumber = phoneNumber
+	u64, _ := strconv.ParseUint(Type, 10, 32)
+	customer.CustomerTypeID = uint(u64)
 
 	if err := DB().Save(&customer).Error; err != nil {
 		return nil

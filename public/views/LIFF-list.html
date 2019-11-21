@@ -15,7 +15,7 @@
              <div class="col-md-12">
                <div class="card">
                   <div class="card-header card-header-primary d-flex justify-content-between">
-                    <h4 class="card-title ">Servicelist</h4>
+                    <h4 class="card-title ">LIFF list</h4>
                     <a href="/admin/LIFF/create">
                       <button class="btn btn-info">
                         <i class="material-icons">add</i>
@@ -24,33 +24,34 @@
                     </a>
                   </div>
                  <div class="card-body">
+                    <div class="form-group">
+                      <label class="bmd-label-floating">chat channel</label>
+                      <select id="chatChannelID" class="form-control"  data-style="btn btn-link" >
+                          <option value="{{.detail.ID}}">{{.detail.ChaName}}</option>
+                          {{ with .chatChannels }}
+                          {{ range . }}
+                            <option value="{{.ID}}">{{.ChaName}}</option>
+                          {{ end }}
+                          {{ end }}
+                      </select>
+                    </div>
                    <div class="table-responsive">
                      <table class="table">
                        <thead class=" text-primary">
                           <th>LIFFID</th>
-                          <th>View</th>
-                        <th>Create At</th>
-                        <th></th>
+                          <th>Type</th>
+                          <th>URL</th>
+                         <th></th>
                        </thead>
                        <tbody>
-                          {{ with .list }}
+                          {{if not .list}}<tr><td colspan="8" class="text-center">No content</td></tr> {{end}}
+                          {{ with .list.Apps }}
                           {{ range . }}
                           <tr>
-                              <td>{{.LIFFID}}</td>
-                              <td>{{.View}}</td>
-                              <td class="td-actions text-right">
-                                <a href="/admin/liff/{{ .ID }}">
-                                  <button type="button" rel="tooltip" class="btn btn-success">
-                                    <i class="material-icons">person</i>
-                                  </button>
-                                </a>
-                                <button type="button" rel="tooltip" class="btn btn-warning">
-                                    <i class="material-icons">edit</i>
-                                </button>
-                                <button type="button" rel="tooltip" class="btn btn-danger">
-                                    <i class="material-icons">close</i>
-                                </button>
-                              </td>
+                              <td>{{ .LIFFID }}</td>
+                              <td>{{ .View.Type }}</td>
+                              <td>{{ .View.URL }}</td>
+                              <td></td>
                           </tr>
                           {{end}}
                           {{end}}
@@ -67,6 +68,22 @@
     </div>
   </div>
   {{ template "script" }}
+  <script>
+      (function ($) { 
+        function encodeQueryData(data) {
+          const ret = [];
+          for (let d in data)
+            ret.push(encodeURIComponent(d) + '=' + encodeURIComponent(data[d]));
+          return ret.join('&');
+        }
+        $( "#chatChannelID" ).change(function() {
+          let chatChannelID = $("#chatChannelID").val()
+          const data = { 'chat_channel_id': chatChannelID };
+          const querystring = encodeQueryData(data);
+          window.location = "/admin/LIFF?" + querystring
+        });
+      })(jQuery)
+    </script>
 </body>
 
 </html>

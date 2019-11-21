@@ -1,0 +1,98 @@
+
+{{define "provider-booking-form"}}
+<!DOCTYPE html>
+<html lang="en">
+
+{{ template "header" .title }}
+
+<body class="">
+    <div class="wrapper ">
+    {{ template "sidebar" .base }}
+        <div class="main-panel">
+            {{ template "navbar" .title }}
+            <div class="content">
+                <div class="container-fluid">
+                    <div class="row">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header card-header-primary">
+                                        <h4 class="card-title">{{.mode}} provider-service</h4>
+                                    </div>
+                                    <div class="card-body">
+                                        <form name="create-provider-service" >
+                                            <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden" class="form-control" >
+                                            <div class="row">
+                                                <div class="col-md-12 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="bmd-label-floating" >Title</label>
+                                                        <input name="Title" id="Title" type="text" class="form-control" >
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="bmd-label-floating" >provider-serviceType</label>
+                                                        <select name="provider-serviceType" class="form-control" id="provider-serviceType" data-style="btn btn-link" id="exampleFormControlSelect2">
+                                                            {{ with . }}
+                                                            {{ range . }}
+                                                                <option value="{{.}}">{{.}}</option>
+                                                            {{ end }}
+                                                            {{ end }}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            <input type="submit" rel="tooltip" value="Submit" class="btn btn-success">
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {{ template "footer" }}
+            </div>
+        </div>
+    </div>
+  {{ template "script" }}
+  <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+  <script>
+   
+    (function ($) {
+        $("form[name='create-provider-service']").validate({
+            rules: {
+                
+            },
+            messages: {
+                
+            },
+            submitHandler: function(form) {
+                let _csrf = $("#_csrf").val()
+
+                let encodedKey = encodeURIComponent("_csrf");
+                let encodedValue = encodeURIComponent(_csrf);
+
+                data.push(encodedKey + "=" + encodedValue)
+
+                let data = []
+                data = data.join("&");
+                fetch(window.location.href, {
+                    method: "POST", 
+                    headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                    body: data
+                })
+                .then(res => {
+                    if (res.status === 201) Swal.fire("success", "", "success") 
+                    return res.json()
+                })
+                .then(json => {
+                    window.location = json
+                })
+                .catch(err => Swal.fire("fial", "", "warning"))
+            }
+        })
+    })(jQuery)
+  </script>
+</body>
+
+</html>
+
+{{end}}

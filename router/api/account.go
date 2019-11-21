@@ -42,6 +42,12 @@ func UpdateAccount(c echo.Context) error {
 	id := c.Param("id")
 	account := model.Account{}
 	account.GetAccountByID(id)
+
+	if err := c.Bind(&account); err != nil {
+		return c.NoContent(http.StatusBadRequest)
+	}
+
+	account.UpdateAccount()
 	return c.JSON(http.StatusOK, account)
 }
 

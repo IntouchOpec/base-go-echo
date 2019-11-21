@@ -43,20 +43,21 @@
                         <th></th>
                        </thead>
                        <tbody>
+                        {{if not .list}}<tr><td colspan="8" class="text-center">No content</td></tr> {{end}}
                          {{ with .list }}
                            {{ range . }}
                             <tr>
                               <td></td>
-                              <td>{{.Title}}</td>
-                              <td>{{.PromotionType}}</td>
-                              <td>{{.Discount}}</td>
-                              <td>{{.Amount}}</td>
-                              <td>{{.Code}}</td>
-                              <td>{{.Name}}</td>
-                              <td>{{ ((.StartDate).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
-                              <td>{{ ((.EndDate).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
-                              <td>{{ .Condition }}</td>
-                              <td><img width="32" height="32" class="img-fluid" src="{{.Image}}"></td>
+                              <td>{{.PromTitle}}</td>
+                              <td>{{.PromType}}</td>
+                              <td>{{.PromDiscount}}</td>
+                              <td>{{.PromAmount}}</td>
+                              <td>{{.PromCode}}</td>
+                              <td>{{.PromName}}</td>
+                              <td>{{ ((.PromStartDate).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
+                              <td>{{ ((.PromEndDate).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
+                              <td>{{ .PromCondition }}</td>
+                              <td><img width="32" height="32" class="img-fluid" src="{{.PromImage}}"></td>
                               <td>{{ ((.CreatedAt).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
                               <td class="td-actions text-right">
                                 <a href="/admin/promotion/{{ .ID }}">
@@ -80,6 +81,11 @@
                          {{ end }}
                        </tbody>
                      </table>
+                     <div class="row p-0 m-0">
+                      <div class="ml-auto">
+                        {{ template "pagination" .pagination }}
+                      </div>
+                     </div>
                    </div>
                  </div>
                </div>

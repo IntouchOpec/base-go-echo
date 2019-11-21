@@ -17,7 +17,7 @@
                                 <div class="card">
                                     <div class="card-header card-header-primary">
                                         <h4 class="card-title">service</h4>
-                                        <p class="card-category">Complete your Chat Channel</p>
+                                        <p class="card-category">Complete your service</p>
                                     </div>
                                     <div class="card-body">
                                         <form name="create-service" >
@@ -42,6 +42,12 @@
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="bmd-label-floating" >Time</label>
+                                                        <input name="Time" id="Time" type="time" class="form-control" >
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12 mt-2">
                                                     <input id="Image" name="Image" type="file">
                                                     <p><strong>Note:</strong> Choose any file on your computer and its name will be displayed in an alert dialog box.</p>
                                                 </div>
@@ -60,14 +66,13 @@
     </div>
   {{ template "script" }}
   <script>
-    const toBase64 = file => new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = error => reject(error);
-    });
     (function ($) {
-       
+        const toBase64 = file => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
         $("form[name='create-service']").validate({
             rules: {
                 Name: {
@@ -102,6 +107,7 @@
                 let Name = $("#Name").val()
                 let Detail = $("#Detail").val()
                 let Price = $("#Price").val()
+                let Time = $("#Time").val()
                 let Image = $("#Image")
                 let data = [] 
                 let encodedKey = encodeURIComponent("_csrf");
@@ -113,6 +119,9 @@
                 let priceEncodedKey = encodeURIComponent("price");
                 let priceEncodedValue = encodeURIComponent(Price);
                 let imageEncodedKey = encodeURIComponent("file");
+                let timeEncodedKey = encodeURIComponent("time");
+                let timeEncodedValue = encodeURIComponent(Time);
+
                 toBase64(Image[0].files[0]).then(base64Image => {
                     Image = JSON.stringify(base64Image)
                     let imageEncodedValue = encodeURIComponent(Image);
@@ -121,6 +130,7 @@
                     data.push(detailEncodedKey + "=" + detailEncodedValue)
                     data.push(priceEncodedKey + "=" + priceEncodedValue)
                     data.push(imageEncodedKey + "=" + imageEncodedValue)
+                    data.push(timeEncodedKey + "=" + timeEncodedValue)
                     data = data.join("&");
                     fetch("/admin/service", {
                         method: "POST", 

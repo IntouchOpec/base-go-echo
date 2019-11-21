@@ -17,11 +17,11 @@ type ChatRequest struct {
 }
 
 // SaveChatRequest is function create chat answer.
-func (chatReq *ChatRequest) SaveChatRequest() *ChatRequest {
+func (chatReq *ChatRequest) SaveChatRequest() error {
 	if err := DB().Create(&chatReq).Error; err != nil {
-		return nil
+		return err
 	}
-	return chatReq
+	return nil
 }
 
 // GetChatRequest get ChatRequest list.
@@ -56,4 +56,17 @@ func (chatReq *ChatRequest) DeleteChatRequest() *ChatRequest {
 	}
 
 	return chatReq
+}
+
+func RemoveChatRequest(id string, accID uint) (*ChatRequest, error) {
+	chatReq := ChatRequest{}
+	if err := DB().Where("req_account_id = ?", accID).Find(&chatReq, id).Error; err != nil {
+		return nil, err
+	}
+
+	if err := DB().Delete(&chatReq).Error; err != nil {
+		return nil, err
+	}
+
+	return &chatReq, nil
 }

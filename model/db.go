@@ -9,7 +9,6 @@ import (
 	"github.com/IntouchOpec/base-go-echo/model/orm"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
-	"github.com/labstack/gommon/log"
 )
 
 type Model struct {
@@ -23,16 +22,16 @@ var dbCacheStore cache.CacheStore
 
 // DB connect data base pastgras.
 func DB() *gorm.DB {
-	log.Debugf("Model NewDB")
+	// log.Debugf("Model NewDB")
 
 	newDb, err := newDB()
 
 	if err != nil {
 		panic(err)
 	}
-
-	newDb.DB().SetMaxIdleConns(10)
-	newDb.DB().SetMaxOpenConns(100)
+	newDb.DB().SetMaxOpenConns(20) // Sane default
+	newDb.DB().SetMaxIdleConns(0)
+	newDb.DB().SetConnMaxLifetime(time.Nanosecond)
 
 	newDb.SetLogger(orm.Logger{})
 	newDb.LogMode(true)
@@ -61,7 +60,7 @@ type TestModel struct {
 // Initialize auto migration.
 func Initialize() {
 	newDb := DB()
-	newDb.AutoMigrate(&CustomerTpye{})
+	newDb.AutoMigrate(&CustomerType{})
 	newDb.AutoMigrate(&Customer{})
 	newDb.AutoMigrate(&Promotion{})
 	newDb.AutoMigrate(&Account{})
@@ -71,9 +70,11 @@ func Initialize() {
 	newDb.AutoMigrate(&ChatRequest{})
 	newDb.AutoMigrate(&EventLog{})
 	newDb.AutoMigrate(&Service{})
-	// newDb.AutoMigrate(&ServiceSlot{})
+	newDb.AutoMigrate(&Provider{})
+	newDb.AutoMigrate(&ProviderService{})
 	newDb.AutoMigrate(&Booking{})
-	newDb.AutoMigrate(&Account{})
+	newDb.AutoMigrate(&TimeSlot{})
+	newDb.AutoMigrate(&Transaction{})
 	newDb.AutoMigrate(&LoginRespose{})
 	newDb.AutoMigrate(&ActionLog{})
 	newDb.AutoMigrate(&Setting{})

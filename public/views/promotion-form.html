@@ -31,7 +31,7 @@
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating" >PromotionType</label>
-                                                        <select name="PromotionType" class="form-control" id="PromotionType" data-style="btn btn-link" id="exampleFormControlSelect2">
+                                                        <select name="PromotionType" class="form-control" id="PromotionType" data-style="btn btn-link">
                                                             {{ with .promotionTypes }}
                                                             {{ range . }}
                                                                 <option value="{{.}}">{{.}}</option>
@@ -102,13 +102,14 @@
   {{ template "script" }}
   <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
   <script>
-    const toBase64 = file => new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = error => reject(error);
-    });
+   
     (function ($) {
+        const toBase64 = file => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
         $("form[name='create-promotion']").validate({
             rules: {
                 Title: {
@@ -229,7 +230,7 @@
                     data.push(conditionEncodedKey + "=" + conditionEncodedValue) 
                     data.push(imageEncodedKey + "=" + imageEncodedValue) 
                     data = data.join("&");
-                    fetch("/admin/promotion", {
+                    fetch(window.location.href, {
                         method: "POST", 
                         headers: {"Content-Type": "application/x-www-form-urlencoded"},
                         body: data
@@ -239,9 +240,7 @@
                         return res.json()
                     })
                     .then(json => {
-                        console.log(json)
-                        window.location = "/admin/promotion"
-                        return false
+                        window.location = json
                     })
                     .catch(err => Swal.fire("fial", "", "warning"))
                 })

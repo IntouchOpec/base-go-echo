@@ -35,13 +35,24 @@
 
 					<div class="wrap-input100 validate-input" data-validate = "Enter email">
 						<input class="input100" type="text" name="email" placeholder="email">
-						<span class="focus-input100" data-placeholder="&#xf2bb;"></span>
+						<span class="focus-input100" data-placeholder="&#xe818;"></span>
 					</div>
 
 					<div class="wrap-input100 validate-input" data-validate = "Enter phone">
 						<input class="input100" type="text" name="phone" placeholder="phone number">
 						<span class="focus-input100" data-placeholder="&#xe830;"></span>
 					</div>
+					<div class="wrap-input100 validate-input" data-validate = "Enter Type">
+						<select style="outline: none;border: none;" class="input100" name="type" placeholder="Type" data-style="btn btn-link">
+							<option value="">Choice Customer Type</option>
+							{{ with .customerTypes }}
+							{{ range . }}
+								<option value="{{.ID}}">{{.Name}}</option>
+							{{ end }}
+							{{ end }}
+						</select>
+					</div>
+	 
  
 					<div class="container-login100-form-btn m-t-32">
 						<button class="login100-form-btn">
@@ -85,6 +96,7 @@
 			var check = true;
 			var email = document.getElementsByName("email");
 			var phone = document.getElementsByName("phone");
+			var type = document.getElementsByName("type");
 			var fullName = document.getElementsByName("fullName");
 			for(var i=0; i<input.length; i++) {
 				if(validate(input[i]) == false){
@@ -105,6 +117,7 @@
 								accessToken, 
 								email: email[0].value, 
 								phone: phone[0].value,
+								type: type[0].value,
 								fullName: fullName[0].value
 							})
 					}).then(res => {

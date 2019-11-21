@@ -11,18 +11,18 @@ type ChatChannels []ChatChannel
 type ChatChannel struct {
 	orm.ModelBase
 
-	ChaChannelID          string       `json:"cha_channel_id" form:"channel_id" binding:"required" gorm:"type:varchar(25);unique_index"`
-	ChaName               string       `json:"cha_name" form:"name" binding:"required" gorm:"type:varchar(25)"`
-	ChaLineID             string       `json:"cha_line_id" form:"line_id" binding:"required" gorm:"type:varchar(25);unique_index"`
-	ChaChannelSecret      string       `json:"cha_channel_secret" form:"channel_secret" binding:"required" gorm:"type:varchar(255)"`
-	ChaChannelAccessToken string       `json:"cha_channel_access_token" form:"channel_access_token" binding:"required" gorm:"type:varchar(255)"`
-	ChaType               string       `form:"cha_type" json:"type"  gorm:"type:varchar(10)"`
-	ChaPhoneNumber        string       `json:"cha_phone_number" form:"phone_number" binding:"required" gorm:"type:varchar(10)"`
-	ChaAccountID          uint         `form:"cha_account_id" json:"account_id" gorm:"not null;"`
-	ChaImage              string       `json:"cha_image" form:"image" binding:"required" gorm:"type:varchar(255)"`
-	ChaWebSite            string       `json:"cha_website" form:"website" binding:"required" gorm:"type:varchar(255)"`
-	ChaWelcomeMessage     string       `json:"cha_welcome_message" form:"welcome_message" binding:"required" gorm:"type:varchar(100)"`
-	ChaAddress            string       `json:"cha_address" form:"address" binding:"required" gorm:"type:varchar(100)"`
+	ChaChannelID          string       `json:"cha_channel_id" form:"cha_channel_id" binding:"required" gorm:"type:varchar(25);unique_index"`
+	ChaName               string       `json:"cha_name" form:"cha_name" binding:"required" gorm:"type:varchar(25)"`
+	ChaLineID             string       `json:"cha_line_id" form:"cha_line_id" binding:"required" gorm:"type:varchar(25);unique_index"`
+	ChaChannelSecret      string       `json:"cha_channel_secret" form:"cha_channel_secret" binding:"required" gorm:"type:varchar(255)"`
+	ChaChannelAccessToken string       `json:"cha_channel_access_token" form:"cha_channel_access_token" binding:"required" gorm:"type:varchar(255)"`
+	ChaType               string       `form:"cha_type" json:"cha_type"  gorm:"type:varchar(10)"`
+	ChaPhoneNumber        string       `json:"cha_phone_number" form:"cha_cha_phone_number" binding:"required" gorm:"type:varchar(10)"`
+	ChaAccountID          uint         `form:"cha_account_id" json:"cha_account_id" gorm:"not null;"`
+	ChaImage              string       `json:"cha_image" form:"cha_image" binding:"required" gorm:"type:varchar(255)"`
+	ChaWebSite            string       `json:"cha_website" form:"cha_website" binding:"required" gorm:"type:varchar(255)"`
+	ChaWelcomeMessage     string       `json:"cha_welcome_message" form:"cha_welcome_message" binding:"required" gorm:"type:varchar(100)"`
+	ChaAddress            string       `json:"cha_address" form:"cha_address" binding:"required" gorm:"type:varchar(100)"`
 	Account               Account      `gorm:"ForeignKey:ChaAccountID"`
 	Settings              []*Setting   `gorm:"many2many:setting_chat_channel;" json:"settings" form:"settings"`
 	Customers             []*Customer  `json:"customer"`
@@ -33,20 +33,28 @@ type ChatChannel struct {
 }
 
 // SaveChatChannel router create chatchannel.
-func (cha *ChatChannel) SaveChatChannel() *ChatChannel {
+func (cha *ChatChannel) SaveChatChannel() error {
 	if err := DB().Create(&cha).Error; err != nil {
-		return nil
+		return err
 	}
-	return cha
+	return nil
 }
 
 // GetChatChannel query account list.
 func GetChatChannel(chatChannelID, size, page int) *[]ChatChannel {
 	chatChannels := []ChatChannel{}
-	if err := DB().Where("AccountID = ?", chatChannelID).Offset((page - 1) * size).Limit(size).Find(&chatChannels).Error; err != nil {
+	if err := DB().Where("cha_account_id = ?", chatChannelID).Offset((page - 1) * size).Limit(size).Find(&chatChannels).Error; err != nil {
 		return nil
 	}
 	return &chatChannels
+}
+
+func GetChatChannelList(chatChannelID uint) (*[]ChatChannel, error) {
+	chatChannels := []ChatChannel{}
+	if err := DB().Where("cha_account_id = ?", chatChannelID).Find(&chatChannels).Error; err != nil {
+		return nil, err
+	}
+	return &chatChannels, nil
 }
 
 func GetChatChannelByID(id string) *ChatChannel {

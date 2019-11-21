@@ -10,9 +10,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/jinzhu/gorm"
-	"github.com/line/line-bot-sdk-go/linebot"
-
 	"github.com/IntouchOpec/base-go-echo/model"
 	"github.com/IntouchOpec/base-go-echo/module/auth"
 	guuid "github.com/google/uuid"
@@ -23,12 +20,20 @@ import (
 func ServiceListHandler(c *Context) error {
 	services := []*model.Service{}
 	a := auth.Default(c)
-	model.DB().Preload("ChatChannel", func(db *gorm.DB) *gorm.DB {
-		return db.Where("chat_channel_id = ?", a.User.GetAccountID())
-	}).Preload("ServiceSlot").Find(&services)
+	queryPar := c.QueryParams()
+	page, limit := SetPagination(queryPar)
+	var total int
+	db := model.DB()
+
+	filterService := db.Where("ser_account_id = ?", a.User.GetAccountID()).Find(&services).Count(&total)
+
+	filterService.Limit(limit).Offset(page).Find(&services)
+	pagination := MakePagination(total, page, limit)
+
 	err := c.Render(http.StatusOK, "service-list", echo.Map{
-		"list":  services,
-		"title": "service",
+		"list":       services,
+		"title":      "service",
+		"pagination": pagination,
 	})
 	return err
 }
@@ -38,7 +43,7 @@ func ServiceDetailHandler(c *Context) error {
 	service := model.Service{}
 	id := c.Param("id")
 	a := auth.Default(c)
-	model.DB().Preload("Account").Preload("ServiceSlots").Preload("ChatChannels").Where("account_id = ? ", a.User.GetAccountID()).Find(&service, id)
+	model.DB().Preload("Account").Where("ser_account_id = ? ", a.User.GetAccountID()).Find(&service, id)
 	err := c.Render(http.StatusOK, "service-detail", echo.Map{
 		"detail": service,
 		"title":  "service",
@@ -62,7 +67,7 @@ func ServiceEditHandler(c *Context) error {
 	service := model.Service{}
 	id := c.Param("id")
 	a := auth.Default(c)
-	model.DB().Preload("Account").Preload("ServiceSlots").Preload("ChatChannels").Where("account_id = ? ", a.User.GetAccountID()).Find(&service, id)
+	model.DB().Preload("Account").Preload("ServiceSlots").Preload("ChatChannels").Where("ser_account_id = ? ", a.User.GetAccountID()).Find(&service, id)
 	err := c.Render(http.StatusOK, "service-form", echo.Map{
 		"detail": service,
 		"title":  "service",
@@ -77,17 +82,17 @@ func ServiceDeleteHandler(c *Context) error {
 	return err
 }
 
-func ServiceSlotCreateHandler(c *Context) error {
-	messageTypes := []linebot.MessageType{linebot.MessageTypeText, linebot.MessageTypeImage, linebot.MessageTypeVideo, linebot.MessageTypeAudio, linebot.MessageTypeFile, linebot.MessageTypeLocation, linebot.MessageTypeSticker, linebot.MessageTypeTemplate, linebot.MessageTypeImagemap, linebot.MessageTypeFlex}
+// func ServiceSlotCreateHandler(c *Context) error {
+// 	messageTypes := []linebot.MessageType{linebot.MessageTypeText, linebot.MessageTypeImage, linebot.MessageTypeVideo, linebot.MessageTypeAudio, linebot.MessageTypeFile, linebot.MessageTypeLocation, linebot.MessageTypeSticker, linebot.MessageTypeTemplate, linebot.MessageTypeImagemap, linebot.MessageTypeFlex}
 
-	sunService := model.ServiceSlot{}
-	err := c.Render(http.StatusOK, "sub-service-form", echo.Map{
-		"detail":       sunService,
-		"title":        "service",
-		"messageTypes": messageTypes,
-	})
-	return err
-}
+// 	sunService := model.ServiceSlot{}
+// 	err := c.Render(http.StatusOK, "sub-service-form", echo.Map{
+// 		"detail":       sunService,
+// 		"title":        "service",
+// 		"messageTypes": messageTypes,
+// 	})
+// 	return err
+// }
 
 type serviceForm struct {
 	Name   string  `form:"name"`
@@ -131,7 +136,7 @@ func ServicePostHandler(c *Context) error {
 	u := guuid.New()
 	fileNameBase := "public/assets/images/%s"
 	fileNameBase = fmt.Sprintf(fileNameBase, u)
-	fileName := fileNameBase + "." + fm
+	fileName := fileNameBase + fm
 	err = ioutil.WriteFile(fileName, buff.Bytes(), 0644)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
@@ -141,11 +146,11 @@ func ServicePostHandler(c *Context) error {
 	}
 	a := auth.Default(c)
 	serviceModel := model.Service{
-		Name:      service.Name,
-		Detail:    service.Detail,
-		Price:     service.Price,
-		Image:     fmt.Sprintf("%s.%s", u, fm),
-		AccountID: a.User.GetAccountID(),
+		SerName:      service.Name,
+		SerDetail:    service.Detail,
+		SerPrice:     service.Price,
+		SerImage:     fmt.Sprintf("%s.%s", u, fm),
+		SerAccountID: a.User.GetAccountID(),
 	}
 	serviceModel.Saveservice()
 
@@ -159,40 +164,40 @@ type ServiceSlotForm struct {
 	Amount int    `form:"amount" json:"amount"`
 }
 
-func ServiceSlotPostHandler(c *Context) error {
-	id := c.Param("id")
-	Service := model.Service{}
-	db := model.DB()
-	serviceSlotFrom := ServiceSlotForm{}
-	if err := c.Bind(&serviceSlotFrom); err != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
-	db.Find(&Service, id)
-	db.Model(&Service).Association("ServiceSlots").Append(&model.ServiceSlot{Start: serviceSlotFrom.Start, End: serviceSlotFrom.End, Day: serviceSlotFrom.Day, Amount: serviceSlotFrom.Amount})
-	return c.JSON(http.StatusCreated, Service)
-}
+// func ServiceSlotPostHandler(c *Context) error {
+// 	id := c.Param("id")
+// 	Service := model.Service{}
+// 	db := model.DB()
+// 	serviceSlotFrom := ServiceSlotForm{}
+// 	if err := c.Bind(&serviceSlotFrom); err != nil {
+// 		return c.JSON(http.StatusBadRequest, err)
+// 	}
+// 	db.Find(&Service, id)
+// 	db.Model(&Service).Association("ServiceSlots").Append(&model.ServiceSlot{Start: serviceSlotFrom.Start, End: serviceSlotFrom.End, Day: serviceSlotFrom.Day, Amount: serviceSlotFrom.Amount})
+// 	return c.JSON(http.StatusCreated, Service)
+// }
 
-func ServiceSlotEditHandler(c *Context) error {
-	sunService := model.ServiceSlot{}
-	id := c.Param("id")
-	a := auth.Default(c)
-	messageTypes := []linebot.MessageType{linebot.MessageTypeText, linebot.MessageTypeImage, linebot.MessageTypeVideo, linebot.MessageTypeAudio, linebot.MessageTypeFile, linebot.MessageTypeLocation, linebot.MessageTypeSticker, linebot.MessageTypeTemplate, linebot.MessageTypeImagemap, linebot.MessageTypeFlex}
-	model.DB().Preload("service", func(db *gorm.DB) *gorm.DB {
-		return db.Preload("ChatChannels").Where("account_id = ? ", a.User.GetAccountID())
-	}).Find(&sunService, id)
-	err := c.Render(http.StatusOK, "sub-service-form", echo.Map{
-		"detail":       sunService,
-		"title":        "service",
-		"messageTypes": messageTypes,
-	})
-	return err
-}
+// func ServiceSlotEditHandler(c *Context) error {
+// 	sunService := model.ServiceSlot{}
+// 	id := c.Param("id")
+// 	a := auth.Default(c)
+// 	messageTypes := []linebot.MessageType{linebot.MessageTypeText, linebot.MessageTypeImage, linebot.MessageTypeVideo, linebot.MessageTypeAudio, linebot.MessageTypeFile, linebot.MessageTypeLocation, linebot.MessageTypeSticker, linebot.MessageTypeTemplate, linebot.MessageTypeImagemap, linebot.MessageTypeFlex}
+// 	model.DB().Preload("service", func(db *gorm.DB) *gorm.DB {
+// 		return db.Preload("ChatChannels").Where("account_id = ? ", a.User.GetAccountID())
+// 	}).Find(&sunService, id)
+// 	err := c.Render(http.StatusOK, "sub-service-form", echo.Map{
+// 		"detail":       sunService,
+// 		"title":        "service",
+// 		"messageTypes": messageTypes,
+// 	})
+// 	return err
+// }
 
-func ServiceSlotDeleteHandler(c *Context) error {
-	id := c.Param("id")
-	serviceSlot := model.DeleteServiceSlot(id)
-	return c.JSON(http.StatusOK, serviceSlot)
-}
+// func ServiceSlotDeleteHandler(c *Context) error {
+// 	id := c.Param("id")
+// 	serviceSlot := model.DeleteServiceSlot(id)
+// 	return c.JSON(http.StatusOK, serviceSlot)
+// }
 
 func ServiceChatChannelViewHandler(c *Context) error {
 	chatChannels := []*model.ChatChannel{}
@@ -221,7 +226,7 @@ func ServiceChatChannelPostHandler(c *Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	if err := db.Model(&service).Association("ChatChannels").Append(&chatChannel).Error; err != nil {
+	if err := db.Model(&service).Association("ChatChannels").Append(chatChannel).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
