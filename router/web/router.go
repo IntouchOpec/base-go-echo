@@ -97,15 +97,15 @@ func Routers() *echo.Echo {
 
 		managent.GET("/chat_answer", handler(ChatAnswerListHandler))
 		managent.GET("/chat_answer/create", handler(ChatAnswerCreateHandler))
+		managent.POST("/chat_answer/create", handler(ChatAnswerPostHandler))
 		managent.GET("/chat_answer/:id", handler(ChatAnswerDetailHandler))
-		managent.POST("/chat_answer", handler(ChatAnswerPostHandler))
 		managent.GET("/chat_answer/:id/edit", handler(ChatAnswerEditHandler))
 		managent.DELETE("/chat_answer/:id", handler(ChatAnswerDeleteHandler))
 
 		managent.GET("/chat_request", handler(ChatRequestListHandler))
+		managent.POST("/chat_request/create", handler(ChatRequestPostHandler))
 		managent.GET("/chat_request/create", handler(ChatRequestCreateHandler))
 		managent.GET("/chat_request/:id", handler(ChatRequestDetailHandler))
-		managent.POST("/chat_request", handler(ChatRequestPostHandler))
 		managent.GET("/chat_request/:id/edit", handler(ChatRequestEditHandler))
 		managent.DELETE("/chat_request/:id", handler(ChatRequestDeleteHandler))
 
@@ -148,10 +148,12 @@ func Routers() *echo.Echo {
 		managent.DELETE("/LIFF/:id", handler(LIFFRemoveHanlder))
 
 		managent.GET("/place", handler(PlaceListHandler))
-		managent.POST("/place", handler(PlaceCreateHandler))
-		managent.GET("/place/create", handler(PromotionFormHandler))
-		managent.GET("/place/:id", handler(PromotionDetailHandler))
-		managent.DELETE("/place/:id", handler(PromotionDetailHandler))
+		managent.POST("/place/create", handler(PlacePostHandler))
+		managent.GET("/place/create", handler(PlaceCreateHandler))
+		managent.GET("/place/:id", handler(PlaceDetailHandler))
+		managent.DELETE("/place/:id", handler(PlaceDeleteHandler))
+		managent.POST("/place/:id/place_chatchannel/create", handler(PlaceAddChatChannelPostHanlder))
+		managent.GET("/place/:id/place_chatchannel/create", handler(PlaceAddChatChannelViewHanlder))
 
 		managent.GET("/provider", handler(ProviderListHandler))
 		managent.POST("/provider/create", handler(ProviderPostHandler))

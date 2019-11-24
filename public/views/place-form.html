@@ -36,10 +36,26 @@
                                                 </div>
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
-                                                        <label class="bmd-label-floating" >Detail</label>
-                                                        <textarea name="detail" id="detail" type="text" class="form-control" >
-                                                        </textarea>
+                                                        <label class="bmd-label-floating" >Type</label>
+                                                        <select name="PlacTypes" class="form-control" data-style="btn btn-link" id="PlacTypes">
+                                                            <option value="">choice Type</option>
+                                                            {{ with .PlacTypes }}
+                                                            {{ range . }}
+                                                                <option value='{{ . }}'>{{.}}</option>
+                                                            {{ end }}
+                                                            {{ end }}
+                                                        </select>
                                                     </div>
+                                                </div>
+                                                <div class="col-md-12 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="bmd-label-floating" >Detail</label>
+                                                        <textarea name="detail" id="detail" type="text" class="form-control" ></textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12 mt-2">
+                                                    <input id="Image" name="Image" type="file">
+                                                    <p><strong>Image:</strong> Choose any file on your computer and its name will be displayed in an alert dialog box.</p>
                                                 </div>
                                             </div>
                                             <input type="submit" rel="tooltip" value="Submit" class="btn btn-success">
@@ -58,6 +74,12 @@
   <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
   <script>
     (function ($) {
+        const toBase64 = file => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
         $("form[name='create-place']").validate({
             rules: {
                 name: {
@@ -65,6 +87,12 @@
                 },
                 detail: {
                     required: true               
+                },
+                PlacTypes: {
+                    required: true
+                },
+                Image: {
+                    required: true
                 },
             },
             messages: { 
@@ -74,23 +102,67 @@
                 detail: {
                     required: "Please enter a valid detail"               
                 },
+                PlacTypes: {
+                    required: "Please enter a valid PlacTypes"               
+                },
+                Image: {
+                    required: "Please enter a valid Image"               
+                }  ,
             },
             submitHandler: function(form) {
-                fetch(window.location.href, {
-                method: "POST",
-                body: data
+
+                let _csrf = $("#_csrf").val()
+                let name = $("#name").val()
+                let amount = $("#amount").val()
+                let type = $("#PlacTypes").val()
+                let detail = $("#detail").val()
+                let Image =  $("#Image")
+
+                const data = []
+                let imageEncodeKey = encodeURIComponent("file") 
+
+                let encodedetailKey = encodeURIComponent("prov_detail")
+
+                let encodeKey = encodeURIComponent("_csrf")
+                let nameEncodeKey = encodeURIComponent("name")
+                let typeEncodeKey = encodeURIComponent("type")
+                let amountEncodeKey = encodeURIComponent("amount")
+                let detailEncodeKey = encodeURIComponent("detail")
+
+                let encodedValue = encodeURIComponent(_csrf)
+                let nameEncodeValue = encodeURIComponent(name)
+                let amountEncodeValue = encodeURIComponent(amount)
+                let typeEncodeValue = encodeURIComponent(type)
+                let detailEncodeValue = encodeURIComponent(detail)
+
+                toBase64(Image[0].files[0]).then(base64Image => {
+                    Image = JSON.stringify(base64Image)
+
+                    let imageEncodedValue = encodeURIComponent(Image);
+                    data.push(encodeKey + "=" + encodedValue)
+                    data.push(nameEncodeKey + "=" + nameEncodeValue)
+                    data.push(typeEncodeKey + "=" + typeEncodeValue)
+                    data.push(amountEncodeKey + "=" + amountEncodeValue)
+                    data.push(detailEncodeKey + "=" + detailEncodeValue)
+                    data.push(imageEncodeKey + "=" + imageEncodedValue) 
+
+                    fetch(window.location.href, {
+                        headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                        method: "POST",
+                        body: data.join("&")
+                    })
+                    .then(res => {
+                    if (res.status === 201) {
+                        return res.json();
+                    }
+                    })
+                    .then(data => {
+                        location.replace(data.redirect)
+                    })
+                    .catch(err => {
+                        console.log("error", err);
+                    })
                 })
-                .then(res => {
-                if (res.status === 201) {
-                    return res.json();
-                }
-                })
-                .then(data => {
-                    location.replace(data.redirect)
-                })
-				.catch(err => {
-					console.log("error", err);
-				})
             }
         })
         

@@ -125,12 +125,12 @@
           let Source = $("#Source").val()
           let data = new URLSearchParams();
           data.append("_csrf", _csrf)
-          data.append("Input", Input)
-          data.append("TypeInput", TypeInput)
-          data.append("Reply", Reply)
-          data.append("TypeReply", TypeReply)
-          data.append("Source", Source)
-          fetch("/admin/chat_answer", {
+          data.append("input", Input)
+          data.append("type_input", TypeInput)
+          data.append("reply", Reply)
+          data.append("type_reply", TypeReply)
+          data.append("source", Source)
+          fetch(window.location.href, {
               method: "POST", 
               body: data
           })
@@ -139,7 +139,7 @@
             return res.json()
           })
           .then(json => {
-            window.location = "/admin/chat_answer"
+            window.location = json.redirect
           })
           .catch(err => Swal.fire("fial", "", "warning"))
         }

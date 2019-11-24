@@ -220,7 +220,7 @@ type RichMenuReq struct {
 func RichMenuCreateHandler(c *Context) error {
 	richMenu := RichMenuReq{}
 	chatChannel := model.ChatChannel{}
-	chatChennalID := c.QueryParam("cha_account_id")
+	chatChennalID := c.FormValue("chat_channel_id")
 	db := model.DB()
 
 	if err := c.Bind(&richMenu); err != nil {
@@ -262,7 +262,7 @@ func RichMenuCreateHandler(c *Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	redirect := fmt.Sprintf("/admin/richmenu/%s?cha_account_id=%d", res.RichMenuID, chatChannel.ID)
+	redirect := fmt.Sprintf("/admin/richmenu/%s?chat_channel_id=%d", res.RichMenuID, chatChannel.ID)
 	return c.JSON(http.StatusCreated, echo.Map{
 		"data":     res,
 		"redirect": redirect,

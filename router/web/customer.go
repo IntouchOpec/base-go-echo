@@ -31,8 +31,11 @@ func CustomerListHandler(c *Context) error {
 func CustomerDetailHandler(c *Context) error {
 	id := c.Param("id")
 	customer := model.Customer{}
-	if err := model.DB().Preload("Bookings").Preload("EventLogs").Preload("ActionLogs").Find(&customer, id).Error; err != nil {
-		return c.NoContent(http.StatusBadRequest)
+	if err := model.DB().Preload("ActionLogs").Find(&customer, id).Error; err != nil {
+		return c.Render(http.StatusOK, "customer-detail", echo.Map{
+			"customer": customer,
+			"title":    "customer",
+		})
 	}
 	err := c.Render(http.StatusOK, "customer-detail", echo.Map{
 		"customer": customer,

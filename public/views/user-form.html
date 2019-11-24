@@ -121,7 +121,49 @@
                 FirstName: "Please enter a valid FirstName",
             },
             submitHandler: function(form) {
-                
+                let _csrf = $("#_csrf").val()
+                let UserName = $("#UserName").val()
+                let Password = $("#Password").val()
+                let Email = $("#Email").val()
+                let LastName = $("#LastName").val()
+                let FirstName = $("#FirstName").val()
+
+                let encodeKey = encodeURIComponent("_csrf");
+                let encodeValue = encodeURIComponent(_csrf);
+
+                let UserNameEncodeValue = encodeURIComponent(UserName)
+                let PasswordEncodeValue = encodeURIComponent(Password)
+                let EmailEncodeValue = encodeURIComponent(Email)
+                let LastNameEncodeValue = encodeURIComponent(LastName)
+                let FirstNameEncodeValue = encodeURIComponent(FirstName)
+
+                let UserNameEncodeKey = encodeURIComponent("UserName")
+                let PasswordEncodeKey = encodeURIComponent("Password")
+                let EmailEncodeKey = encodeURIComponent("Email")
+                let LastNameEncodeKey = encodeURIComponent("LastName")
+                let FirstNameEncodeKey = encodeURIComponent("FirstName")
+
+                let data = []
+                data.push(UserNameEncodeKey + "=" + UserNameEncodeValue)
+                data.push(PasswordEncodeKey + "=" + PasswordEncodeValue)
+                data.push(EmailEncodeKey + "=" + EmailEncodeValue)
+                data.push(LastNameEncodeKey + "=" + LastNameEncodeValue)
+                data.push(FirstNameEncodeKey + "=" + FirstNameEncodeValue)
+                fetch(window.location.href, {
+                    method: "POST", 
+                    headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                    body: data
+                })
+                .then(res => {
+                    if (res.status === 201) {
+                        Swal.fire("success", "", "success") 
+                        return res.json()
+                    }
+                })
+                .then(json => {
+                    window.location = json.redirect
+                })
+                .catch(err => Swal.fire("fial", "", "warning"))
             }
         })
     })(jQuery)

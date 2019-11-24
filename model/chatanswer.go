@@ -9,14 +9,15 @@ import (
 type ChatAnswer struct {
 	orm.ModelBase
 	// ID                uint               `gorm:"primary_key" json:"id"`
-	AnsInput         string              `json:"ans_input"`
-	AnsTypeInput     string              `json:"ans_type_input"`
-	AnsReply         string              `json:"ans_reply"`
-	AnsTypeReply     linebot.MessageType `json:"ans_type_reply"`
-	AnsActive        bool                `json:"ans_active"`
-	AnsSource        string              `json:"ans_source"`
-	AnsChatChannelID uint                `form:"ans_chat_channel_id" json:"chat_channel_id" gorm:"not null;"`
-	ChatChannel      ChatChannel         `json:"chat_channel" gorm:"ForeignKey:AnsChatChannelID"`
+	AnsInput     string              `form:"input" json:"ans_input"`
+	AnsTypeInput string              `form:"type_input" json:"ans_type_input"`
+	AnsReply     string              `form:"reply" json:"ans_reply"`
+	AnsTypeReply linebot.MessageType `form:"type_reply" json:"ans_type_reply"`
+	AnsActive    bool                `form:"active" json:"ans_active"`
+	AnsSource    string              `form:"source" json:"ans_source"`
+	AnsAccountID uint                `form:"ans_account_id" json:"ans_account_id" gorm:"not null;"`
+	ChatChannels []*ChatChannel      `json:"chat_channels" gorm:"many2many:chat_answer_chat_channel"`
+	Account      Account             `json:"account" gorm:"ForeignKey:AnsAccountID"`
 }
 
 // SaveChatAnswer is function create chat answer.

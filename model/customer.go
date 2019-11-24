@@ -21,8 +21,8 @@ type Customer struct {
 	Account        Account        `json:"account" gorm:"ForeignKey:CusAccountID"`
 	CustomerType   CustomerType   `json:"customer" gorm:"ForeignKey:CustomerTypeID"`
 	Promotions     []*Promotion   `gorm:"many2many:promotion_customer" json:"promotions"`
-	EventLogs      []*EventLog    `json:"even_logs"`
-	ActionLogs     []*ActionLog   `json:"action_logs"`
+	EventLogs      []*EventLog    `json:"even_logs" gorm:"foreignkey:ID"`
+	ActionLogs     []*ActionLog   `json:"action_logs" gorm:"foreignkey:ID"`
 	Bookings       []*Booking     `json:"bookings"`
 	Transactions   []*Transaction `json:"transactions"`
 }
@@ -78,22 +78,23 @@ func (customer *Customer) UpdateCustomer(id int) *Customer {
 }
 
 // UpdateCustomerByAtt update by atti
-func (customer *Customer) UpdateCustomerByAtt(pictureURL, displayName, email, phoneNumber, FillName, Type string) *Customer {
-	if err := DB().Preload("Promotions").Where("line_id = ? and chat_channel_id = ?", customer.CusLineID, customer.CusAccountID).Find(&customer).Error; err != nil {
-		return nil
+func (customer *Customer) UpdateCustomerByAtt(pictureURL, displayName, email, phoneNumber, FullName, Type string) (*Customer, error) {
+	if err := DB().Preload("Promotions").Where("cus_line_id = ?", customer.CusLineID).Find(&customer).Error; err != nil {
+		return nil, err
 	}
 	customer.CusPictureURL = pictureURL
 	customer.CusDisplayName = displayName
 	customer.CusEmail = email
+	customer.CusFullName = FullName
 	customer.CusPhoneNumber = phoneNumber
 	u64, _ := strconv.ParseUint(Type, 10, 32)
 	customer.CustomerTypeID = uint(u64)
 
 	if err := DB().Save(&customer).Error; err != nil {
-		return nil
+		return nil, err
 	}
 
-	return customer
+	return customer, nil
 }
 
 func GetCustomerList(page, size, chatChannelID int) *[]Customer {

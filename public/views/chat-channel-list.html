@@ -40,7 +40,7 @@
                         {{if not .list}}<tr><td colspan="8" class="text-center">No content</td></tr> {{end}}
                          {{ with .list }}
                            {{ range . }}
-                             <tr>
+                             <tr name="row_{{ .ID }}">
                               <td></td>
                               <td>{{ .ChaChannelID }}</td>
                               <td>{{ .ChaName }}</td>
@@ -58,11 +58,9 @@
                                       <i class="material-icons">edit</i>
                                   </button>
                                 </a>
-                                <a href="/admin/chat_channel/{{ .ID }}/delete">
-                                  <button type="button" rel="tooltip" class="btn btn-danger">
+                                  <button  name="{{ .ID }}" id="delete" type="button" name="datele" rel="tooltip" class="btn btn-danger">
                                       <i class="material-icons">close</i>
                                   </button>
-                                </a>
                               </td>
                              </tr>
                            {{ end }} 
@@ -85,6 +83,26 @@
     </div>
   </div>
   {{ template "script" }}
+  <script>
+    (function ($) {
+      $("#datele").click(function() {
+        let id = $(this).attr('name')
+
+        fetch(`/admin/chat_channel/${id}/deleete`, {
+          method: "DELETE", 
+        }).then(res => {
+            if (res.status === 200) {
+                Swal.fire("success", "", "success") 
+                return res.json()
+            }
+          })
+          .then(json => { 
+            $(`#row_${id}`).remove()
+          })
+          .catch(err => Swal.fire("fial", "", "warning"))
+      })
+    })
+  </script>
 </body>
 
 </html>

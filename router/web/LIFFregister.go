@@ -24,16 +24,15 @@ func LIFFRegisterHandler(c echo.Context) error {
 
 	custo := model.Customer{}
 	if err := db.FirstOrCreate(&custo).Error; err != nil {
-		return err
+		return c.NoContent(http.StatusBadRequest)
 	}
 	db.Where("account_id = ?", chatChannel.ChaAccountID).Find(&customerTypes)
 	fmt.Println(customerTypes, chatChannel.ChaAccountID)
 	APIRegister := fmt.Sprintf("https://%s/register/%s", Conf.Server.DomainLineChannel, lineID)
-	err := c.Render(http.StatusOK, "register", echo.Map{
+	return c.Render(http.StatusOK, "register", echo.Map{
 		"web":           APIRegister,
 		"customerTypes": customerTypes,
 	})
-	return err
 }
 
 type LineReqRegister struct {
@@ -52,11 +51,15 @@ func LIIFRegisterSaveCustomer(c echo.Context) error {
 
 	chatChannel := model.ChatChannel{}
 	req := LineReqRegister{}
+	promotion := model.Promotion{}
+
 	if err := c.Bind(&req); err != nil {
-		return err
+		return c.NoContent(http.StatusBadRequest)
 	}
 
-	if err := model.DB().Where("cha_line_ID = ?", lineID).Find(&chatChannel).Error; err != nil {
+	db := model.DB()
+
+	if err := db.Where("cha_line_ID = ?", lineID).Find(&chatChannel).Error; err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}
 
@@ -66,18 +69,13 @@ func LIIFRegisterSaveCustomer(c echo.Context) error {
 	if err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}
-	custo.UpdateCustomerByAtt(req.PictureURL, req.DisplayName, req.Email, req.Phone, req.FullName, req.Type)
+	_, err = custo.UpdateCustomerByAtt(req.PictureURL, req.DisplayName, req.Email, req.Phone, req.FullName, req.Type)
 	check := ValidateVoucher(custo.Promotions)
 	if check {
 		return c.NoContent(http.StatusBadRequest)
 	}
-	promotion := model.Promotion{}
 
-	if err := model.DB().Where("prom_name = ?", "register_voucher").Find(&promotion).Error; err != nil {
-		return err
-	}
-
-	if err := model.DB().Model(&custo).Association("Promotions").Append(promotion).Error; err != nil {
+	if err := db.Where("prom_name = ?", "register_voucher").Find(&promotion).Error; err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}
 
@@ -86,16 +84,18 @@ func LIIFRegisterSaveCustomer(c echo.Context) error {
 
 	if err != nil {
 		log.Print(err)
-		return err
+		return c.NoContent(http.StatusBadRequest)
 	}
 
 	flexMessage := linebot.NewFlexMessage(chatChannel.ChaWelcomeMessage, flexContainer)
 
 	if _, err = bot.PushMessage(req.UserID, flexMessage).Do(); err != nil {
 		log.Print(err)
-		return err
+		return c.NoContent(http.StatusBadRequest)
 	}
-
+	if err := db.Model(&custo).Association("Promotions").Append(promotion).Error; err != nil {
+		return c.NoContent(http.StatusBadRequest)
+	}
 	return c.JSON(http.StatusOK, custo)
 }
 
@@ -109,7 +109,6 @@ func ValidateVoucher(promotions []*model.Promotion) bool {
 }
 
 func VoucherTemplate(promotion *model.Promotion) string {
-	settings := promotion.GetSettingPromotion([]string{"displayText", "TitleName"})
 	StartDateStr := promotion.PromStartDate.Format("02-12-2006")
 	EndDateStr := promotion.PromEndDate.Format("02-12-2006")
 	temp := fmt.Sprintf(`{
@@ -139,6 +138,6 @@ func VoucherTemplate(promotion *model.Promotion) string {
 		  ],
 		  "flex": 0
 		}
-	  }`, promotion.PromImage, settings["TitleName"], StartDateStr, EndDateStr, settings["displayText"], promotion.PromCode)
+	  }`, "https://"+Conf.Server.DomainLineChannel+promotion.PromImage, promotion.PromTitle, StartDateStr, EndDateStr, promotion.PromCondition, promotion.PromCode)
 	return temp
 }

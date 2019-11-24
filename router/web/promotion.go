@@ -148,6 +148,6 @@ func PromotionChannelAddHandler(c *Context) error {
 		fmt.Println(chatChannel)
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	redirect := fmt.Sprintf("/admin/promotion/%s", chatChannel.ID)
+	redirect := fmt.Sprintf("/admin/promotion/%d", pro.ID)
 	return c.JSON(http.StatusOK, redirect)
 }

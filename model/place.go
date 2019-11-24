@@ -21,10 +21,10 @@ type Place struct {
 	PlacName      string         `json:"plac_name" form:"name" gorm:"type:varchar(50)"`
 	PlacDetail    string         `json:"plac_detail" form:"detail"`
 	PlacActive    bool           `json:"plac_active" form:"active"`
-	PlacType      string         `json:"plac_type" gorm:"type:varchar(50)"`
-	PlacAmount    int            `json:"plac_amount"`
-	PlacImage     string         `json:"plac_image" gorm:"type:varchar(255)"`
-	ChatChannels  []*ChatChannel `json:"chat_channels" `
+	PlacType      string         `form:"type" json:"plac_type" gorm:"type:varchar(50)"`
+	PlacAmount    int            `form:"amount" json:"plac_amount"`
+	PlacImage     string         `form:"image" json:"plac_image" gorm:"type:varchar(255)"`
+	ChatChannels  []*ChatChannel `json:"chat_channels" gorm:"many2many:place_chat_channel"`
 	PlacAccountID uint           `json:"plac_account_id"`
 	Account       Account        `json:"account" gorm:"ForeignKey:PlacAccountID"`
 	MasterPlaces  []*MasterPlace `json:"master_places"`

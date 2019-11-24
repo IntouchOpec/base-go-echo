@@ -54,7 +54,7 @@ func ChatChannelGetChannelAccessTokenHandler(c *Context) error {
 	chatChannel := model.ChatChannel{}
 	a := auth.Default(c)
 	db := model.DB()
-	db.Preload("Account").Where("cha_account_id = ?", a.User.GetAccountID()).Find(&chatChannel, id)
+	db.Where("cha_account_id = ?", a.User.GetAccountID()).Find(&chatChannel, id)
 	bot, err := linebot.New(chatChannel.ChaChannelID, chatChannel.ChaChannelSecret)
 	if err != nil {
 		return c.NoContent(http.StatusBadRequest)

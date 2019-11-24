@@ -26,7 +26,7 @@
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating" >Chat Channel</label>
                                                         <select name="ChatChannelID" class="form-control" data-style="btn btn-link" id="ChatChannelID">
-                                                            <option value="">choive Chat Channels</option>
+                                                            <option value="">choice Chat Channels</option>
                                                             {{ with .chatChannels }}
                                                             {{ range . }}
                                                                 <option value='{{.ID }}'>{{.ChaName}}</option>
@@ -39,7 +39,7 @@
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating" >Size</label>
                                                         <select name="Size" class="form-control" data-style="btn btn-link" id="Size">
-                                                            <option value="">choive size rich menu</option>
+                                                            <option value="">choice size rich menu</option>
                                                             {{ with .sizes }}
                                                             {{ range . }}
                                                                 <option value='{ "Width": {{.Size.Width}}, "Height": {{.Size.Height}} }'>{{.Name}}</option>
@@ -109,7 +109,7 @@
                 let SizeEncodeValue = encodeURIComponent(Size)
                 let SizeEncodeKey = encodeURIComponent("Size")
                 let ChatChannelIDEncodeValue = encodeURIComponent(ChatChannelID)
-                let ChatChannelIDEncodeKey = encodeURIComponent("ChatChannelID")
+                let ChatChannelIDEncodeKey = encodeURIComponent("chat_channel_id")
                 let NameEncodeValue = encodeURIComponent(Name)
                 let NameEncodeKey = encodeURIComponent("Name")
                 let ChatBarTextEncodeValue = encodeURIComponent(ChatBarText)

@@ -54,11 +54,12 @@
                 let data = new URLSearchParams();
                 data.append("_csrf", _csrf)
                 
-                fetch("/admin/chat_request", {
+                fetch(window.location.href, {
                     method: "POST", 
                     body: data
                 })
-                .then(res =>  res.status === 201 && res.json())
+                .then(res => { 
+                    if (res.status === 201) { return res.json()}})
                 .then(json => {
                     window.location.href = json
                 })

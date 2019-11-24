@@ -21,12 +21,12 @@ func HandleWebHookLineAPI(c echo.Context) error {
 	ChannelID := c.Param("ChannelID")
 	account := model.Account{}
 	chatChannel := model.ChatChannel{}
-
-	if err := model.DB().Where("acc_name = ?", name).Find(&account).Error; err != nil {
+	db := model.DB()
+	if err := db.Where("acc_name = ?", name).Find(&account).Error; err != nil {
 		return c.NoContent(http.StatusNotFound)
 	}
 
-	if err := model.DB().Where("cha_channel_id = ?", ChannelID).Find(&chatChannel).Error; err != nil {
+	if err := db.Where("cha_channel_id = ?", ChannelID).Find(&chatChannel).Error; err != nil {
 		return c.NoContent(http.StatusNotFound)
 	}
 	ctx := c.Request().Context()
@@ -52,7 +52,7 @@ func HandleWebHookLineAPI(c echo.Context) error {
 	for _, event := range events {
 		// chatAnswer := model.ChatAnswer{}
 		var keyWord string
-		model.DB().Where("Line_id = ? and chat_channel_id = ?", event.Source.UserID, chatChannel.ID).Find(&customer)
+		db.Where("cus_line_id = ?", event.Source.UserID).Find(&customer)
 		switch eventType := event.Type; eventType {
 		case linebot.EventTypeMessage:
 			switch message := event.Message.(type) {
@@ -73,8 +73,8 @@ func HandleWebHookLineAPI(c echo.Context) error {
 						log.Println(err)
 					}
 					flexMessage := linebot.NewFlexMessage("ตาราง", flexContainer)
-					res, err := bot.ReplyMessage(event.ReplyToken, flexMessage).Do()
-					fmt.Println(res)
+					_, err = bot.ReplyMessage(event.ReplyToken, flexMessage).Do()
+
 					if err != nil {
 						act := model.ActionLog{
 							ActName:          "calendar",
@@ -87,11 +87,12 @@ func HandleWebHookLineAPI(c echo.Context) error {
 					}
 					act := model.ActionLog{
 						ActName:          "calendar",
+						ActChannel:       model.ActionChannelLine,
 						ActStatus:        model.StatusSuccess,
 						ActUserID:        event.Source.UserID,
 						ActChatChannelID: chatChannel.ID,
 						ActCustomerID:    customer.ID}
-					act.CreateAction()
+					db.Create(&act)
 				} else if keyWord == "Service" {
 					// t, _ := time.Parse("2006-01-02 15:04", messageText[8:]+" 01:00")
 
@@ -129,7 +130,7 @@ func HandleWebHookLineAPI(c echo.Context) error {
 					}
 
 					custo := model.Customer{}
-					if err := model.DB().Where("line_id = ? and chat_channel_id = ?", event.Source.UserID, chatChannel.ID).Find(&custo).Error; err != nil {
+					if err := model.DB().Where("cus_line_id = ?", event.Source.UserID).Find(&custo).Error; err != nil {
 						fmt.Println(err, "err")
 						return nil
 					}
@@ -257,7 +258,9 @@ func HandleWebHookLineAPI(c echo.Context) error {
 					ActStatus:        model.StatusSuccess,
 					ActChatChannelID: chatChannel.ID,
 					ActCustomerID:    customer.ID}
-				act.CreateAction()
+				if err := model.DB().Create(&act).Error; err != nil {
+					// return c.JSON(http.StatusBadRequest, err)
+				}
 			case *linebot.StickerMessage:
 
 			case *linebot.TemplateMessage:

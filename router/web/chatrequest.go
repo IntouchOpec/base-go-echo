@@ -12,16 +12,20 @@ import (
 )
 
 func ChatRequestListHandler(c *Context) error {
-	ChatRequest := []*model.ChatRequest{}
+	ChatRequests := []*model.ChatRequest{}
 	a := auth.Default(c)
+	queryPar := c.QueryParams()
+	page, limit := SetPagination(queryPar)
+	var total int
+	db := model.DB()
+	filterChatReq := db.Where("req_account_id = ?", a.User.GetAccountID()).Find(&ChatRequests).Count(&total)
+	filterChatReq.Limit(limit).Offset(page).Find(&ChatRequests)
+	pagination := MakePagination(total, page, limit)
 
-	if err := model.DB().Where("req_account_id = ?",
-		a.GetAccountID()).Find(&ChatRequest).Error; err != nil {
-		return c.Render(http.StatusOK, "404-page", echo.Map{})
-	}
 	return c.Render(http.StatusOK, "chat-request-list", echo.Map{
-		"title": "chat_request",
-		"list":  ChatRequest,
+		"title":      "chat_request",
+		"list":       ChatRequests,
+		"pagination": pagination,
 	})
 }
 
@@ -67,13 +71,12 @@ func ChatRequestPostHandler(c *Context) error {
 	if err := c.Bind(&ChatRequest); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-
 	err := ChatRequest.SaveChatRequest()
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	redirect := fmt.Sprintf("/admin/chat_request/%d", ChatRequest.ID)
-	return c.JSON(http.StatusOK, redirect)
+	return c.JSON(http.StatusCreated, redirect)
 }
 
 func ChatRequestEditViewHandler(c *Context) error {

@@ -1,6 +1,7 @@
 package web
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/IntouchOpec/base-go-echo/module/auth"
@@ -11,12 +12,19 @@ import (
 )
 
 func ChatAnswerListHandler(c *Context) error {
-	// account := c.Param("account")
-	chatAnswer := []*model.ChatAnswer{}
-	model.DB().Preload("Account").Find(&chatAnswer)
+	chatAnswers := []*model.ChatAnswer{}
+	a := auth.Default(c)
+	queryPar := c.QueryParams()
+	page, limit := SetPagination(queryPar)
+	var total int
+	db := model.DB()
+	filterChatAns := db.Where("ans_account_id = ?", a.GetAccountID()).Find(&chatAnswers).Count(&total)
+	filterChatAns.Limit(limit).Offset(page).Find(&chatAnswers)
+	pagination := MakePagination(total, page, limit)
 	return c.Render(http.StatusOK, "chat-answer-list", echo.Map{
-		"title": "chat_answer",
-		"list":  chatAnswer,
+		"title":      "chat_answer",
+		"list":       chatAnswers,
+		"pagination": pagination,
 	})
 }
 
@@ -56,9 +64,20 @@ func ChatAnswerCreateHandler(c *Context) error {
 
 func ChatAnswerPostHandler(c *Context) error {
 	chatAnswer := model.ChatAnswer{}
-	return c.Render(http.StatusOK, "chat-answer-form", echo.Map{
-		"title":  "chat_answer",
-		"detail": chatAnswer,
+	if err := c.Bind(&chatAnswer); err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	a := auth.Default(c)
+
+	chatAnswer.AnsAccountID = a.GetAccountID()
+	err := chatAnswer.SaveChatAnswer()
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	redirect := fmt.Sprintf("/admin/chat_answer/%d", chatAnswer.ID)
+	return c.JSON(http.StatusCreated, echo.Map{
+		"redirect": redirect,
+		"data":     chatAnswer,
 	})
 }
 

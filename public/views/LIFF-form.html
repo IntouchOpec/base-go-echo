@@ -26,7 +26,7 @@
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating">chat channel</label>
                                                         <select name="chatChannelID" id="chatChannelID" class="form-control"  data-style="btn btn-link" >
-                                                            <option value="">choive chat channel </option>
+                                                            <option value="">choice chat channel </option>
                                                             {{ with .chatChannels }}
                                                             {{ range . }}
                                                                 <option value="{{.ID}}">{{.ChaName}}</option>
@@ -45,7 +45,7 @@
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating" >LIFF type</label>
                                                         <select name="LIFF_type" id="LIFF_type" class="form-control"  data-style="btn btn-link" >
-                                                            <option value="">choive LIFF type </option>
+                                                            <option value="">choice LIFF type </option>
                                                             {{ with .LIFFViewTypes }}
                                                             {{ range . }}
                                                                 <option value="{{.}}">{{.}}</option>
