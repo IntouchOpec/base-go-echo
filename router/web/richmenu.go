@@ -3,6 +3,7 @@ package web
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/IntouchOpec/base-go-echo/module/auth"
@@ -131,8 +132,8 @@ func RichMenuActiveHandler(c *Context) error {
 	chatChannel := model.ChatChannel{}
 	a := auth.Default(c)
 	db := model.DB()
-	chatChannelID := c.QueryParam("chat_channel_id")
-
+	chatChannelID := c.FormValue("chat_channel_id")
+	fmt.Println(chatChannelID)
 	if err := db.Where("cha_account_id = ?", a.GetAccountID()).Find(&chatChannel, chatChannelID).Error; err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}
@@ -155,7 +156,7 @@ func RichMenuImageHandler(c *Context) error {
 	a := auth.Default(c)
 	db := model.DB()
 	id := c.Param("id")
-	chatChannelID := c.QueryParam("chatChannelID")
+	chatChannelID := c.QueryParam("chat_channel_id")
 	file := c.FormValue("file")
 
 	fileURL, file, err := lib.UploadteImage(file)
@@ -179,6 +180,42 @@ func RichMenuImageHandler(c *Context) error {
 	setting := model.Setting{Name: id, Value: fileURL}
 	db.Create(&setting)
 	return c.JSON(http.StatusCreated, setting)
+}
+
+func RichMenuDonwloadImage(c *Context) error {
+	chatChannel := model.ChatChannel{}
+	a := auth.Default(c)
+	db := model.DB()
+	id := c.Param("id")
+	chatChannelID := c.QueryParam("chat_channel_id")
+	db.Where("cha_account_id = ?", a.GetAccountID()).Find(&chatChannel, chatChannelID)
+
+	bot, err := lib.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
+	if err != nil {
+		fmt.Println(err)
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	res, err := bot.DownloadRichMenuImage(id).Do()
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	fmt.Println(res.ContentType)
+	fmt.Println(res.ContentLength)
+	data, err := ioutil.ReadAll(res.Content)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	err = ioutil.WriteFile("public/assets/images/"+id+".jpg", data, 0666)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	urlImage := "/images/" + id + ".jpg"
+	db.Model(&chatChannel).Association("Settings").Append(model.Setting{Name: id, Value: urlImage})
+
+	return c.JSON(http.StatusOK, echo.Map{
+		"urlImage": urlImage,
+	})
 }
 
 type RichMenuSizeType struct {

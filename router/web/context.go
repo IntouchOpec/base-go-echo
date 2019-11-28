@@ -1,7 +1,6 @@
 package web
 
 import (
-	"fmt"
 	"strconv"
 	"sync"
 
@@ -93,6 +92,8 @@ type Pagination struct {
 	Next      bool
 	StartPage int
 	List      []int
+	Record    int
+	Offset    int
 }
 
 func MakePagination(total, page, limit int) Pagination {
@@ -101,7 +102,7 @@ func MakePagination(total, page, limit int) Pagination {
 	countPage := total / limit
 	startPage := 1
 	var list []int
-	fmt.Println(total/limit, total, limit)
+
 	if page > 1 {
 		previous = true
 	}
@@ -109,16 +110,23 @@ func MakePagination(total, page, limit int) Pagination {
 	if page > countPage {
 		next = true
 	}
-	startPage = page - 2
+	startPage = page + 1
 	if startPage <= 2 {
 		startPage = 1
 	}
 	for index := startPage; index < startPage+5; index++ {
 		list = append(list, index)
-		fmt.Println(countPage, index, total, limit)
-		if countPage <= index {
+
+		if countPage+1 <= index {
 			break
 		}
 	}
-	return Pagination{Page: page + 1, Previous: previous, Next: next, StartPage: startPage, List: list}
+	record := total - limit*page
+	offset := limit * page
+	if record > 10 {
+		record = 10
+	}
+	return Pagination{Page: page + 1, Previous: previous, Next: next, StartPage: startPage, List: list,
+		Record: record,
+		Offset: offset}
 }

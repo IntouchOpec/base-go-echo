@@ -26,8 +26,8 @@ func LIFFRegisterHandler(c echo.Context) error {
 	if err := db.FirstOrCreate(&custo).Error; err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}
-	db.Where("account_id = ?", chatChannel.ChaAccountID).Find(&customerTypes)
-	fmt.Println(customerTypes, chatChannel.ChaAccountID)
+	db.Where("account_id = ?", chatChannel.AccountID).Find(&customerTypes)
+	fmt.Println(customerTypes, chatChannel.AccountID)
 	APIRegister := fmt.Sprintf("https://%s/register/%s", Conf.Server.DomainLineChannel, lineID)
 	return c.Render(http.StatusOK, "register", echo.Map{
 		"web":           APIRegister,
@@ -63,7 +63,7 @@ func LIIFRegisterSaveCustomer(c echo.Context) error {
 		return c.NoContent(http.StatusBadRequest)
 	}
 
-	custo := model.Customer{CusLineID: req.UserID, CusAccountID: chatChannel.ChaAccountID}
+	custo := model.Customer{CusLineID: req.UserID, AccountID: chatChannel.AccountID}
 	// pictureURL string, displayName string, email string, phoneNumber string
 	bot, err := lib.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
 	if err != nil {

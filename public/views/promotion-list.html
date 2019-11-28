@@ -54,11 +54,11 @@
                               <td>{{.PromAmount}}</td>
                               <td>{{.PromCode}}</td>
                               <td>{{.PromName}}</td>
-                              <td>{{ ((.PromStartDate).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
-                              <td>{{ ((.PromEndDate).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
+                              <td>{{ .PromStartDate.Format "Mon Jan 2 2006" }}</td>
+                              <td>{{ .PromEndDate.Format "Mon Jan 2 2006" }}</td>
                               <td>{{ .PromCondition }}</td>
                               <td><img width="32" height="32" class="img-fluid" src="{{.PromImage}}"></td>
-                              <td>{{ ((.CreatedAt).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
+                              <td>{{ ((.CreatedAt).AddDate 0 0 0).Format "Mon Jan 2 2006" }}</td>
                               <td class="td-actions text-right">
                                 <a href="/admin/promotion/{{ .ID }}">
                                   <button type="button" rel="tooltip" class="btn btn-success">

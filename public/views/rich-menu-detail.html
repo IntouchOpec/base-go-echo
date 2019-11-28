@@ -66,15 +66,15 @@
       (function ($) {
         $("#Active-btn").click(function() {
             const urlParams = new URLSearchParams(window.location.search);
-            const cha_account_id = urlParams.get('cha_account_id');
+            const chat_channel_id = urlParams.get('chat_channel_id');
             const RichMenuID = $("#RichMenuID").val()
             let data = [] 
             let _csrf = $("#_csrf").val()
 
             let encodedKey = encodeURIComponent("_csrf");
             let encodedValue = encodeURIComponent(_csrf);
-            let ChatChannelIDEncodedKey = encodeURIComponent("cha_account_id");
-            let ChatChannelIDEncodedValue = encodeURIComponent(cha_account_id);
+            let ChatChannelIDEncodedKey = encodeURIComponent("chat_channel_id");
+            let ChatChannelIDEncodedValue = encodeURIComponent(chat_channel_id);
 
             data.push(encodedKey + "=" + encodedValue)
             data.push(ChatChannelIDEncodedKey + "=" + ChatChannelIDEncodedValue)

@@ -16,10 +16,11 @@ type Customer struct {
 	CusLineID      string         `json:"cus_line_id" gorm:"type:varchar(255)"`
 	CusEmail       string         `json:"cus_email" gorm:"type:varchar(25)"`
 	CusPhoneNumber string         `json:"cus_phone_number" gorm:"type:varchar(25)"`
-	CusAccountID   uint           `json:"cus_account_id" gorm:"not null;"`
+	AccountID      uint           `json:"account_id" gorm:"not null;"`
 	CustomerTypeID uint           `json:"customer_type_id"`
-	Account        Account        `json:"account" gorm:"ForeignKey:CusAccountID"`
+	Account        Account        `json:"account" gorm:"ForeignKey:AccountID"`
 	CustomerType   CustomerType   `json:"customer" gorm:"ForeignKey:CustomerTypeID"`
+	ChatChannels   []*ChatChannel `gorm:"many2many:chat_channel_customer" json:"chat_channels"`
 	Promotions     []*Promotion   `gorm:"many2many:promotion_customer" json:"promotions"`
 	EventLogs      []*EventLog    `json:"even_logs" gorm:"foreignkey:ID"`
 	ActionLogs     []*ActionLog   `json:"action_logs" gorm:"foreignkey:ID"`

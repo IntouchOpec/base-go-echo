@@ -36,7 +36,7 @@
                             {{ range . }}
                               <tr>
                                 <td></td>
-                                <td>{{ ((.BookedDate).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
+                                <td>{{ ((.BookedDate).AddDate 0 0 0).Format "Mon Jan 2 2006" }}</td>
                                 <td>{{ .ServiceSlot.Start }}</td>
                                 <td>{{ .ServiceSlot.End }}</td>
                                 <td>{{ .Queue }}</td>

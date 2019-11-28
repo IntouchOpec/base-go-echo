@@ -62,7 +62,7 @@ func PlacePostHandler(c *Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	place.PlacImage = fileUrl
-	place.PlacAccountID = a.GetAccountID()
+	place.AccountID = a.GetAccountID()
 	if err := place.CreatePlace(); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}

@@ -93,6 +93,8 @@ func Routers() *echo.Echo {
 		managent.PATCH("/chat_channel/:id/add_liff_register", handler(ChatChannelAddRegisterLIFF))
 		managent.DELETE("/chat_channel/:id", handler(ChatChannelListHandler))
 		managent.GET("/chat_channel/:id", handler(ChatChannelDetailHandler))
+		managent.GET("/chat_channel/:id/broadcast", handler(ChatChannelBroadcastMessageViewHandler))
+		managent.POST("/chat_channel/:id/broadcast", handler(ChatChannelBroadcastMessageHandler))
 		managent.GET("/chat_channel/:id/edit", handler(ChatChannelEditHandler))
 
 		managent.GET("/chat_answer", handler(ChatAnswerListHandler))
@@ -115,7 +117,7 @@ func Routers() *echo.Echo {
 		managent.POST("/service", handler(ServicePostHandler))
 
 		managent.GET("/promotion", handler(PromotionListHandler))
-		managent.POST("/promotion", handler(PromotionPostHandler))
+		managent.POST("/promotion/create", handler(PromotionPostHandler))
 		managent.GET("/promotion/create", handler(PromotionFormHandler))
 		managent.GET("/promotion/:id", handler(PromotionDetailHandler))
 		managent.GET("/promotion/:id", handler(PromotionDetailHandler))
@@ -134,7 +136,9 @@ func Routers() *echo.Echo {
 		managent.POST("/richmenu/create", handler(RichMenuCreateHandler))
 		managent.GET("/richmenu/:id", handler(RichMenuDetailHandler))
 		managent.PATCH("/richmenu/:id", handler(RichMenuImageHandler))
+		managent.PATCH("/richmenu/:id/download_image", handler(RichMenuDonwloadImage))
 		managent.PATCH("/richmenu/:id/active", handler(RichMenuActiveHandler))
+
 		managent.GET("/setting", handler(SettingHandler))
 		// managent.GET("/service/:id/sub_service/create", handler(ServiceSlotCreateHandler))
 		// managent.POST("/service/:id/sub_service/create", handler(ServiceSlotPostHandler))
@@ -170,6 +174,9 @@ func Routers() *echo.Echo {
 
 		managent.GET("/time_slot/:provider_id/create", handler(TimeSlotCreateHandler))
 		managent.POST("/time_slot/:provider_id/create", handler(TimeSlotPostHandler))
+
+		managent.GET("/action_log", handler(ActionLogList))
+		managent.GET("/event_log", handler(EventLogList))
 	}
 
 	return e

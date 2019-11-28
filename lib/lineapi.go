@@ -1,8 +1,11 @@
 package lib
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
 	"log"
+	"net/http"
 	"strconv"
 	"time"
 
@@ -12,20 +15,63 @@ import (
 
 // ClientLine interface for pointer
 type ClientLine struct {
-	*linebot.Client
+	linebot.Client
 }
 
+const (
+	APIEndpointBase = "https://api.line.me"
+
+	APIEndpointInsightFollowers = "/v2/bot/insight/followers?date=%s"
+)
+
 // ConnectLineBot init token connent line.
-func ConnectLineBot(ChannelSecret string, ChannelAccsssToken string) (*linebot.Client, error) {
+func ConnectLineBot(ChannelSecret string, ChannelAccsssToken string) (*ClientLine, error) {
 	bot, err := linebot.New(
 		ChannelSecret,
 		ChannelAccsssToken,
 	)
+
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
 	}
-	return bot, nil
+	line := ClientLine{*bot}
+	return &line, nil
+}
+
+type ResponseInsightFollowrs struct {
+	Status          string
+	Followers       int
+	TargetedReaches int
+	Blocks          int
+}
+
+func DateStringFormantLine(time time.Time) (string, error) {
+	return fmt.Sprintf("%d%d%d", time.Year(), time.Month(), time.Day()-1), nil
+}
+
+func InsightFollowers(channelAccsssToken string) (*ResponseInsightFollowrs, error) {
+	Authorization := fmt.Sprintf("Bearer %s", channelAccsssToken)
+	timeNow := time.Now()
+	timeFormat, _ := DateStringFormantLine(timeNow)
+	url := fmt.Sprintf("%s%s", APIEndpointBase, fmt.Sprintf(APIEndpointInsightFollowers, timeFormat))
+	req, _ := http.NewRequest("GET", url, nil)
+	req.Header.Add("Authorization", Authorization)
+	res, _ := http.DefaultClient.Do(req)
+
+	defer res.Body.Close()
+
+	decoder := json.NewDecoder(res.Body)
+	result := ResponseInsightFollowrs{}
+
+	if err := decoder.Decode(&result); err != nil {
+		if err == io.EOF {
+			return &result, nil
+		}
+		return nil, err
+	}
+
+	return &result, nil
 }
 
 // ReplyLineMessage send message type other.

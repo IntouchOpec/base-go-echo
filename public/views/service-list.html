@@ -44,7 +44,7 @@
                                 <td>{{.SerName}}</td>
                                 <td>{{.SerPrice}}</td>
                                 <td><img width="32" height="32" class="img-fluid" src="{{.SerImage}}"></td>
-                                <td>{{ ((.CreatedAt).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
+                                <td>{{ ((.CreatedAt).AddDate 0 0 0).Format "Mon Jan 2 2006" }}</td>
                                 <td><input type="checkbox" checked data-toggle="toggle" checked="{{.SerActive}}"></td>
                                 <td class="td-actions text-right">
                                     <a href="/admin/service/{{ .ID }}">

@@ -25,14 +25,14 @@ const (
 type ActionLog struct {
 	orm.ModelBase
 
-	ActName          string        `json:"act_name" gorm:"type:varchar(25)"`
-	ActStatus        ActionStatus  `json:"act_status" gorm:"type:varchar(10)"`
-	ActChannel       ActionChannel `json:"act_channel" gorm:"type:varchar(10)"`
-	ActUserID        string        `json:"act_user_id" gorm:"type:varchar(55)"`
-	ActChatChannelID uint          `json:"act_chat_channel_id"`
-	ActCustomerID    uint          `json:"act_customer_id"`
-	ChatChannel      ChatChannel   `json:"chat_channel" gorm:"ForeignKey:ActChatChannelID;"`
-	Customer         *Customer     `json:"customer" gorm:"ForeignKey:ActCustomerID"`
+	ActName       string        `json:"act_name" gorm:"type:varchar(25)"`
+	ActStatus     ActionStatus  `json:"act_status" gorm:"type:varchar(10)"`
+	ActChannel    ActionChannel `json:"act_channel" gorm:"type:varchar(10)"`
+	ActUserID     string        `json:"act_user_id" gorm:"type:varchar(55)"`
+	ChatChannelID uint          `json:"act_chat_channel_id"`
+	CustomerID    uint          `json:"act_customer_id"`
+	ChatChannel   ChatChannel   `json:"chat_channel" gorm:"ForeignKey:ChatChannelID;"`
+	Customer      *Customer     `json:"customer" gorm:"ForeignKey:CustomerID"`
 }
 
 // CreateAction create action record

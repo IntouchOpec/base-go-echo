@@ -61,7 +61,7 @@
                                             <tr>
                                                 <td>{{ .Service.SerName }}</td>
                                                 <td>{{ .PSPrice }}</td>
-                                                <td>{{ ((.CreatedAt).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
+                                                <td>{{ ((.CreatedAt).AddDate 0 0 0).Format "Mon Jan 2 2006" }}</td>
                                                 <td class="td-actions text-right">
                                                     <a href="/admin/provider_service/{{ .ID }}/edit">
                                                         <button type="button" rel="tooltip" class="btn btn-warning">

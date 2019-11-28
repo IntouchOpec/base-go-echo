@@ -240,7 +240,7 @@
                         return res.json()
                     })
                     .then(json => {
-                        window.location = json
+                        window.location = json.redirect
                     })
                     .catch(err => Swal.fire("fial", "", "warning"))
                 })

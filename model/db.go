@@ -61,6 +61,8 @@ type TestModel struct {
 func Initialize() {
 	newDb := DB()
 	newDb.AutoMigrate(&CustomerType{})
+	newDb.AutoMigrate(&ActionLog{})
+	newDb.AutoMigrate(&EventLog{})
 	newDb.AutoMigrate(&Customer{})
 	newDb.AutoMigrate(&Promotion{})
 	newDb.AutoMigrate(&Account{})
@@ -68,7 +70,6 @@ func Initialize() {
 	newDb.AutoMigrate(&ChatAnswer{})
 	newDb.AutoMigrate(&ChatChannel{})
 	newDb.AutoMigrate(&ChatRequest{})
-	newDb.AutoMigrate(&EventLog{})
 	newDb.AutoMigrate(&Service{})
 	newDb.AutoMigrate(&Provider{})
 	newDb.AutoMigrate(&ProviderService{})
@@ -76,7 +77,6 @@ func Initialize() {
 	newDb.AutoMigrate(&TimeSlot{})
 	newDb.AutoMigrate(&Transaction{})
 	newDb.AutoMigrate(&LoginRespose{})
-	newDb.AutoMigrate(&ActionLog{})
 	newDb.AutoMigrate(&Setting{})
 	newDb.AutoMigrate(&Place{})
 }

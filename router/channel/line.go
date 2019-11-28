@@ -77,21 +77,21 @@ func HandleWebHookLineAPI(c echo.Context) error {
 
 					if err != nil {
 						act := model.ActionLog{
-							ActName:          "calendar",
-							ActStatus:        model.StatusFail,
-							ActUserID:        event.Source.UserID,
-							ActChatChannelID: chatChannel.ID,
-							ActCustomerID:    customer.ID}
+							ActName:       "calendar",
+							ActStatus:     model.StatusFail,
+							ActUserID:     event.Source.UserID,
+							ChatChannelID: chatChannel.ID,
+							CustomerID:    customer.ID}
 						act.CreateAction()
 						return err
 					}
 					act := model.ActionLog{
-						ActName:          "calendar",
-						ActChannel:       model.ActionChannelLine,
-						ActStatus:        model.StatusSuccess,
-						ActUserID:        event.Source.UserID,
-						ActChatChannelID: chatChannel.ID,
-						ActCustomerID:    customer.ID}
+						ActName:       "calendar",
+						ActChannel:    model.ActionChannelLine,
+						ActStatus:     model.StatusSuccess,
+						ActUserID:     event.Source.UserID,
+						ChatChannelID: chatChannel.ID,
+						CustomerID:    customer.ID}
 					db.Create(&act)
 				} else if keyWord == "Service" {
 					// t, _ := time.Parse("2006-01-02 15:04", messageText[8:]+" 01:00")
@@ -115,11 +115,11 @@ func HandleWebHookLineAPI(c echo.Context) error {
 						return err
 					}
 					act := model.ActionLog{
-						ActName:          "service",
-						ActStatus:        model.StatusSuccess,
-						ActUserID:        event.Source.UserID,
-						ActChatChannelID: chatChannel.ID,
-						ActCustomerID:    customer.ID}
+						ActName:       "service",
+						ActStatus:     model.StatusSuccess,
+						ActUserID:     event.Source.UserID,
+						ChatChannelID: chatChannel.ID,
+						CustomerID:    customer.ID}
 					act.CreateAction()
 				} else if keyWord == "booking " {
 					t, _ := time.Parse("2006-01-02 15:04", messageText[8:18]+" 01:00")
@@ -246,18 +246,18 @@ func HandleWebHookLineAPI(c echo.Context) error {
 				_, err := bot.ReplyMessage(event.ReplyToken, textMessage).Do()
 				if err != nil {
 					act := model.ActionLog{
-						ActName:          "LocationMessage",
-						ActStatus:        model.StatusFail,
-						ActChatChannelID: chatChannel.ID,
-						ActCustomerID:    customer.ID}
+						ActName:       "LocationMessage",
+						ActStatus:     model.StatusFail,
+						ChatChannelID: chatChannel.ID,
+						CustomerID:    customer.ID}
 					act.CreateAction()
 					return err
 				}
 				act := model.ActionLog{
-					ActName:          "LocationMessage",
-					ActStatus:        model.StatusSuccess,
-					ActChatChannelID: chatChannel.ID,
-					ActCustomerID:    customer.ID}
+					ActName:       "LocationMessage",
+					ActStatus:     model.StatusSuccess,
+					ChatChannelID: chatChannel.ID,
+					CustomerID:    customer.ID}
 				if err := model.DB().Create(&act).Error; err != nil {
 					// return c.JSON(http.StatusBadRequest, err)
 				}
@@ -275,11 +275,11 @@ func HandleWebHookLineAPI(c echo.Context) error {
 			welcomeHandle(&c, event, &chatChannel, bot)
 		case linebot.EventTypeUnfollow:
 			evenLog := model.EventLog{
-				EvenChatChannelID: chatChannel.ID,
-				EvenReplyToken:    event.ReplyToken,
-				EvenType:          string(event.Type),
-				EvenLineID:        event.Source.UserID,
-				EvenCustomerID:    customer.ID}
+				ChatChannelID:  chatChannel.ID,
+				EvenReplyToken: event.ReplyToken,
+				EvenType:       string(event.Type),
+				EvenLineID:     event.Source.UserID,
+				CustomerID:     customer.ID}
 			model.DB().Create(&evenLog)
 		}
 
@@ -289,15 +289,15 @@ func HandleWebHookLineAPI(c echo.Context) error {
 
 }
 
-func welcomeHandle(c *echo.Context, event *linebot.Event, chatChannel *model.ChatChannel, bot *linebot.Client) {
+func welcomeHandle(c *echo.Context, event *linebot.Event, chatChannel *model.ChatChannel, bot *lib.ClientLine) {
 	customer := model.Customer{
-		CusLineID:    event.Source.UserID,
-		CusAccountID: chatChannel.ChaAccountID}
+		CusLineID: event.Source.UserID,
+		AccountID: chatChannel.AccountID}
 	settingNames := []string{"LIFFregister"}
 	setting := chatChannel.GetSetting(settingNames)
 	if err := model.DB().FirstOrCreate(&customer, model.Customer{
-		CusLineID:    event.Source.UserID,
-		CusAccountID: chatChannel.ChaAccountID}).Error; err != nil {
+		CusLineID: event.Source.UserID,
+		AccountID: chatChannel.AccountID}).Error; err != nil {
 		// return c.JSON(http.StatusBadRequest, err)
 	}
 	jsonFlexMessage := FollowTemplate(chatChannel, setting)
@@ -306,20 +306,21 @@ func welcomeHandle(c *echo.Context, event *linebot.Event, chatChannel *model.Cha
 		// return c.JSON(http.StatusBadRequest, err)
 	}
 	flexMessage := linebot.NewFlexMessage(chatChannel.ChaWelcomeMessage, flexContainer)
-	bot.ReplyMessage(event.ReplyToken, flexMessage).Do()
+	_, err = bot.ReplyMessage(event.ReplyToken, flexMessage).Do()
+	fmt.Println(err)
 	evenLog := model.EventLog{
-		EvenChatChannelID: chatChannel.ID,
-		EvenReplyToken:    event.ReplyToken,
-		EvenType:          string(event.Type),
-		EvenLineID:        event.Source.UserID,
-		EvenCustomerID:    customer.ID}
+		ChatChannelID:  chatChannel.ID,
+		EvenReplyToken: event.ReplyToken,
+		EvenType:       string(event.Type),
+		EvenLineID:     event.Source.UserID,
+		CustomerID:     customer.ID}
 	model.DB().Create(&evenLog)
 	act := model.ActionLog{
-		ActName:          "follow",
-		ActStatus:        model.StatusSuccess,
-		ActUserID:        event.Source.UserID,
-		ActChatChannelID: chatChannel.ID,
-		ActCustomerID:    customer.ID}
+		ActName:       "follow",
+		ActStatus:     model.StatusSuccess,
+		ActUserID:     event.Source.UserID,
+		ChatChannelID: chatChannel.ID,
+		CustomerID:    customer.ID}
 	if err := model.DB().Create(&act).Error; err != nil {
 		// return c.JSON(http.StatusBadRequest, err)
 	}

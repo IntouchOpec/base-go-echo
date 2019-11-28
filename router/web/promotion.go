@@ -96,11 +96,14 @@ func PromotionPostHandler(c *Context) error {
 		PromEndDate:   promotion.EndDate,
 		PromCondition: promotion.Condition,
 		PromImage:     fileUrl,
-		PromAccountID: a.User.GetAccountID(),
+		AccountID:     a.User.GetAccountID(),
 	}
 
 	promotionModel.SavePromotion()
-	return c.JSON(http.StatusCreated, promotionModel)
+	return c.JSON(http.StatusCreated, echo.Map{
+		"data":     promotionModel,
+		"redirect": fmt.Sprintf("/admin/promotion/%d", promotionModel.ID),
+	})
 }
 
 func PromotionEditHandler(c *Context) error {

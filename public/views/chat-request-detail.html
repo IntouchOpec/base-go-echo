@@ -181,7 +181,7 @@
                                         <td>{{ .ReplyToken }}</td>
                                         <td>{{ .Customer.FullName }}</td>
                                         <td>{{ .Text }}</td>
-                                        <td>{{ ((.CreatedAt).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
+                                        <td>{{ ((.CreatedAt).AddDate 0 0 0).Format "Mon Jan 2 2006" }}</td>
                                     {{ end }}
                                     {{ end }}
                                     </tbody>
@@ -211,7 +211,7 @@
                                         <td>{{ .Name }}</td>
                                         <td>{{ .Status }}</td>
                                         <td>{{ .Customer.Name }}</td>
-                                        <td>{{ ((.CreatedAt).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
+                                        <td>{{ ((.CreatedAt).AddDate 0 0 0).Format "Mon Jan 2 2006" }}</td>
                                     {{ end }}
                                     {{ end }}
                                     </tbody>

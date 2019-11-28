@@ -40,7 +40,7 @@
                                <td>{{ .CusFullName }}</td>
                                <td>{{ .CusPhoneNumber }}</td>
                                <td>{{ .CusEmail }}</td>
-                               <td>{{ ((.CreatedAt).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
+                               <td>{{ ((.CreatedAt).AddDate 0 0 0).Format "Mon Jan 2 2006" }}</td>
                                <td class="td-actions text-right">
                                   <a href="/admin/customer/{{ .ID }}">
                                     <button type="button" rel="tooltip" class="btn btn-success">

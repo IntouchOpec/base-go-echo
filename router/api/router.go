@@ -69,7 +69,7 @@ func Routers() *echo.Echo {
 	e.PUT("/booking/:id", UpdateBooking)
 	e.DELETE("/booking/:id", DeleteBooking)
 
-	e.GET("/chatchannel/:chatChannelID/list", GetChatChannelList)
+	e.GET("/chatchannel", GetChatChannelList)
 	e.GET("/chatchannel/:id", GetChatChannelDetail)
 	e.POST("/chatchannel", CreateChatChannel)
 	e.POST("/chatchannel/:id/setting", CreateChatChannelSetting)

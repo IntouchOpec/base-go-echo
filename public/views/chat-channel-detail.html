@@ -14,112 +14,227 @@
       <div class="content">
          <div class="container-fluid">
            <div class="row">
+                <div class="col-lg-3 col-md-6 col-sm-6">
+                    <div class="card card-stats">
+                        <div class="card-header card-header-primary card-header-icon">
+                            <div class="card-icon p-0">
+                            <i class="material-icons">check_circle_outline</i>
+                            </div>
+                            <p class="card-category">Status</p>
+                            <h3 class="card-title">{{.insightFollowers.Status}}
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 col-sm-6">
+                    <div class="card card-stats">
+                        <div class="card-header card-header-success card-header-icon">
+                            <div class="card-icon p-0">
+                            <i class="material-icons">people</i>
+                            </div>
+                            <p class="card-category">Followers</p>
+                            <h3 class="card-title">{{.insightFollowers.Followers}}
+                            <small>P</small>
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 col-sm-6">
+                    <div class="card card-stats">
+                        <div class="card-header card-header-info card-header-icon">
+                            <div class="card-icon p-0">
+                            <i class="material-icons">gps_fixed</i>
+                            </div>
+                            <p class="card-category">Targeted Reaches</p>
+                            <h3 class="card-title">{{.insightFollowers.TargetedReaches}}
+                            <small>P</small>
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 col-sm-6">
+                    <div class="card card-stats">
+                        <div class="card-header card-header-danger card-header-icon">
+                            <div class="card-icon p-0">
+                            <i class="material-icons">pan_tool</i>
+                            </div>
+                            <p class="card-category">Blocks</p>
+                            <h3 class="card-title">{{.insightFollowers.Blocks}}
+                            <small>P</small>
+                            </h3>
+                        </div>
+                    </div>
+                </div>
                 <div class="col-md-4 row">
                     <div class="col-md-12">
-                        <div class="card card-profile">
-                        <div class="card-avatar">
-                            <a href="#pablo">
-                            <img class="img" src="{{ .detail.ChaImage }}" />
-                            </a>
+                        <div style="height: 84%;" class="card">
+                            <div class="card-header card-header-primary">
+                                <h4 class="card-title ">Profile Image</h4>
+                            </div>
+                            <div class="card-body">
+                                <img class="img-fluid" src="{{ .detail.ChaImage }}" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 row">
+                    <div class="col-md-12">
+                        <div style="height: 84%;" class="card">
+                            <div class="card-header card-header-primary">
+                                <h4 class="card-title ">Rich Menu</h4>
+                            </div>
+                            <div name="deplay-image-rich-menu" class="card-body">
+                                {{ if not .richMenuDefault }}
+                                <a href="/admin/richmenu/create"> 
+                                    <button type="button" class="btn btn-warning mt-3">
+                                        <i class="material-icons">cloud_download</i>
+                                        Create Rich Menu
+                                    </button>
+                                </a>
+                                {{ end }}
+                                {{if not .urlRichMenu.Name }}
+                                    <button type="button" class="btn btn-warning mt-3" value="{{ .detail.ID }}" name="{{ .richMenuDefault }}" id="download_rich_menu">
+                                        <i class="material-icons">cloud_download</i>
+                                        Download
+                                    </button>
+                                {{ else }}
+                                    <img class="img-fluid" src="{{ .urlRichMenu.Value }}" />
+                                {{ end }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                    <div class="card-header card-header-primary">
+                        <h4 class="card-title ">chat channel detail</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-3">
+                                Name:
+                            </div>
+                            <div class="col-8">
+                                {{ .detail.ChaName }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-3">
+                                ChannelID:
+                            </div>
+                            <div class="col-8">
+                                {{ .detail.ChaChannelID }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-3">
+                                PhoneNumber:
+                            </div>
+                            <div class="col-8">
+                                {{ .detail.ChaPhoneNumber }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-3">
+                                LineID:
+                            </div>
+                            <div class="col-8">
+                                {{ .detail.ChaLineID }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-3">
+                                WebSite:
+                            </div>
+                            <div class="col-8">
+                                {{ .detail.ChaWebSite }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-3">
+                                Address:
+                            </div>
+                            <div class="col-8">
+                                {{ .detail.ChaAddress }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-3">
+                                WelcomeMessage:
+                            </div>
+                            <div class="col-8">
+                                {{ .detail.ChaWelcomeMessage }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-3">
+                                ChannelSecret:
+                            </div>
+                            <div class="col-8">
+                                {{ .detail.ChaChannelSecret }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-3">
+                                ChannelAccessToken:
+                            </div>
+                            <div id="access_token" class="col-7">
+                                {{ .detail.ChaChannelAccessToken }}
+                            </div>
+                        </div>
+                        <a href="/admin/chat_channel/{{ .detail.ID }}/edit">
+                            <button type="button" class="btn btn-warning mt-3">
+                                <i class="material-icons">edit</i>
+                                Edit
+                            </button>
+                        </a>
+                        <a href="/admin/chat_channel/{{ .detail.ID }}/broadcast">
+                            <button type="button" class="btn btn-primary mt-3">
+                                <i class="material-icons">chat_bubble</i>
+                                Broadcast
+                            </button>
+                        </a>
+                        <button id="get_access_token" value="{{ .detail.ID }}" type="button" class="btn btn-success mt-3">
+                            <i class="material-icons">cached</i>
+                            Get New Access Token
+                        </button>
+                        <button id="remove" value="{{ .detail.ID }}" type="button" class="btn btn-danger mt-3">
+                            <i class="material-icons">delete</i>
+                            remove
+                        </button>
+                    </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header card-header-primary">
+                            <h4 class="card-title ">Detail</h4>
                         </div>
                         <div class="card-body">
-                            <h6 class="card-category text-gray">{{ .customer.ChaDisplayName }}</h6>
-                                <h4 class="card-title">{{ .detail.ChaName }}</h4>
-                                <h4 class="card-title">{{ .detail.ChaChannelID }}</h4>
-                                <h4 class="card-title">{{ .detail.ChaLineID }}</h4>
-                                <h4 class="card-title">{{ .detail.ChaPhoneNumber }}</h4>
-                        </div>
-                        </div>
-                    </div>
-                </div>
-            <div class="col-md-8">
-            <div class="card">
-            <div class="card-header card-header-primary">
-                <h4 class="card-title ">chat channel detail</h4>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-3">
-                        WebSite:
-                    </div>
-                    <div class="col-8">
-                        {{ .detail.ChaWebSite }}
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-3">
-                        Address:
-                    </div>
-                    <div class="col-8">
-                        {{ .detail.ChaAddress }}
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-3">
-                        WelcomeMessage:
-                    </div>
-                    <div class="col-8">
-                        {{ .detail.ChaWelcomeMessage }}
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-3">
-                        ChannelSecret:
-                    </div>
-                    <div class="col-8">
-                        {{ .detail.ChaChannelSecret }}
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-3">
-                        ChannelAccessToken:
-                    </div>
-                    <div id="access_token" class="col-7">
-                        {{ .detail.ChaChannelAccessToken }}
-                    </div>
-                    <div class="col-1">
-                        <button id="get_access_token" value="{{ .detail.ID }}" type="button" class="btn btn-success"><i class="material-icons">cached</i></button>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-3">
-                        Type:
-                    </div>
-                    <div class="col-8">
-
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-3">
-                        statusAccessToken:
-                    </div>
-                    <div class="col-2">
-                        {{ .settings.statusAccessToken }}
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-3">
-                        LIFFregister:
-                    </div>
-                    <div class="col-2" id="LIFFregister">
-                        {{ if (eq .settings.statusLIFFregister "error") }}
-                            <button id="add_LIIF_register" type="button" class="btn btn-info">create LIFF register</button>
-                        {{else}}
-                            <button class="btn btn-primary btn-fab btn-fab-mini btn-round">
-                                <i class="material-icons">done</i>
+                            <div class="table-responsive" style="height: 284px;">
+                                <table class="table">
+                                    <thead class=" text-primary">
+                                        <th>Name</th>
+                                        <th>Value</th>
+                                    </thead>
+                                    <tbody>
+                                    {{ with .deplayDetailChatChannels }}
+                                    {{ range . }}
+                                        <tr>
+                                            <td>{{ .Name }}</td>
+                                            <td>{{ .Value }}</td>
+                                        </tr>
+                                    {{ end }}
+                                    {{ end }}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button id="add_LIIF_register" value="{{ .detail.ID }}" type="button" class="btn btn-light mt-3">
+                                Add Register LIFF
                             </button>
-                        {{ end }}
+                        </div>
                     </div>
                 </div>
-                <a href="/admin/chat_channel/{{ .detail.ID }}/edit">
-                    <button type="button" class="btn btn-warning mt-3">
-                        <i class="material-icons">edit</i>
-                        Edit
-                    </button>
-                </a>
-            </div>
-            </div>
-            </div>
            </div>
            <div class="row">
                 <div class="col-md-6">
@@ -128,7 +243,7 @@
                             <h4 class="card-title ">Event Log</h4>
                         </div>
                         <div class="card-body">
-                            <div class="table-responsive">
+                            <div class="table-responsive" style="height: 180px;">
                                 <table class="table">
                                     <thead class=" text-primary">
                                         <th>LineID</th>
@@ -138,18 +253,25 @@
                                         <th>CreatedAt</th>
                                         <th></th>
                                     </thead>
-                                    <tbody>
-                                    {{ with .detail.EventLogs }}
+                                    <tbody id="body-event-logs">
+                                    {{ with .eventLogs }}
                                     {{ range . }}
-                                        <td>{{ .LineID }}</td>
-                                        <td>{{ .ReplyToken }}</td>
-                                        <td>{{ .Customer.FullName }}</td>
-                                        <td>{{ .Text }}</td>
-                                        <td>{{ ((.CreatedAt).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
+                                        <tr>
+                                            <td>{{ .EvenLineID }}</td>
+                                            <td>{{ .EvenReplyToken }}</td>
+                                            <td>{{ .Customer.CusDisplayName }}</td>
+                                            <td>{{ .EvenText }}</td>
+                                            <td>{{ .CreatedAt.Format "Mon Jan 2 2006" }}</td>
+                                        </tr>
                                     {{ end }}
                                     {{ end }}
                                     </tbody>
                                 </table>
+                            </div>
+                            <div class="row p-0 m-0">
+                                <div class="ml-auto" name="event_logs">
+                                    {{ template "pagination" .paginationEventLogs }}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -160,26 +282,33 @@
                             <h4 class="card-title ">Action Log</h4>
                         </div>
                         <div class="card-body">
-                            <div class="table-responsive">
+                            <div class="table-responsive" style="height: 180px;">
                                 <table class="table">
-                                    <thead class=" text-primary">
+                                    <thead class="text-primary">
                                         <th>Name</th>
                                         <th>Status</th>
                                         <th>Customer</th>
                                         <th>CreatedAt</th>
                                         <th></th>
                                     </thead>
-                                    <tbody>
-                                    {{ with .detail.EventLogs }}
+                                    <tbody id="body-action-logs">
+                                    {{ with .actionLogs }}
                                     {{ range . }}
-                                        <td>{{ .Name }}</td>
-                                        <td>{{ .Status }}</td>
-                                        <td>{{ .Customer.Name }}</td>
-                                        <td>{{ ((.CreatedAt).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
+                                        <tr>
+                                            <td>{{ .ActName }}</td>
+                                            <td>{{ .ActStatus }}</td>
+                                            <td>{{ .Customer.CusDisplayName }}</td>
+                                            <td>{{ .CreatedAt.Format "Mon Jan 2 2006" }}</td>
+                                        </tr>
                                     {{ end }}
                                     {{ end }}
                                     </tbody>
                                 </table>
+                            </div>
+                            <div class="row p-0 m-0">
+                                <div class="ml-auto" name="action_logs">
+                                    {{ template "pagination" .paginationActionLogs }}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -194,6 +323,88 @@
   {{ template "script" }}
     <script>
         (function ($) {
+            let _csrf = $("#_csrf").val()
+            const data = new URLSearchParams();
+            data.append("_csrf", _csrf);
+            let chat_channel_id = $("#add_LIIF_register").val()
+            $("div[name='action_logs'] nav ul.pagination li").each(function () {
+                $(this).click(function (){
+                    let page = parseInt($(this).attr("value"))
+
+                    fetch(`/admin/action_log?limit=10&page=${page -1}&chat_channel_id=${chat_channel_id}`).then(res =>{
+                        if (res.status === 200) {
+                            return res.json()
+                        }
+                    })
+                    .then(data => {
+                        let record = ""
+                        let date = ""
+                        data.data.map(value => {
+                            date = new Date(value.created_at).toString()
+                            record += ` <tr>
+                                <td>${value.act_name}</td>
+                                <td>${value.act_status}</td>
+                                <td>${value.customer.cus_display_name}</td>
+                                <td>${date}</td>
+                            </tr>`
+                        })
+                        $("#body-action-logs").html(record)
+                    })
+                    .catch(err => {
+                        console.log(err)
+                    })
+                })
+            })
+            $("div[name='event_logs'] nav ul.pagination li").each(function () {
+                $(this).click(function (){
+                    let page = parseInt($(this).attr("value"))
+
+                    fetch(`/admin/event_log?limit=10&page=${page -1}&chat_channel_id=${chat_channel_id}`).then(res =>{
+                        if (res.status === 200) {
+                            return res.json()
+                        }
+                    })
+                    .then(data => {
+                        let record = ""
+                        let date = ""
+                        data.data.map(value => {
+                            date = new Date(value.created_at).toString()
+                            record += `<tr>
+                                <td>${value.even_line_id}</td>
+                                <td>${value.even_reply_token}</td>
+                                <td>${value.customer.cus_display_name}</td>
+                                <td>${value.even_text}</td>
+                                <td>${date}</td>
+                            </tr>`
+                        })
+                        $("#body-event-logs").html(record)
+                    })
+                    .catch(err => {
+                        console.log(err)
+                    })
+                })
+            })
+
+            $("#download_rich_menu").click(function () {
+                let richMenuId = $(this).attr("name")
+                let chatChannelId = $(this).val()
+
+                fetch(`/admin/richmenu/${richMenuId}/download_image?chat_channel_id=${chatChannelId}`,{
+                    method: "PATCH",
+                    body: data
+                }).then(res => {
+                    if (res.status === 200) {
+                        $("#download_rich_menu").remove()
+                        return res.json()
+                    }
+                }).then(data => {
+                    $("div [name='deplay-image-rich-menu']").append(`
+                        <img class="img-fluid" src="${data.urlImage}" />
+                    `)
+                    data.urlImage
+                })
+            })
+            
             $("#get_access_token").on("click",function () {
                 let _csrf = $("#_csrf").val()
                 const data = new URLSearchParams();
@@ -217,10 +428,9 @@
                     ))
             })
 
+
             $("#add_LIIF_register").on("click",function () {
-                let _csrf = $("#_csrf").val()
-                const data = new URLSearchParams();
-                data.append("_csrf", _csrf);
+                
                 fetch(window.location.href+"/add_liff_register",{
                     method: "PATCH",
                     body: data
@@ -234,7 +444,10 @@
                     '',
                     'success'
                     )
-                    $("#add_LIIF_register").remove()
+                    $("#LIFFregister").replaceWith(`
+                    <button class="btn btn-primary btn-fab btn-fab-mini btn-round">
+                            <i class="material-icons">done</i>
+                    </button>`)
                 }).catch(err => Swal.fire(
                     'New Access Token',
                     '',

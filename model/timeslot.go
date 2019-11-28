@@ -7,16 +7,16 @@ import (
 type TimeSlot struct {
 	orm.ModelBase
 
-	TimeStart             string          `json:"time_start" gorm:"type:varchar(10)"`
-	TimeEnd               string          `json:"time_end" gorm:"type:varchar(10)"`
-	TimeDay               int             `json:"time_day"`
-	TimeAmount            int             `json:"time_amount"`
-	TimeActive            bool            `json:"time_active" gorm:"default:true"`
-	TimeProviderServiceID uint            `json:"time_provider_service_id"`
-	TimeAccountID         uint            `json:"time_account_id"`
-	ProviderService       ProviderService `json:"provider_service" gorm:"ForeignKey:TimeProviderServiceID"`
-	Bookings              []*Booking      `json:"bookings"`
-	Account               Account         `json:"account" gorm:"ForeignKey:TimeAccountID"`
+	TimeStart         string          `json:"time_start" gorm:"type:varchar(10)"`
+	TimeEnd           string          `json:"time_end" gorm:"type:varchar(10)"`
+	TimeDay           int             `json:"time_day"`
+	TimeAmount        int             `json:"time_amount"`
+	TimeActive        bool            `json:"time_active" gorm:"default:true"`
+	ProviderServiceID uint            `json:"provider_service_id"`
+	AccountID         uint            `json:"account_id"`
+	ProviderService   ProviderService `json:"provider_service" gorm:"ForeignKey:ProviderServiceID"`
+	Bookings          []*Booking      `json:"bookings"`
+	Account           Account         `json:"account" gorm:"ForeignKey:AccountID"`
 }
 
 func (tim *TimeSlot) CreateTimeSlot() error {

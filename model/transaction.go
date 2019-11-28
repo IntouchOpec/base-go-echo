@@ -14,14 +14,14 @@ const (
 
 type Transaction struct {
 	orm.ModelBase
-	TranStatus        TranStatusType `json:"tran_status" gorm:"type:varchar(50)"`
-	TranTotal         int            `json:"tran_total"`
-	TranAccountID     uint           `json:"tran_account_id"`
-	TranChatChannelID uint           `json:"tranchat_channel_id"`
-	TranCustomerID    uint           `json:"tran_customer_id"`
-	Customer          Customer       `json:"customer" gorm:"ForeignKey:TranCustomerID"`
-	Account           Account        `json:"account" gorm:"ForeignKey:TranAccountID"`
-	ChatChannel       ChatChannel    `json:"chat_channel" gorm:"ForeignKey:TranChatChannelID"`
+	TranStatus    TranStatusType `json:"tran_status" gorm:"type:varchar(50)"`
+	TranTotal     int            `json:"tran_total"`
+	AccountID     uint           `json:"account_id"`
+	ChatChannelID uint           `json:"channel_id"`
+	CustomerID    uint           `json:"customer_id"`
+	Customer      Customer       `json:"customer" gorm:"ForeignKey:CustomerID"`
+	Account       Account        `json:"account" gorm:"ForeignKey:AccountID"`
+	ChatChannel   ChatChannel    `json:"chat_channel" gorm:"ForeignKey:ChatChannelID"`
 }
 
 func (tran *Transaction) CreateTransaction() error {

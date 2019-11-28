@@ -3,18 +3,18 @@
         <ul class="pagination">
             {{ if .Previous }}
                 <li class="page-item">
-                    <a class="page-link" href="#" tabindex="-1">Previous</a>
+                    <p class="page-link">Previous</p>
                 </li>
             {{ end }}
             {{$page := .Page}}
             {{range $val := .List}}
-                <li class="page-item {{if (eq  $val $page)}} active {{end}}">
-                    <a class="page-link" href="#">{{ $val }}</a>
+                <li value="{{ $val }}" class="page-item {{if (eq  $val $page)}} active {{end}}">
+                    <p class="page-link">{{ $val }}</p>
                 </li>
             {{ end }}
             {{ if .Next }}        
                 <li class="page-item">
-                    <a class="page-link" href="#">Next</a>
+                    <p class="page-link">Next</p>
                 </li>
             {{ end }}        
         </ul>

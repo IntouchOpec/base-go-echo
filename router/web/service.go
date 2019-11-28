@@ -146,11 +146,11 @@ func ServicePostHandler(c *Context) error {
 	}
 	a := auth.Default(c)
 	serviceModel := model.Service{
-		SerName:      service.Name,
-		SerDetail:    service.Detail,
-		SerPrice:     service.Price,
-		SerImage:     fmt.Sprintf("%s.%s", u, fm),
-		SerAccountID: a.User.GetAccountID(),
+		SerName:   service.Name,
+		SerDetail: service.Detail,
+		SerPrice:  service.Price,
+		SerImage:  fmt.Sprintf("%s.%s", u, fm),
+		AccountID: a.User.GetAccountID(),
 	}
 	serviceModel.Saveservice()
 

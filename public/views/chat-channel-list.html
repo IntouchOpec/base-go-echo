@@ -28,7 +28,6 @@
                    <div class="table-responsive">
                      <table class="table">
                        <thead class=" text-primary">
-                          <th>No</th>
                           <th>ChannelID</th>
                           <th>Name</th>
                           <th>LineID</th>
@@ -41,12 +40,11 @@
                          {{ with .list }}
                            {{ range . }}
                              <tr name="row_{{ .ID }}">
-                              <td></td>
                               <td>{{ .ChaChannelID }}</td>
                               <td>{{ .ChaName }}</td>
                               <td>{{ .ChaLineID }}</td>
                               <td>{{ .ChaType }}</td>
-                              <td>{{ ((.CreatedAt).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
+                              <td>{{ ((.CreatedAt).AddDate 0 0 0).Format "Mon Jan 2 2006" }}</td>
                               <td class="td-actions text-right">
                                 <a href="/admin/chat_channel/{{ .ID }}">
                                   <button type="button" rel="tooltip" class="btn btn-success">

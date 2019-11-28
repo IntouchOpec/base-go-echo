@@ -64,7 +64,7 @@ func ProviderPostHandler(c *Context) error {
 	}
 
 	provider.ProvImage = fileUrl
-	provider.ProvAccountID = a.GetAccountID()
+	provider.AccountID = a.GetAccountID()
 
 	if err := c.Bind(&provider); err != nil {
 		return c.JSON(http.StatusBadRequest, err)

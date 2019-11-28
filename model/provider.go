@@ -12,9 +12,9 @@ type Provider struct {
 	ProvDetail       string             `form:"prov_detail" json:"prov_detail"`
 	ProvLineID       string             `form:"prov_line_id" json:"prov_line_id" gorm:"type:varchar(50)"`
 	ProvImage        string             `form:"image" json:"prov_image" gorm:"type:varchar(255)"`
-	ProvAccountID    uint               `form:"prov_account_id" json:"prov_account_id"`
+	AccountID        uint               `form:"account_id" json:"account_id"`
 	ProviderServices []*ProviderService `json:"provider_services" `
-	Account          Account            `json:"account" gorm:"ForeignKey:ProvAccountID"`
+	Account          Account            `json:"account" gorm:"ForeignKey:AccountID"`
 }
 
 func (prov *Provider) CreateProvider() error {

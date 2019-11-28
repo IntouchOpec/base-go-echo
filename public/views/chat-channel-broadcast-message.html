@@ -1,0 +1,352 @@
+{{define "chat-channel-broadcast-message"}}
+<!DOCTYPE html>
+<html lang="en">
+
+{{ template "header" .title }}
+
+<body class="">
+    <div class="wrapper ">
+    {{ template "sidebar" .base }}
+        <div class="main-panel">
+            {{ template "navbar" .title }}
+            <div class="content">
+                <div class="container-fluid">
+                    <div class="row">
+                            <div class="col-md-8">
+                                <div class="card">
+                                    <div class="card-header card-header-primary">
+                                        <h4 class="card-title">broadcast </h4>
+                                        <p class="card-category">Complete your Chat Channel</p>
+                                    </div>
+                                    <div class="card-body">
+                                        <form name="form-broadcast" >
+                                            <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden" class="form-control" >
+                                            <div>
+                                                <label class="bmd-label-floating" >Choice Customer Grop</label>
+                                            </div>
+                                            <div class="row p-0 m-0">
+                                                <div class="col-md-6 mt-2">                                                
+                                                    <div class="form-check form-check-radio form-check-inline">
+                                                        <label class="form-check-label">
+                                                        <input class="form-check-input" type="radio" name="customer_state" id="inlineRadio1" value="1"> line name
+                                                        <span class="circle">
+                                                            <span class="check"></span>
+                                                        </span>
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check form-check-radio form-check-inline">
+                                                        <label class="form-check-label">
+                                                        <input class="form-check-input" type="radio" name="customer_state" id="inlineRadio2" value="2"> customer type
+                                                        <span class="circle">
+                                                            <span class="check"></span>
+                                                        </span>
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check form-check-radio form-check-inline">
+                                                        <label class="form-check-label">
+                                                        <input class="form-check-input" type="radio" name="customer_state" id="inlineRadio3" value="3"> all
+                                                        <span class="circle">
+                                                            <span class="check"></span>
+                                                        </span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+
+                                                <hr/>
+                                               
+                                                </div>
+                                                <div id="form-line-name" class="row p-0 m-0">
+                                                    <div class="col-md-6 mt-2">
+                                                        <div class="form-group">
+                                                            <label class="bmd-label-floating">line name</label>
+                                                            <textarea name="line_name" id="line_name" type="text" class="form-control" ></textarea>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div id="form-choice-customer" class="row">
+                                                    <div class="col-md-6 mt-2">
+                                                        <div class="form-group">
+                                                            <label for="exampleFormControlSelect2">Customer Type</label>
+                                                            <select name="type" class="form-control" id="type" data-style="btn btn-link" id="exampleFormControlSelect2">
+                                                                <option value=""></option>
+                                                                {{ with .customerTypes }}
+                                                                {{ range . }}
+                                                                    <option value="{{.ID}}">{{.Name}}</option>
+                                                                {{ end }}
+                                                                {{ end }}
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <hr/>
+
+                                                <div class="col-md-6 mt-2">                                                
+                                                    <div class="form-check form-check-radio form-check-inline">
+                                                        <label class="form-check-label">
+                                                        <input class="form-check-input" type="radio" name="sand_date" id="sand_date1" value="1"> sand now
+                                                        <span class="circle">
+                                                            <span class="check"></span>
+                                                        </span>
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check form-check-radio form-check-inline">
+                                                        <label class="form-check-label">
+                                                        <input class="form-check-input" type="radio" name="sand_date" id="sand_date2" value="2"> time
+                                                        <span class="circle">
+                                                            <span class="check"></span>
+                                                        </span>
+                                                        </label>
+                                                    </div> 
+                                                </div>
+
+                                                <div class="row" id="time-form">
+                                                    <div class="col-md-12 mt-2">
+                                                        <div class="form-group">
+                                                            <label class="bmd-label-floating" >time</label>
+                                                            <input name="time" id="time" type="time" class="form-control" >
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <hr/>
+                                                <ul class="nav nav-pills nav-pills-primary p-3" role="tablist">
+                                                    <li class="nav-item">
+                                                        <a class="nav-link active" data-toggle="tab" href="#Massage" role="tablist" aria-expanded="true">
+                                                            Massage
+                                                        </a>
+                                                    </li>
+                                                    <li class="nav-item">
+                                                        <a class="nav-link" data-toggle="tab" href="#Image" role="tablist" aria-expanded="false">
+                                                            Image
+                                                        </a>
+                                                    </li>
+                                                    <li class="nav-item">
+                                                        <a class="nav-link" data-toggle="tab" href="#Video" role="tablist" aria-expanded="false">
+                                                            Video
+                                                        </a>
+                                                    </li>
+                                                    <li class="nav-item">
+                                                        <a class="nav-link" data-toggle="tab" href="#Audio" role="tablist" aria-expanded="false">
+                                                            audio
+                                                        </a>
+                                                    </li>
+                                                    <li class="nav-item">
+                                                        <a class="nav-link" data-toggle="tab" href="#Line_Bot_Designer" role="tablist" aria-expanded="false">
+                                                            Line Bot Designer
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                                <div class="tab-content tab-space p-3">
+                                                    <div class="tab-pane active" id="Massage" aria-expanded="true">
+                                                        <div class="col-md-12 mt-2">
+                                                            <div class="form-group">
+                                                                <label class="bmd-label-floating" >text</label>
+                                                                <input name="text" id="text" type="text" class="form-control" >
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="tab-pane" id="Image" aria-expanded="false">
+                                                        <div class="col-md-12 mt-2">
+                                                            <input id="image" name="image" type="file">
+                                                            <p><strong>Image:</strong> Choose any file on your computer and its name will be displayed in an alert dialog box.</p>
+                                                            <img src="/" class="img-fluid">
+                                                        </div>
+                                                    </div>
+                                                    <div class="tab-pane" id="Video" aria-expanded="false">
+                                                        <div class="col-md-12 mt-2" id="form-vedio">
+                                                            <input id="video" name="video" type="file">
+                                                            <p><strong>Video:</strong> Choose any file on your computer and its name will be displayed in an alert dialog box.</p>
+                                                            <video id="video-src" width="100%" controls="" controlslist="nodownload" src="" ></video>
+                                                        </div>
+                                                    </div>
+                                                    <div class="tab-pane" id="Audio" aria-expanded="false">
+                                                        <div class="col-md-12 mt-2" id="form-audio">
+                                                            <input id="audio" name="audio" type="file">
+                                                            <p><strong>audio:</strong> Choose any file on your computer and its name will be displayed in an alert dialog box.</p>
+                                                            <audio id="audio-src" controls="" controlslist="nodownload" src=""></audio>
+                                                        </div>
+                                                    </div>
+                                                    <div class="tab-pane" id="Line_Bot_Designer" aria-expanded="false">
+                                                        <div class="col-md-12 mt-2">
+                                                            <div class="form-group">
+                                                                <label class="bmd-label-floating" >Line Bot Designer</label>
+                                                                <textarea name="line-bot-designer" id="line-bot-designer" type="text" class="form-control" ></textarea>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            <input type="submit" rel="tooltip" value="Submit" class="btn btn-success">
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {{ template "footer" }}
+            </div>
+        </div>
+    </div>
+  {{ template "script" }}
+  <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+  <script>
+    (function ($) {
+        let videoBase64 = ""
+        let audioBase64 = ""
+        let imageBase64 = ""
+        const toBase64 = file => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+
+        $("#form-choice-customer").hide();
+        $("#form-all").hide();
+        $("#form-line-name").hide();
+        $("#time-form").hide();
+
+        $("input[name='video']").change(function (){
+            toBase64($("#video")[0].files[0]).then(video => {
+                videoBase64 = video
+                $("video").attr("src", video);
+            })
+        })
+
+        $("input[name='audio']").change(function (){
+            console.log($("#audio")[0].files)
+            toBase64($("#audio")[0].files[0]).then(audio => {
+                audioBase64 = audio
+                $("audio").attr("src", audio);
+            })
+        })
+
+        $("input[name='image']").change(function (){
+            toBase64($("#image")[0].files[0]).then(Image => {
+                imageBase64 = Image
+                $("img").attr("src", Image);
+            })
+        })
+
+        $("input[name='sand_date']").change(() => {
+            let value = $("input[name='sand_date']:checked").val();
+            switch(value) {
+                case "1":
+                    $("#time-form").hide();
+                    break;
+                case "2":
+                    $("#time-form").show();
+                    break;
+            }
+        })
+        $("input[name='customer_state']").change(() => {
+            let value = $("input[name='customer_state']:checked").val();
+            switch(value) {
+                case "1":
+                    $("#form-line-name").show();
+                    $("#form-choice-customer").hide();
+                    $("#form-all").hide();
+                    break;
+                case "2":
+                    $("#form-choice-customer").show();
+                    $("#form-all").hide();
+                    $("#form-line-name").hide();
+                    break;
+                case "3":   
+                    $("#form-choice-customer").hide();
+                    $("#form-all").show();
+                    $("#form-line-name").hide();
+                    break;
+            }
+        });
+
+        $("form[name='form-broadcast']").validate({
+            rules: {
+                
+            },
+            messages: {
+                
+            },
+            submitHandler: function(form) {
+                let _csrf = $("#_csrf").val()
+                let sand_date = $("input[name='sand_date']:checked").val();
+                let customer_state = $("input[name='customer_state']:checked").val();
+
+                let data =[];
+
+                let _csrf_key = encodeURIComponent("_csrf")
+                let sand_date_key = encodeURIComponent("sand_date")
+                let customer_state_key = encodeURIComponent("customer_state")
+                let _csrf_value = encodeURIComponent(_csrf)
+                let sand_date_value = encodeURIComponent(sand_date)
+                let customer_state_value = encodeURIComponent(customer_state)
+                data.push(_csrf_key + "=" + _csrf_value)
+                data.push(sand_date_key + "=" + sand_date_value)
+                data.push(customer_state_key + "=" + customer_state_value)
+
+                let state = $("div.tab-pane.active").attr('id')
+                data.push(encodeURIComponent("state") + "=" + encodeURIComponent(state))            
+                switch(state) {
+                    case"Massage":
+                        data.push(encodeURIComponent("text") + "=" + encodeURIComponent($("#text").val()))
+                        break;
+                    case"Image":
+                        data.push(encodeURIComponent("image") + "=" + encodeURIComponent(JSON.stringify(imageBase64)))
+                        break;
+                    case"Video":
+                        data.push(encodeURIComponent("video") + "=" + encodeURIComponent(JSON.stringify(videoBase64)))
+                        break;
+                    case"Audio":
+                        data.push(encodeURIComponent("audio")+ "=" + encodeURIComponent(JSON.stringify(audioBase64)))
+                        data.push(encodeURIComponent("duration")+ "=" + encodeURIComponent(parseInt(document.getElementById("audio-src").duration)))
+                        break;
+                    case"Line_Bot_Designer":
+                        let line_bot_designer = $("#line-bot-designer").val()
+                        data.push(encodeURIComponent("line_bot_designer")+ "=" + encodeURIComponent(line_bot_designer))
+                        break;
+                }
+                if (sand_date === "2") {
+                    let time = $("#time").val()  
+                    data.push(encodeURIComponent("time") + "=" + encodeURIComponent(time))
+                }
+
+                switch(customer_state) {
+                case "1":
+                    let line_name = $("#line_name").val()
+                    data.push(encodeURIComponent("line_name") + "=" + encodeURIComponent(line_name))
+                    break;
+                case "2":
+                    let time = $("#type").val()  
+                    data.push(encodeURIComponent("customer_type_id") + "=" + encodeURIComponent(type))
+                    break;
+                }
+
+                data = data.join("&");     
+                console.log(data)
+                fetch(window.location.href, {
+                    method: "POST", 
+                    headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                    body: data
+                })
+                .then(res =>  {
+                    if (res.status === 201) {
+                        return res.json()
+                    }
+                })
+                .then(json => {
+                    console.log(json)
+                    // window.location.href = json
+                })
+                .catch(err => Swal.fire("fial", "", "warning"))
+            }
+        })
+        
+    })(jQuery)
+  </script>
+</body>
+
+</html>
+
+{{end}}

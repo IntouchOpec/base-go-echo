@@ -76,7 +76,7 @@
                                 <td>{{ .BookStatus }}</td>
                                 <td>{{ .BookState }}</td>
                                 <td>{{ .BookedDate }}</td>
-                                <td>{{ ((.CreatedAt).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
+                                <td>{{ ((.CreatedAt).AddDate 0 0 0).Format "Mon Jan 2 2006" }}</td>
                               </tr>
                               {{ end }} 
                               {{ end }}
@@ -113,7 +113,7 @@
                               <td>{{ .EvenLineID }}</td>
                               <td>{{ .EvenChatChannelID }}</td>
                               <td>{{ .EvenText }}</td>
-                              <td>{{ ((.CreatedAt).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
+                              <td>{{ ((.CreatedAt).AddDate 0 0 0).Format "Mon Jan 2 2006" }}</td>
                             </tr>
                             {{ end }} 
                             {{ end }}
@@ -142,7 +142,7 @@
                                   <tr>
                                   <td>{{ .ActName }}</td>
                                   <td>{{ .ActStatus }}</td>
-                                  <td>{{ ((.CreatedAt).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</td>
+                                  <td>{{ ((.CreatedAt).AddDate 0 0 0).Format "Mon Jan 2 2006" }}</td>
                                   </tr>
                                   {{ end }} 
                                   {{ end }}

@@ -18,7 +18,7 @@ require (
 	github.com/jinzhu/gorm v1.9.11
 	github.com/labstack/echo v3.3.10+incompatible
 	github.com/labstack/gommon v0.3.0
-	github.com/line/line-bot-sdk-go v6.3.0+incompatible
+	github.com/line/line-bot-sdk-go v6.4.0+incompatible
 	github.com/opentracing/basictracer-go v1.0.0 // indirect
 	github.com/opentracing/opentracing-go v1.1.0
 	github.com/robfig/go-cache v0.0.0-20130306151617-9fc39e0dbf62

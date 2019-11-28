@@ -2,6 +2,7 @@ package model
 
 import (
 	"github.com/IntouchOpec/base-go-echo/model/orm"
+	"github.com/jinzhu/gorm"
 )
 
 // ChatChannels list ChatChannel
@@ -18,14 +19,14 @@ type ChatChannel struct {
 	ChaChannelAccessToken string       `json:"cha_channel_access_token" form:"cha_channel_access_token" binding:"required" gorm:"type:varchar(255)"`
 	ChaType               string       `form:"cha_type" json:"cha_type"  gorm:"type:varchar(10)"`
 	ChaPhoneNumber        string       `json:"cha_phone_number" form:"cha_cha_phone_number" binding:"required" gorm:"type:varchar(10)"`
-	ChaAccountID          uint         `form:"cha_account_id" json:"cha_account_id" gorm:"not null;"`
 	ChaImage              string       `json:"cha_image" form:"cha_image" binding:"required" gorm:"type:varchar(255)"`
 	ChaWebSite            string       `json:"cha_website" form:"cha_website" binding:"required" gorm:"type:varchar(255)"`
 	ChaWelcomeMessage     string       `json:"cha_welcome_message" form:"cha_welcome_message" binding:"required" gorm:"type:varchar(100)"`
 	ChaAddress            string       `json:"cha_address" form:"cha_address" binding:"required" gorm:"type:varchar(100)"`
-	Account               Account      `gorm:"ForeignKey:ChaAccountID"`
+	AccountID             uint         `form:"account_id" json:"account_id" gorm:"not null;"`
+	Account               Account      `gorm:"ForeignKey:AccountID"`
+	Customers             []*Customer  `gorm:"many2many:chat_channel_customer"`
 	Settings              []*Setting   `gorm:"many2many:setting_chat_channel;" json:"settings" form:"settings"`
-	Customers             []*Customer  `json:"customer"`
 	EventLogs             []*EventLog  `json:"event_logs"`
 	ActionLogs            []*ActionLog `json:"action_logs"`
 	Services              []*Service   `json:"services" gorm:"many2many:service_chat_channel"`
@@ -41,9 +42,11 @@ func (cha *ChatChannel) SaveChatChannel() error {
 }
 
 // GetChatChannel query account list.
-func GetChatChannel(chatChannelID, size, page int) *[]ChatChannel {
-	chatChannels := []ChatChannel{}
-	if err := DB().Where("cha_account_id = ?", chatChannelID).Offset((page - 1) * size).Limit(size).Find(&chatChannels).Error; err != nil {
+func GetChatChannel(AccountID uint) *ChatChannel {
+	chatChannels := ChatChannel{}
+	if err := DB().Where("cha_account_id = ?", AccountID).Preload("EventLogs").Preload("ActionLogs", func(db *gorm.DB) *gorm.DB {
+		return db.Preload("Customer")
+	}).Find(&chatChannels, 1).Error; err != nil {
 		return nil
 	}
 	return &chatChannels

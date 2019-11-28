@@ -28,10 +28,10 @@ type Promotion struct {
 	PromEndDate      time.Time          `from:"end_time" gorm:"column:end_time" json:"prom_end_time"`
 	PromCondition    string             `form:"condition" json:"prom_condition"`
 	PromImage        string             `form:"image" json:"prom_image" gorm:"type:varchar(255)"`
-	PromAccountID    uint               `json:"prom_account_id"`
+	AccountID        uint               `json:"account_id"`
 	Customers        []*Customer        `gorm:"many2many:promotion_customer" json:"customer"`
 	ChatChannels     []*ChatChannel     `json:"chat_channels" gorm:"many2many:chat_channel_promotion"`
-	Account          Account            `gorm:"ForeignKey:PromAccountID"`
+	Account          Account            `gorm:"ForeignKey:AccountID"`
 	Settings         []*Setting         `json:"settings" gorm:"many2many:promotion_setting"`
 	ProviderServices []*ProviderService `json:"provider_service" gorm:"many2many:promotion_provider_service"`
 }

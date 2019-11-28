@@ -48,3 +48,35 @@ func UploadteImage(file string) (string, string, error) {
 	err = ioutil.WriteFile(fileName, buff.Bytes(), 0644)
 	return fileNameBase, fileName, nil
 }
+
+func UploadFile(file string, typeFile string) (string, string, error) {
+	u := guuid.New()
+	fileNameBase := "public/assets/mp3/%s"
+	fileNameBase = fmt.Sprintf(fileNameBase, u)
+	fileName := fileNameBase + typeFile
+	fileNameBase = fmt.Sprintf("/mp3/%s", u) + typeFile
+	if err := Decode(file, fileName); err != nil {
+		fmt.Println(err)
+		return "", "", err
+	}
+	return fileNameBase, fileName, nil
+
+}
+
+func Decode(code string, dest string) error {
+	idx := strings.Index(code, ";base64,")
+	if idx < 0 {
+		fmt.Println("=======1")
+		return errors.New("ErrInvalidImage")
+	}
+	reader := base64.NewDecoder(base64.StdEncoding, strings.NewReader(code[idx+8:]))
+
+	buff := bytes.Buffer{}
+	buff.ReadFrom(reader)
+	if err := ioutil.WriteFile(dest, buff.Bytes(), 0644); err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	return nil
+}

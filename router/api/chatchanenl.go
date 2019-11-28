@@ -124,21 +124,17 @@ func GetChannelAccessToken(c echo.Context) error {
 }
 
 func GetChatChannelList(c echo.Context) error {
-	page := c.QueryParam("page")
-	size := c.QueryParam("size")
-	chatChannelID := c.Param("chatChannelID")
-	pageInt, _ := strconv.Atoi(page)
-	sizeInt, _ := strconv.Atoi(size)
-	chatChannelIDInt, _ := strconv.Atoi(chatChannelID)
-
-	chatChannels := model.GetChatChannel(chatChannelIDInt, sizeInt, pageInt)
-
+	chatChannels := model.GetChatChannel(1)
 	return c.JSON(http.StatusOK, chatChannels)
 }
 
 func GetChatChannelDetail(c echo.Context) error {
 	id := c.Param("id")
-	chatChannel := model.GetChatChannelByID(id)
+	chatChannel := model.ChatChannel{}
+	if err := model.DB().Preload("ActionLogs").Preload("EventLogs").Find(&chatChannel, id).Error; err != nil {
+		fmt.Println(err)
+		return c.JSON(http.StatusBadRequest, err)
+	}
 	return c.JSON(http.StatusOK, chatChannel)
 }
 

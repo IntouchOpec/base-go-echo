@@ -69,7 +69,7 @@ func ChatAnswerPostHandler(c *Context) error {
 	}
 	a := auth.Default(c)
 
-	chatAnswer.AnsAccountID = a.GetAccountID()
+	chatAnswer.AccountID = a.GetAccountID()
 	err := chatAnswer.SaveChatAnswer()
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)

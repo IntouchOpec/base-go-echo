@@ -26,7 +26,7 @@
                                 <h2 class="card-category text-gray">{{ .detail.PromName }}</h2>
                                 <h2 class="card-category text-gray">{{ .detail.PromCode }}</h2>
                                 <h6 class="card-category text-gray">{{ .detail.PromType }}</h6>
-                                <h6 class="card-category text-gray">{{ ((.detail.PromStartDate).AddDate 0 1 0).Format "Mon Jan 2 2006" }} - {{ ((.detail.PromEndDate).AddDate 0 1 0).Format "Mon Jan 2 2006" }}</h6>
+                                <h6 class="card-category text-gray">{{ .detail.PromStartDate.Format "Mon Jan 2 2006" }} - {{ .detail.PromEndDate.Format "Mon Jan 2 2006" }}</h6>
                                 <div class="d-flex justify-content-center">
                                     <button type="button" class="btn btn-warning"><i class="material-icons">edit</i>edit</button>
                                     <button type="button" class="btn btn-danger"><i class="material-icons">delete</i>delete</button>

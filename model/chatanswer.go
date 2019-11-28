@@ -15,9 +15,9 @@ type ChatAnswer struct {
 	AnsTypeReply linebot.MessageType `form:"type_reply" json:"ans_type_reply"`
 	AnsActive    bool                `form:"active" json:"ans_active"`
 	AnsSource    string              `form:"source" json:"ans_source"`
-	AnsAccountID uint                `form:"ans_account_id" json:"ans_account_id" gorm:"not null;"`
+	AccountID    uint                `form:"account_id" json:"account_id" gorm:"not null;"`
 	ChatChannels []*ChatChannel      `json:"chat_channels" gorm:"many2many:chat_answer_chat_channel"`
-	Account      Account             `json:"account" gorm:"ForeignKey:AnsAccountID"`
+	Account      Account             `json:"account" gorm:"ForeignKey:AccountID"`
 }
 
 // SaveChatAnswer is function create chat answer.
