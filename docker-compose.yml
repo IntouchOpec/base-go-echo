@@ -16,7 +16,6 @@ services:
 
   nginx:
     image: nginx:latest
-    restart: always
     links: 
       - app:api.app
       - app:web.app
