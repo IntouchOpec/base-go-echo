@@ -29,7 +29,7 @@ services:
       - backend
     volumes:
       - ./nginx/:/etc/nginx/conf.d/
-      - ./public:/var/www/html
+      - ./public/views:/var/www/html
       - certbot-etc:/etc/letsencrypt
       - certbot-var:/var/lib/letsencrypt
       - ./dhparam:/etc/ssl/certs
