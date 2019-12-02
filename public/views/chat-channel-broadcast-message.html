@@ -216,7 +216,6 @@
         })
 
         $("input[name='audio']").change(function (){
-            console.log($("#audio")[0].files)
             toBase64($("#audio")[0].files[0]).then(audio => {
                 audioBase64 = audio
                 $("audio").attr("src", audio);
@@ -336,8 +335,7 @@
                     }
                 })
                 .then(json => {
-                    console.log(json)
-                    // window.location.href = json
+                    window.location.href = json
                 })
                 .catch(err => Swal.fire("fial", "", "warning"))
             }

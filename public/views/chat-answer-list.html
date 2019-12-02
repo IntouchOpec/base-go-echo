@@ -27,11 +27,10 @@
                    <div class="table-responsive">
                      <table class="table">
                        <thead class=" text-primary">
-                         <th>No</th>
                          <th>Input</th>
-                         <th>TypeInput</th>
+                         <th>InputType</th>
                          <th>Reply</th>
-                         <th>TypeReply</th>
+                         <th>ReplyType</th>
                          <th>Active</th>
                          <th>Create At</th>
                          <th></th>
@@ -40,24 +39,25 @@
                         {{if not .list}}<tr><td colspan="8" class="text-center">No content</td></tr> {{end}}
                          {{ with .list }}
                            {{ range . }}
-                             <tr>
-                               <td></td>
+                             <tr name="row_{{ .ID }}">
                               <td>{{.AnsInput}}</td>
-                              <td>{{.AnsTypeInput}}</td>
+                              <td>{{.AnsInputType}}</td>
                               <td>{{.AnsReply}}</td>
-                              <td>{{.AnsTypeReply}}</td>
-                              <td><input type="checkbox" checked data-toggle="toggle" checked="{{.AnsActive}}"></td>
-                               <td>{{ ((.CreatedAt).AddDate 0 0 0).Format "Mon Jan 2 2006" }}</td>
+                              <td>{{.AnsReplyType}}</td>
+                              <td><input value="{{ .ID }}" type="checkbox" data-toggle="toggle" checked="{{.AnsActive}}"></td>
+                               <td>{{ .CreatedAt.Format "Mon Jan 2 2006" }}</td>
                                <td class="td-actions text-right">
                                   <a href="/admin/chat_answer/{{ .ID }}" >
                                     <button type="button" rel="tooltip" class="btn btn-success">
                                       <i class="material-icons">settings_applications</i>
                                     </button>
                                   </a>
-                                  <button type="button" rel="tooltip" class="btn btn-warning">
-                                      <i class="material-icons">edit</i>
-                                  </button>
-                                  <button type="button" rel="tooltip" class="btn btn-danger">
+                                  <a href="/admin/chat_answer/{{ .ID }}" >
+                                    <button type="button" rel="tooltip" class="btn btn-warning">
+                                        <i class="material-icons">edit</i>
+                                    </button>
+                                  </a>
+                                  <button value="{{ .ID }}" name="remove" type="button" rel="tooltip" class="btn btn-danger">
                                       <i class="material-icons">close</i>
                                   </button>
                               </td>
@@ -80,8 +80,71 @@
        </div>
       {{ template "footer" }}
     </div>
+    <input id="_csrf" name="_csrf" value="{{._csrf}}" type="hidden" >
   </div>
   {{ template "script" }}
+
+  <script>
+    (function($) {
+
+      $("button[name='remove']").click(function () {
+        let _csrf = $("#_csrf").val()
+        let id = $(this).val()
+        let data = new FormData()
+        data.append("_csrf", _csrf)
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+          }).then(result => {
+          if (result.value) {
+            fetch(`/admin/chat_answer/${id}`, {
+              method: "DELETE",
+              body: data
+            }).then(res => {
+              if (res.status === 200) {
+              return res.json()
+              }
+            }).then(json => {
+              Swal.fire("success", "", "success").then(result => {
+                $(`tr[name='row_${id}']`).remove()
+              })
+            }).catch(err => {
+              Swal.fire("success", "", "success")          
+            })
+          }
+        })
+        return 
+      })
+
+      $("input[type='checkbox']").change(function() {
+
+        let _csrf = $("#_csrf").val()
+        let data = new URLSearchParams()
+        let id = $(this).val()
+
+        data.append("_csrf", _csrf)
+        data.append("ans_acive", this.checked)
+                 
+        fetch(`/admin/chat_answer/${id}`, {
+          body: data,
+          method: "PACTH"
+        }).then(res => {
+          return res.json()
+        }).then(json => {
+          Swal.fire("success", "", "success")
+        }).catch(err => {
+          Swal.fire("success", "", "success")          
+        })
+      })
+
+    })(jQuery)
+  </script>
 </body>
 
 </html>

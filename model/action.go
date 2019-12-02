@@ -29,7 +29,7 @@ type ActionLog struct {
 	ActStatus     ActionStatus  `json:"act_status" gorm:"type:varchar(10)"`
 	ActChannel    ActionChannel `json:"act_channel" gorm:"type:varchar(10)"`
 	ActUserID     string        `json:"act_user_id" gorm:"type:varchar(55)"`
-	ChatChannelID uint          `json:"act_chat_channel_id"`
+	ChatChannelID uint          `json:"chat_channel_id"`
 	CustomerID    uint          `json:"act_customer_id"`
 	ChatChannel   ChatChannel   `json:"chat_channel" gorm:"ForeignKey:ChatChannelID;"`
 	Customer      *Customer     `json:"customer" gorm:"ForeignKey:CustomerID"`

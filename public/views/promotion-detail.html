@@ -82,7 +82,7 @@
                                         <tbody>
                                             {{ with .detail.ChatChannels }}
                                             {{ range . }}
-                                            <tr>
+                                            <tr name="row_{{ .ID }}">
                                                 <td>{{ .ChaName }}</td>
                                                 <td>{{ .ChaType }}</td>
                                             </tr>

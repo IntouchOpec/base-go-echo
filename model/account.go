@@ -1,6 +1,8 @@
 package model
 
-import "github.com/IntouchOpec/base-go-echo/model/orm"
+import (
+	"github.com/IntouchOpec/base-go-echo/model/orm"
+)
 
 // Account struct.
 type Account struct {
@@ -12,6 +14,11 @@ type Account struct {
 	Settings     []*Setting     `json:"settings" gorm:"many2many:account_setting"`
 	ChatChannels []*ChatChannel `json:"chat_channels"`
 }
+
+// func (account *Account) BeforeCreate(scope *gorm.Scope) error {
+// 	scope.SetColumn("ID", uuid.New())
+// 	return nil
+// }
 
 func GetAccountByName(name string) bool {
 	account := Account{}

@@ -15,9 +15,9 @@ func UserListHandler(c *Context) error {
 	page, limit := SetPagination(queryPar)
 	var total int
 	db := model.DB()
-	filterUser := db.Preload("Account").Where("account_id = ?", a.GetAccountID()).Find(&users).Count(&total)
-	filterUser.Limit(limit).Offset(page).Find(&users)
+	filterUser := db.Model(&users).Where("account_id = ?", a.GetAccountID()).Count(&total)
 	pagination := MakePagination(total, page, limit)
+	filterUser.Limit(pagination.Record).Offset(pagination.Offset).Find(&users)
 	if err := model.DB().Find(&users).Error; err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}

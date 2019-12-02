@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/IntouchOpec/base-go-echo/lib"
 	"github.com/IntouchOpec/base-go-echo/model"
 	"github.com/IntouchOpec/base-go-echo/module/auth"
 	"github.com/labstack/echo"
@@ -17,7 +16,7 @@ func LIIFListHandler(c *Context) error {
 	chatChannels := []model.ChatChannel{}
 	db := model.DB()
 	ChatChannelID := c.QueryParam("chat_channel_id")
-	filterChatChannel := db.Where("cha_account_id = ?", a.GetAccountID()).Find(&chatChannels)
+	filterChatChannel := db.Where("account_id = ?", a.GetAccountID()).Find(&chatChannels)
 	filterChatChannel.Find(&chatChannel, ChatChannelID)
 
 	bot, err := linebot.New(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
@@ -45,7 +44,7 @@ func LIFFCreateHandler(c *Context) error {
 	a := auth.Default(c)
 	chatChannels := []model.ChatChannel{}
 
-	model.DB().Where("cha_account_id = ?", a.GetAccountID()).Find(&chatChannels)
+	model.DB().Where("account_id = ?", a.GetAccountID()).Find(&chatChannels)
 	LIFFViewTypes := []linebot.LIFFViewType{linebot.LIFFViewTypeCompact, linebot.LIFFViewTypeTall, linebot.LIFFViewTypeFull}
 	return c.Render(http.StatusOK, "LIFF-form", echo.Map{
 		"title":         "LIFF",
@@ -71,7 +70,7 @@ func LIFFPostHanlder(c *Context) error {
 	}
 	LIFFModel := linebot.View{Type: LIFFview.Type, URL: LIFFview.URL}
 
-	if err := model.DB().Where("cha_account_id = ?", a.GetAccountID()).Find(&chatChannel, chatChannelID).Error; err != nil {
+	if err := model.DB().Where("account_id = ?", a.GetAccountID()).Find(&chatChannel, chatChannelID).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
@@ -94,11 +93,16 @@ func LIFFRemoveHanlder(c *Context) error {
 	chatChannelID := c.QueryParam("chat_channel_id")
 	db := model.DB()
 	id := c.Param("id")
-	db.Where("cha_account_id = ?", a.GetAccountID()).Find(&chatChannel, chatChannelID)
-	bot, err := lib.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
+	db.Where("account_id = ?", a.GetAccountID()).Find(&chatChannel, chatChannelID)
+	bot, err := linebot.New(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
+
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	res := bot.DeleteRichMenu(id)
+	fmt.Println(id, chatChannelID)
+	res, err := bot.DeleteRichMenu(id).Do()
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
 	return c.JSON(http.StatusOK, res)
 }

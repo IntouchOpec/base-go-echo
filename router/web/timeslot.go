@@ -45,6 +45,7 @@ func TimeSlotCreateHandler(c *Context) error {
 func TimeSlotPostHandler(c *Context) error {
 	timeSlotsForm := c.FormValue("timeSlots")
 	var timeSlots []*model.TimeSlot
+	AccountID := auth.Default(c).GetAccountID()
 	err := json.Unmarshal([]byte(timeSlotsForm), &timeSlots)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
@@ -52,6 +53,7 @@ func TimeSlotPostHandler(c *Context) error {
 	tx := model.DB().Begin()
 
 	for _, timeSlot := range timeSlots {
+		timeSlot.AccountID = AccountID
 		if err = tx.Create(&timeSlot).Error; err != nil {
 			tx.Rollback()
 		}
@@ -65,7 +67,7 @@ func TimeSlotPostHandler(c *Context) error {
 	id := c.Param("provider_id")
 
 	redirect := fmt.Sprintf("/admin/provider_service/%s", id)
-	fmt.Println(redirect)
+
 	return c.JSON(http.StatusCreated, redirect)
 }
 

@@ -60,6 +60,7 @@ type TestModel struct {
 // Initialize auto migration.
 func Initialize() {
 	newDb := DB()
+	newDb.AutoMigrate(&File{})
 	newDb.AutoMigrate(&CustomerType{})
 	newDb.AutoMigrate(&ActionLog{})
 	newDb.AutoMigrate(&EventLog{})

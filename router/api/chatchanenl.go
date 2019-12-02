@@ -154,7 +154,6 @@ func UpdateChatChannel(c echo.Context) error {
 func DeleteChatChannel(c echo.Context) error {
 	id := c.Param("id")
 
-	idInt, _ := strconv.Atoi(id)
-	chatChannel := model.DeleteChatChannel(idInt)
+	chatChannel := model.DeleteChatChannel(id)
 	return c.JSON(http.StatusOK, chatChannel)
 }

@@ -19,8 +19,8 @@ func ChatRequestListHandler(c *Context) error {
 	var total int
 	db := model.DB()
 	filterChatReq := db.Where("req_account_id = ?", a.User.GetAccountID()).Find(&ChatRequests).Count(&total)
-	filterChatReq.Limit(limit).Offset(page).Find(&ChatRequests)
 	pagination := MakePagination(total, page, limit)
+	filterChatReq.Limit(pagination.Record).Offset(pagination.Offset).Find(&ChatRequests)
 
 	return c.Render(http.StatusOK, "chat-request-list", echo.Map{
 		"title":      "chat_request",

@@ -128,10 +128,15 @@
                         method: "POST"
                     })
                     .then(res => {
-                        if (res.status === 201) Swal.fire("success", "", "success") 
-                        return res.json()
+                        if (res.status === 201) {
+                            return res.json()
+                        }
                     })
-                    .then(json => window.location.href = json.redirect)
+                    .then(json => {
+                        Swal.fire("success", "", "success").then(result => {
+                            window.location.href = json.redirect
+                        })
+                    })
                     .catch(err => Swal.fire("fial", "", "warning"))
                 }
             })

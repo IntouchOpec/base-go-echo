@@ -43,7 +43,7 @@
                     <tbody>
                       {{ with .detail.Roles }}
                       {{ range . }}
-                      <tr>
+                      <tr name="row_{{ .ID }}">
                         <td>{{ .Name }}</td>
                       </tr>
                       {{ end }}

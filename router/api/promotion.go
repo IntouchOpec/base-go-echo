@@ -47,7 +47,9 @@ func UpdatePromotion(c echo.Context) error {
 
 func DeletePromotion(c echo.Context) error {
 	id := c.Param("id")
-	idInt, _ := strconv.Atoi(id)
-	promotion := model.DeletePromotion(idInt)
+	promotion, err := model.DeletePromotion(id)
+	if err != nil {
+		return c.JSON(http.StatusOK, err)
+	}
 	return c.JSON(http.StatusOK, promotion)
 }

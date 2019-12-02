@@ -152,15 +152,17 @@
                         body: data.join("&")
                     })
                     .then(res => {
-                    if (res.status === 201) {
-                        return res.json();
-                    }
+                        if (res.status === 201) {
+                            return res.json();
+                        }
                     })
                     .then(data => {
-                        location.replace(data.redirect)
+                        Swal.fire("success", "", "success").then(result => {
+                            location.replace(data.redirect)
+                        })
                     })
                     .catch(err => {
-                        console.log("error", err);
+                        Swal.fire("success", "", "success")
                     })
                 })
             }

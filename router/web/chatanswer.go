@@ -18,9 +18,9 @@ func ChatAnswerListHandler(c *Context) error {
 	page, limit := SetPagination(queryPar)
 	var total int
 	db := model.DB()
-	filterChatAns := db.Where("ans_account_id = ?", a.GetAccountID()).Find(&chatAnswers).Count(&total)
-	filterChatAns.Limit(limit).Offset(page).Find(&chatAnswers)
+	filterChatAns := db.Where("account_id = ?", a.GetAccountID()).Find(&chatAnswers).Count(&total)
 	pagination := MakePagination(total, page, limit)
+	filterChatAns.Limit(pagination.Record).Offset(pagination.Offset).Find(&chatAnswers)
 	return c.Render(http.StatusOK, "chat-answer-list", echo.Map{
 		"title":      "chat_answer",
 		"list":       chatAnswers,
@@ -74,6 +74,7 @@ func ChatAnswerPostHandler(c *Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
+	fmt.Println(chatAnswer.ID)
 	redirect := fmt.Sprintf("/admin/chat_answer/%d", chatAnswer.ID)
 	return c.JSON(http.StatusCreated, echo.Map{
 		"redirect": redirect,

@@ -90,7 +90,9 @@
                 }
                 })
                 .then(data => {
-                    location.replace(data.redirect)
+                    Swal.fire("success", "", "success").then(result => {
+                        location.replace(data.redirect)
+                    })
                 })
                 .catch(err => {
                     console.log("error", err);

@@ -7,10 +7,13 @@ import (
 	"fmt"
 	"image"
 	"io/ioutil"
+	"os"
 	"strings"
 
 	guuid "github.com/google/uuid"
 )
+
+const PathLocal = "public/assets"
 
 func UploadteImage(file string) (string, string, error) {
 	idx := strings.Index(file, ";base64,")
@@ -79,4 +82,23 @@ func Decode(code string, dest string) error {
 	}
 
 	return nil
+}
+
+func deleteFile(path string) error {
+	// delete file
+	var err = os.Remove(path)
+	if isError(err) {
+		return err
+	}
+
+	fmt.Println("==> done deleting file")
+	return nil
+}
+
+func isError(err error) bool {
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	return (err != nil)
 }

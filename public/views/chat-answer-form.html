@@ -30,8 +30,8 @@
                       </div>
                       <div class="col-md-12 mt-2">
                         <div class="form-group">
-                          <label class="bmd-label-floating">TypeInput</label>
-                          <select name="TypeInput" class="form-control" id="TypeInput" data-style="btn btn-link" id="exampleFormControlSelect2">
+                          <label class="bmd-label-floating">inputType</label>
+                          <select name="inputType" class="form-control" id="inputType" data-style="btn btn-link" id="exampleFormControlSelect2">
                             {{ with .messageTypes }}
                             {{ range . }}
                                 <option value="{{.}}">{{.}}</option>
@@ -48,8 +48,8 @@
                       </div>
                       <div class="col-md-12 mt-2">
                         <div class="form-group">
-                          <label class="bmd-label-floating">TypeReply</label>
-                          <select name="TypeReply" class="form-control" id="TypeReply" data-style="btn btn-link" id="exampleFormControlSelect2">
+                          <label class="bmd-label-floating">replyType</label>
+                          <select name="replyType" class="form-control" id="replyType" data-style="btn btn-link" id="exampleFormControlSelect2">
                               {{ with .messageTypes }}
                               {{ range . }}
                                   <option value="{{.}}">{{.}}</option>
@@ -86,13 +86,13 @@
           Input: {
             required: true
           },
-          TypeInput: {
+          inputType: {
             required: true
           },
           Reply: {
             required: true
           },
-          TypeReply: {
+          replyType: {
             required: true
           },
           Source: {
@@ -103,14 +103,14 @@
           Input: {
             required: "Please enter a valid Input"
           },
-          TypeInput: {
-            required: "Please enter a valid TypeInput"
+          inputType: {
+            required: "Please enter a valid input type"
           },
           Reply: {
             required: "Please enter a valid Reply"
           },
-          TypeReply: {
-            required: "Please enter a valid TypeReply"
+          replyType: {
+            required: "Please enter a valid replyType"
           },
           Source: {
             required: "Please enter a valid Source"
@@ -119,27 +119,30 @@
         submitHandler: function(form) {
           let _csrf = $("#_csrf").val()
           let Input = $("#Input").val()
-          let TypeInput = $("#TypeInput").val()
+          let inputType = $("#inputType").val()
           let Reply = $("#Reply").val()
-          let TypeReply = $("#TypeReply").val()
+          let replyType = $("#replyType").val()
           let Source = $("#Source").val()
           let data = new URLSearchParams();
           data.append("_csrf", _csrf)
           data.append("input", Input)
-          data.append("type_input", TypeInput)
+          data.append("input_type", inputType)
           data.append("reply", Reply)
-          data.append("type_reply", TypeReply)
+          data.append("reply_type", replyType)
           data.append("source", Source)
           fetch(window.location.href, {
               method: "POST", 
               body: data
           })
           .then(res => {
-            if (res.status === 201) Swal.fire("success", "", "success") 
-            return res.json()
+            if (res.status === 201) {
+              return res.json()
+            }
           })
           .then(json => {
-            window.location = json.redirect
+            Swal.fire("success", "", "success").then(result => {
+              window.location.href = json.redirect
+            })
           })
           .catch(err => Swal.fire("fial", "", "warning"))
         }

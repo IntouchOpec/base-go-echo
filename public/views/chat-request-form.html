@@ -59,8 +59,12 @@
                     body: data
                 })
                 .then(res => { 
-                    if (res.status === 201) { return res.json()}})
+                    if (res.status === 201) { 
+                        return res.json()
+                    }
+                })
                 .then(json => {
+
                     window.location.href = json
                 })
                 .catch(err => Swal.fire("fial", "", "warning"))

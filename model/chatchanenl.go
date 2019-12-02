@@ -44,7 +44,7 @@ func (cha *ChatChannel) SaveChatChannel() error {
 // GetChatChannel query account list.
 func GetChatChannel(AccountID uint) *ChatChannel {
 	chatChannels := ChatChannel{}
-	if err := DB().Where("cha_account_id = ?", AccountID).Preload("EventLogs").Preload("ActionLogs", func(db *gorm.DB) *gorm.DB {
+	if err := DB().Where("account_id = ?", AccountID).Preload("EventLogs").Preload("ActionLogs", func(db *gorm.DB) *gorm.DB {
 		return db.Preload("Customer")
 	}).Find(&chatChannels, 1).Error; err != nil {
 		return nil
@@ -54,7 +54,7 @@ func GetChatChannel(AccountID uint) *ChatChannel {
 
 func GetChatChannelList(chatChannelID uint) (*[]ChatChannel, error) {
 	chatChannels := []ChatChannel{}
-	if err := DB().Where("cha_account_id = ?", chatChannelID).Find(&chatChannels).Error; err != nil {
+	if err := DB().Where("account_id = ?", chatChannelID).Find(&chatChannels).Error; err != nil {
 		return nil, err
 	}
 	return &chatChannels, nil
@@ -83,7 +83,7 @@ func (cha *ChatChannel) EditChatChannel(id int) *ChatChannel {
 }
 
 // DeleteChatChannel delete ChatChannels
-func DeleteChatChannel(id int) *ChatChannel {
+func DeleteChatChannel(id string) *ChatChannel {
 	cha := ChatChannel{}
 	if err := DB().Find(&cha, id).Error; err != nil {
 		return nil

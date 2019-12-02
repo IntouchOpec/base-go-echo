@@ -132,7 +132,7 @@
                     data.push(imageEncodedKey + "=" + imageEncodedValue)
                     data.push(timeEncodedKey + "=" + timeEncodedValue)
                     data = data.join("&");
-                    fetch("/admin/service", {
+                    fetch(window.location.href, {
                         method: "POST", 
                         headers: {"Content-Type": "application/x-www-form-urlencoded"},
                         body: data
@@ -142,7 +142,9 @@
                         return res.json()
                     })
                     .then(json => {
-                        window.location.href = json.redirect
+                        Swal.fire("success", "", "success").then(result => {
+                            window.location.href = json.redirect
+                        })
                     })
                     .catch(err => Swal.fire("fial", "", "warning"))
                 }) 

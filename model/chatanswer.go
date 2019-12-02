@@ -10,9 +10,9 @@ type ChatAnswer struct {
 	orm.ModelBase
 	// ID                uint               `gorm:"primary_key" json:"id"`
 	AnsInput     string              `form:"input" json:"ans_input"`
-	AnsTypeInput string              `form:"type_input" json:"ans_type_input"`
+	AnsInputType string              `form:"input_type" json:"ans_input_type"`
 	AnsReply     string              `form:"reply" json:"ans_reply"`
-	AnsTypeReply linebot.MessageType `form:"type_reply" json:"ans_type_reply"`
+	AnsReplyType linebot.MessageType `form:"reply_type" json:"ans_reply_type"`
 	AnsActive    bool                `form:"active" json:"ans_active"`
 	AnsSource    string              `form:"source" json:"ans_source"`
 	AccountID    uint                `form:"account_id" json:"account_id" gorm:"not null;"`
@@ -21,11 +21,11 @@ type ChatAnswer struct {
 }
 
 // SaveChatAnswer is function create chat answer.
-func (cha *ChatAnswer) SaveChatAnswer() *ChatAnswer {
+func (cha *ChatAnswer) SaveChatAnswer() error {
 	if err := DB().Create(&cha).Error; err != nil {
-		return nil
+		return err
 	}
-	return cha
+	return nil
 }
 
 // GetChatAnswerList is get list ChatAnswer where chat_channel_id.

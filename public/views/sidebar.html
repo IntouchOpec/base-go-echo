@@ -56,7 +56,7 @@
                 </a>
             </li>
             <li class="nav-item {{ if (eq .title "user") }}active{{ end }}">
-                <a class="nav-link" href="/admin/user">
+                <a class="nav-link" href="/admin/users">
                     <i class="material-icons">person</i>
                     <p>Admin</p>
                 </a>
@@ -83,6 +83,12 @@
                 <a class="nav-link" href="/admin/provider">
                     <i class="material-icons">insert_emoticon</i>
                     <p>provider</p>
+                </a>
+            </li> 
+            <li class="nav-item {{ if (eq .title "upload_file") }}active{{ end }}">
+                <a class="nav-link" href="/admin/upload_file">
+                    <i class="material-icons">insert_drive_file</i>
+                    <p>file</p>
                 </a>
             </li> 
             <li class="nav-item {{ if (eq .title "setting") }}active{{ end }}">

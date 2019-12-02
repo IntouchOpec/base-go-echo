@@ -78,7 +78,7 @@ func InsightFollowers(channelAccsssToken string) (*ResponseInsightFollowrs, erro
 func (client *ClientLine) ReplyLineMessage(chatAws model.ChatAnswer, replyToken string) {
 	// chatAws.
 	// message := ""
-	switch replyType := chatAws.AnsTypeReply; replyType {
+	switch replyType := chatAws.AnsReplyType; replyType {
 	case linebot.MessageTypeText:
 		textMessage := linebot.NewTextMessage("My name is John Wick")
 		client.ReplyMessage(replyToken, textMessage).Do()

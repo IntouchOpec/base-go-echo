@@ -11,7 +11,7 @@ type ProviderService struct {
 	ServiceID  uint        `form:"service_id" json:"service_id"`
 	Provider   *Provider   `json:"provider" gorm:"ForeignKey:ProviderID"`
 	Service    *Service    `json:"Service" gorm:"ForeignKey:ServiceID"`
-	TimeSlots  []*TimeSlot `json:"time_slots" gorm:"ForeignKey:TimeProviderServiceID"`
+	TimeSlots  []*TimeSlot `json:"time_slots"`
 	// Bookings   []*Booking `json:"bookings"`
 }
 

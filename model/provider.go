@@ -35,7 +35,7 @@ func (prov *Provider) UpdateProvider() error {
 
 func GetProviderList(accID uint) ([]*Provider, error) {
 	provs := []*Provider{}
-	if err := DB().Where("prov_account_id = ?", accID).Find(&provs).Error; err != nil {
+	if err := DB().Where("account_id = ?", accID).Find(&provs).Error; err != nil {
 		return nil, err
 	}
 
@@ -46,7 +46,7 @@ func GetProviderDetail(id string, accID uint) (*Provider, error) {
 	prov := Provider{}
 	if err := DB().Preload("ProviderServices", func(db *gorm.DB) *gorm.DB {
 		return db.Preload("Service")
-	}).Where("prov_account_id = ?", accID).Find(&prov, id).Error; err != nil {
+	}).Where("account_id = ?", accID).Find(&prov, id).Error; err != nil {
 		return nil, err
 	}
 
@@ -57,7 +57,7 @@ func GetProviderServiceTimeSlotList(id string, accID uint) (*Provider, error) {
 	prov := Provider{}
 	if err := DB().Preload("ProviderServices", func(db *gorm.DB) *gorm.DB {
 		return db.Preload("TimeSlots").Preload("Service")
-	}).Where("prov_account_id = ?", accID).Find(&prov, id).Error; err != nil {
+	}).Where("account_id = ?", accID).Find(&prov, id).Error; err != nil {
 		return nil, err
 	}
 

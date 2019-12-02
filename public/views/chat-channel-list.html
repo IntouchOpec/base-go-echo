@@ -44,7 +44,7 @@
                               <td>{{ .ChaName }}</td>
                               <td>{{ .ChaLineID }}</td>
                               <td>{{ .ChaType }}</td>
-                              <td>{{ ((.CreatedAt).AddDate 0 0 0).Format "Mon Jan 2 2006" }}</td>
+                              <td>{{ .CreatedAt.Format "Mon Jan 2 2006" }}</td>
                               <td class="td-actions text-right">
                                 <a href="/admin/chat_channel/{{ .ID }}">
                                   <button type="button" rel="tooltip" class="btn btn-success">
@@ -56,7 +56,7 @@
                                       <i class="material-icons">edit</i>
                                   </button>
                                 </a>
-                                  <button  name="{{ .ID }}" id="delete" type="button" name="datele" rel="tooltip" class="btn btn-danger">
+                                  <button value="{{ .ID }}" type="button" name="remove" rel="tooltip" class="btn btn-danger">
                                       <i class="material-icons">close</i>
                                   </button>
                               </td>
@@ -79,27 +79,47 @@
        </div>
       {{ template "footer" }}
     </div>
+    <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden">
   </div>
   {{ template "script" }}
   <script>
     (function ($) {
-      $("#datele").click(function() {
-        let id = $(this).attr('name')
+      $("button[name='remove']").click(function () {
+        let _csrf = $("#_csrf").val()
 
-        fetch(`/admin/chat_channel/${id}/deleete`, {
-          method: "DELETE", 
-        }).then(res => {
-            if (res.status === 200) {
-                Swal.fire("success", "", "success") 
-                return res.json()
-            }
-          })
-          .then(json => { 
-            $(`#row_${id}`).remove()
-          })
-          .catch(err => Swal.fire("fial", "", "warning"))
+        let id = $(this).val()
+        let data = new FormData()
+        data.append("_csrf", _csrf)
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+          }).then(result => {
+          if (result.value) {
+            fetch(`/admin/chat_channel/${id}`, {
+              method: "DELETE",
+              body: data
+            }).then(res => {
+              if (res.status === 200) {
+              return res.json()
+              }
+            }).then(json => {
+              Swal.fire("success", "", "success").then(result => {
+                $(`tr[name='row_${id}']`).remove()
+              })
+            }).catch(err => {
+              Swal.fire("success", "", "success")          
+            })
+          }
+        })
+        return 
       })
-    })
+    })(jQuery)
   </script>
 </body>
 

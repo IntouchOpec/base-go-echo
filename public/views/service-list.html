@@ -15,8 +15,8 @@
              <div class="col-md-12">
                <div class="card">
                   <div class="card-header card-header-primary d-flex justify-content-between">
-                    <h4 class="card-title ">place list</h4>
-                    <a href="/admin/place/create">
+                    <h4 class="card-title ">service list</h4>
+                    <a href="/admin/service/create">
                       <button class="btn btn-info">
                         <i class="material-icons">add</i>
                         Create
@@ -39,13 +39,13 @@
                         {{if not .list}}<tr><td colspan="8" class="text-center">No content</td></tr> {{end}}
                          {{ with .list }}
                            {{ range . }}
-                             <tr>
+                             <tr name="row_{{ .ID }}">
                                 <td></td>
                                 <td>{{.SerName}}</td>
                                 <td>{{.SerPrice}}</td>
                                 <td><img width="32" height="32" class="img-fluid" src="{{.SerImage}}"></td>
-                                <td>{{ ((.CreatedAt).AddDate 0 0 0).Format "Mon Jan 2 2006" }}</td>
-                                <td><input type="checkbox" checked data-toggle="toggle" checked="{{.SerActive}}"></td>
+                                <td>{{ .CreatedAt.Format "Mon Jan 2 2006" }}</td>
+                                <td><input type="checkbox" value="{{ .ID }}" checked data-toggle="toggle" checked="{{.SerActive}}"></td>
                                 <td class="td-actions text-right">
                                     <a href="/admin/service/{{ .ID }}">
                                       <button type="button" rel="tooltip" class="btn btn-success">
@@ -57,11 +57,9 @@
                                           <i class="material-icons">edit</i>
                                       </button>
                                     </a>
-                                    <a href="/admin/service/{{ .ID }}/de">
-                                      <button type="button" rel="tooltip" class="btn btn-danger">
+                                      <button value="{{ .ID }}" name="remove"  type="button" rel="tooltip" class="btn btn-danger">
                                           <i class="material-icons">close</i>
                                       </button>
-                                    </a>
                                 </td>
                              </tr>
                            {{ end }} 
@@ -82,8 +80,70 @@
        </div>
       {{ template "footer" }}
     </div>
+    <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden" class="form-control" >
   </div>
   {{ template "script" }}
+  <script>
+      (function ($) {
+            $("input[type='checkbox']").change(function() {
+            let id = $(this).val()
+
+            let _csrf = $("#_csrf").val()
+            let data = new URLSearchParams()
+
+            data.append("_csrf", _csrf)
+            data.append("ser_acive", this.checked)
+                    
+            fetch(`/admin/service/${id}`, {
+                body: data,
+                method: "PACTH"
+                }).then(res => {
+                return res.json()
+                }).then(json => {
+                Swal.fire("success", "", "success")
+                }).catch(err => {
+                Swal.fire("success", "", "success")          
+            })
+        })
+
+        $("button[name='remove']").click(function () {
+          let id = $(this).val()
+          let data = new FormData()
+          let _csrf = $("#_csrf").val()
+          data.append("_csrf", _csrf)
+          Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+          }).then(result => {
+            if (result) {
+              fetch(`/admin/service/${id}`, {
+                body: data,
+                method: "DELETE"
+              }).then(res => {
+                return res.json()
+              }).then(json => {
+                Swal.fire("success", "", "success").then(result => {
+                  $(`tr[name='row_${id}']`).remove()
+                })
+              }).catch(err => {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Oops...',
+                  text: 'Something went wrong!',
+                  footer: '<a href>Why do I have this issue?</a>'
+                })        
+              })
+            }
+          })
+          return 
+        })
+      })(jQuery)
+  </script>
 </body>
 
 </html>

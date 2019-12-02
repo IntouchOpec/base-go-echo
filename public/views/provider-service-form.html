@@ -30,8 +30,9 @@
                                                 </div>
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
-                                                        <label class="bmd-label-floating" ></label>
+                                                        <label class="bmd-label-floating" >service</label>
                                                         <select name="provider-serviceType" class="form-control" data-style="btn btn-link" id="service_id">
+                                                            <option value="">choice service </option>
                                                             {{ with .services }}
                                                             {{ range . }}
                                                                 <option value="{{.ID}}">{{.SerName}}</option>
@@ -40,7 +41,8 @@
                                                         </select>
                                                     </div>
                                                 </div>
-                                            <input type="submit" rel="tooltip" value="Submit" class="btn btn-success">
+                                                <input type="submit" rel="tooltip" value="Submit" class="btn btn-success">
+                                            </div>
                                         </form>
                                     </div>
                                 </div>
@@ -98,13 +100,16 @@
                     body: data
                 })
                 .then(res => {
-                    if (res.status === 201) {
-                        Swal.fire("success", "", "success") 
-                        return res.json()
+                    if (res.status !== 201) {
+                        Swal.fire("fial", "", "warning")
+                        throw ""
                     } 
+                    return res.json()
                 })
-                .then(redirect => {
-                    window.location = redirect
+                .then(data => {
+                    Swal.fire("success", "", "success").then(result => {
+                        window.location = data.redirect
+                    })
                 })
                 .catch(err => Swal.fire("fial", "", "warning"))
             }

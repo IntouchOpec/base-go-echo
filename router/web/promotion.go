@@ -21,9 +21,9 @@ func PromotionListHandler(c *Context) error {
 	var total int
 	db := model.DB()
 
-	filterPromotion := db.Where("prom_account_id = ?", a.GetAccountID()).Find(&promotions).Count(&total)
-	filterPromotion.Limit(limit).Offset(page).Find(&promotions)
+	filterPromotion := db.Model(&promotions).Where("prom_account_id = ?", a.GetAccountID()).Count(&total)
 	pagination := MakePagination(total, page, limit)
+	filterPromotion.Limit(pagination.Record).Offset(pagination.Offset).Find(&promotions)
 
 	err := c.Render(http.StatusOK, "promotion-list", echo.Map{
 		"list":       promotions,
@@ -122,7 +122,7 @@ func PromotionChannelFormHandler(c *Context) error {
 	chatChannels := []*model.ChatChannel{}
 	a := auth.Default(c)
 
-	if err := model.DB().Where("cha_account_id = ?", a.User.GetAccountID()).Find(&chatChannels).Error; err != nil {
+	if err := model.DB().Where("account_id = ?", a.User.GetAccountID()).Find(&chatChannels).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	return c.Render(http.StatusOK, "promotion-chat-channel-form", echo.Map{
@@ -140,7 +140,7 @@ func PromotionChannelAddHandler(c *Context) error {
 	chatChannelID := c.FormValue("chat_channel_id")
 	db := model.DB()
 	fmt.Println(id, "id")
-	if err := db.Where("cha_account_id = ?", a.User.GetAccountID()).Find(&chatChannel, chatChannelID).Error; err != nil {
+	if err := db.Where("account_id = ?", a.User.GetAccountID()).Find(&chatChannel, chatChannelID).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
@@ -153,4 +153,15 @@ func PromotionChannelAddHandler(c *Context) error {
 	}
 	redirect := fmt.Sprintf("/admin/promotion/%d", pro.ID)
 	return c.JSON(http.StatusOK, redirect)
+}
+
+func PromotionRemoveHandler(c *Context) error {
+	id := c.Param("id")
+
+	promotion, err := model.DeletePromotion(id)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	return c.JSON(http.StatusOK, promotion)
 }

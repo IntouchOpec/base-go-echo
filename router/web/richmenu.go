@@ -20,10 +20,11 @@ func RichMenuListHandler(c *Context) error {
 	a := auth.Default(c)
 	db := model.DB()
 	var rows string
-	filterChatChannelDB := db.Where("cha_account_id = ?", a.GetAccountID()).Find(&chatChannels)
+	filterChatChannelDB := db.Where("account_id = ?", a.GetAccountID()).Find(&chatChannels)
 	chatChannelID := c.QueryParam("chat_channel_id")
 
 	filterChatChannelDB.First(&chatChannel, chatChannelID)
+
 	bot, err := lib.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
 	if err != nil {
 		rows = `<tr><td colspan="8" class="text-center">No content</td></tr>`
@@ -34,6 +35,7 @@ func RichMenuListHandler(c *Context) error {
 			"title":        "rich-menu",
 		})
 	}
+
 	res, err := bot.GetRichMenuList().Do()
 	if err != nil {
 		rows = `<tr><td colspan="8" class="text-center">No content</td></tr>`
@@ -45,51 +47,9 @@ func RichMenuListHandler(c *Context) error {
 		})
 	}
 
-	for _, row := range res {
-		rows = rows + fmt.Sprintf(`
-		<tr>
-			<td>%s</td>
-			<td>%d</td>
-			<td>%d</td>
-			<td>%t</td>
-			<td>%s</td>
-			<td>%s</td>
-			<td class="td-actions text-right">
-			<a href="/admin/richmenu/%s?chat_channel_id=%d">
-			  <button type="button" rel="tooltip" class="btn btn-success">
-				<i class="material-icons">settings_applications</i>
-			  </button>
-			</a>
-			<a href="/admin/richmenu/%s/edit">
-			  <button type="button" rel="tooltip" class="btn btn-warning">
-				  <i class="material-icons">edit</i>
-			  </button>
-			</a>
-			<a href="/admin/richmenu/%s/delete">
-			  <button type="button" rel="tooltip" class="btn btn-danger">
-				  <i class="material-icons">close</i>
-			  </button>
-			</a>
-		  </td>
-		</tr>`,
-			row.RichMenuID,
-			row.Size.Height,
-			row.Size.Width,
-			row.Selected,
-			row.Name,
-			row.ChatBarText,
-			row.RichMenuID,
-			chatChannel.ID,
-			row.RichMenuID,
-			row.RichMenuID)
-	}
-	if len(res) == 0 {
-		rows = `<tr><td colspan="8" class="text-center">No content</td></tr>`
-	}
-
 	return c.Render(http.StatusOK, "rich-menu-list", echo.Map{
 		"detail":       chatChannel,
-		"list":         rows,
+		"list":         &res,
 		"chatChannels": chatChannels,
 		"title":        "rich-menu",
 	})
@@ -102,7 +62,7 @@ func RichMenuDetailHandler(c *Context) error {
 	db := model.DB()
 	chatChannelID := c.QueryParam("chat_channel_id")
 
-	if err := db.Where("cha_account_id = ?", a.GetAccountID()).Find(&chatChannel, chatChannelID).Error; err != nil {
+	if err := db.Where("account_id = ?", a.GetAccountID()).Find(&chatChannel, chatChannelID).Error; err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}
 
@@ -134,7 +94,7 @@ func RichMenuActiveHandler(c *Context) error {
 	db := model.DB()
 	chatChannelID := c.FormValue("chat_channel_id")
 	fmt.Println(chatChannelID)
-	if err := db.Where("cha_account_id = ?", a.GetAccountID()).Find(&chatChannel, chatChannelID).Error; err != nil {
+	if err := db.Where("account_id = ?", a.GetAccountID()).Find(&chatChannel, chatChannelID).Error; err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}
 
@@ -164,7 +124,7 @@ func RichMenuImageHandler(c *Context) error {
 		fmt.Println(err)
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	db.Where("cha_account_id = ?", a.GetAccountID()).Find(&chatChannel, chatChannelID)
+	db.Where("account_id = ?", a.GetAccountID()).Find(&chatChannel, chatChannelID)
 
 	bot, err := lib.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
 	if err != nil {
@@ -188,7 +148,7 @@ func RichMenuDonwloadImage(c *Context) error {
 	db := model.DB()
 	id := c.Param("id")
 	chatChannelID := c.QueryParam("chat_channel_id")
-	db.Where("cha_account_id = ?", a.GetAccountID()).Find(&chatChannel, chatChannelID)
+	db.Where("account_id = ?", a.GetAccountID()).Find(&chatChannel, chatChannelID)
 
 	bot, err := lib.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
 	if err != nil {
@@ -237,7 +197,7 @@ func RichMenuCreateViewHandler(c *Context) error {
 	}}
 	db := model.DB()
 	a := auth.Default(c)
-	db.Where("cha_account_id = ?", a.GetAccountID()).Find(&chatChannels)
+	db.Where("account_id = ?", a.GetAccountID()).Find(&chatChannels)
 
 	return c.Render(http.StatusOK, "rich-menu-form", echo.Map{
 		"chatChannels": chatChannels,
@@ -307,25 +267,31 @@ func RichMenuCreateHandler(c *Context) error {
 }
 
 func RichMenuDeleteHandler(c *Context) error {
-	richID := c.Param("richID")
+	richID := c.Param("id")
 
 	chatChannel := model.ChatChannel{}
-	a := auth.Default(c)
+	accountID := auth.Default(c).GetAccountID()
 	db := model.DB()
-	qpa := c.QueryParams()
-	db.Preload("Account", "ID = ?", a.User.GetAccountID).Where(qpa).Find(&chatChannel)
-
-	bot, err := lib.ConnectLineBot(chatChannel.ChaChannelID, chatChannel.ChaChannelSecret)
-	if err != nil {
-		return c.NoContent(http.StatusBadRequest)
+	id := c.QueryParam("id")
+	if err := db.Where("account_id = ?", accountID).Find(&chatChannel, id).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
 	}
+
+	bot, err := lib.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	fmt.Println(richID)
 	res, err := bot.DeleteRichMenu(richID).Do()
 	if err != nil {
-		return c.NoContent(http.StatusBadGateway)
+		return c.JSON(http.StatusBadRequest, err)
 	}
 	return c.JSON(http.StatusOK, res)
 }
 
+// func RichMenuRemoveHandler(c *Context) error{
+
+// }
 // func RichMenuRemoveImage(c *Context) error {
 // 	a := auth.Default(c)
 // 	db := model.DB()

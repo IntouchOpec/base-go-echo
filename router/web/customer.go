@@ -16,9 +16,10 @@ func CustomerListHandler(c *Context) error {
 	var total int
 	db := model.DB()
 	a := auth.Default(c)
-	filterCustomer := db.Where("cus_account_id = ?", a.GetAccountID()).Find(&customers).Count(&total)
-	filterCustomer.Limit(limit).Offset(page).Find(&customers)
+
+	filterCustomer := db.Model(&customers).Where("cus_account_id = ?", a.GetAccountID()).Count(&total)
 	pagination := MakePagination(total, page, limit)
+	filterCustomer.Limit(pagination.Record).Offset(pagination.Offset).Find(&customers)
 
 	err := c.Render(http.StatusOK, "customer-list", echo.Map{
 		"list":       customers,
@@ -31,17 +32,32 @@ func CustomerListHandler(c *Context) error {
 func CustomerDetailHandler(c *Context) error {
 	id := c.Param("id")
 	customer := model.Customer{}
-	if err := model.DB().Preload("ActionLogs").Find(&customer, id).Error; err != nil {
-		return c.Render(http.StatusOK, "customer-detail", echo.Map{
-			"customer": customer,
-			"title":    "customer",
-		})
-	}
-	err := c.Render(http.StatusOK, "customer-detail", echo.Map{
-		"customer": customer,
-		"title":    "customer",
+	db := model.DB()
+
+	var totalEvent int
+	var totalAction int
+	var paginationEventLogs Pagination
+	var paginationActionLogs Pagination
+	db.Find(&customer, id)
+
+	eventLogs := []model.EventLog{}
+	eventLogsFilter := db.Model(&eventLogs).Where("customer_id = ?", id).Count(&totalEvent)
+	paginationEventLogs = MakePagination(totalEvent, 0, 10)
+	eventLogsFilter.Preload("Customer").Find(&eventLogs).Limit(10).Offset(0).Order("id")
+
+	actionLogs := []model.ActionLog{}
+	filteractionLogs := db.Model(&actionLogs).Where("chat_channel_id = ?", id).Count(&totalAction)
+	paginationActionLogs = MakePagination(totalAction, 0, 10)
+	filteractionLogs.Preload("Customer").Find(&actionLogs).Limit(10).Offset(0).Order("id")
+
+	return c.Render(http.StatusOK, "customer-detail", echo.Map{
+		"customer":             customer,
+		"title":                "customer",
+		"actionLogs":           actionLogs,
+		"eventLogs":            eventLogs,
+		"paginationActionLogs": paginationActionLogs,
+		"paginationEventLogs":  paginationEventLogs,
 	})
-	return err
 }
 
 func CustomerDeleteHandler(c *Context) error {

@@ -15,13 +15,20 @@ import (
 // PlaceListHandler
 func PlaceListHandler(c *Context) error {
 	places := []*model.Place{}
+	queryPar := c.QueryParams()
 	a := auth.Default(c)
-	model.DB().Preload("ChatChannel", func(db *gorm.DB) *gorm.DB {
+	page, limit := SetPagination(queryPar)
+	var total int
+	filter := model.DB().Model(&places).Count(&total)
+	pagination := MakePagination(total, page, limit)
+
+	filter.Limit(pagination.Record).Offset(pagination.Offset).Preload("ChatChannel", func(db *gorm.DB) *gorm.DB {
 		return db.Where("chat_channel_id = ?", a.User.GetAccountID())
 	}).Preload("PlaceSlot").Find(&places)
 	err := c.Render(http.StatusOK, "place-list", echo.Map{
-		"list":  places,
-		"title": "place",
+		"list":       places,
+		"title":      "place",
+		"pagination": pagination,
 	})
 	return err
 }
@@ -31,7 +38,7 @@ func PlaceDetailHandler(c *Context) error {
 	place := model.Place{}
 	id := c.Param("id")
 	a := auth.Default(c)
-	model.DB().Preload("Account").Preload("ChatChannels").Where("plac_account_id = ? ", a.User.GetAccountID()).Find(&place, id)
+	model.DB().Preload("Account").Preload("ChatChannels").Where("account_id = ? ", a.User.GetAccountID()).Find(&place, id)
 	err := c.Render(http.StatusOK, "place-detail", echo.Map{
 		"detail": place,
 		"title":  "place",
@@ -102,7 +109,7 @@ func PlaceEditViewHandler(c *Context) error {
 	place := model.Place{}
 	id := c.Param("id")
 	a := auth.Default(c)
-	model.DB().Where("plac_account_id = ? ", a.User.GetAccountID()).Find(&place, id)
+	model.DB().Where("account_id = ? ", a.User.GetAccountID()).Find(&place, id)
 	err := c.Render(http.StatusOK, "place-form", echo.Map{
 		"detail": place,
 		"title":  "place",
@@ -124,8 +131,8 @@ func PlaceAddChatChannelViewHanlder(c *Context) error {
 	a := auth.Default(c)
 	chatChannels := []model.ChatChannel{}
 	db := model.DB()
-	db.Where("cha_account_id = ?", a.GetAccountID()).Find(&chatChannels)
-	db.Where("plac_account_id = ?", a.GetAccountID()).Find(&place)
+	db.Where("account_id = ?", a.GetAccountID()).Find(&chatChannels)
+	db.Where("account_id = ?", a.GetAccountID()).Find(&place)
 	return c.Render(http.StatusOK, "place-chat-channel-form", echo.Map{
 		"chatChannels": chatChannels,
 		"title":        "place",
@@ -141,11 +148,10 @@ func PlaceAddChatChannelPostHanlder(c *Context) error {
 	chatChannelID := c.FormValue("chat_channel_id")
 	fmt.Println(chatChannelID)
 	db := model.DB()
-	db.Where("cha_account_id = ?", a.GetAccountID()).Find(&chatChannel, chatChannelID)
-	if err := db.Where("plac_account_id = ? ", a.GetAccountID()).Find(&place, id).Error; err != nil {
+	db.Where("account_id = ?", a.GetAccountID()).Find(&chatChannel, chatChannelID)
+	if err := db.Where("account_id = ? ", a.GetAccountID()).Find(&place, id).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	fmt.Println("======", chatChannel)
 	if err := db.Model(&place).Association("ChatChannels").Append(&chatChannel).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}

@@ -33,13 +33,39 @@
                                     {{ $length := len .TimeSlots }} {{ if eq $length 0 }}
                                         <h4 >ไม่ไม่มีตารางเวลา</h4>
                                     {{ else }}
-                                        {{ with .TimeSlots }}
-                                        {{ range . }}
-                                            <button type="button" class="col-2 btn btn-success">
-                                                {{.TimeStart}} - {{.TimeEnd}}
-                                            </button>
-                                        {{ end }}
-                                        {{ end }}
+                                        <div class="table-responsive">
+                                            <table class="table">
+                                              <thead class=" text-primary">
+                                                   <th>Time Start</th>
+                                                   <th>Time End</th>
+                                                   <th>Time Day</th>
+                                                   <th>Time Amount</th>
+                                                   <th>Time Active</th>
+                                                    <th></th>
+                                              </thead>
+                                              <tbody>
+                                                {{ with .TimeSlots }}
+                                                {{ range . }}
+                                                <tr name="row_{{ .ID }}">
+                                                    <td>{{ .TimeStart }}</td>
+                                                    <td>{{ .TimeEnd }}</td>
+                                                    <td>{{ .TimeDay }}</td>
+                                                    <td>{{ .TimeAmount }}</td>
+                                                    <td><input type="checkbox" checked data-toggle="toggle" checked="{{ .TimeActive }}"></td>
+                                                    <td>
+                                                        <button type="button" rel="tooltip" class="btn btn-warning">
+                                                            <i class="material-icons">edit</i>
+                                                        </button>
+                                                        <button value="{{ .ID }}" name="remove"  type="button" rel="tooltip" class="btn btn-danger">
+                                                            <i class="material-icons">close</i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                                {{ end }}
+                                                {{ end }}
+                                              </tbody>
+                                            </table>
+                                          </div>
                                     {{ end }}
                                 </div>
                             </div>

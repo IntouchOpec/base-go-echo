@@ -81,17 +81,19 @@ func Routers() *echo.Echo {
 	managent := e.Group("/admin")
 	managent.Use(auth.LoginRequired())
 	{
-		managent.GET("/dashboard", handler(DashboardHandler))
+		// managent.GET("/dashboard", handler(DashboardHandler))
 		managent.GET("/book", handler(BookingListHandler))
 		managent.GET("/customer", handler(CustomerListHandler))
 		managent.GET("/customer/:id", handler(CustomerDetailHandler))
+		managent.DELETE("/customer/:id", handler(CustomerDeleteHandler))
 
 		managent.GET("/chat_channel", handler(ChatChannelListHandler))
 		managent.GET("/chat_channel/create", handler(ChatChannelCreateViewHandler))
 		managent.POST("/chat_channel", handler(ChatChannelCreatePostHandler))
 		managent.PATCH("/chat_channel/:id/channel_access_token", handler(ChatChannelGetChannelAccessTokenHandler))
 		managent.PATCH("/chat_channel/:id/add_liff_register", handler(ChatChannelAddRegisterLIFF))
-		managent.DELETE("/chat_channel/:id", handler(ChatChannelListHandler))
+		managent.DELETE("/chat_channel/:id", handler(ChatChannelDeleteHandler))
+
 		managent.GET("/chat_channel/:id", handler(ChatChannelDetailHandler))
 		managent.GET("/chat_channel/:id/broadcast", handler(ChatChannelBroadcastMessageViewHandler))
 		managent.POST("/chat_channel/:id/broadcast", handler(ChatChannelBroadcastMessageHandler))
@@ -113,23 +115,26 @@ func Routers() *echo.Echo {
 
 		managent.GET("/service", handler(ServiceListHandler))
 		managent.GET("/service/create", handler(ServiceCreateHandler))
+		managent.POST("/service/create", handler(ServicePostHandler))
 		managent.GET("/service/:id", handler(ServiceDetailHandler))
-		managent.POST("/service", handler(ServicePostHandler))
+		managent.GET("/service/:id/edit", handler(ServicePostHandler))
+		managent.PUT("/service/:id/edit", handler(ServicePostHandler))
+		managent.DELETE("/service/:id", handler(ServiceDeleteHandler))
 
 		managent.GET("/promotion", handler(PromotionListHandler))
 		managent.POST("/promotion/create", handler(PromotionPostHandler))
 		managent.GET("/promotion/create", handler(PromotionFormHandler))
 		managent.GET("/promotion/:id", handler(PromotionDetailHandler))
 		managent.GET("/promotion/:id", handler(PromotionDetailHandler))
-		managent.DELETE("/promotion/:id", handler(PromotionDetailHandler))
+		managent.DELETE("/promotion/:id", handler(PromotionRemoveHandler))
 		managent.GET("/promotion_channel/:id/create", handler(PromotionChannelFormHandler))
 		managent.POST("/promotion_channel/:id/create", handler(PromotionChannelAddHandler))
 
-		managent.GET("/user", handler(UserListHandler))
-		managent.GET("/user/:id", handler(UserDetailHandler))
-		managent.GET("/user/create", handler(UserFormHamdeler))
-		managent.GET("/user/:id/edit", handler(UserEditHamdeler))
-		managent.DELETE("/user/:id", handler(UserDeleteHandler))
+		managent.GET("/users", handler(UserListHandler))
+		managent.GET("/users/:id", handler(UserDetailHandler))
+		managent.GET("/users/create", handler(UserFormHamdeler))
+		managent.GET("/users/:id/edit", handler(UserEditHamdeler))
+		managent.DELETE("/users/:id", handler(UserDeleteHandler))
 
 		managent.GET("/richmenu", handler(RichMenuListHandler))
 		managent.GET("/richmenu/create", handler(RichMenuCreateViewHandler))
@@ -138,6 +143,7 @@ func Routers() *echo.Echo {
 		managent.PATCH("/richmenu/:id", handler(RichMenuImageHandler))
 		managent.PATCH("/richmenu/:id/download_image", handler(RichMenuDonwloadImage))
 		managent.PATCH("/richmenu/:id/active", handler(RichMenuActiveHandler))
+		managent.DELETE("/richmenu/:id", handler(RichMenuDeleteHandler))
 
 		managent.GET("/setting", handler(SettingHandler))
 		// managent.GET("/service/:id/sub_service/create", handler(ServiceSlotCreateHandler))
@@ -177,6 +183,10 @@ func Routers() *echo.Echo {
 
 		managent.GET("/action_log", handler(ActionLogList))
 		managent.GET("/event_log", handler(EventLogList))
+
+		managent.GET("/upload_file", handler(FileListHandler))
+		managent.POST("/upload_file", handler(FileCreateHandler))
+		managent.DELETE("/upload_file/:id", handler(FileRemoveHandler))
 	}
 
 	return e

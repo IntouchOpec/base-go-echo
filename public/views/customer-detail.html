@@ -56,7 +56,7 @@
               <div class="col-md-8">
                   <div class="card">
                     <div class="card-header card-header-primary">
-                      <h4 class="card-title">booking</h4>
+                      <h4 class="card-title">Booking</h4>
                     </div>
                     <div class="card-body">
                       <div class="table-responsive">
@@ -71,12 +71,12 @@
                             <tbody>
                               {{ with .customer.Transactions }}
                               {{ range . }}
-                              <tr>
+                              <tr name="row_{{ .ID }}">
                                 <td>{{ .BooQueue }}</td>
                                 <td>{{ .BookStatus }}</td>
                                 <td>{{ .BookState }}</td>
                                 <td>{{ .BookedDate }}</td>
-                                <td>{{ ((.CreatedAt).AddDate 0 0 0).Format "Mon Jan 2 2006" }}</td>
+                                <td>{{ .CreatedAt.Format "Mon Jan 2 2006" }}</td>
                               </tr>
                               {{ end }} 
                               {{ end }}
@@ -91,7 +91,7 @@
               <div class="col-6">
                 <div class="card">
                     <div class="card-header card-header-primary">
-                        <h4 class="card-title ">ActionLogs</h4>
+                        <h4 class="card-title ">Event Logs</h4>
                       </div>
                     <div class="card-body">
                     <div class="table-responsive">
@@ -105,20 +105,25 @@
                             <th>CreatedAt</th>
                         </thead>
                         <tbody>
-                            {{ with .customer.EventLogs }}
+                            {{ with .eventLogs }}
                             {{ range . }}
-                            <tr>
+                            <tr name="row_{{ .ID }}">
                               <td>{{ .EvenReplyToken }}</td>
                               <td>{{ .EvenType }}</td>
                               <td>{{ .EvenLineID }}</td>
-                              <td>{{ .EvenChatChannelID }}</td>
+                              <td>{{ .ChatChannelID }}</td>
                               <td>{{ .EvenText }}</td>
-                              <td>{{ ((.CreatedAt).AddDate 0 0 0).Format "Mon Jan 2 2006" }}</td>
+                              <td>{{ .CreatedAt.Format "Mon Jan 2 2006" }}</td>
                             </tr>
                             {{ end }} 
                             {{ end }}
                         </tbody>
                       </table>
+                    </div>
+                    <div class="row p-0 m-0">
+                      <div class="ml-auto" name="event_logs">
+                          {{ template "pagination" .paginationEventLogs }}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -126,7 +131,7 @@
               <div class="col-6">
                   <div class="card">
                       <div class="card-header card-header-primary">
-                        <h4 class="card-title ">ActionLogs</h4>
+                        <h4 class="card-title ">Action Logs</h4>
                       </div>
                       <div class="card-body">
                           <div class="table-responsive">
@@ -137,17 +142,22 @@
                                   <th>CreatedAt</th>
                               </thead>
                               <tbody>
-                                  {{ with .customer.ActionLogs }}
+                                  {{ with .actionLogs }}
                                   {{ range . }}
-                                  <tr>
+                                  <tr name="row_{{ .ID }}">
                                   <td>{{ .ActName }}</td>
                                   <td>{{ .ActStatus }}</td>
-                                  <td>{{ ((.CreatedAt).AddDate 0 0 0).Format "Mon Jan 2 2006" }}</td>
+                                  <td>{{ .CreatedAt.Format "Mon Jan 2 2006" }}</td>
                                   </tr>
                                   {{ end }} 
                                   {{ end }}
                               </tbody>
                             </table>
+                          </div>
+                          <div class="row p-0 m-0">
+                            <div class="ml-auto" name="action_logs">
+                                {{ template "pagination" .paginationActionLogs }}
+                            </div>
                           </div>
                         </div>
                       </div>

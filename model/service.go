@@ -20,11 +20,11 @@ type Service struct {
 }
 
 // Saveservice is function create service.
-func (service *Service) Saveservice() *Service {
+func (service *Service) SaveService() error {
 	if err := DB().Create(&service).Error; err != nil {
-		return nil
+		return err
 	}
-	return service
+	return nil
 }
 
 func (service *Service) Updateservice(id int) *Service {
@@ -61,7 +61,7 @@ func (service *Service) Updateservice(id int) *Service {
 
 func GetServiceList(accID uint) (*[]Service, error) {
 	services := []Service{}
-	if err := DB().Where("ser_account_id = ?", accID).Find(&services).Error; err != nil {
+	if err := DB().Where("account_id = ?", accID).Find(&services).Error; err != nil {
 		return nil, err
 	}
 	return &services, nil

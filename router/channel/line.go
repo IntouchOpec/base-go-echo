@@ -49,11 +49,21 @@ func HandleWebHookLineAPI(c echo.Context) error {
 		return c.String(500, "internal")
 	}
 	customer := model.Customer{}
+	eventLogs := []model.EventLog{}
+	// actionLogs := []model.ActionLog{}
+	// actionLog := model.ActionLog{}
+	eventLog := model.EventLog{}
 	for _, event := range events {
-		// chatAnswer := model.ChatAnswer{}
 		var keyWord string
+
 		db.Where("cus_line_id = ?", event.Source.UserID).Find(&customer)
-		switch eventType := event.Type; eventType {
+		chatAnswer := model.ChatAnswer{}
+		eventType := event.Type
+		// eventLog
+		chatAnswer.AnsInputType = string(eventType)
+		var messageReply linebot.SendingMessage
+
+		switch eventType {
 		case linebot.EventTypeMessage:
 			switch message := event.Message.(type) {
 			case *linebot.TextMessage:
@@ -61,6 +71,27 @@ func HandleWebHookLineAPI(c echo.Context) error {
 				if len(messageText) >= 8 {
 					keyWord = messageText[0:8]
 				}
+				switch messageText {
+
+				case "service":
+
+				case "calendar", "booking":
+
+				case "Service":
+
+				case "booking ":
+
+				case "promotio":
+
+				case "location":
+
+				default:
+					db.Find(&chatAnswer)
+
+					messageReply = linebot.NewTextMessage(chatAnswer.AnsReply)
+					eventLog.EvenType = string(event.Type)
+				}
+
 				if keyWord == "calendar" || messageText == "booking" {
 					var m string
 					if len(message.Text) > 8 {
@@ -222,25 +253,11 @@ func HandleWebHookLineAPI(c echo.Context) error {
 					// act := model.ActionLog{Name: "location", Status: model.StatusSuccess, Type: model.TypeActionLine, UserID: event.Source.UserID,
 					// 	ChatChannelID: chatChannel.ID, CustomerID: customer.ID}
 					// act.CreateAction()
-				} else {
-					// 	model.DB().Where("Input = ?", message.Text).Find(&chatAnswer)
-					// 	if err := model.DB().Where("Input = ?", message.Text).Find(&chatAnswer).Error; err != nil {
-
-					// 	}
-					// 	client.ReplyLineMessage(chatAnswer, event.ReplyToken)
-					// }
-					// evenLog := model.EventLog{ChatChannelID: chatChannel.ID, ReplyToken: event.ReplyToken, Type: string(event.Type),
-					// 	LineID: event.Source.UserID, Text: messageText, CustomerID: customer.ID}
-					// model.DB().Create(&evenLog)
 				}
 			case *linebot.ImageMessage:
-
 			case *linebot.VideoMessage:
-
 			case *linebot.AudioMessage:
-
 			case *linebot.FileMessage:
-
 			case *linebot.LocationMessage:
 				textMessage := linebot.NewTextMessage(fmt.Sprintf("%v", message))
 				_, err := bot.ReplyMessage(event.ReplyToken, textMessage).Do()
@@ -262,13 +279,9 @@ func HandleWebHookLineAPI(c echo.Context) error {
 					// return c.JSON(http.StatusBadRequest, err)
 				}
 			case *linebot.StickerMessage:
-
 			case *linebot.TemplateMessage:
-
 			case *linebot.ImagemapMessage:
-
 			case *linebot.FlexMessage:
-
 			}
 
 		case linebot.EventTypeFollow:
@@ -282,8 +295,28 @@ func HandleWebHookLineAPI(c echo.Context) error {
 				CustomerID:     customer.ID}
 			model.DB().Create(&evenLog)
 		}
+		_, err = bot.ReplyMessage(event.ReplyToken, messageReply).Do()
+		fmt.Println(err)
+
+		eventLog.EvenReplyToken = event.ReplyToken
+		eventLog.CustomerID = customer.ID
+		eventLog.ChatChannelID = chatChannel.ID
+		eventLog.ChatChannelID = chatChannel.ID
+		eventLog.EvenLineID = event.Source.UserID
+
+		// actionLog.CustomerID = customer.ID
+		// actionLog.ChatChannelID = chatChannel.ID
+
+		eventLogs = append(eventLogs, eventLog)
+		// actionLogs = append(actionLogs, actionLog)
 
 	}
+	if err := db.Create(&eventLogs).Error; err != nil {
+		fmt.Println(err)
+	}
+	// if err := db.Create(&actionLogs).Error; err != nil {
+	// 	fmt.Println(err)
+	// }
 
 	return c.JSON(200, "")
 

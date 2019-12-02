@@ -46,7 +46,7 @@
                         {{if not .list}}<tr><td colspan="8" class="text-center">No content</td></tr> {{end}}
                          {{ with .list }}
                            {{ range . }}
-                            <tr>
+                            <tr name="row_{{ .ID }}">
                               <td></td>
                               <td>{{.PromTitle}}</td>
                               <td>{{.PromType}}</td>
@@ -58,7 +58,7 @@
                               <td>{{ .PromEndDate.Format "Mon Jan 2 2006" }}</td>
                               <td>{{ .PromCondition }}</td>
                               <td><img width="32" height="32" class="img-fluid" src="{{.PromImage}}"></td>
-                              <td>{{ ((.CreatedAt).AddDate 0 0 0).Format "Mon Jan 2 2006" }}</td>
+                              <td>{{ .CreatedAt.Format "Mon Jan 2 2006" }}</td>
                               <td class="td-actions text-right">
                                 <a href="/admin/promotion/{{ .ID }}">
                                   <button type="button" rel="tooltip" class="btn btn-success">
@@ -70,11 +70,9 @@
                                       <i class="material-icons">edit</i>
                                   </button>
                                 </a>
-                                <a href="/admin/promotion/{{ .ID }}/detail">
-                                  <button type="button" rel="tooltip" class="btn btn-danger">
+                                  <button value="{{ .ID }}" name="remove"  type="button" rel="tooltip" class="btn btn-danger">
                                       <i class="material-icons">close</i>
                                   </button>
-                                </a>
                               </td>
                             </tr>
                            {{ end }} 
@@ -96,8 +94,72 @@
       {{ template "footer" }}
 
     </div>
+    <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden" >
   </div>
   {{ template "script" }}
+  <script>
+    (function($) {
+
+      $("button[name='remove']").click(function () {
+        let id = $(this).val()
+        let _csrf = $("#_csrf").val()
+        let data = new FormData()
+        data.append("_csrf", _csrf)
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+          }).then(result => {
+          if (result) {
+            fetch(`/admin/promotion/${id}`, {
+              body: data,
+              method: "DELETE"
+            }).then(res => {
+              return res.json()
+            }).then(json => {
+              Swal.fire("success", "", "success").then(result => {
+                $(`tr[name='row_${id}']`).remove()
+              })
+            }).catch(err => {
+              Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Something went wrong!',
+                footer: '<a href>Why do I have this issue?</a>'
+              })        
+            })
+          }
+        })
+        return 
+      })
+
+      $("input[type='checkbox']").change(function() {
+
+        let _csrf = $("#_csrf").val()
+        let data = new URLSearchParams()
+        let id = $(this).val()
+
+        data.append("_csrf", _csrf)
+        data.append("ans_acive", this.checked)
+                  
+        fetch(`/admin/chat_answer/${id}`, {
+          body: data,
+          method: "PACTH"
+        }).then(res => {
+          return res.json()
+        }).then(json => {
+          Swal.fire("success", "", "success")
+        }).catch(err => {
+          Swal.fire("success", "", "success")          
+        })
+      })
+
+    })(jQuery)
+  </script>
 </body>
 
 </html>

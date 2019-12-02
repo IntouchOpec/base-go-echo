@@ -27,7 +27,6 @@
                    <div class="table-responsive">
                      <table class="table">
                        <thead class=" text-primary">
-                        <th>No</th>
                         <th>Name</th>
                         <th>Detail</th>
                         <th>Type</th>
@@ -40,13 +39,12 @@
                         {{if not .list}}<tr><td colspan="8" class="text-center">No content</td></tr> {{end}}
                          {{ with .list }}
                            {{ range . }}
-                             <tr>
-                                <td></td>
+                             <tr name="row_{{ .ID }}">
                                 <td>{{ .PlacName }}</td>
                                 <td>{{ .PlacDetail }}</td>
                                 <td>{{ .PlacType }}</td>
                                 <td>{{ .PlacAmount }}</td>
-                                <td>{{ ((.CreatedAt).AddDate 0 0 0).Format "Mon Jan 2 2006" }}</td>
+                                <td>{{ .CreatedAt.Format "Mon Jan 2 2006" }}</td>
                                 <td><input type="checkbox" checked data-toggle="toggle" checked="{{ .PlacActive }}"></td>
                                 <td class="td-actions text-right">
                                     <a href="/admin/place/{{ .ID }}">
@@ -59,11 +57,9 @@
                                           <i class="material-icons">edit</i>
                                       </button>
                                     </a>
-                                    <a href="/admin/place/{{ .ID }}/de">
-                                      <button type="button" rel="tooltip" class="btn btn-danger">
-                                          <i class="material-icons">close</i>
-                                      </button>
-                                    </a>
+                                    <button value="{{ .ID }}" name="remove"  type="button" rel="tooltip" class="btn btn-danger">
+                                      <i class="material-icons">close</i>
+                                    </button>
                                 </td>
                              </tr>
                            {{ end }} 
@@ -84,8 +80,72 @@
        </div>
       {{ template "footer" }}
     </div>
+    <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden">
   </div>
   {{ template "script" }}
+  <script>
+    (function($) {
+
+      $("button[name='remove']").click(function () {
+        let id = $(this).val()
+        let data = new FormData()
+        let _csrf = $("#_csrf").val()
+        data.append("_csrf", _csrf)
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+          }).then(result => {
+          if (result) {
+            fetch(`/admin/place/${id}`, {
+              body: data,
+              method: "DELETE"
+            }).then(res => {
+              return res.json()
+            }).then(json => {
+              Swal.fire("success", "", "success").then(result => {
+                $(`tr[name='row_${id}']`).remove()
+              })
+            }).catch(err => {
+              Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Something went wrong!',
+                footer: '<a href>Why do I have this issue?</a>'
+              })        
+            })
+          }
+        })
+        return 
+      })
+
+      $("input[type='checkbox']").change(function() {
+
+        let _csrf = $("#_csrf").val()
+        let data = new URLSearchParams()
+        let id = $(this).val()
+
+        data.append("_csrf", _csrf)
+        data.append("ans_acive", this.checked)
+                  
+        fetch(`/admin/place/${id}`, {
+          body: data,
+          method: "PACTH"
+        }).then(res => {
+          return res.json()
+        }).then(json => {
+          Swal.fire("success", "", "success")
+        }).catch(err => {
+          Swal.fire("success", "", "success")          
+        })
+      })
+
+    })(jQuery)
+  </script>
 </body>
 
 </html>

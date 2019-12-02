@@ -72,17 +72,17 @@ func GetPromotion(id int) *Promotion {
 	return &promotion
 }
 
-func DeletePromotion(id int) *Promotion {
+func DeletePromotion(id string) (*Promotion, error) {
 	promotion := Promotion{}
 	if err := DB().Find(&promotion).Error; err != nil {
-		return nil
+		return nil, err
 	}
 
 	if err := DB().Delete(&promotion).Error; err != nil {
-		return nil
+		return nil, err
 	}
 
-	return &promotion
+	return &promotion, nil
 }
 
 func (promo *Promotion) GetSettingPromotion(settingNames []string) map[string]string {

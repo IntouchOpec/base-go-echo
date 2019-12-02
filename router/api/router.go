@@ -47,7 +47,7 @@ func Routers() *echo.Echo {
 	e.Use(cache.Cache())
 
 	// e.Use(ec.SiteCache(ec.NewMemcachedStore([]string{conf.MEMCACHED_SERVER}, time.Hour), time.Minute))
-	// e.GET("/user/:id", ec.CachePage(ec.NewMemcachedStore([]string{conf.MEMCACHED_SERVER}, time.Hour), time.Minute, UserHandler))
+	// e.GET("/users/:id", ec.CachePage(ec.NewMemcachedStore([]string{conf.MEMCACHED_SERVER}, time.Hour), time.Minute, UserHandler))
 
 	// Routers
 	e.POST("/login", UserLoginHandler)
@@ -55,7 +55,7 @@ func Routers() *echo.Echo {
 
 	e.POST("/user", UserRegisterHandler)
 	e.GET("/user", GetUserList)
-	e.PUT("/user/:id", UpdateUser)
+	e.PUT("/users/:id", UpdateUser)
 
 	e.GET("/account", GetAccontList)
 	e.GET("/account/:chatChannelID/list", GetAccontList)

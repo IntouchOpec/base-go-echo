@@ -128,20 +128,20 @@
                     data.push(encodedetailKey + "=" + detailEncodeCalue)
                     data.push(imageEncodedKey + "=" + imageEncodedValue) 
                     data = data.join("&");
-                    console.log(detail, line_id, name)
                     fetch(window.location.href, {
                         method: "POST", 
                         headers: {"Content-Type": "application/x-www-form-urlencoded"},
                         body: data
                     })
                     .then(res => {
-                        if (res.status === 201){ 
-                            Swal.fire("success", "", "success") 
+                        if (res.status === 201){  
                             return res.json()
                         }
                     })
                     .then(json => {
-                        window.location = json
+                        Swal.fire("success", "", "success").then(result => {
+                            window.location = json
+                        })
                     })
                     .catch(err => Swal.fire("fial", "", "warning"))
                 })

@@ -16,7 +16,7 @@ func Createservice(c echo.Context) error {
 		fmt.Println(err)
 		return c.NoContent(http.StatusBadRequest)
 	}
-	service.Saveservice()
+	service.SaveService()
 	c.JSON(200, service)
 
 	return nil

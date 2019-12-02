@@ -1,0 +1,151 @@
+
+{{define "file-list"}}
+<!DOCTYPE html>
+<html lang="en">
+
+{{ template "header" .title }}
+
+<body class="">
+  <div class="wrapper ">
+   {{ template "sidebar" .base }}
+    <div class="main-panel">
+      {{ template "navbar" .title }}
+      <div class="content">
+         <div class="container-fluid">
+           <div class="row">
+             <div class="col-md-12">
+               <div class="card">
+                 <div class="card-header card-header-primary">
+                   <h4 class="card-title ">Upload File</h4>
+                 </div>
+                 <div class="card-body">
+                    <form name="create-file" >
+                        <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden" class="form-control" >
+                        <div class="row">
+                            <div class="col-md-12 mt-2">
+                                <input id="Image" name="Image" type="file">
+                                <p><strong>Image:</strong> Choose any file on your computer and its name will be displayed in an alert dialog box.</p>
+                            </div>
+                        </div>
+                        <input type="submit" rel="tooltip" value="Submit" class="btn btn-success">
+                    </form>
+
+                     <div class="row" id="list-image" name="{{.host}}">
+                         {{ range .list }}
+                         {{ with  . }}
+                            <div class="col-md-3 text-center">
+                                <img style="height: 240px;" src="{{ .Path }}" class="rounded img-fluid card-image" >
+                                <button id="image_{{ .ID }}" class="btn btn-info" value="{{ .Path }}">
+                                    <i class="material-icons">file_copy</i>
+                                    Copy Url
+                                </button>
+                            </div>
+                         {{ end }}
+                         {{ end }}
+                     </div>
+
+
+                    <div class="row p-0 m-0">
+                        <div class="ml-auto">
+                            {{ template "pagination" .pagination }}
+                        </div>
+                    </div>
+                 </div>
+               </div>
+             </div>
+           </div>
+         </div>
+       </div>
+      {{ template "footer" }}
+
+    </div>
+  </div>
+  {{ template "script" }}
+  <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+  <script>
+        (function ($) {
+            const toBase64 = file => new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+
+            $("button.btn.btn-info").each(function () {
+                $(this).click(function () {
+                    let $temp = $("<input>")
+                    let host = $("#list-image").attr("name")
+                    $("body").append($temp)
+                    $temp.val(host+ ":8080" + $(this).val()).select()
+                    document.execCommand("copy")
+                    $temp.remove()
+                })
+            })
+
+            $("form[name='create-file']").validate({
+                rules: {
+                    Image: {
+                        required: true
+                    },
+                },
+                messages: { 
+                    Image: {
+                        required: "Please enter a valid Image"               
+                    } 
+                },
+                submitHandler: function(form) {
+    
+                    let _csrf = $("#_csrf").val()
+                    let Image =  $("#Image")
+    
+                    const data = []
+                    let imageEncodeKey = encodeURIComponent("file") 
+    
+    
+                    let encodeKey = encodeURIComponent("_csrf")
+                    let encodedValue = encodeURIComponent(_csrf)
+    
+                    toBase64(Image[0].files[0]).then(base64Image => {
+                        Image = JSON.stringify(base64Image)
+    
+                        let imageEncodedValue = encodeURIComponent(Image);
+                        data.push(encodeKey + "=" + encodedValue)
+                        data.push(imageEncodeKey + "=" + imageEncodedValue) 
+    
+                        fetch(window.location.href, {
+                            headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                            method: "POST",
+                            body: data.join("&")
+                        })
+                        .then(res => {
+                        if (res.status === 201) {
+                            return res.json();
+                        }
+                        })
+                        .then(data => {
+                            Swal.fire("success", "", "success").then(result => {
+                                $("#list-image").prepend(`
+                                    <div class="col-md-3 text-center">
+                                        <img style="height: 240px;" src="${data.data.path}" class="rounded img-fluid" >
+                                        <button id="image_${data.data.id}" class="btn btn-info" value="${data.data.host}${data.data.path}">
+                                            <i class="material-icons">file_copy</i>
+                                            Copy Url
+                                        </button>
+                                    </div>
+                                `)
+                            })
+                            
+                        })
+                        .catch(err => {
+                            console.log("error", err);
+                        })
+                    })
+                }
+            })
+        })(jQuery)
+      </script>
+</body>
+
+</html>
+
+{{end}}

@@ -17,7 +17,7 @@
                <div class="card">
                  <div class="card-header card-header-primary d-flex justify-content-between">
                   <h4 class="card-title ">admin list</h4>
-                  <a href="/admin/user/create">
+                  <a href="/admin/users/create">
                     <button class="btn btn-info">
                       <i class="material-icons">add</i>
                       Create
@@ -42,31 +42,28 @@
                         {{if not .list}}<tr><td colspan="8" class="text-center">No content</td></tr> {{end}}
                          {{ with .list }}
                            {{ range . }}
-                             <tr>
-                               <td></td>
+                             <tr name="row_{{ .ID }}">
                               <td>{{.UserName}}</td>
                               <td>{{.Email}}</td>
                               <td>{{.PhoneNumber}}</td>
                               <td>{{.LastName}}</td>
                               <td>{{.FirstName}}</td>
                               <td>{{.Admin}}</td>
-                               <td>{{ ((.CreatedAt).AddDate 0 0 0).Format "Mon Jan 2 2006" }}</td>
+                               <td>{{ .CreatedAt.Format "Mon Jan 2 2006" }}</td>
                                <td class="td-actions text-right">
-                                  <a href="/admin/user/{{ .ID }}" >
+                                  <a href="/admin/users/{{ .ID }}" >
                                     <button type="button" rel="tooltip" class="btn btn-success">
                                       <i class="material-icons">person</i>
                                     </button>
                                   </a>
-                                  <a href="/admin/user/{{ .ID }}/edit" >
+                                  <a href="/admin/users/{{ .ID }}/edit" >
                                     <button type="button" rel="tooltip" class="btn btn-warning">
                                         <i class="material-icons">edit</i>
                                     </button>
                                   </a>
-                                  <a href="/admin/user/{{ .ID }}/delete" >
-                                    <button type="button" rel="tooltip" class="btn btn-danger">
-                                        <i class="material-icons">close</i>
-                                    </button>
-                                  </a>
+                                  <button value="{{ .ID }}" name="remove"  type="button" rel="tooltip" class="btn btn-danger">
+                                      <i class="material-icons">close</i>
+                                  </button>
                               </td>
                              </tr>
                            {{ end }} 
@@ -86,10 +83,49 @@
          </div>
        </div>
     {{ template "footer" }}
-
     </div>
+    <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden" class="form-control" >
   </div>
   {{ template "script" }}
+  <script>
+    (function ($) {
+      $("button[name='remove']").click(function () {
+        let _csrf = $("#_csrf").val()
+
+        let id = $(this).val()
+        let data = new FormData()
+        data.append("_csrf", _csrf)
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+          }).then(result => {
+          if (result.value) {
+            fetch(`/admin/users/${id}`, {
+              method: "DELETE",
+              body: data
+            }).then(res => {
+              if (res.status === 200) {
+              return res.json()
+              }
+            }).then(json => {
+              Swal.fire("success", "", "success").then(result => {
+                $(`tr[name='row_${id}']`).remove()
+              })
+            }).catch(err => {
+              Swal.fire("success", "", "success")          
+            })
+          }
+        })
+        return 
+      })
+    })(jQuery)
+  </script>
 </body>
 
 </html>

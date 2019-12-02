@@ -18,9 +18,9 @@ func ProviderListHandler(c *Context) error {
 	queryPar := c.QueryParams()
 	page, limit := SetPagination(queryPar)
 	var total int
-	filterProvider := db.Where("prov_account_id = ?", a.GetAccountID()).Find(&provider)
-	filterProvider.Limit(limit).Offset(page).Find(&provider)
+	filterProvider := db.Model(&provider).Where("account_id = ?", a.GetAccountID()).Count(&total)
 	pagination := MakePagination(total, page, limit)
+	filterProvider.Limit(pagination.Record).Offset(pagination.Offset).Find(&provider)
 
 	return c.Render(http.StatusOK, "provider-list", echo.Map{
 		"title":      "provider",
@@ -86,7 +86,7 @@ func ProviderEditHandler(c *Context) error {
 	provider := model.Provider{}
 	a := auth.Default(c)
 
-	if err := model.DB().Where("prov_account_id = ?", a.GetAccountID()).Find(&provider, id).Error; err != nil {
+	if err := model.DB().Where("account_id = ?", a.GetAccountID()).Find(&provider, id).Error; err != nil {
 		return c.Render(http.StatusNotFound, "404-page", echo.Map{})
 	}
 	return c.Render(http.StatusOK, "provider-form", echo.Map{
@@ -109,7 +109,7 @@ func ProviderAddServiceHandler(c *Context) error {
 	id := c.Param("id")
 	a := auth.Default(c)
 	provider := model.Provider{}
-	if err := model.DB().Where("prov_account_id = ?", a.GetAccountID()).Find(&provider, id).Error; err != nil {
+	if err := model.DB().Where("account_id = ?", a.GetAccountID()).Find(&provider, id).Error; err != nil {
 		return c.Render(http.StatusNotFound, "404-page", echo.Map{})
 	}
 
@@ -153,16 +153,17 @@ func ProviderAddServicePostHandler(c *Context) error {
 	if err := c.Bind(&provs); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	fmt.Println(provs.ID, "provs", id)
-	provs.ID = 0
 	provs.ProviderID = prov.ID
+	provs.ID = 0
 	if err := model.DB().Create(&provs).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
 	redirect := fmt.Sprintf("/admin/provider/%s", id)
 
-	return c.JSON(http.StatusCreated, redirect)
+	return c.JSON(http.StatusCreated, echo.Map{
+		"redirect": redirect,
+	})
 
 }
 
@@ -175,7 +176,7 @@ func ProviderAddBookingHandler(c *Context) error {
 	if err != nil {
 		return c.Render(http.StatusNotFound, "404-page", echo.Map{})
 	}
-	if err := model.DB().Where("prov_account_id = ?", a.GetAccountID()).Find(&provider, id).Error; err != nil {
+	if err := model.DB().Where("account_id = ?", a.GetAccountID()).Find(&provider, id).Error; err != nil {
 		return c.Render(http.StatusNotFound, "404-page", echo.Map{})
 	}
 

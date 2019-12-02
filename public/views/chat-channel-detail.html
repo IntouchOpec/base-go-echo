@@ -104,6 +104,18 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-md-4 row">
+                    <div class="col-md-12">
+                        <div style="height: 84%;" class="card">
+                            <div class="card-header card-header-primary">
+                                <h4 class="card-title ">Promotion Register</h4>
+                            </div>
+                            <div class="card-body">
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="col-md-6">
                     <div class="card">
                     <div class="card-header card-header-primary">
@@ -220,7 +232,7 @@
                                     <tbody>
                                     {{ with .deplayDetailChatChannels }}
                                     {{ range . }}
-                                        <tr>
+                                        <tr name="row_{{ .ID }}">
                                             <td>{{ .Name }}</td>
                                             <td>{{ .Value }}</td>
                                         </tr>
@@ -256,7 +268,7 @@
                                     <tbody id="body-event-logs">
                                     {{ with .eventLogs }}
                                     {{ range . }}
-                                        <tr>
+                                        <tr name="row_{{ .ID }}">
                                             <td>{{ .EvenLineID }}</td>
                                             <td>{{ .EvenReplyToken }}</td>
                                             <td>{{ .Customer.CusDisplayName }}</td>
@@ -294,7 +306,7 @@
                                     <tbody id="body-action-logs">
                                     {{ with .actionLogs }}
                                     {{ range . }}
-                                        <tr>
+                                        <tr name="row_{{ .ID }}">
                                             <td>{{ .ActName }}</td>
                                             <td>{{ .ActStatus }}</td>
                                             <td>{{ .Customer.CusDisplayName }}</td>
@@ -323,14 +335,14 @@
   {{ template "script" }}
     <script>
         (function ($) {
+
             let _csrf = $("#_csrf").val()
             const data = new URLSearchParams();
             data.append("_csrf", _csrf);
             let chat_channel_id = $("#add_LIIF_register").val()
-            $("div[name='action_logs'] nav ul.pagination li").each(function () {
-                $(this).click(function (){
-                    let page = parseInt($(this).attr("value"))
 
+            $("div[name='action_logs'] nav ul.pagination li").click(function (){
+                    let page = parseInt($(this).attr("value"))
                     fetch(`/admin/action_log?limit=10&page=${page -1}&chat_channel_id=${chat_channel_id}`).then(res =>{
                         if (res.status === 200) {
                             return res.json()
@@ -339,22 +351,35 @@
                     .then(data => {
                         let record = ""
                         let date = ""
+                        let paginations = ""
                         data.data.map(value => {
                             date = new Date(value.created_at).toString()
-                            record += ` <tr>
+                            record += ` <tr name="row_{{ .ID }}">
                                 <td>${value.act_name}</td>
                                 <td>${value.act_status}</td>
                                 <td>${value.customer.cus_display_name}</td>
                                 <td>${date}</td>
                             </tr>`
                         })
+                    console.log(data.pagination)
+
+                        
+                        data.pagination.List.map(value => {
+                            paginations += `
+                            <li value="${value}" class="page-item ${data.pagination.page === value ? 'active' : ""}">
+                                <p class="page-link">${value}</p>
+                            </li>
+                            `
+                        })
+
+                        $("div[name='action_logs'] nav ul.pagination").html(paginations)
                         $("#body-action-logs").html(record)
                     })
                     .catch(err => {
-                        console.log(err)
+
                     })
                 })
-            })
+
             $("div[name='event_logs'] nav ul.pagination li").each(function () {
                 $(this).click(function (){
                     let page = parseInt($(this).attr("value"))
@@ -369,7 +394,7 @@
                         let date = ""
                         data.data.map(value => {
                             date = new Date(value.created_at).toString()
-                            record += `<tr>
+                            record += `<tr name="row_{{ .ID }}">
                                 <td>${value.even_line_id}</td>
                                 <td>${value.even_reply_token}</td>
                                 <td>${value.customer.cus_display_name}</td>

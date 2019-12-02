@@ -114,15 +114,13 @@
                 })
                 .then(res => {
                     if (res.status === 201) {
-                        let data = {}
-                        Swal.fire("success", "", "success").then(() => {
-                            data = res.json()
-                        })
-                        return data
+                        return res.json()
                     }
                 })
                 .then(json => {
-                    window.location = json.redirect
+                    Swal.fire("success", "", "success").then(() => {
+                        window.location = json.redirect
+                    })
                 })
                 .catch(err => Swal.fire("fial", "", "warning"))
             }

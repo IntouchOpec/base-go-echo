@@ -1,18 +1,13 @@
 package web
 
 import (
-	"bytes"
-	"encoding/base64"
 	"errors"
 	"fmt"
-	"image"
-	"io/ioutil"
 	"net/http"
-	"strings"
 
+	"github.com/IntouchOpec/base-go-echo/lib"
 	"github.com/IntouchOpec/base-go-echo/model"
 	"github.com/IntouchOpec/base-go-echo/module/auth"
-	guuid "github.com/google/uuid"
 	"github.com/labstack/echo"
 )
 
@@ -25,10 +20,10 @@ func ServiceListHandler(c *Context) error {
 	var total int
 	db := model.DB()
 
-	filterService := db.Where("ser_account_id = ?", a.User.GetAccountID()).Find(&services).Count(&total)
+	filterService := db.Model(&services).Where("account_id = ?", a.User.GetAccountID()).Count(&total)
 
-	filterService.Limit(limit).Offset(page).Find(&services)
 	pagination := MakePagination(total, page, limit)
+	filterService.Limit(pagination.Record).Offset(pagination.Offset).Find(&services)
 
 	err := c.Render(http.StatusOK, "service-list", echo.Map{
 		"list":       services,
@@ -43,7 +38,7 @@ func ServiceDetailHandler(c *Context) error {
 	service := model.Service{}
 	id := c.Param("id")
 	a := auth.Default(c)
-	model.DB().Preload("Account").Where("ser_account_id = ? ", a.User.GetAccountID()).Find(&service, id)
+	model.DB().Where("account_id = ? ", a.User.GetAccountID()).Find(&service, id)
 	err := c.Render(http.StatusOK, "service-detail", echo.Map{
 		"detail": service,
 		"title":  "service",
@@ -67,7 +62,7 @@ func ServiceEditHandler(c *Context) error {
 	service := model.Service{}
 	id := c.Param("id")
 	a := auth.Default(c)
-	model.DB().Preload("Account").Preload("ServiceSlots").Preload("ChatChannels").Where("ser_account_id = ? ", a.User.GetAccountID()).Find(&service, id)
+	model.DB().Preload("Account").Preload("ServiceSlots").Preload("ChatChannels").Where("account_id = ? ", a.User.GetAccountID()).Find(&service, id)
 	err := c.Render(http.StatusOK, "service-form", echo.Map{
 		"detail": service,
 		"title":  "service",
@@ -98,7 +93,7 @@ type serviceForm struct {
 	Name   string  `form:"name"`
 	Detail string  `form:"detail"`
 	Price  float32 `form:"price"`
-	// Image  byte   `form:"file"`
+	Time   string  `form:"time"`
 }
 
 var (
@@ -110,37 +105,8 @@ var (
 func ServicePostHandler(c *Context) error {
 	service := serviceForm{}
 	file := c.FormValue("file")
+	fileUrl, _, err := lib.UploadteImage(file)
 
-	idx := strings.Index(file, ";base64,")
-	if idx < 0 {
-		// return "", ErrInvalidImage
-	}
-	reader := base64.NewDecoder(base64.StdEncoding, strings.NewReader(file[idx+8:]))
-	buff := bytes.Buffer{}
-	_, err := buff.ReadFrom(reader)
-	if err != nil {
-		// return "", err
-	}
-	imgCfg, fm, err := image.DecodeConfig(bytes.NewReader(buff.Bytes()))
-	if err != nil {
-		// return "", err
-	}
-
-	if imgCfg.Width != 750 || imgCfg.Height != 685 {
-		// return "", ErrSize
-	}
-	if fm == "" {
-		fm = ".jpg"
-	}
-
-	u := guuid.New()
-	fileNameBase := "public/assets/images/%s"
-	fileNameBase = fmt.Sprintf(fileNameBase, u)
-	fileName := fileNameBase + fm
-	err = ioutil.WriteFile(fileName, buff.Bytes(), 0644)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
 	if err := c.Bind(&service); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
@@ -149,12 +115,18 @@ func ServicePostHandler(c *Context) error {
 		SerName:   service.Name,
 		SerDetail: service.Detail,
 		SerPrice:  service.Price,
-		SerImage:  fmt.Sprintf("%s.%s", u, fm),
+		SerTime:   service.Time,
+		SerImage:  fileUrl,
 		AccountID: a.User.GetAccountID(),
 	}
-	serviceModel.Saveservice()
-
-	return c.JSON(http.StatusCreated, serviceModel)
+	err = serviceModel.SaveService()
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	return c.JSON(http.StatusCreated, echo.Map{
+		"data":     serviceModel,
+		"redirect": fmt.Sprintf("/admin/service/%d", serviceModel.ID),
+	})
 }
 
 type ServiceSlotForm struct {

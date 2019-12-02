@@ -34,7 +34,7 @@
                         <tbody>
                           {{ with .list }}
                             {{ range . }}
-                              <tr>
+                              <tr name="row_{{ .ID }}">
                                 <td></td>
                                 <td>{{ ((.BookedDate).AddDate 0 0 0).Format "Mon Jan 2 2006" }}</td>
                                 <td>{{ .ServiceSlot.Start }}</td>
@@ -49,7 +49,7 @@
                                     <button type="button" rel="tooltip" class="btn btn-success">
                                         <i class="material-icons">edit</i>
                                     </button>
-                                    <button type="button" rel="tooltip" class="btn btn-danger">
+                                    <button value="{{ .ID }}" name="remove"  type="button" rel="tooltip" class="btn btn-danger">
                                         <i class="material-icons">close</i>
                                     </button>
                                 </td>

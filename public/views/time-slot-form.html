@@ -226,6 +226,7 @@
                 dayWeek = JSON.parse(value)
 
                 timeSlot = timeSlots[`form_${dayWeek.name}`]
+
                 servicesData.map(v => {
                     serviceData = JSON.parse(v)
                     minutesService = timeToMinutes(serviceData.ser_time.split(':'))
@@ -239,7 +240,7 @@
                         timeSlot = addMinutes(timeSlot, minutesService)
                         timeSlotData.time_end = timeSlot
                         timeSlotData.time_day = dayWeek.id
-                        timeSlotData.time_provider_service_id = serviceData.id
+                        timeSlotData.provider_service_id = serviceData.id
                         timeSlotsReq.push(timeSlotData)
                         i++;
                     }
@@ -262,13 +263,15 @@
                     body: data
                 })
                 .then(res => {
-                    if (res.status === 201) {
-                        Swal.fire("success", "", "success") 
-                        return res.json()
+                    if (res.status !== 201) {
+                        throw ""
                     }
+                        return res.json()
                 })
-                .then(json => {
-                    window.location = json
+                .then(data => {
+                    Swal.fire("success", "", "success").then(result => {
+                        window.location = data
+                    })
                 })
                 .catch(err => Swal.fire("fial", "", "warning"))
             }

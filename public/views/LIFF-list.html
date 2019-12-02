@@ -41,17 +41,33 @@
                           <th>LIFFID</th>
                           <th>Type</th>
                           <th>URL</th>
-                         <th></th>
+                          <th></th>
                        </thead>
                        <tbody>
                           {{if not .list}}<tr><td colspan="8" class="text-center">No content</td></tr> {{end}}
                           {{ with .list.Apps }}
                           {{ range . }}
-                          <tr>
+                          <tr name="row_{{ .LIFFID }}">
                               <td>{{ .LIFFID }}</td>
                               <td>{{ .View.Type }}</td>
                               <td>{{ .View.URL }}</td>
-                              <td></td>
+                              <td>
+                                <td class="td-actions text-right">
+                                  <a href="/admin/richmenu/%s?chat_channel_id=%d">
+                                    <button type="button" rel="tooltip" class="btn btn-success">
+                                    <i class="material-icons">settings_applications</i>
+                                    </button>
+                                  </a>
+                                  <a href="/admin/richmenu/%s/edit">
+                                    <button type="button" rel="tooltip" class="btn btn-warning">
+                                      <i class="material-icons">edit</i>
+                                    </button>
+                                  </a>
+                                  <button value="{{ .LIFFID }}" name="remove"  type="button" rel="tooltip" class="btn btn-danger">
+                                    <i class="material-icons">close</i>
+                                  </button>
+                                </td>
+                              </td>
                           </tr>
                           {{end}}
                           {{end}}
@@ -66,6 +82,7 @@
        </div>
       {{ template "footer" }}
     </div>
+    <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden">
   </div>
   {{ template "script" }}
   <script>
@@ -76,12 +93,51 @@
             ret.push(encodeURIComponent(d) + '=' + encodeURIComponent(data[d]));
           return ret.join('&');
         }
-        $( "#chatChannelID" ).change(function() {
-          let chatChannelID = $("#chatChannelID").val()
+
+        let emChatChannelID = $("#chatChannelID")
+        emChatChannelID.change(function() {
+          let chatChannelID = emChatChannelID.val()
           const data = { 'chat_channel_id': chatChannelID };
           const querystring = encodeQueryData(data);
           window.location = "/admin/LIFF?" + querystring
         });
+
+        $("button[name='remove']").click(function () {
+            let _csrf = $("#_csrf").val()
+    
+            let id = $(this).val()
+            let data = new FormData()
+            data.append("_csrf", _csrf)
+            let chatChannelID = emChatChannelID.val()
+    
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+              }).then(result => {
+              if (result.value) {
+                fetch(`/admin/LIFF/${id}?chat_channel_id=${chatChannelID}`, {
+                  method: "DELETE",
+                  body: data
+                }).then(res => {
+                  if (res.status === 200) {
+                    return res.json()
+                  }
+                }).then(json => {
+                  Swal.fire("success", "", "success").then(result => {
+                    $(`tr[name='row_${id}']`).remove()
+                  })
+                }).catch(err => {
+                  // Swal.fire("success", "", "success")          
+                })
+              }
+            })
+            return 
+          })
       })(jQuery)
     </script>
 </body>
