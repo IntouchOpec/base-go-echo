@@ -33,6 +33,8 @@ func Routers() *echo.Echo {
 		Root:   "public/assets",
 		Browse: true,
 	}))
+	e.GET("/", web.LIFFRegisterHandler)
+
 	e.POST("/callback/:account/:ChannelID", HandleWebHookLineAPI)
 	e.GET("/register/:lineID", web.LIFFRegisterHandler)
 	e.POST("/register/:lineID", web.LIIFRegisterSaveCustomer)
