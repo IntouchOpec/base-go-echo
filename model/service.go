@@ -69,7 +69,7 @@ func GetServiceList(accID uint) (*[]Service, error) {
 
 func GetserviceByID(chatchannelID, id int) *Service {
 	service := Service{}
-	if err := DB().Where("ChatChannelID = ?", chatchannelID).Find(&service, id).Error; err != nil {
+	if err := DB().Where("chat_channel_id = ?", chatchannelID).Find(&service, id).Error; err != nil {
 		return nil
 	}
 	return &service

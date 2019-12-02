@@ -111,7 +111,19 @@
                                 <h4 class="card-title ">Promotion Register</h4>
                             </div>
                             <div class="card-body">
-                                
+                                {{ if not .detail.Promotion.ID }}
+                                <a href="/admin/promotion" >
+                                    <button type="button" class="btn btn-warning mt-3" value="{{ .detail.ID }}" name="{{ .richMenuDefault }}" id="download_rich_menu">
+                                        <i class="material-icons">cloud_download</i>
+                                        Promotion List
+                                    </button>
+                                </a>
+                                {{ else }}
+                                <img class="img-fluid" src="{{ .detail.ChaImage }}" />
+                                <div>
+                                    code: {{ .detail.Promotion.ProName }}
+                                </div> 
+                                {{ end }}
                             </div>
                         </div>
                     </div>
@@ -232,7 +244,7 @@
                                     <tbody>
                                     {{ with .deplayDetailChatChannels }}
                                     {{ range . }}
-                                        <tr name="row_{{ .ID }}">
+                                        <tr>
                                             <td>{{ .Name }}</td>
                                             <td>{{ .Value }}</td>
                                         </tr>
@@ -361,24 +373,21 @@
                                 <td>${date}</td>
                             </tr>`
                         })
-                    console.log(data.pagination)
-
-                        
                         data.pagination.List.map(value => {
                             paginations += `
-                            <li value="${value}" class="page-item ${data.pagination.page === value ? 'active' : ""}">
+                            <li value="${value}" class="page-item ${data.pagination.Page === value ? 'active' : ""}">
                                 <p class="page-link">${value}</p>
                             </li>
                             `
                         })
 
-                        $("div[name='action_logs'] nav ul.pagination").html(paginations)
+                        // $("div[name='action_logs'] nav ul.pagination").html(paginations)
                         $("#body-action-logs").html(record)
                     })
                     .catch(err => {
 
                     })
-                })
+            })
 
             $("div[name='event_logs'] nav ul.pagination li").each(function () {
                 $(this).click(function (){

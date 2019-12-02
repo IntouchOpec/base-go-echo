@@ -27,7 +27,7 @@ func (chatReq *ChatRequest) SaveChatRequest() error {
 // GetChatRequest get ChatRequest list.
 func GetChatRequest(chatChannelID string) *ChatRequest {
 	chatReq := ChatRequest{}
-	DB().Where("ChatChannelID = ?", chatChannelID).Find(&chatReq)
+	DB().Where("chat_channel_id = ?", chatChannelID).Find(&chatReq)
 	return &chatReq
 }
 

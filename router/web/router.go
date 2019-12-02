@@ -71,6 +71,7 @@ func Routers() *echo.Echo {
 		Browse: true,
 	}))
 	e.Use(auth.New())
+	e.GET("/", handler(LoginHandler))
 
 	e.GET("/login", handler(LoginHandler))
 	e.POST("/login", handler(LoginPostHandler))
@@ -81,7 +82,7 @@ func Routers() *echo.Echo {
 	managent := e.Group("/admin")
 	managent.Use(auth.LoginRequired())
 	{
-		// managent.GET("/dashboard", handler(DashboardHandler))
+		managent.GET("/dashboard", handler(DashboardHandler))
 		managent.GET("/book", handler(BookingListHandler))
 		managent.GET("/customer", handler(CustomerListHandler))
 		managent.GET("/customer/:id", handler(CustomerDetailHandler))
@@ -126,6 +127,7 @@ func Routers() *echo.Echo {
 		managent.GET("/promotion/create", handler(PromotionFormHandler))
 		managent.GET("/promotion/:id", handler(PromotionDetailHandler))
 		managent.GET("/promotion/:id", handler(PromotionDetailHandler))
+		managent.POST("/promotion/:id/register", handler(PromotionAddRegisterlHandler))
 		managent.DELETE("/promotion/:id", handler(PromotionRemoveHandler))
 		managent.GET("/promotion_channel/:id/create", handler(PromotionChannelFormHandler))
 		managent.POST("/promotion_channel/:id/create", handler(PromotionChannelAddHandler))

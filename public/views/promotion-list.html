@@ -28,7 +28,6 @@
                    <div class="table-responsive">
                      <table class="table">
                        <thead class=" text-primary">
-                        <th>No</th>
                         <th>Title</th>
                         <th>PromotionType</th>
                         <th>Discount</th>
@@ -43,11 +42,10 @@
                         <th></th>
                        </thead>
                        <tbody>
-                        {{if not .list}}<tr><td colspan="8" class="text-center">No content</td></tr> {{end}}
+                        {{if not .list}}<tr><td colspan="11" class="text-center">No content</td></tr> {{end}}
                          {{ with .list }}
                            {{ range . }}
                             <tr name="row_{{ .ID }}">
-                              <td></td>
                               <td>{{.PromTitle}}</td>
                               <td>{{.PromType}}</td>
                               <td>{{.PromDiscount}}</td>

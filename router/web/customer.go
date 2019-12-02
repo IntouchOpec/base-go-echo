@@ -17,7 +17,7 @@ func CustomerListHandler(c *Context) error {
 	db := model.DB()
 	a := auth.Default(c)
 
-	filterCustomer := db.Model(&customers).Where("cus_account_id = ?", a.GetAccountID()).Count(&total)
+	filterCustomer := db.Model(&customers).Where("account_id = ?", a.GetAccountID()).Count(&total)
 	pagination := MakePagination(total, page, limit)
 	filterCustomer.Limit(pagination.Record).Offset(pagination.Offset).Find(&customers)
 

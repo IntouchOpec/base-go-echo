@@ -27,7 +27,6 @@
                    <div class="table-responsive">
                      <table class="table">
                        <thead class=" text-primary">
-                        <th>No</th>
                         <th>Name</th>
                         <th>Price</th>
                         <th>Image</th>
@@ -40,7 +39,6 @@
                          {{ with .list }}
                            {{ range . }}
                              <tr name="row_{{ .ID }}">
-                                <td></td>
                                 <td>{{.SerName}}</td>
                                 <td>{{.SerPrice}}</td>
                                 <td><img width="32" height="32" class="img-fluid" src="{{.SerImage}}"></td>
@@ -80,7 +78,7 @@
        </div>
       {{ template "footer" }}
     </div>
-    <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden" class="form-control" >
+    <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden" >
   </div>
   {{ template "script" }}
   <script>

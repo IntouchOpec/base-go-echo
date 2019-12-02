@@ -21,7 +21,7 @@ func PromotionListHandler(c *Context) error {
 	var total int
 	db := model.DB()
 
-	filterPromotion := db.Model(&promotions).Where("prom_account_id = ?", a.GetAccountID()).Count(&total)
+	filterPromotion := db.Model(&promotions).Where("account_id = ?", a.GetAccountID()).Count(&total)
 	pagination := MakePagination(total, page, limit)
 	filterPromotion.Limit(pagination.Record).Offset(pagination.Offset).Find(&promotions)
 
@@ -39,7 +39,7 @@ func PromotionDetailHandler(c *Context) error {
 	id := c.Param("id")
 	a := auth.Default(c)
 
-	err := model.DB().Preload("Account").Preload("Customers").Preload("ChatChannels").Where("prom_account_id = ?",
+	err := model.DB().Preload("Account").Preload("Customers").Preload("ChatChannels").Where("account_id = ?",
 		a.User.GetAccountID()).Find(&promotion, id)
 	if err != nil {
 		fmt.Println(err, "===")
@@ -144,7 +144,7 @@ func PromotionChannelAddHandler(c *Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	if err := db.Where("prom_account_id = ?", a.User.GetAccountID()).Find(&pro, id).Error; err != nil {
+	if err := db.Where("account_id = ?", a.User.GetAccountID()).Find(&pro, id).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	if err := db.Model(&pro).Association("ChatChannels").Append(&chatChannel).Error; err != nil {
@@ -152,7 +152,9 @@ func PromotionChannelAddHandler(c *Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	redirect := fmt.Sprintf("/admin/promotion/%d", pro.ID)
-	return c.JSON(http.StatusOK, redirect)
+	return c.JSON(http.StatusCreated, echo.Map{
+		"redirect": redirect,
+	})
 }
 
 func PromotionRemoveHandler(c *Context) error {
@@ -164,4 +166,27 @@ func PromotionRemoveHandler(c *Context) error {
 	}
 
 	return c.JSON(http.StatusOK, promotion)
+}
+
+func PromotionAddRegisterlHandler(c *Context) error {
+	id := c.Param("id")
+	promotion := model.Promotion{}
+	chatChannel := model.ChatChannel{}
+	db := model.DB()
+	chatChannelID := c.FormValue("chat_channel_id")
+
+	if err := db.Find(&chatChannel, chatChannelID).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	if err := db.Find(&promotion, id).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	chatChannel.PromotionID = promotion.ID
+	if err := db.Save(&chatChannel).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	return c.JSON(http.StatusCreated, chatChannel)
 }

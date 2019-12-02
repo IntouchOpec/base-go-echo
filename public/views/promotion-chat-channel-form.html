@@ -19,7 +19,7 @@
                                     </div>
                                     <div class="card-body">
                                         <form name="create-promotion" >
-                                            <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden" class="form-control" >
+                                            <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden" >
                                             <div class="row">
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
@@ -74,10 +74,10 @@
                     body: data
                 })
                 .then(res => {
-                    if (res.status === 201) {
-                        return res.json()
+                    if (res.status !== 201) {
+                        throw ""
                     }
-                    Swal.fire("fial", "", "warning")
+                    return res.json()
                 })
                 .then(json => {
                     Swal.fire("success", "", "success").then(result => {

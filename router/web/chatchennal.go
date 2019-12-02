@@ -163,12 +163,16 @@ func ChatChannelDetailHandler(c *Context) error {
 	paginationActionLogs = MakePagination(totalAction, 0, 10)
 	filteractionLogs.Preload("Customer").Find(&actionLogs).Limit(10).Offset(0).Order("id")
 
-	db.Preload("Settings").Where("account_id = ?", a.GetAccountID()).Find(&chatChannel, id)
+	db.Preload("Settings").Preload("promotion").Where("account_id = ?", a.GetAccountID()).Find(&chatChannel, id)
 
 	insightFollowers, _ := lib.InsightFollowers(chatChannel.ChaChannelAccessToken)
 	bot, _ := linebot.New(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
 	timeNow := time.Now()
-	dateLineFormat := fmt.Sprintf("%d%d%d", timeNow.Year(), timeNow.Month(), timeNow.Day()-1)
+	day := fmt.Sprintf("%d", timeNow.Day()-1)
+	if len(day) == 1 {
+		day = "0" + day
+	}
+	dateLineFormat := fmt.Sprintf("%d%d%s", timeNow.Year(), timeNow.Month(), day)
 	MessageQuota, _ := bot.GetMessageQuota().Do()
 	MessageQuotaConsumption, _ := bot.GetMessageQuotaConsumption().Do()
 	MessageConsumption, _ := bot.GetMessageConsumption().Do()
@@ -178,40 +182,25 @@ func ChatChannelDetailHandler(c *Context) error {
 	NumberMulticastMessages, _ := bot.GetNumberMulticastMessages(dateLineFormat).Do()
 	richMenuDefault, _ := bot.GetDefaultRichMenu().Do()
 	deplayDetailChatChannels := []DeplayDetailChatChannel{}
-	d := DeplayDetailChatChannel{Name: "Quota Type", Value: MessageQuota.Type}
 	for _, setting := range chatChannel.Settings {
-		d = DeplayDetailChatChannel{Name: setting.Name, Value: setting.Value}
-		deplayDetailChatChannels = append(deplayDetailChatChannels, d)
+		deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: setting.Name, Value: setting.Value})
 	}
 
-	d = DeplayDetailChatChannel{Name: "Quota Total Usage", Value: strconv.FormatInt(MessageQuota.TotalUsage, 16)}
-	deplayDetailChatChannels = append(deplayDetailChatChannels, d)
-	d = DeplayDetailChatChannel{Name: "Quota Value", Value: strconv.FormatInt(MessageQuota.Value, 10)}
-	deplayDetailChatChannels = append(deplayDetailChatChannels, d)
-	d = DeplayDetailChatChannel{Name: "Quota Consumption Type", Value: MessageQuotaConsumption.Type}
-	deplayDetailChatChannels = append(deplayDetailChatChannels, d)
-	d = DeplayDetailChatChannel{Name: "Quota Consumption TotalUsage", Value: strconv.FormatInt(MessageQuotaConsumption.TotalUsage, 16)}
-	deplayDetailChatChannels = append(deplayDetailChatChannels, d)
-	d = DeplayDetailChatChannel{Name: "Quota Consumption Value", Value: strconv.FormatInt(MessageQuotaConsumption.Value, 16)}
-	deplayDetailChatChannels = append(deplayDetailChatChannels, d)
-	d = DeplayDetailChatChannel{Name: "Consumption TotalUsage", Value: strconv.FormatInt(MessageConsumption.TotalUsage, 16)}
-	deplayDetailChatChannels = append(deplayDetailChatChannels, d)
-	d = DeplayDetailChatChannel{Name: "Reply Messages Status", Value: NumberReplyMessages.Status}
-	deplayDetailChatChannels = append(deplayDetailChatChannels, d)
-	d = DeplayDetailChatChannel{Name: "Reply Messages Success", Value: strconv.FormatInt(NumberReplyMessages.Success, 16)}
-	deplayDetailChatChannels = append(deplayDetailChatChannels, d)
-	d = DeplayDetailChatChannel{Name: "Push Messages Status", Value: NumberPushMessages.Status}
-	deplayDetailChatChannels = append(deplayDetailChatChannels, d)
-	d = DeplayDetailChatChannel{Name: "Push Messages Success", Value: strconv.FormatInt(NumberPushMessages.Success, 16)}
-	deplayDetailChatChannels = append(deplayDetailChatChannels, d)
-	d = DeplayDetailChatChannel{Name: "Broadcast Messages Status", Value: NumberBroadcastMessages.Status}
-	deplayDetailChatChannels = append(deplayDetailChatChannels, d)
-	d = DeplayDetailChatChannel{Name: "Broadcast Messages Success", Value: strconv.FormatInt(NumberBroadcastMessages.Success, 16)}
-	deplayDetailChatChannels = append(deplayDetailChatChannels, d)
-	d = DeplayDetailChatChannel{Name: "Multicast Messages Status", Value: NumberMulticastMessages.Status}
-	deplayDetailChatChannels = append(deplayDetailChatChannels, d)
-	d = DeplayDetailChatChannel{Name: "Multicast Messages Success", Value: strconv.FormatInt(NumberMulticastMessages.Success, 16)}
-	deplayDetailChatChannels = append(deplayDetailChatChannels, d)
+	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Quota Total Usage", Value: fmt.Sprintf("%d", MessageQuota.TotalUsage)})
+	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Quota Type", Value: MessageQuota.Type})
+	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Quota Value", Value: fmt.Sprintf("%d", MessageQuota.Value)})
+	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Quota Consumption Type", Value: MessageQuotaConsumption.Type})
+	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Quota Consumption TotalUsage", Value: fmt.Sprintf("%d", MessageQuotaConsumption.TotalUsage)})
+	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Quota Consumption Value", Value: fmt.Sprintf("%d", MessageQuotaConsumption.Value)})
+	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Consumption TotalUsage", Value: fmt.Sprintf("%d", MessageConsumption.TotalUsage)})
+	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Reply Messages Status", Value: NumberReplyMessages.Status})
+	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Reply Messages Success", Value: strconv.FormatInt(NumberReplyMessages.Success, 16)})
+	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Push Messages Status", Value: NumberPushMessages.Status})
+	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Push Messages Success", Value: strconv.FormatInt(NumberPushMessages.Success, 16)})
+	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Broadcast Messages Status", Value: NumberBroadcastMessages.Status})
+	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Broadcast Messages Success", Value: strconv.FormatInt(NumberBroadcastMessages.Success, 16)})
+	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Multicast Messages Status", Value: NumberMulticastMessages.Status})
+	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Multicast Messages Success", Value: strconv.FormatInt(NumberMulticastMessages.Success, 16)})
 	setting := model.Setting{}
 
 	db.Where("name = ?", richMenuDefault.RichMenuID).Find(&setting)

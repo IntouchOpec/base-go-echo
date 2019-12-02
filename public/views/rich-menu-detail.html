@@ -15,7 +15,7 @@
                 <div class="col-md-4">
                     <div class="card card-profile">
                         <div class="card-body">
-                            <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden" class="form-control" >
+                            <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden" >
                             <div id="form-upload-image">
                                 {{ if not .ImageRichMenu.Value }} 
                                     ไม่มีรูป rich menu
@@ -29,7 +29,7 @@
                                     </form>
                                 {{ end }}
                             </div>
-                            <input name="RichMenuID" id="RichMenuID" value="{{ .detail.RichMenuID }}" type="hidden" class="form-control" >
+                            <input name="RichMenuID" id="RichMenuID" value="{{ .detail.RichMenuID }}" type="hidden" >
                             <div>RichMenuID: {{ .detail.RichMenuID }}</div>
                             <div>
                                 Size: 

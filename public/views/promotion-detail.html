@@ -53,7 +53,7 @@
                                     <i class="material-icons">account_balance_wallet</i>
                                 </div>
                                 <p class="card-category">used</p>
-                                <h3 class="card-title"> {{ .detail.PromAmount }}
+                                <h3 class="card-title"> {{ .detail.ProUsed }}
                                 </h3>
                             </div>
                         </div>
@@ -76,16 +76,19 @@
                                 <div class="table-responsive">
                                     <table class="table">
                                         <thead>
+                                            <th>register voucher</th>
                                             <th>Name</th>
                                             <th>Type</th>
                                         </thead>
                                         <tbody>
+                                            {{ $promotionID := .detail.ID }}
                                             {{ with .detail.ChatChannels }}
                                             {{ range . }}
-                                            <tr name="row_{{ .ID }}">
-                                                <td>{{ .ChaName }}</td>
-                                                <td>{{ .ChaType }}</td>
-                                            </tr>
+                                                <tr name="row_{{ .ID }}">
+                                                    <td><input value="{{ .ID }}" type="checkbox" {{ if (eq .PromotionID  $promotionID ) }} checked="true" {{ end }} data-toggle="toggle" ></td>
+                                                    <td>{{ .ChaName }}</td>
+                                                    <td>{{ .ChaType }}</td>
+                                                </tr>
                                             {{ end }}
                                             {{ end }}
                                         </tbody>
@@ -101,6 +104,42 @@
       {{ template "footer" }}
     </div>
   </div>
+  <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden" >
+  <input name="promotion" id="promotion_id" value="{{.detail.ID}}" type="hidden" >
+  {{ template "script" }}
+
+  <script>
+      (function ($) {
+          $("input[type='checkbox']").change(function () {
+              let chacked = $(this).attr("checked")
+              let id = $(this).val()
+
+              let _csrf = $("#_csrf").val()
+              let proID = $("#promotion_id").val()
+              if (chacked === undefined) {
+                chacked = true
+              }
+              let data = new FormData()
+              data.append("_csrf", _csrf)
+              data.append("chacked", chacked)
+              data.append("chat_channel_id", id)
+              fetch(`/admin/promotion/${proID}/register`, {
+                  method: "POST",
+                  body: data
+              }).then(res => {
+                  if (res.status !== 201) {
+                    throw ""
+                  }
+                  return res.json()
+              }).then(data => {
+
+              }).catch(err => {
+
+              })
+          })
+      })(jQuery)
+  </script>
+
 </body>
 
 </html>
