@@ -25,17 +25,14 @@ func UploadteImage(file string) (string, string, error) {
 	buff := bytes.Buffer{}
 	_, err := buff.ReadFrom(reader)
 	if err != nil {
-		fmt.Println("=======2", err)
 		// return "", err
 	}
 	imgCfg, fm, err := image.DecodeConfig(bytes.NewReader(buff.Bytes()))
 	if err != nil {
-		fmt.Println("=======3", err)
 		// return "", err
 	}
 
 	if imgCfg.Width != 750 || imgCfg.Height != 685 {
-		fmt.Println("=======4", err)
 		// return "", errors.New("ErrSize 750")
 	}
 	if fm == "" {

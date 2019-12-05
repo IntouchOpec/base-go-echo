@@ -55,7 +55,7 @@ func ChatAnswerCreateHandler(c *Context) error {
 		linebot.MessageTypeFlex,
 	}
 
-	return c.Render(http.StatusOK, "chat-answer-form", echo.Map{
+	return c.Render(http.StatusOK, "chat-answer-form", echo.Map{"method": "PUT",
 		"title":        "chat_answer",
 		"detail":       chatAnswer,
 		"messageTypes": messageTypes,
@@ -88,7 +88,7 @@ func ChatAnswerEditHandler(c *Context) error {
 	a := auth.Default(c)
 
 	model.DB().Preload("Account", "name = ?", a.User.GetAccount()).Find(&chatAnswer, id)
-	return c.Render(http.StatusOK, "chat-answer-form", echo.Map{
+	return c.Render(http.StatusOK, "chat-answer-form", echo.Map{"method": "PUT",
 		"title":  "chat_answer",
 		"detail": chatAnswer,
 	})

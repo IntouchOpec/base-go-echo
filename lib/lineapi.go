@@ -47,7 +47,12 @@ type ResponseInsightFollowrs struct {
 }
 
 func DateStringFormantLine(time time.Time) (string, error) {
-	return fmt.Sprintf("%d%d%d", time.Year(), time.Month(), time.Day()-1), nil
+	day := fmt.Sprintf("%d", time.Day()-1)
+	if len(day) == 1 {
+		day = "0" + day
+	}
+
+	return fmt.Sprintf("%d%d%s", time.Year(), time.Month(), day), nil
 }
 
 func InsightFollowers(channelAccsssToken string) (*ResponseInsightFollowrs, error) {

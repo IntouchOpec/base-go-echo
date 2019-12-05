@@ -48,6 +48,15 @@ func (u *User) SetPassword() error {
 	return nil
 }
 
+func (u *User) Create(accID uint) error {
+	db := DB()
+	u.AccountID = accID
+	if err := db.Create(&u).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
 // CheckPassword check password
 func (u *User) CheckPassword(password string) error {
 	bytePassword := []byte(password)
@@ -72,18 +81,18 @@ func (u *User) AddUserWithUserNamePwd() *User {
 type User struct {
 	orm.ModelBase
 	// ID            uint64  `json:"id,omitempty"`
-	UserName      string  `form:"username" json:"username,omitempty" gorm:"unique; type:varchar(25)"`
-	Password      string  `form:"password" json:"password" gorm:"type:varchar(255)"`
-	Email         string  `json:"email" gorm:"type:varchar(100);unique_index"`
-	PhoneNumber   string  `json:"phone_number" gorm:"type:varchar(10)"`
-	LastName      string  `json:"last_name" gorm:"type:varchar(25)"`
-	FirstName     string  `json:"first_name" gorm:"type:varchar(25)"`
+	UserName      string  `form:"UserName" json:"username,omitempty" gorm:"unique; type:varchar(25)"`
+	Password      string  `form:"Password" json:"password" gorm:"type:varchar(255)"`
+	Email         string  `form:"Email" json:"email" gorm:"type:varchar(100);unique_index"`
+	PhoneNumber   string  `form:"PhoneNumber" json:"phone_number" gorm:"type:varchar(10)"`
+	LastName      string  `form:"LastName" json:"last_name" gorm:"type:varchar(25)"`
+	FirstName     string  `form:"FirstName" json:"first_name" gorm:"type:varchar(25)"`
 	Admin         bool    `json:"admin"`
 	AccountID     uint    `form:"account_id" json:"account_id" gorm:"not null;"`
 	Roles         []*Role `gorm:"many2many:user_role" json:"roles"`
 	Account       Account `gorm:"ForeignKey:AccountID"`
 	Authenticated bool    `form:"-" db:"-" json:"-"`
-	LineID        string  `form:"line_id" json:"line_id" gorm:"type:varchar(50)"`
+	LineID        string  `form:"LineID" json:"line_id" gorm:"type:varchar(50)"`
 }
 
 type Role struct {
@@ -91,11 +100,6 @@ type Role struct {
 
 	Name  string  `json:"name"`
 	Users []*User `gorm:"many2many:user_role" json:"users"`
-}
-
-// TableName users
-func (u User) TableName() string {
-	return "user"
 }
 
 // Login will preform any actions that are required to make a user model
@@ -179,4 +183,8 @@ func GetUserDetail(id string) (*User, error) {
 		return nil, err
 	}
 	return &u, nil
+}
+
+func (u User) TableName() string {
+	return "user"
 }

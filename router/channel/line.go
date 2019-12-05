@@ -3,9 +3,7 @@ package channel
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
-	"time"
 
 	"github.com/IntouchOpec/base-go-echo/lib"
 	"github.com/IntouchOpec/base-go-echo/model"
@@ -49,12 +47,13 @@ func HandleWebHookLineAPI(c echo.Context) error {
 		return c.String(500, "internal")
 	}
 	customer := model.Customer{}
-	eventLogs := []model.EventLog{}
+	// eventLogs := []model.EventLog{}
 	// actionLogs := []model.ActionLog{}
 	// actionLog := model.ActionLog{}
 	eventLog := model.EventLog{}
 	for _, event := range events {
 		var keyWord string
+		fmt.Println(keyWord)
 
 		db.Where("cus_line_id = ?", event.Source.UserID).Find(&customer)
 		chatAnswer := model.ChatAnswer{}
@@ -92,168 +91,168 @@ func HandleWebHookLineAPI(c echo.Context) error {
 					eventLog.EvenType = string(event.Type)
 				}
 
-				if keyWord == "calendar" || messageText == "booking" {
-					var m string
-					if len(message.Text) > 8 {
-						m = lib.MakeCalenda(messageText[9:19])
-					} else {
-						m = lib.MakeCalenda("")
-					}
-					flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(m))
-					if err != nil {
-						log.Println(err)
-					}
-					flexMessage := linebot.NewFlexMessage("ตาราง", flexContainer)
-					_, err = bot.ReplyMessage(event.ReplyToken, flexMessage).Do()
+				// if keyWord == "calendar" || messageText == "booking" {
+				// 	var m string
+				// 	if len(message.Text) > 8 {
+				// 		m = lib.MakeCalenda(messageText[9:19])
+				// 	} else {
+				// 		m = lib.MakeCalenda("")
+				// 	}
+				// 	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(m))
+				// 	if err != nil {
+				// 		log.Println(err)
+				// 	}
+				// 	flexMessage := linebot.NewFlexMessage("ตาราง", flexContainer)
+				// 	_, err = bot.ReplyMessage(event.ReplyToken, flexMessage).Do()
 
-					if err != nil {
-						act := model.ActionLog{
-							ActName:       "calendar",
-							ActStatus:     model.StatusFail,
-							ActUserID:     event.Source.UserID,
-							ChatChannelID: chatChannel.ID,
-							CustomerID:    customer.ID}
-						act.CreateAction()
-						return err
-					}
-					act := model.ActionLog{
-						ActName:       "calendar",
-						ActChannel:    model.ActionChannelLine,
-						ActStatus:     model.StatusSuccess,
-						ActUserID:     event.Source.UserID,
-						ChatChannelID: chatChannel.ID,
-						CustomerID:    customer.ID}
-					db.Create(&act)
-				} else if keyWord == "Service" {
-					// t, _ := time.Parse("2006-01-02 15:04", messageText[8:]+" 01:00")
+				// 	if err != nil {
+				// 		act := model.ActionLog{
+				// 			ActName:       "calendar",
+				// 			ActStatus:     model.StatusFail,
+				// 			ActUserID:     event.Source.UserID,
+				// 			ChatChannelID: chatChannel.ID,
+				// 			CustomerID:    customer.ID}
+				// 		act.CreateAction()
+				// 		return err
+				// 	}
+				// 	act := model.ActionLog{
+				// 		ActName:       "calendar",
+				// 		ActChannel:    model.ActionChannelLine,
+				// 		ActStatus:     model.StatusSuccess,
+				// 		ActUserID:     event.Source.UserID,
+				// 		ChatChannelID: chatChannel.ID,
+				// 		CustomerID:    customer.ID}
+				// 	db.Create(&act)
+				// } else if keyWord == "Service" {
+				// 	// t, _ := time.Parse("2006-01-02 15:04", messageText[8:]+" 01:00")
 
-					// serviceSlot := []model.ServiceSlot{}
-					// if err := model.DB().Preload("Bookings", "booked_date = ?", t).Preload("service").Where("Day = ?", int(t.Weekday())).Find(&serviceSlot).Error; err != nil {
-					// 	fmt.Println(err)
-					// 	return nil
-					// }
+				// 	// serviceSlot := []model.ServiceSlot{}
+				// 	// if err := model.DB().Preload("Bookings", "booked_date = ?", t).Preload("service").Where("Day = ?", int(t.Weekday())).Find(&serviceSlot).Error; err != nil {
+				// 	// 	fmt.Println(err)
+				// 	// 	return nil
+				// 	// }
 
-					// m := serviceListLineTemplate(serviceSlot, messageText[8:])
+				// 	// m := serviceListLineTemplate(serviceSlot, messageText[8:])
 
-					// flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(m))
-					if err != nil {
-						log.Println(err)
-					}
-					// flexMessage := linebot.NewFlexMessage("ตาราง", flexContainer)
+				// 	// flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(m))
+				// 	if err != nil {
+				// 		log.Println(err)
+				// 	}
+				// 	// flexMessage := linebot.NewFlexMessage("ตาราง", flexContainer)
 
-					// res, err := bot.ReplyMessage(event.ReplyToken, flexMessage).Do()
-					if err != nil {
-						return err
-					}
-					act := model.ActionLog{
-						ActName:       "service",
-						ActStatus:     model.StatusSuccess,
-						ActUserID:     event.Source.UserID,
-						ChatChannelID: chatChannel.ID,
-						CustomerID:    customer.ID}
-					act.CreateAction()
-				} else if keyWord == "booking " {
-					t, _ := time.Parse("2006-01-02 15:04", messageText[8:18]+" 01:00")
-					service := model.Service{}
-					if err := model.DB().Preload("ServiceSlots", "start = ? and day = ?", messageText[19:24], int(t.Weekday())).Where("Name = ?", messageText[31:]).Find(&service).Error; err != nil {
-						fmt.Println(err, "err")
-						return nil
-					}
+				// 	// res, err := bot.ReplyMessage(event.ReplyToken, flexMessage).Do()
+				// 	if err != nil {
+				// 		return err
+				// 	}
+				// 	act := model.ActionLog{
+				// 		ActName:       "service",
+				// 		ActStatus:     model.StatusSuccess,
+				// 		ActUserID:     event.Source.UserID,
+				// 		ChatChannelID: chatChannel.ID,
+				// 		CustomerID:    customer.ID}
+				// 	act.CreateAction()
+				// } else if keyWord == "booking " {
+				// 	t, _ := time.Parse("2006-01-02 15:04", messageText[8:18]+" 01:00")
+				// 	service := model.Service{}
+				// 	if err := model.DB().Preload("ServiceSlots", "start = ? and day = ?", messageText[19:24], int(t.Weekday())).Where("Name = ?", messageText[31:]).Find(&service).Error; err != nil {
+				// 		fmt.Println(err, "err")
+				// 		return nil
+				// 	}
 
-					custo := model.Customer{}
-					if err := model.DB().Where("cus_line_id = ?", event.Source.UserID).Find(&custo).Error; err != nil {
-						fmt.Println(err, "err")
-						return nil
-					}
-					// serviceSlot := service.ServiceSlots[0]
-					// booking := model.Booking{ServiceSlotID: service.ServiceSlots[0].ID, BookedDate: t, ChatChannelID: chatChannel.ID, CustomerID: custo.ID}
-					// _, err := booking.SaveBooking()
-					var m string
-					if err != nil {
-						m = ` { "type": "bubble", "size": "nano", "header": { "type": "box", "layout": "vertical", "contents": [
-								{ "type": "text", "text": "คิวเต็ม", "color": "#ffffff", "align": "start", "size": "md", "gravity": "center" }
-							  ], "backgroundColor": "#FF6B6E", "paddingTop": "19px", "paddingAll": "12px", "paddingBottom": "16px"},
-							"body": { "type": "box", "layout": "vertical", "contents": [{ "type": "box", "layout": "horizontal", "contents": [
-									{ "type": "text", "text": "กรุณาเลือกคิวใหม่", "color": "#8C8C8C", "size": "sm", "wrap": true }],
-								  "flex": 1
-								}
-							  ],
-							  "spacing": "md",  "paddingAll": "12px"
-							},
-							"styles": {
-							  "footer": { "separator": false } }
-						  }`
-					} else if keyWord == "my voucher" {
-						// customer := model.Customer{}
-						// model.DB().Preload("Promotions", "type = ?", "voucher", func(db *gorm.DB) *gorm.DB {
-						// 	return db.Preload("Settings")
-						// }).Where("line_id = ?", message.ID).Find(&customer)
-						// var template string
-						// for index := 0; index < len(customer.Promotions); index++ {
-						// 	// promotion := customer.Promotions[index]
-						// 	// template = template + web.VoucherTemplate(customer.Promotions[index]) + ","
-						// }
-						// template = fmt.Sprintf(`{ "type": "carousel", "contents": [%s]}`, template[:len(template)-1])
-						// flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(template))
-						// if err != nil {
-						// 	return err
-						// }
-						// flexMessage := linebot.NewFlexMessage("your voucher", flexContainer)
-						// res, err := bot.ReplyMessage(event.ReplyToken, flexMessage).Do()
-						// if err != nil {
-						// 	act := model.ActionLog{Name: "user voucher", Status: model.StatusFail, Type: model.TypeActionLine,
-						// 		UserID: event.Source.UserID, ChatChannelID: chatChannel.ID, CustomerID: customer.ID}
-						// 	act.CreateAction()
-						// 	return err
-						// }
-						// fmt.Println(res)
-						// act := model.ActionLog{Name: "user voucher", Status: model.StatusSuccess,
-						// 	Type: model.TypeActionLine, UserID: event.Source.UserID, ChatChannelID: chatChannel.ID, CustomerID: customer.ID}
-						// act.CreateAction()
-					} else if keyWord == "comment" {
+				// 	custo := model.Customer{}
+				// 	if err := model.DB().Where("cus_line_id = ?", event.Source.UserID).Find(&custo).Error; err != nil {
+				// 		fmt.Println(err, "err")
+				// 		return nil
+				// 	}
+				// 	// serviceSlot := service.ServiceSlots[0]
+				// 	// booking := model.Booking{ServiceSlotID: service.ServiceSlots[0].ID, BookedDate: t, ChatChannelID: chatChannel.ID, CustomerID: custo.ID}
+				// 	// _, err := booking.SaveBooking()
+				// 	var m string
+				// 	if err != nil {
+				// 		m = ` { "type": "bubble", "size": "nano", "header": { "type": "box", "layout": "vertical", "contents": [
+				// 				{ "type": "text", "text": "คิวเต็ม", "color": "#ffffff", "align": "start", "size": "md", "gravity": "center" }
+				// 			  ], "backgroundColor": "#FF6B6E", "paddingTop": "19px", "paddingAll": "12px", "paddingBottom": "16px"},
+				// 			"body": { "type": "box", "layout": "vertical", "contents": [{ "type": "box", "layout": "horizontal", "contents": [
+				// 					{ "type": "text", "text": "กรุณาเลือกคิวใหม่", "color": "#8C8C8C", "size": "sm", "wrap": true }],
+				// 				  "flex": 1
+				// 				}
+				// 			  ],
+				// 			  "spacing": "md",  "paddingAll": "12px"
+				// 			},
+				// 			"styles": {
+				// 			  "footer": { "separator": false } }
+				// 		  }`
+				// 	} else if keyWord == "my voucher" {
+				// 		// customer := model.Customer{}
+				// 		// model.DB().Preload("Promotions", "type = ?", "voucher", func(db *gorm.DB) *gorm.DB {
+				// 		// 	return db.Preload("Settings")
+				// 		// }).Where("line_id = ?", message.ID).Find(&customer)
+				// 		// var template string
+				// 		// for index := 0; index < len(customer.Promotions); index++ {
+				// 		// 	// promotion := customer.Promotions[index]
+				// 		// 	// template = template + web.VoucherTemplate(customer.Promotions[index]) + ","
+				// 		// }
+				// 		// template = fmt.Sprintf(`{ "type": "carousel", "contents": [%s]}`, template[:len(template)-1])
+				// 		// flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(template))
+				// 		// if err != nil {
+				// 		// 	return err
+				// 		// }
+				// 		// flexMessage := linebot.NewFlexMessage("your voucher", flexContainer)
+				// 		// res, err := bot.ReplyMessage(event.ReplyToken, flexMessage).Do()
+				// 		// if err != nil {
+				// 		// 	act := model.ActionLog{Name: "user voucher", Status: model.StatusFail, Type: model.TypeActionLine,
+				// 		// 		UserID: event.Source.UserID, ChatChannelID: chatChannel.ID, CustomerID: customer.ID}
+				// 		// 	act.CreateAction()
+				// 		// 	return err
+				// 		// }
+				// 		// fmt.Println(res)
+				// 		// act := model.ActionLog{Name: "user voucher", Status: model.StatusSuccess,
+				// 		// 	Type: model.TypeActionLine, UserID: event.Source.UserID, ChatChannelID: chatChannel.ID, CustomerID: customer.ID}
+				// 		// act.CreateAction()
+				// 	} else if keyWord == "comment" {
 
-					} else {
-						// m = ThankyouTemplate(chatChannel, booking, serviceSlot)
-					}
-					flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(m))
-					if err != nil {
-						return err
-					}
-					flexMessage := linebot.NewFlexMessage("ขอบคุณ", flexContainer)
-					// flexMessage := linebot.NewPostbackAction("label", "data", "text", "displayText")
-					bot.ReplyMessage(event.ReplyToken, flexMessage).Do()
-				} else if keyWord == "promotio" {
-					// promotions := []*model.Promotion{}
-					// model.DB().Where("promotion_type = ?", "Promotion").Find(&promotions)
-					// m := PromotionsTemplate(promotions)
-					// flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(m))
-					// if err != nil {
+				// 	} else {
+				// 		// m = ThankyouTemplate(chatChannel, booking, serviceSlot)
+				// 	}
+				// 	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(m))
+				// 	if err != nil {
+				// 		return err
+				// 	}
+				// 	flexMessage := linebot.NewFlexMessage("ขอบคุณ", flexContainer)
+				// 	// flexMessage := linebot.NewPostbackAction("label", "data", "text", "displayText")
+				// 	bot.ReplyMessage(event.ReplyToken, flexMessage).Do()
+				// } else if keyWord == "promotio" {
+				// 	// promotions := []*model.Promotion{}
+				// 	// model.DB().Where("promotion_type = ?", "Promotion").Find(&promotions)
+				// 	// m := PromotionsTemplate(promotions)
+				// 	// flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(m))
+				// 	// if err != nil {
 
-					// 	return err
-					// }
-					// flexMessage := linebot.NewFlexMessage("ตาราง", flexContainer)
-					// res, err := bot.ReplyMessage(event.ReplyToken, flexMessage).Do()
-					// fmt.Println(res)
-					// if err != nil {
-					// 	return err
-					// }
-					// act := model.ActionLog{Name: "promotion", Status: model.StatusSuccess, Type: model.TypeActionLine, UserID: event.Source.UserID, ChatChannelID: chatChannel.ID, CustomerID: customer.ID}
-					// act.CreateAction()
-				} else if keyWord == "location" {
-					// position := chatChannel.GetSetting([]string{"Latitude", "Longitude"})
-					// Latitude, _ := strconv.ParseFloat(position["Latitude"], 64)
-					// Longitude, _ := strconv.ParseFloat(position["Longitude"], 64)
+				// 	// 	return err
+				// 	// }
+				// 	// flexMessage := linebot.NewFlexMessage("ตาราง", flexContainer)
+				// 	// res, err := bot.ReplyMessage(event.ReplyToken, flexMessage).Do()
+				// 	// fmt.Println(res)
+				// 	// if err != nil {
+				// 	// 	return err
+				// 	// }
+				// 	// act := model.ActionLog{Name: "promotion", Status: model.StatusSuccess, Type: model.TypeActionLine, UserID: event.Source.UserID, ChatChannelID: chatChannel.ID, CustomerID: customer.ID}
+				// 	// act.CreateAction()
+				// } else if keyWord == "location" {
+				// 	// position := chatChannel.GetSetting([]string{"Latitude", "Longitude"})
+				// 	// Latitude, _ := strconv.ParseFloat(position["Latitude"], 64)
+				// 	// Longitude, _ := strconv.ParseFloat(position["Longitude"], 64)
 
-					// location := linebot.NewLocationMessage(chatChannel.Name, chatChannel.Address, Latitude, Longitude)
+				// 	// location := linebot.NewLocationMessage(chatChannel.Name, chatChannel.Address, Latitude, Longitude)
 
-					// _, err := bot.ReplyMessage(event.ReplyToken, location).Do()
-					// if err != nil {
-					// 	return err
-					// }
-					// act := model.ActionLog{Name: "location", Status: model.StatusSuccess, Type: model.TypeActionLine, UserID: event.Source.UserID,
-					// 	ChatChannelID: chatChannel.ID, CustomerID: customer.ID}
-					// act.CreateAction()
-				}
+				// 	// _, err := bot.ReplyMessage(event.ReplyToken, location).Do()
+				// 	// if err != nil {
+				// 	// 	return err
+				// 	// }
+				// 	// act := model.ActionLog{Name: "location", Status: model.StatusSuccess, Type: model.TypeActionLine, UserID: event.Source.UserID,
+				// 	// 	ChatChannelID: chatChannel.ID, CustomerID: customer.ID}
+				// 	// act.CreateAction()
+				// }
 			case *linebot.ImageMessage:
 			case *linebot.VideoMessage:
 			case *linebot.AudioMessage:
@@ -285,35 +284,38 @@ func HandleWebHookLineAPI(c echo.Context) error {
 			}
 
 		case linebot.EventTypeFollow:
-			welcomeHandle(&c, event, &chatChannel, bot)
+			fmt.Println(event.ReplyToken, "===")
+			messageReply = welcomeHandle(&c, event, &chatChannel)
 		case linebot.EventTypeUnfollow:
-			evenLog := model.EventLog{
-				ChatChannelID:  chatChannel.ID,
-				EvenReplyToken: event.ReplyToken,
-				EvenType:       string(event.Type),
-				EvenLineID:     event.Source.UserID,
-				CustomerID:     customer.ID}
-			model.DB().Create(&evenLog)
+			// evenLog := model.EventLog{
+			// 	ChatChannelID:  chatChannel.ID,
+			// 	EvenReplyToken: event.ReplyToken,
+			// 	EvenType:       string(event.Type),
+			// 	EvenLineID:     event.Source.UserID,
+			// 	CustomerID:     customer.ID}
+			// model.DB().Create(&evenLog)
+			// return c.JSON(200, "")
 		}
+		fmt.Println(event)
 		_, err = bot.ReplyMessage(event.ReplyToken, messageReply).Do()
 		fmt.Println(err)
 
-		eventLog.EvenReplyToken = event.ReplyToken
-		eventLog.CustomerID = customer.ID
-		eventLog.ChatChannelID = chatChannel.ID
-		eventLog.ChatChannelID = chatChannel.ID
-		eventLog.EvenLineID = event.Source.UserID
+		// eventLog.EvenReplyToken = event.ReplyToken
+		// eventLog.CustomerID = customer.ID
+		// eventLog.ChatChannelID = chatChannel.ID
+		// eventLog.ChatChannelID = chatChannel.ID
+		// eventLog.EvenLineID = event.Source.UserID
 
-		// actionLog.CustomerID = customer.ID
-		// actionLog.ChatChannelID = chatChannel.ID
+		// // actionLog.CustomerID = customer.ID
+		// // actionLog.ChatChannelID = chatChannel.ID
 
-		eventLogs = append(eventLogs, eventLog)
+		// eventLogs = append(eventLogs, eventLog)
 		// actionLogs = append(actionLogs, actionLog)
 
 	}
-	if err := db.Create(&eventLogs).Error; err != nil {
-		fmt.Println(err)
-	}
+	// if err := db.Create(&eventLogs).Error; err != nil {
+	// 	fmt.Println(err)
+	// }
 	// if err := db.Create(&actionLogs).Error; err != nil {
 	// 	fmt.Println(err)
 	// }
@@ -322,10 +324,9 @@ func HandleWebHookLineAPI(c echo.Context) error {
 
 }
 
-func welcomeHandle(c *echo.Context, event *linebot.Event, chatChannel *model.ChatChannel, bot *lib.ClientLine) {
-	customer := model.Customer{
-		CusLineID: event.Source.UserID,
-		AccountID: chatChannel.AccountID}
+func welcomeHandle(c *echo.Context, event *linebot.Event, chatChannel *model.ChatChannel) linebot.SendingMessage {
+	customer := model.Customer{}
+
 	settingNames := []string{"LIFFregister"}
 	setting := chatChannel.GetSetting(settingNames)
 	if err := model.DB().FirstOrCreate(&customer, model.Customer{
@@ -333,31 +334,14 @@ func welcomeHandle(c *echo.Context, event *linebot.Event, chatChannel *model.Cha
 		AccountID: chatChannel.AccountID}).Error; err != nil {
 		// return c.JSON(http.StatusBadRequest, err)
 	}
+
 	jsonFlexMessage := FollowTemplate(chatChannel, setting)
 	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(jsonFlexMessage))
 	if err != nil {
 		// return c.JSON(http.StatusBadRequest, err)
 	}
-	flexMessage := linebot.NewFlexMessage(chatChannel.ChaWelcomeMessage, flexContainer)
-	_, err = bot.ReplyMessage(event.ReplyToken, flexMessage).Do()
-	fmt.Println(err)
-	evenLog := model.EventLog{
-		ChatChannelID:  chatChannel.ID,
-		EvenReplyToken: event.ReplyToken,
-		EvenType:       string(event.Type),
-		EvenLineID:     event.Source.UserID,
-		CustomerID:     customer.ID}
-	model.DB().Create(&evenLog)
-	act := model.ActionLog{
-		ActName:       "follow",
-		ActStatus:     model.StatusSuccess,
-		ActUserID:     event.Source.UserID,
-		ChatChannelID: chatChannel.ID,
-		CustomerID:    customer.ID}
-	if err := model.DB().Create(&act).Error; err != nil {
-		// return c.JSON(http.StatusBadRequest, err)
-	}
-	// return c.JSON(200, "")
+	FlexMessage := linebot.NewFlexMessage(chatChannel.ChaWelcomeMessage, flexContainer)
+	return FlexMessage
 }
 
 // serviceListLineTemplate

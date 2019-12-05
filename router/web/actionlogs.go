@@ -9,22 +9,28 @@ import (
 )
 
 func ActionLogList(c *Context) error {
-	act := []*model.ActionLog{}
+
+	// act := []*model.ActionLog{}
 	queryPar := c.QueryParams()
 	page, limit := SetPagination(queryPar)
-	var total int
-	db := model.DB()
+	// var total int
+	// db := model.DB()
 	fmt.Println(page, limit)
 	ChatChannelID := c.QueryParam("chat_channel_id")
 
-	filter := db.Model(&act).Where("chat_channel_id = ?", ChatChannelID)
-	filter.Count(&total)
-	pagination := MakePagination(total, page, limit)
+	// filter := db.Model(&act).Where("chat_channel_id = ?", ChatChannelID)
+	// filter.Count(&total)
+	// pagination := MakePagination(total, page, limit)
 
-	filter.Preload("Customer").Limit(pagination.Record).Offset(pagination.Offset).Order("id").Find(&act)
+	act, err := model.GetActionList(ChatChannelID)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	// filter.Preload("Customer").Limit(pagination.Record).Offset(pagination.Offset).Order("id").Find(&act)
 
 	return c.JSON(http.StatusOK, echo.Map{
-		"data":       act,
-		"pagination": pagination,
+		"data": act,
+		// "pagination": pagination,
 	})
 }

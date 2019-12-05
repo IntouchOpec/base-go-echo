@@ -118,8 +118,8 @@ func Routers() *echo.Echo {
 		managent.GET("/service/create", handler(ServiceCreateHandler))
 		managent.POST("/service/create", handler(ServicePostHandler))
 		managent.GET("/service/:id", handler(ServiceDetailHandler))
-		managent.GET("/service/:id/edit", handler(ServicePostHandler))
-		managent.PUT("/service/:id/edit", handler(ServicePostHandler))
+		managent.GET("/service/:id/edit", handler(ServiceEditViewHandler))
+		managent.PUT("/service/:id/edit", handler(ServiceEditPutHandler))
 		managent.DELETE("/service/:id", handler(ServiceDeleteHandler))
 
 		managent.GET("/promotion", handler(PromotionListHandler))
@@ -134,8 +134,10 @@ func Routers() *echo.Echo {
 
 		managent.GET("/users", handler(UserListHandler))
 		managent.GET("/users/:id", handler(UserDetailHandler))
-		managent.GET("/users/create", handler(UserFormHamdeler))
-		managent.GET("/users/:id/edit", handler(UserEditHamdeler))
+		managent.GET("/users/create", handler(UserFormHandler))
+		managent.POST("/users/create", handler(UserPostHandler))
+		managent.GET("/users/:id/edit", handler(UserEditHandler))
+		managent.PUT("/users/:id/edit", handler(UserPutHandler))
 		managent.DELETE("/users/:id", handler(UserDeleteHandler))
 
 		managent.GET("/richmenu", handler(RichMenuListHandler))

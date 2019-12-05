@@ -27,17 +27,17 @@ func (service *Service) SaveService() error {
 	return nil
 }
 
-func (service *Service) Updateservice(id int) *Service {
+func (service *Service) UpdateService(id string) error {
 
 	if err := DB().Find(&service, id).Error; err != nil {
-		return nil
+		return err
 	}
 
 	if err := DB().Save(&service).Error; err != nil {
-		return nil
+		return err
 	}
 
-	return service
+	return nil
 }
 
 // func (subservice *ServiceSlot) CreateServiceSlot() *ServiceSlot {

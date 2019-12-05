@@ -55,7 +55,7 @@ func PromotionDetailHandler(c *Context) error {
 func PromotionFormHandler(c *Context) error {
 	promotion := model.Promotion{}
 	promotionTypes := []model.PromotionType{model.PromotionPromotionType, model.PromotionTypeCoupon, model.PromotionTypeVoucher}
-	return c.Render(http.StatusOK, "promotion-form", echo.Map{
+	return c.Render(http.StatusOK, "promotion-form", echo.Map{"method": "PUT",
 		"detail":         promotion,
 		"title":          "promotion",
 		"promotionTypes": promotionTypes,
@@ -112,7 +112,7 @@ func PromotionEditHandler(c *Context) error {
 	a := auth.Default(c)
 
 	model.DB().Preload("Account").Preload("services").Preload("Customers").Preload("ChatChannels").Where("account_id = ?", a.User.GetAccountID()).Find(&promotion, id)
-	return c.Render(http.StatusOK, "promotion-form", echo.Map{
+	return c.Render(http.StatusOK, "promotion-form", echo.Map{"method": "PUT",
 		"detail": promotion,
 		"title":  "promotion",
 	})
@@ -125,7 +125,7 @@ func PromotionChannelFormHandler(c *Context) error {
 	if err := model.DB().Where("account_id = ?", a.User.GetAccountID()).Find(&chatChannels).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	return c.Render(http.StatusOK, "promotion-chat-channel-form", echo.Map{
+	return c.Render(http.StatusOK, "promotion-chat-channel-form", echo.Map{"method": "PUT",
 		"chatChannels": chatChannels,
 		"title":        "promotion",
 		"mode":         "Create",

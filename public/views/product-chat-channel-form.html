@@ -18,7 +18,7 @@
                                         <h4 class="card-title">Add Chat Channel To service</h4>
                                     </div>
                                     <div class="card-body">
-                                        <form name="form-chat-channel">
+                                       <form method="{{.method}}" name="form-chat-channel">
                                             <input id="_csrf" name="_csrf" value="{{._csrf}}" type="hidden" >
                                             <div class="form-group">
                                                 <label for="exampleFormControlSelect2">Type</label>
@@ -64,7 +64,7 @@
                 data.append("_csrf", _csrf)
                 data.append("chat_channel_id", chat_channel_id)
                 fetch(window.location.href, {
-                    method: "POST",
+                    method,
                     body: data
                 })
                 .then(res => {

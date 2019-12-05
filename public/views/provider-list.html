@@ -64,7 +64,7 @@
                        </tbody>
                      </table>
                      <div class="row p-0 m-0">
-                      <div class="ml-auto">
+                      <div class="ml-auto" name="pagination">
                         {{ template "pagination" .pagination }}
                       </div>
                      </div>
@@ -83,7 +83,11 @@
   {{ template "script" }}
   <script>
     (function($) {
-
+      $("div[name='pagination'] nav ul.pagination li").each(function () {
+        $(this).click(() => {
+          window.location.href = `/admin/service?page=${$(this).val()- 1}&limit=10`
+        })
+      })
       $("button[name='remove']").click(function () {
         let id = $(this).val()
         let data = new URLSearchParams()

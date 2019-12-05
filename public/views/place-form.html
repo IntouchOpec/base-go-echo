@@ -19,7 +19,7 @@
                                         <h4 class="card-title">{{.mode}} place</h4>
                                     </div>
                                     <div class="card-body">
-                                        <form name="create-place" >
+                                       <form method="{{.method}}" name="create-place" >
                                             <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden" >
                                             <div class="row">
                                                 <div class="col-md-12 mt-2">
@@ -145,10 +145,12 @@
                     data.push(amountEncodeKey + "=" + amountEncodeValue)
                     data.push(detailEncodeKey + "=" + detailEncodeValue)
                     data.push(imageEncodeKey + "=" + imageEncodedValue) 
+                    
+                    let method = $("form[name='create-chat-channel']").attr("method")
 
                     fetch(window.location.href, {
                         headers: {"Content-Type": "application/x-www-form-urlencoded"},
-                        method: "POST",
+                        method,
                         body: data.join("&")
                     })
                     .then(res => {

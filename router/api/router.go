@@ -87,12 +87,12 @@ func Routers() *echo.Echo {
 	// e.GET("/service/:chatChannelID/list", GetserviceList)
 	e.GET("/service/:id", Getservice)
 	e.POST("/service", Createservice)
-	e.PATCH("/service/:id", Updateservice)
+	e.PATCH("/service/:id", UpdateService)
 
 	// e.GET("/subservice/:chatChannelID", GetserviceList)
 	// e.GET("/subservice/:id", Getservice)
 	// e.POST("/subservice/:chatChannelID/:id", Createservice)
-	// e.PATCH("/subservice/:id", Updateservice)
+	// e.PATCH("/subservice/:id", UpdateService)
 	// e.DELETE("/service/:id", Createservice)
 
 	e.GET("/richmenu/:id", GetRichMenu)

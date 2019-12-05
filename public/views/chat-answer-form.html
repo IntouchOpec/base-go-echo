@@ -20,7 +20,7 @@
                   <h4 class="card-title ">chat answer</h4>
                 </div>
                 <div class="card-body">
-                  <form name="create-chat-answer">
+                 <form method="{{.method}}" name="create-chat-answer">
                     <div class="row">
                       <div class="col-md-12 mt-2">
                         <div class="form-group">
@@ -131,7 +131,7 @@
           data.append("reply_type", replyType)
           data.append("source", Source)
           fetch(window.location.href, {
-              method: "POST", 
+              method, 
               body: data
           })
           .then(res => {

@@ -1,6 +1,7 @@
 package web
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/IntouchOpec/base-go-echo/model"
@@ -41,17 +42,56 @@ func UserDetailHandler(c *Context) error {
 	return err
 }
 
-func UserFormHamdeler(c *Context) error {
+func UserPutHandler(c *Context) error {
 	var user model.User
 
+	if err := c.Bind(&user); err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	user.SetPassword()
+
+	if err := user.UpdateUser(); err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	return c.JSON(http.StatusCreated, echo.Map{
+		"detail":   user,
+		"redirect": fmt.Sprintf("/admin/users/%d", user.ID),
+	})
+}
+
+func UserPostHandler(c *Context) error {
+	var user model.User
+
+	if err := c.Bind(&user); err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	user.SetPassword()
+	accID := auth.Default(c).GetAccountID()
+
+	user.Create(accID)
+	return c.JSON(http.StatusCreated, echo.Map{
+		"detail":   user,
+		"redirect": fmt.Sprintf("/admin/users/%d", user.ID),
+	})
+}
+
+func UserFormHandler(c *Context) error {
+	var user model.User
+	csrfValue := c.Get("_csrf")
+
 	err := c.Render(http.StatusOK, "user-form", echo.Map{
+		"method": "PUT",
 		"detail": user,
 		"title":  "user",
+		"_csrf":  csrfValue,
 	})
 	return err
 }
 
-func UserEditHamdeler(c *Context) error {
+func UserEditHandler(c *Context) error {
 	var user model.User
 	id := c.Param("id")
 	user.GetById(id)
@@ -59,6 +99,7 @@ func UserEditHamdeler(c *Context) error {
 	err := c.Render(http.StatusOK, "user-form", echo.Map{
 		"detail": user,
 		"title":  "user",
+		"method": "PUT",
 	})
 	return err
 }

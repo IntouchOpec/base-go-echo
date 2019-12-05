@@ -253,30 +253,6 @@
                     ))
             })
 
-            $("#add_LIIF_register").on("click",function () {
-                let _csrf = $("#_csrf").val()
-                const data = new URLSearchParams();
-                data.append("_csrf", _csrf);
-                fetch(window.location.href+"/add_liff_register",{
-                    method: "PATCH",
-                    body: data
-                }).then(res => {
-                    if (res.status === 200) {
-                        return res.json();
-                    }
-                }).then(data => {
-                    Swal.fire(
-                    'New Access Token',
-                    '',
-                    'success'
-                    )
-                    $("#add_LIIF_register").remove()
-                }).catch(err => Swal.fire(
-                    'New Access Token',
-                    '',
-                    'error'
-                ))
-            })
         })(jQuery);
     </script>
 </body>

@@ -199,7 +199,7 @@ func RichMenuCreateViewHandler(c *Context) error {
 	a := auth.Default(c)
 	db.Where("account_id = ?", a.GetAccountID()).Find(&chatChannels)
 
-	return c.Render(http.StatusOK, "rich-menu-form", echo.Map{
+	return c.Render(http.StatusOK, "rich-menu-form", echo.Map{"method": "PUT",
 		"chatChannels": chatChannels,
 		"title":        "rich-menu",
 		"sizes":        richMenu,

@@ -23,9 +23,6 @@ func (setting *Setting) SaveSetting() *Setting {
 
 // UpdateSetting
 func (setting *Setting) UpdateSetting() *Setting {
-	if err := DB().Find(&setting).Error; err != nil {
-		return nil
-	}
 	if err := DB().Save(&setting).Error; err != nil {
 		return nil
 	}

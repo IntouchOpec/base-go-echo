@@ -19,7 +19,7 @@
                    <h4 class="card-title ">Upload File</h4>
                  </div>
                  <div class="card-body">
-                    <form name="create-file" >
+                   <form method="{{.method}}" name="create-file" >
                         <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden" >
                         <div class="row">
                             <div class="col-md-12 mt-2">
@@ -46,7 +46,7 @@
 
 
                     <div class="row p-0 m-0">
-                        <div class="ml-auto">
+                        <div class="ml-auto" name="pagination">
                             {{ template "pagination" .pagination }}
                         </div>
                     </div>
@@ -64,6 +64,11 @@
   <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
   <script>
         (function ($) {
+            $("div[name='pagination'] nav ul.pagination li").each(function () {
+                $(this).click(() => {
+                    window.location.href = `/admin/file?page=${$(this).val()- 1}&limit=10`
+                })
+            })
             const toBase64 = file => new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
@@ -114,7 +119,7 @@
     
                         fetch(window.location.href, {
                             headers: {"Content-Type": "application/x-www-form-urlencoded"},
-                            method: "POST",
+                            method,
                             body: data.join("&")
                         })
                         .then(res => {

@@ -19,13 +19,13 @@
                     <h4 class="card-title ">form admin</h4>
                 </div>
                 <div class="card-body">
-                    <form name="create-user">
+                   <form method="{{.method}}" name="create-user" method="{{.method}}">
                         <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden" >
                         <div class="row">
                             <div class="col-md-6 mt-2">
                                 <div class="form-group">
                                     <label class="bmd-label-floating" >UserName</label>
-                                    <input name="UserName" id="UserName" type="text" class="form-control" >
+                                    <input name="UserName" value="{{ .detail.UserName }}" id="UserName" type="text" class="form-control" >
                                 </div>
                             </div>
                             <div class="col-md-6 mt-2">
@@ -41,25 +41,31 @@
                             <div class="col-md-6 mt-2">
                                 <div class="form-group">
                                     <label class="bmd-label-floating" >Email</label>
-                                    <input name="Email" id="Email" type="email" class="form-control" >
+                                    <input name="Email" id="Email" value="{{.detail.Email}}" type="email" class="form-control" >
                                 </div>
                             </div>
                             <div class="col-md-6 mt-2">
                                 <div class="form-group">
                                     <label class="bmd-label-floating" >PhoneNumber</label>
-                                    <input name="PhoneNumber" id="PhoneNumber" type="text" class="form-control" >
+                                    <input name="PhoneNumber" value="{{.detail.PhoneNumber}}" id="PhoneNumber" type="text" class="form-control" >
                                 </div>
                             </div>
                             <div class="col-md-6 mt-2">
                                 <div class="form-group">
                                     <label class="bmd-label-floating" >LastName</label>
-                                    <input name="LastName" id="LastName" type="text" class="form-control" >
+                                    <input name="LastName" value="{{.detail.LastName}}" id="LastName" type="text" class="form-control" >
                                 </div>
                             </div>
                             <div class="col-md-6 mt-2">
                                 <div class="form-group">
                                     <label class="bmd-label-floating" >FirstName</label>
-                                    <input name="FirstName" id="FirstName" type="text" class="form-control" >
+                                    <input name="FirstName" value="{{.detail.FirstName}}" id="FirstName" type="text" class="form-control" >
+                                </div>
+                            </div>
+                            <div class="col-md-6 mt-2">
+                                <div class="form-group">
+                                    <label class="bmd-label-floating" >LineID</label>
+                                    <input name="LineID" value="{{.detail.LineID}}" id="LineID" type="text" class="form-control" >
                                 </div>
                             </div>
                         </div>
@@ -103,9 +109,11 @@
                 },
                 LastName: "required",
                 FirstName: "required",
+                LineID: "required"
             },
             messages: {
                 UserName: "Please enter a valid UserName",
+                LineID: "Please enter a valid LineID",
                 Password: {
                     required: "Please enter a valid Password",
                 } ,
@@ -127,6 +135,7 @@
                 let Email = $("#Email").val()
                 let LastName = $("#LastName").val()
                 let FirstName = $("#FirstName").val()
+                let PhoneNumber = $("#PhoneNumber").val()
 
                 let encodeKey = encodeURIComponent("_csrf");
                 let encodeValue = encodeURIComponent(_csrf);
@@ -136,28 +145,35 @@
                 let EmailEncodeValue = encodeURIComponent(Email)
                 let LastNameEncodeValue = encodeURIComponent(LastName)
                 let FirstNameEncodeValue = encodeURIComponent(FirstName)
+                let PhoneNumberEncodeValue = encodeURIComponent(PhoneNumber)
 
                 let UserNameEncodeKey = encodeURIComponent("UserName")
                 let PasswordEncodeKey = encodeURIComponent("Password")
                 let EmailEncodeKey = encodeURIComponent("Email")
                 let LastNameEncodeKey = encodeURIComponent("LastName")
                 let FirstNameEncodeKey = encodeURIComponent("FirstName")
+                let PhoneNumberEncodeKey = encodeURIComponent("PhoneNumber")
 
                 let data = []
+                data.push(encodeKey + "=" + encodeValue)
                 data.push(UserNameEncodeKey + "=" + UserNameEncodeValue)
                 data.push(PasswordEncodeKey + "=" + PasswordEncodeValue)
                 data.push(EmailEncodeKey + "=" + EmailEncodeValue)
                 data.push(LastNameEncodeKey + "=" + LastNameEncodeValue)
                 data.push(FirstNameEncodeKey + "=" + FirstNameEncodeValue)
+                data.push(PhoneNumberEncodeKey + "=" + PhoneNumberEncodeValue)
+                let method = $("form[name='create-user']").attr("method")
+                console.log(method)
                 fetch(window.location.href, {
-                    method: "POST", 
+                    method, 
                     headers: {"Content-Type": "application/x-www-form-urlencoded"},
-                    body: data
+                    body: data.join("&")
                 })
                 .then(res => {
-                    if (res.status === 201) {
-                        return res.json()
+                    if (res.status !== 201) {
+                        throw ""
                     }
+                    return res.json()
                 })
                 .then(json => {
                     Swal.fire("success", "", "success").then(result => {

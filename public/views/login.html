@@ -54,7 +54,7 @@
         data.append("_csrf", _csrf[0].value);
         
         fetch(window.location.href, {
-          method: "POST",
+          method,
           body: data
         })
         .then(res => {

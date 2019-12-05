@@ -20,7 +20,7 @@
                                         <p class="card-category">Complete your chat request</p>
                                     </div>
                                     <div class="card-body">
-                                        <form name="form-chat-request" >
+                                       <form method="{{.method}}" name="form-chat-request" >
                                             <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden" >
                                             <div class="row">
 
@@ -55,7 +55,7 @@
                 data.append("_csrf", _csrf)
                 
                 fetch(window.location.href, {
-                    method: "POST", 
+                    method, 
                     body: data
                 })
                 .then(res => { 

@@ -39,18 +39,18 @@ func Getservice(c echo.Context) error {
 	return c.JSON(http.StatusOK, service)
 }
 
-func Updateservice(c echo.Context) error {
+func UpdateService(c echo.Context) error {
 	id := c.Param("id")
-	idInt, _ := strconv.Atoi(id)
+
 	service := model.Service{}
 	if err := c.Bind(&service).Error; err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}
-	service.Updateservice(idInt)
+	service.UpdateService(id)
 	return c.JSON(http.StatusOK, service)
 }
 
-// func UpdateserviceSlot(c echo.Context) error {
+// func UpdateServiceSlot(c echo.Context) error {
 // 	id := c.Param("id")
 // 	idInt, _ := strconv.Atoi(id)
 // 	subCustomer := model.ServiceSlot{}

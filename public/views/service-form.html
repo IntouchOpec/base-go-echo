@@ -20,7 +20,7 @@
                                         <p class="card-category">Complete your service</p>
                                     </div>
                                     <div class="card-body">
-                                        <form name="create-service" >
+                                       <form method="{{.method}}" name="create-service" >
                                             <input id="_csrf" name="_csrf" value="{{._csrf}}" type="hidden" >
                                             <div class="row">
                                                 <div class="col-md-12 mt-2">
@@ -122,6 +122,8 @@
                 let timeEncodedKey = encodeURIComponent("time");
                 let timeEncodedValue = encodeURIComponent(Time);
 
+                let method = $("form[name='create-chat-channel']").attr("method")
+
                 toBase64(Image[0].files[0]).then(base64Image => {
                     Image = JSON.stringify(base64Image)
                     let imageEncodedValue = encodeURIComponent(Image);
@@ -133,7 +135,7 @@
                     data.push(timeEncodedKey + "=" + timeEncodedValue)
                     data = data.join("&");
                     fetch(window.location.href, {
-                        method: "POST", 
+                        method, 
                         headers: {"Content-Type": "application/x-www-form-urlencoded"},
                         body: data
                     })

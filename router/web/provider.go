@@ -49,6 +49,17 @@ func ProviderCreateHandler(c *Context) error {
 	return c.Render(http.StatusOK, "provider-form", echo.Map{
 		"title":  "provider",
 		"detail": provider,
+		"method": "POST",
+	})
+}
+
+func ProviderPUTHandler(c *Context) error {
+	provider := model.Provider{}
+
+	return c.Render(http.StatusOK, "provider-form", echo.Map{
+		"title":  "provider",
+		"detail": provider,
+		"method": "POST",
 	})
 }
 
@@ -81,6 +92,35 @@ func ProviderPostHandler(c *Context) error {
 	return c.JSON(http.StatusCreated, redirect)
 }
 
+func ProviderPutHandler(c *Context) error {
+	provider := model.Provider{}
+	a := auth.Default(c)
+	file := c.FormValue("file")
+
+	file, _, err := lib.UploadteImage(file)
+
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	provider.ProvImage = file
+	provider.AccountID = a.GetAccountID()
+
+	if err := c.Bind(&provider); err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	fmt.Println(provider.ProvName, "===")
+
+	err = provider.CreateProvider()
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	redirect := fmt.Sprintf("/admin/provider/%d", provider.ID)
+
+	return c.JSON(http.StatusCreated, redirect)
+}
+
 func ProviderEditHandler(c *Context) error {
 	id := c.Param("id")
 	provider := model.Provider{}
@@ -91,6 +131,7 @@ func ProviderEditHandler(c *Context) error {
 	}
 	return c.Render(http.StatusOK, "provider-form", echo.Map{
 		"title":  "provider",
+		"method": "PUT",
 		"detail": provider,
 	})
 }
@@ -119,7 +160,7 @@ func ProviderAddServiceHandler(c *Context) error {
 		return c.Render(http.StatusNotFound, "404-page", echo.Map{})
 	}
 
-	return c.Render(http.StatusOK, "provider-service-form", echo.Map{
+	return c.Render(http.StatusOK, "provider-service-form", echo.Map{"method": "PUT",
 		"title":    "provider",
 		"services": services,
 		"provider": provider,

@@ -18,7 +18,7 @@
                                         <h4 class="card-title">Add Sub service</h4>
                                     </div>
                                     <div class="card-body">
-                                        <form name="create-sub-service" >
+                                       <form method="{{.method}}" name="create-sub-service" >
                                             <input id="_csrf" name="_csrf" value="{{._csrf}}" type="hidden" >
                                             <div class="col-md-12 mt-2">
                                                 <div class="form-group">
@@ -125,7 +125,7 @@
                     data.append("day", Day)
                     fetch(window.location.href, {
                         body: data, 
-                        method: "POST"
+                        method
                     })
                     .then(res => {
                         if (res.status === 201) {

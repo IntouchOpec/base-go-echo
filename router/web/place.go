@@ -49,7 +49,7 @@ func PlaceDetailHandler(c *Context) error {
 func PlaceCreateHandler(c *Context) error {
 	Place := model.Place{}
 	PlacTypes := []model.PlaceType{model.PlaceRoom}
-	err := c.Render(http.StatusOK, "place-form", echo.Map{
+	err := c.Render(http.StatusOK, "place-form", echo.Map{"method": "PUT",
 		"detail":    Place,
 		"title":     "place",
 		"PlacTypes": PlacTypes,
@@ -110,7 +110,7 @@ func PlaceEditViewHandler(c *Context) error {
 	id := c.Param("id")
 	a := auth.Default(c)
 	model.DB().Where("account_id = ? ", a.User.GetAccountID()).Find(&place, id)
-	err := c.Render(http.StatusOK, "place-form", echo.Map{
+	err := c.Render(http.StatusOK, "place-form", echo.Map{"method": "PUT",
 		"detail": place,
 		"title":  "place",
 	})
@@ -133,7 +133,7 @@ func PlaceAddChatChannelViewHanlder(c *Context) error {
 	db := model.DB()
 	db.Where("account_id = ?", a.GetAccountID()).Find(&chatChannels)
 	db.Where("account_id = ?", a.GetAccountID()).Find(&place)
-	return c.Render(http.StatusOK, "place-chat-channel-form", echo.Map{
+	return c.Render(http.StatusOK, "place-chat-channel-form", echo.Map{"method": "PUT",
 		"chatChannels": chatChannels,
 		"title":        "place",
 	})

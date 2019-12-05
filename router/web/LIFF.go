@@ -46,7 +46,7 @@ func LIFFCreateHandler(c *Context) error {
 
 	model.DB().Where("account_id = ?", a.GetAccountID()).Find(&chatChannels)
 	LIFFViewTypes := []linebot.LIFFViewType{linebot.LIFFViewTypeCompact, linebot.LIFFViewTypeTall, linebot.LIFFViewTypeFull}
-	return c.Render(http.StatusOK, "LIFF-form", echo.Map{
+	return c.Render(http.StatusOK, "LIFF-form", echo.Map{"method": "PUT",
 		"title":         "LIFF",
 		"LIFFViewTypes": LIFFViewTypes,
 		"chatChannels":  chatChannels,

@@ -109,7 +109,7 @@
 				.then(profile => {
 					const accessToken = liff.getAccessToken();
 					fetch(window.location.href, {
-						method: "POST",
+						method,
 						headers: { "Content-type": "application/json" },
 						body: JSON.stringify(
 							{

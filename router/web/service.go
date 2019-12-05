@@ -33,6 +33,50 @@ func ServiceListHandler(c *Context) error {
 	return err
 }
 
+func ServiceEditViewHandler(c *Context) error {
+	Service := model.Service{}
+	id := c.Param("id")
+	model.DB().Where("account_id = ?", id).Find(&Service)
+	return c.Render(http.StatusOK, "service-form", echo.Map{
+		"detail": Service,
+		"title":  "service",
+		"method": "PUT",
+	})
+}
+
+func ServiceEditPutHandler(c *Context) error {
+	service := serviceForm{}
+	image := c.FormValue("image")
+	id := c.Param("id")
+	var err error
+	if image == "" {
+		file := c.FormValue("file")
+		image, _, err = lib.UploadteImage(file)
+	}
+
+	if err := c.Bind(&service); err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	a := auth.Default(c)
+	serviceModel := model.Service{
+		SerName:   service.Name,
+		SerDetail: service.Detail,
+		SerPrice:  service.Price,
+		SerTime:   service.Time,
+		SerImage:  image,
+		AccountID: a.User.GetAccountID(),
+	}
+	err = serviceModel.UpdateService(id)
+
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	return c.JSON(http.StatusCreated, echo.Map{
+		"data":     serviceModel,
+		"redirect": fmt.Sprintf("/admin/service/%d", serviceModel.ID),
+	})
+}
+
 // serviceDetailHandler
 func ServiceDetailHandler(c *Context) error {
 	service := model.Service{}
@@ -48,12 +92,11 @@ func ServiceDetailHandler(c *Context) error {
 
 func ServiceCreateHandler(c *Context) error {
 	Service := model.Service{}
-	csrfValue := c.Get("_csrf")
 
 	err := c.Render(http.StatusOK, "service-form", echo.Map{
 		"detail": Service,
 		"title":  "service",
-		"_csrf":  csrfValue,
+		"method": "POST",
 	})
 	return err
 }
@@ -63,7 +106,7 @@ func ServiceEditHandler(c *Context) error {
 	id := c.Param("id")
 	a := auth.Default(c)
 	model.DB().Preload("Account").Preload("ServiceSlots").Preload("ChatChannels").Where("account_id = ? ", a.User.GetAccountID()).Find(&service, id)
-	err := c.Render(http.StatusOK, "service-form", echo.Map{
+	err := c.Render(http.StatusOK, "service-form", echo.Map{"method": "PUT",
 		"detail": service,
 		"title":  "service",
 	})
@@ -81,7 +124,7 @@ func ServiceDeleteHandler(c *Context) error {
 // 	messageTypes := []linebot.MessageType{linebot.MessageTypeText, linebot.MessageTypeImage, linebot.MessageTypeVideo, linebot.MessageTypeAudio, linebot.MessageTypeFile, linebot.MessageTypeLocation, linebot.MessageTypeSticker, linebot.MessageTypeTemplate, linebot.MessageTypeImagemap, linebot.MessageTypeFlex}
 
 // 	sunService := model.ServiceSlot{}
-// 	err := c.Render(http.StatusOK, "sub-service-form", echo.Map{
+// 	err := c.Render(http.StatusOK, "sub-service-form", echo.Map{"method": "PUT",
 // 		"detail":       sunService,
 // 		"title":        "service",
 // 		"messageTypes": messageTypes,
@@ -157,7 +200,7 @@ type ServiceSlotForm struct {
 // 	model.DB().Preload("service", func(db *gorm.DB) *gorm.DB {
 // 		return db.Preload("ChatChannels").Where("account_id = ? ", a.User.GetAccountID())
 // 	}).Find(&sunService, id)
-// 	err := c.Render(http.StatusOK, "sub-service-form", echo.Map{
+// 	err := c.Render(http.StatusOK, "sub-service-form", echo.Map{"method": "PUT",
 // 		"detail":       sunService,
 // 		"title":        "service",
 // 		"messageTypes": messageTypes,
@@ -176,7 +219,7 @@ func ServiceChatChannelViewHandler(c *Context) error {
 	a := auth.Default(c)
 	model.DB().Preload("Account").Where("account_id = ?", a.User.GetAccountID()).Find(&chatChannels)
 
-	err := c.Render(http.StatusOK, "service-chat-channel-form", echo.Map{
+	err := c.Render(http.StatusOK, "service-chat-channel-form", echo.Map{"method": "PUT",
 		"list_chat_channel": chatChannels,
 		"title":             "service",
 	})

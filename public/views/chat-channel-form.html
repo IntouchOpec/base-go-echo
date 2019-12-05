@@ -20,7 +20,7 @@
                                         <p class="card-category">Complete your Chat Channel</p>
                                     </div>
                                     <div class="card-body">
-                                        <form name="form-chat-channel" >
+                                       <form method="{{.method}}" name="form-chat-channel" >
                                             <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden" >
                                             <div class="row">
                                                 <div class="col-md-6 mt-2">
@@ -182,8 +182,9 @@
                 data.append("type", type)
                 data.append("image", image)
                 data.append("settings", JSON.stringify([{name: "Latitude", value: Latitude}, {name: "Longitude", value: Latitude}]))
+                let method = $("form[name='create-chat-channel']").attr("method")
                 fetch("/admin/chat_channel", {
-                    method: "POST", 
+                    method, 
                     body: data
                 })
                 .then(res => {

@@ -65,7 +65,7 @@
                        </tbody>
                      </table>
                      <div class="row p-0 m-0">
-                      <div class="ml-auto">
+                      <div class="ml-auto" name="pagination">
                         {{ template "pagination" .pagination }}
                       </div>
                      </div>
@@ -83,25 +83,32 @@
   {{ template "script" }}
   <script>
       (function ($) {
-            $("input[type='checkbox']").change(function() {
-            let id = $(this).val()
 
-            let _csrf = $("#_csrf").val()
-            let data = new URLSearchParams()
+        $("div[name='pagination'] nav ul.pagination li").each(function () {
+          $(this).click(() => {
+            window.location.href = `/admin/service?page=${$(this).val()- 1}&limit=10`
+          })
+        })
 
-            data.append("_csrf", _csrf)
-            data.append("ser_acive", this.checked)
-                    
-            fetch(`/admin/service/${id}`, {
-                body: data,
-                method: "PACTH"
-                }).then(res => {
-                return res.json()
-                }).then(json => {
-                Swal.fire("success", "", "success")
-                }).catch(err => {
-                Swal.fire("success", "", "success")          
-            })
+        $("input[type='checkbox']").change(function() {
+          let id = $(this).val()
+
+          let _csrf = $("#_csrf").val()
+          let data = new URLSearchParams()
+
+          data.append("_csrf", _csrf)
+          data.append("ser_acive", this.checked)
+                  
+          fetch(`/admin/service/${id}`, {
+              body: data,
+              method: "PACTH"
+              }).then(res => {
+              return res.json()
+              }).then(json => {
+              Swal.fire("success", "", "success")
+              }).catch(err => {
+              Swal.fire("success", "", "success")          
+          })
         })
 
         $("button[name='remove']").click(function () {

@@ -119,9 +119,12 @@
                                     </button>
                                 </a>
                                 {{ else }}
-                                <img class="img-fluid" src="{{ .detail.ChaImage }}" />
+                                <img class="img-fluid" src="{{ .detail.Promotion.PromImage }}" />
                                 <div>
-                                    code: {{ .detail.Promotion.ProName }}
+                                    <div>Name: {{ .detail.Promotion.PromName }}</div>
+                                    <div>Title: {{ .detail.Promotion.PromTitle }}</div>
+                                    <div>code: {{ .detail.Promotion.PromCode }}</div>
+                                    <div>Discount: {{ .detail.Promotion.PromDiscount }}</div>
                                 </div> 
                                 {{ end }}
                             </div>
@@ -244,7 +247,7 @@
                                     <tbody>
                                     {{ with .deplayDetailChatChannels }}
                                     {{ range . }}
-                                        <tr>
+                                        <tr name="{{ .ID }}" id="{{ .Name }}">
                                             <td>{{ .Name }}</td>
                                             <td>{{ .Value }}</td>
                                         </tr>
@@ -278,7 +281,7 @@
                                         <th></th>
                                     </thead>
                                     <tbody id="body-event-logs">
-                                    {{ with .eventLogs }}
+                                    <!-- {{ with .eventLogs }}
                                     {{ range . }}
                                         <tr name="row_{{ .ID }}">
                                             <td>{{ .EvenLineID }}</td>
@@ -288,13 +291,13 @@
                                             <td>{{ .CreatedAt.Format "Mon Jan 2 2006" }}</td>
                                         </tr>
                                     {{ end }}
-                                    {{ end }}
+                                    {{ end }} -->
                                     </tbody>
                                 </table>
                             </div>
                             <div class="row p-0 m-0">
-                                <div class="ml-auto" name="event_logs">
-                                    {{ template "pagination" .paginationEventLogs }}
+                                <div class="ml-auto" id="event_logs" name="event_logs">
+                                    <!-- {{ template "pagination" .paginationEventLogs }} -->
                                 </div>
                             </div>
                         </div>
@@ -313,25 +316,14 @@
                                         <th>Status</th>
                                         <th>Customer</th>
                                         <th>CreatedAt</th>
-                                        <th></th>
                                     </thead>
                                     <tbody id="body-action-logs">
-                                    {{ with .actionLogs }}
-                                    {{ range . }}
-                                        <tr name="row_{{ .ID }}">
-                                            <td>{{ .ActName }}</td>
-                                            <td>{{ .ActStatus }}</td>
-                                            <td>{{ .Customer.CusDisplayName }}</td>
-                                            <td>{{ .CreatedAt.Format "Mon Jan 2 2006" }}</td>
-                                        </tr>
-                                    {{ end }}
-                                    {{ end }}
                                     </tbody>
                                 </table>
                             </div>
                             <div class="row p-0 m-0">
-                                <div class="ml-auto" name="action_logs">
-                                    {{ template "pagination" .paginationActionLogs }}
+                                <div class="ml-auto" id="action_logs" name="action_logs">
+                                    <!-- {{ template "pagination" .paginationActionLogs }} -->
                                 </div>
                             </div>
                         </div>
@@ -347,81 +339,73 @@
   {{ template "script" }}
     <script>
         (function ($) {
-
             let _csrf = $("#_csrf").val()
-            const data = new URLSearchParams();
-            data.append("_csrf", _csrf);
             let chat_channel_id = $("#add_LIIF_register").val()
+            let actContainer = $("#action_logs")
+            let eveContainer = $("#event_logs")
 
-            $("div[name='action_logs'] nav ul.pagination li").click(function (){
-                    let page = parseInt($(this).attr("value"))
-                    fetch(`/admin/action_log?limit=10&page=${page -1}&chat_channel_id=${chat_channel_id}`).then(res =>{
-                        if (res.status === 200) {
-                            return res.json()
-                        }
-                    })
-                    .then(data => {
-                        let record = ""
-                        let date = ""
-                        let paginations = ""
-                        data.data.map(value => {
-                            date = new Date(value.created_at).toString()
-                            record += ` <tr name="row_{{ .ID }}">
-                                <td>${value.act_name}</td>
-                                <td>${value.act_status}</td>
-                                <td>${value.customer.cus_display_name}</td>
-                                <td>${date}</td>
-                            </tr>`
-                        })
-                        data.pagination.List.map(value => {
-                            paginations += `
-                            <li value="${value}" class="page-item ${data.pagination.Page === value ? 'active' : ""}">
-                                <p class="page-link">${value}</p>
-                            </li>
-                            `
-                        })
+            function templateActionLogs (records) {
+                let elm = ""
+                records.map(row => {
+                    elm += `<tr name="row_${row.id}">
+                        <td>${row.act_name}</td>
+                        <td>${row.act_status}</td>
+                        <td>${row.customer.cus_display_name}</td>
+                        <td>${row.created_at}</td>
+                    </tr>`
+                })
+                
+                return elm
+            }
 
-                        // $("div[name='action_logs'] nav ul.pagination").html(paginations)
-                        $("#body-action-logs").html(record)
-                    })
-                    .catch(err => {
+            function templateEventLogs (records) {
+                let elm = ""
+                records.map(row => {
+                    elm += `<tr name="${row.id}">
+                        <td>${row.even_line_id}</td>
+                        <td>${row.even_reply_token}</td>
+                        <td>${row.customer.cus_display_name }</td>
+                        <td>${row.even_text}</td>
+                        <td>${row.created_at}</td>
+                    </tr>`
+                })
+                
+                return elm
+            }
 
-                    })
+            $.ajax({type: 'GET',
+                url: `/admin/action_log?chat_channel_id=${chat_channel_id}`,
+            }).done(response => {
+                actContainer.pagination({
+                    prevText: '<span aria-hidden="true">&laquo;</span>',
+                    nextText: '<span aria-hidden="true">&raquo;</span>',
+                    dataSource: response.data,
+                    callback: function(data, pagination) { 
+                        var html = templateActionLogs(data)
+                        $("#body-action-logs").html(html)
+                    }
+                })
             })
 
-            $("div[name='event_logs'] nav ul.pagination li").each(function () {
-                $(this).click(function (){
-                    let page = parseInt($(this).attr("value"))
-
-                    fetch(`/admin/event_log?limit=10&page=${page -1}&chat_channel_id=${chat_channel_id}`).then(res =>{
-                        if (res.status === 200) {
-                            return res.json()
-                        }
-                    })
-                    .then(data => {
-                        let record = ""
-                        let date = ""
-                        data.data.map(value => {
-                            date = new Date(value.created_at).toString()
-                            record += `<tr name="row_{{ .ID }}">
-                                <td>${value.even_line_id}</td>
-                                <td>${value.even_reply_token}</td>
-                                <td>${value.customer.cus_display_name}</td>
-                                <td>${value.even_text}</td>
-                                <td>${date}</td>
-                            </tr>`
-                        })
-                        $("#body-event-logs").html(record)
-                    })
-                    .catch(err => {
-                        console.log(err)
-                    })
+            $.ajax({type: 'GET',
+                url: `/admin/event_log?limit=10&chat_channel_id=${chat_channel_id}`,
+            }).done(response => {
+                eveContainer.pagination({
+                    prevText: '<span aria-hidden="true">&laquo;</span>',
+                    nextText: '<span aria-hidden="true">&raquo;</span>',
+                    dataSource: response.data,
+                    callback: function(data, pagination) { 
+                        var html = templateEventLogs(data)
+                        $("#body-event-logs").html(html)
+                    }
                 })
             })
 
             $("#download_rich_menu").click(function () {
                 let richMenuId = $(this).attr("name")
                 let chatChannelId = $(this).val()
+                const data = new URLSearchParams();
+                data.append("_csrf", _csrf);
 
                 fetch(`/admin/richmenu/${richMenuId}/download_image?chat_channel_id=${chatChannelId}`,{
                     method: "PATCH",
@@ -464,29 +448,35 @@
 
 
             $("#add_LIIF_register").on("click",function () {
-                
-                fetch(window.location.href+"/add_liff_register",{
-                    method: "PATCH",
-                    body: data
-                }).then(res => {
-                    if (res.status === 200) {
-                        return res.json();
-                    }
-                }).then(data => {
-                    Swal.fire(
-                    'New Access Token',
-                    '',
-                    'success'
-                    )
-                    $("#LIFFregister").replaceWith(`
-                    <button class="btn btn-primary btn-fab btn-fab-mini btn-round">
-                            <i class="material-icons">done</i>
-                    </button>`)
-                }).catch(err => Swal.fire(
-                    'New Access Token',
-                    '',
-                    'error'
-                ))
+                let LIFFregister = $("#LIFFregister").attr("name")
+                console.log(LIFFregister)
+                const data = new URLSearchParams();
+                data.append("_csrf", _csrf);
+
+                data.append("id", LIFFregister)
+                data.append("name", "LIFFregister")
+                // fetch(window.location.href+"/add_liff_register",{
+                //     method: "PATCH",
+                //     body: data
+                // }).then(res => {
+                //     if (res.status === 200) {
+                //         return res.json();
+                //     }
+                // }).then(data => {
+                //     Swal.fire(
+                //     'New Access Token',
+                //     '',
+                //     'success'
+                //     )
+                //     // $("#LIFFregister").replaceWith(`
+                //     // <button class="btn btn-primary btn-fab btn-fab-mini btn-round">
+                //     //         <i class="material-icons">done</i>
+                //     // </button>`)
+                // }).catch(err => Swal.fire(
+                //     'New Access Token',
+                //     '',
+                //     'error'
+                // ))
             })
         })(jQuery);
     </script>

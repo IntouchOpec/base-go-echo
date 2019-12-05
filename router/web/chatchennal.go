@@ -88,42 +88,38 @@ func ChatChannelAddRegisterLIFF(c *Context) error {
 	chatChannel := model.ChatChannel{}
 	a := auth.Default(c)
 	db := model.DB()
-	if err := db.Where("account_id = ?", a.User.GetAccountID()).Find(&chatChannel, id).Error; err != nil {
+	tx := db.Begin()
+	if err := tx.Error; err != nil {
+		return err
+	}
+	setting := model.Setting{}
+	if err := c.Bind(&setting); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
+	tx.Where("account_id = ?", a.User.GetAccountID()).Find(&chatChannel, id)
+
 	bot, err := linebot.New(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
-	if bot == nil {
+	if err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}
+
 	URLRegister := fmt.Sprintf("https://%s/register/%s", Conf.Server.DomainLineChannel, chatChannel.ChaLineID)
 	view := linebot.View{Type: "full", URL: URLRegister}
-	var status string
-	var LIFFID string
-	status = "success"
+
+	// status = "success"
 	res, err := bot.AddLIFF(view).Do()
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	} else {
-		LIFFID = res.LIFFID
+		setting.Value = res.LIFFID
 	}
-
-	LIFFregister := model.Setting{Name: "LIFFregister"}
-	statusLIFFregister := model.Setting{Name: "statusLIFFregister"}
-	statusAccessToken := model.Setting{Name: "statusAccessToken"}
-	dateStatusToken := model.Setting{Name: "dateStatusToken"}
-	db.Model(&chatChannel).Association("Settings").Find(&LIFFregister)
-	db.Model(&chatChannel).Association("Settings").Find(&statusLIFFregister)
-	db.Model(&chatChannel).Association("Settings").Find(&statusAccessToken)
-	db.Model(&chatChannel).Association("Settings").Find(&dateStatusToken)
-	LIFFregister.Value = LIFFID
-	statusLIFFregister.Value = status
-	statusAccessToken.Value = status
-	dateStatusToken.Value = time.Now().Format("Mon Jan 2 2006")
-	db.Save(&LIFFregister)
-	db.Save(&statusLIFFregister)
-	db.Save(&statusAccessToken)
-	db.Save(&dateStatusToken)
+	err = tx.Save(&setting).Error
+	if err != nil {
+		fmt.Println(err, "====")
+		tx.Rollback()
+	}
+	tx.Commit()
 
 	return c.JSON(http.StatusOK, res)
 }
@@ -136,6 +132,7 @@ type SettingResponse struct {
 }
 
 type DeplayDetailChatChannel struct {
+	ID    uint
 	Name  string
 	Value string
 }
@@ -163,7 +160,7 @@ func ChatChannelDetailHandler(c *Context) error {
 	paginationActionLogs = MakePagination(totalAction, 0, 10)
 	filteractionLogs.Preload("Customer").Find(&actionLogs).Limit(10).Offset(0).Order("id")
 
-	db.Preload("Settings").Preload("promotion").Where("account_id = ?", a.GetAccountID()).Find(&chatChannel, id)
+	db.Preload("Settings").Preload("Promotion").Where("account_id = ?", a.GetAccountID()).Find(&chatChannel, id)
 
 	insightFollowers, _ := lib.InsightFollowers(chatChannel.ChaChannelAccessToken)
 	bot, _ := linebot.New(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
@@ -183,7 +180,7 @@ func ChatChannelDetailHandler(c *Context) error {
 	richMenuDefault, _ := bot.GetDefaultRichMenu().Do()
 	deplayDetailChatChannels := []DeplayDetailChatChannel{}
 	for _, setting := range chatChannel.Settings {
-		deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: setting.Name, Value: setting.Value})
+		deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{ID: setting.ID, Name: setting.Name, Value: setting.Value})
 	}
 
 	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Quota Total Usage", Value: fmt.Sprintf("%d", MessageQuota.TotalUsage)})
@@ -222,7 +219,7 @@ func ChatChannelDetailHandler(c *Context) error {
 func ChatChannelCreateViewHandler(c *Context) error {
 	typeChatChannels := []string{"Facebook", "Line"}
 	csrfValue := c.Get("_csrf")
-	return c.Render(http.StatusOK, "chat-channel-form", echo.Map{
+	return c.Render(http.StatusOK, "chat-channel-form", echo.Map{"method": "PUT",
 		"title":            "chat_channel",
 		"typeChatChannels": typeChatChannels,
 		"mode":             "Create",
@@ -301,7 +298,7 @@ func ChatChannelEditHandler(c *Context) error {
 	setting := SetSettingResponse(chatChannel.Settings)
 
 	typeChatChannels := []string{"Facebook", "Line"}
-	return c.Render(http.StatusOK, "chat-channel-form", echo.Map{
+	return c.Render(http.StatusOK, "chat-channel-form", echo.Map{"method": "PUT",
 		"title":            "chat_channel",
 		"detail":           chatChannel,
 		"typeChatChannels": typeChatChannels,

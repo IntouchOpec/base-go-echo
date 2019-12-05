@@ -257,8 +257,9 @@
                 data.push(encodedKey + "=" + encodedValue)
                 data.push(timeSlotsEncodedKey + "=" + timeSlotsEncodedValue)
                 data = data.join("&");
+                let method = $("form[name='create-user']").attr("method")
                 fetch(window.location.href, {
-                    method: "POST", 
+                    method, 
                     headers: {"Content-Type": "application/x-www-form-urlencoded"},
                     body: data
                 })

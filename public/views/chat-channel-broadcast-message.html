@@ -19,7 +19,7 @@
                                         <p class="card-category">Complete your Chat Channel</p>
                                     </div>
                                     <div class="card-body">
-                                        <form name="form-broadcast" >
+                                       <form method="{{.method}}" name="form-broadcast" >
                                             <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden" >
                                             <div>
                                                 <label class="bmd-label-floating" >Choice Customer Grop</label>
@@ -325,7 +325,7 @@
                 data = data.join("&");     
                 console.log(data)
                 fetch(window.location.href, {
-                    method: "POST", 
+                    method, 
                     headers: {"Content-Type": "application/x-www-form-urlencoded"},
                     body: data
                 })

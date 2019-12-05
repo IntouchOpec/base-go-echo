@@ -59,7 +59,7 @@ func ChatRequestCreateHandler(c *Context) error {
 		linebot.MessageTypeFlex,
 	}
 
-	return c.Render(http.StatusOK, "chat-request-form", echo.Map{
+	return c.Render(http.StatusOK, "chat-request-form", echo.Map{"method": "PUT",
 		"title":        "chat_request",
 		"detail":       ChatRequest,
 		"messageTypes": messageTypes,
@@ -88,7 +88,7 @@ func ChatRequestEditViewHandler(c *Context) error {
 		a.GetAccountID()).Find(&ChatRequest, id).Error; err != nil {
 		return c.Render(http.StatusOK, "404-page", echo.Map{})
 	}
-	return c.Render(http.StatusOK, "chat-request-form", echo.Map{
+	return c.Render(http.StatusOK, "chat-request-form", echo.Map{"method": "PUT",
 		"title":  "chat_request",
 		"detail": ChatRequest,
 	})
@@ -103,7 +103,7 @@ func ChatRequestEditHandler(c *Context) error {
 		a.User.GetAccount()).Find(&ChatRequest, id).Error; err != nil {
 		return c.Render(http.StatusOK, "404-page", echo.Map{})
 	}
-	return c.Render(http.StatusOK, "chat-request-form", echo.Map{
+	return c.Render(http.StatusOK, "chat-request-form", echo.Map{"method": "PUT",
 		"title":  "chat_request",
 		"detail": ChatRequest,
 	})

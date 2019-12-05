@@ -124,7 +124,7 @@
               data.append("chacked", chacked)
               data.append("chat_channel_id", id)
               fetch(`/admin/promotion/${proID}/register`, {
-                  method: "POST",
+                  method,
                   body: data
               }).then(res => {
                   if (res.status !== 201) {
