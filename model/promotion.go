@@ -99,3 +99,11 @@ func (promo *Promotion) GetSettingPromotion(settingNames []string) map[string]st
 	}
 	return m
 }
+
+func (prom *Promotion) RemoveImage() error {
+	prom.PromImage = ""
+	if err := db.Save(&prom).Error; err != nil {
+		return err
+	}
+	return nil
+}

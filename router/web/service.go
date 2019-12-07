@@ -36,7 +36,9 @@ func ServiceListHandler(c *Context) error {
 func ServiceEditViewHandler(c *Context) error {
 	Service := model.Service{}
 	id := c.Param("id")
-	model.DB().Where("account_id = ?", id).Find(&Service)
+	accID := auth.Default(c).GetAccountID()
+
+	model.DB().Where("account_id = ?", accID).Find(&Service, id)
 	return c.Render(http.StatusOK, "service-form", echo.Map{
 		"detail": Service,
 		"title":  "service",
@@ -111,6 +113,27 @@ func ServiceEditHandler(c *Context) error {
 		"title":  "service",
 	})
 	return err
+}
+
+func ServiceDeleteImageHandler(c *Context) error {
+	service := model.Service{}
+	id := c.Param("id")
+	accID := auth.Default(c).GetAccountID()
+
+	if err := model.DB().Where("account_id = ? ", accID).Find(&service, id).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	if err := lib.DeleteFile(service.SerImage); err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	if err := service.RemoveImage(id); err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	return c.JSON(http.StatusOK, echo.Map{
+		"detail": service,
+	})
 }
 
 func ServiceDeleteHandler(c *Context) error {

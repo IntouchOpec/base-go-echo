@@ -76,3 +76,13 @@ func RemoveProvider(id string) (*Provider, error) {
 	}
 	return &prov, nil
 }
+
+func (pro *Provider) RemoveImage() error {
+	pro.ProvImage = ""
+
+	if err := DB().Save(&pro).Error; err != nil {
+		return err
+	}
+
+	return nil
+}

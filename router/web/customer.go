@@ -21,12 +21,11 @@ func CustomerListHandler(c *Context) error {
 	pagination := MakePagination(total, page, limit)
 	filterCustomer.Limit(pagination.Record).Offset(pagination.Offset).Find(&customers)
 
-	err := c.Render(http.StatusOK, "customer-list", echo.Map{
+	return c.Render(http.StatusOK, "customer-list", echo.Map{
 		"list":       customers,
 		"title":      "customer",
 		"pagination": pagination,
 	})
-	return err
 }
 
 func CustomerDetailHandler(c *Context) error {

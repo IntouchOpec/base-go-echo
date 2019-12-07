@@ -40,6 +40,17 @@ func (service *Service) UpdateService(id string) error {
 	return nil
 }
 
+func (service *Service) RemoveImage(id string) error {
+	db := DB()
+	service.SerImage = ""
+
+	if err := db.Save(&service).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // func (subservice *ServiceSlot) CreateServiceSlot() *ServiceSlot {
 // 	if err := DB().Create(&subservice).Error; err != nil {
 // 		return nil

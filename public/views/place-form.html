@@ -25,20 +25,25 @@
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating" >Name</label>
-                                                        <input name="name" id="name" type="text" class="form-control" >
+                                                        <input name="name" id="name" value="{{.detail.PlacName}}" type="text" class="form-control" >
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating" >amount</label>
-                                                        <input name="amount" id="amount" type="text" class="form-control" >
+                                                        <input name="amount" id="amount" value="{{.detail.PlacAmount}}" type="text" class="form-control" >
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating" >Type</label>
                                                         <select name="PlacTypes" class="form-control" data-style="btn btn-link" id="PlacTypes">
-                                                            <option value="">choice Type</option>
+                                                            {{ if .detail.PlacType }}
+                                                                <option value="{{.detail.PlacType}}">{{.detail.PlacType}}</option>
+                                                            {{ else }}
+                                                                <option value="">choice Type</option>
+                                                            {{ end }}
+
                                                             {{ with .PlacTypes }}
                                                             {{ range . }}
                                                                 <option value='{{ . }}'>{{.}}</option>
@@ -50,12 +55,20 @@
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating" >Detail</label>
-                                                        <textarea name="detail" id="detail" type="text" class="form-control" ></textarea>
+                                                        <textarea name="detail" value="{{.detail.PlacDetail}}" id="detail" type="text" class="form-control" ></textarea>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12 mt-2">
+                                                {{ if .detail.SerImage }}
+                                                    <div className="image-wrapper" >
+                                                        <input id="image" name="image" value="{{.detail.ID}}" type="hidden" >
+                                                        <img src="{{ .detail.SerImage }}" class="img-fluid mb-2 ml-2 img-thumbnail" />
+                                                        <Button id="btn-delete-image" color="danger" class="button-wrapper">delete</Button>
+                                                    </div>                                                 
+                                                {{ else }}
                                                     <input id="Image" name="Image" type="file">
-                                                    <p><strong>Image:</strong> Choose any file on your computer and its name will be displayed in an alert dialog box.</p>
+                                                    <p><strong>Note:</strong> Choose any file on your computer and its name will be displayed in an alert dialog box.</p>
+                                                {{ end }}
                                                 </div>
                                             </div>
                                             <input type="submit" rel="tooltip" value="Submit" class="btn btn-success">
@@ -74,6 +87,40 @@
   <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
   <script>
     (function ($) {
+        function removeImage () {
+            let id = $("#image").val()
+            let _csrf = $("#_csrf").val()
+            let data = [] 
+            data = data.join("&");
+
+            fetch(`/admin/place/${id}/remove_image`, {
+                    method: "DELETE",
+                    headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                    body: data
+            }).then(res => {
+                $("#form-image").html(`
+                    <input id="Image" name="Image" type="file">
+                    <p><strong>Note:</strong> Choose any file on your computer and its name will be displayed in an alert dialog box.</p>
+                `)
+            }).catch(err => Swal.fire("fial", "", "warning"))
+        }
+
+        $("#btn-delete-image").click(function () {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then(result => {
+                if (result.value) {
+                    removeImage()
+                }
+            })
+        })
+
         const toBase64 = file => new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.readAsDataURL(file);
@@ -135,37 +182,38 @@
                 let typeEncodeValue = encodeURIComponent(type)
                 let detailEncodeValue = encodeURIComponent(detail)
 
+
+                data.push(encodeKey + "=" + encodedValue)
+                data.push(nameEncodeKey + "=" + nameEncodeValue)
+                data.push(typeEncodeKey + "=" + typeEncodeValue)
+                data.push(amountEncodeKey + "=" + amountEncodeValue)
+                data.push(detailEncodeKey + "=" + detailEncodeValue)
+                data.push(imageEncodeKey + "=" + imageEncodedValue) 
+
                 toBase64(Image[0].files[0]).then(base64Image => {
                     Image = JSON.stringify(base64Image)
+                    let imageEncodedValue = encodeURIComponent(Image)
+                })
 
-                    let imageEncodedValue = encodeURIComponent(Image);
-                    data.push(encodeKey + "=" + encodedValue)
-                    data.push(nameEncodeKey + "=" + nameEncodeValue)
-                    data.push(typeEncodeKey + "=" + typeEncodeValue)
-                    data.push(amountEncodeKey + "=" + amountEncodeValue)
-                    data.push(detailEncodeKey + "=" + detailEncodeValue)
-                    data.push(imageEncodeKey + "=" + imageEncodedValue) 
-                    
-                    let method = $("form[name='create-chat-channel']").attr("method")
+                let method = $("form[name='create-chat-channel']").attr("method")
 
-                    fetch(window.location.href, {
-                        headers: {"Content-Type": "application/x-www-form-urlencoded"},
-                        method,
-                        body: data.join("&")
+                fetch(window.location.href, {
+                    headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                    method,
+                    body: data.join("&")
+                })
+                .then(res => {
+                    if (res.status === 201) {
+                        return res.json();
+                    }
+                })
+                .then(data => {
+                    Swal.fire("success", "", "success").then(result => {
+                        location.replace(data.redirect)
                     })
-                    .then(res => {
-                        if (res.status === 201) {
-                            return res.json();
-                        }
-                    })
-                    .then(data => {
-                        Swal.fire("success", "", "success").then(result => {
-                            location.replace(data.redirect)
-                        })
-                    })
-                    .catch(err => {
-                        Swal.fire("success", "", "success")
-                    })
+                })
+                .catch(err => {
+                    Swal.fire("success", "", "success")
                 })
             }
         })

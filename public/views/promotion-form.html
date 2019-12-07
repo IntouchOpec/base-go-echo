@@ -25,13 +25,20 @@
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating" >Title</label>
-                                                        <input name="Title" id="Title" type="text" class="form-control" >
+                                                        <input name="Title" value="{{.detail.PromTitle}}" id="Title" type="text" class="form-control" >
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
-                                                        <label class="bmd-label-floating" >PromotionType</label>
+                                                        <label class="bmd-label-floating" >Promotion Type</label>
                                                         <select name="PromotionType" class="form-control" id="PromotionType" data-style="btn btn-link">
+
+                                                            {{ if .detail.PromType }}
+                                                                <option value="{{.detail.PromType}}">{{.detail.PromType}}</option>
+                                                            {{ else }}
+                                                                <option value="">choice Type</option>
+                                                            {{ end }}
+
                                                             {{ with .promotionTypes }}
                                                             {{ range . }}
                                                                 <option value="{{.}}">{{.}}</option>
@@ -42,49 +49,57 @@
                                                 </div>
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
-                                                        <label class="bmd-label-floating" >Discount</label>
-                                                        <input name="Discount" id="Discount" type="text" class="form-control" >
+                                                        <label class="bmd-label-floating">Discount</label>
+                                                        <input name="Discount" value="{{.detail.PromDiscount}}" id="Discount" type="text" class="form-control" >
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating" >Amount</label>
-                                                        <input name="Amount" id="Amount" type="text" class="form-control" >
+                                                        <input name="Amount" value="{{.detail.PromAmount}}" id="Amount" type="text" class="form-control" >
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating" >Code</label>
-                                                        <input name="Code" id="Code" type="text" class="form-control" >
+                                                        <input name="Code" value="{{.detail.PromCode}}" id="Code" type="text" class="form-control" >
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating" >Name</label>
-                                                        <input name="Name" id="Name" type="text" class="form-control" >
+                                                        <input name="Name" value="{{.detail.PromName}}" id="Name" type="text" class="form-control" >
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating" >StartDate</label>
-                                                        <input name="StartDate" id="StartDate" class="form-control" type="date">
+                                                        <input name="StartDate" value="{{.detail.PromStartDate}}" id="StartDate" class="form-control" type="date">
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating" >EndDate</label>
-                                                        <input name="EndDate" id="EndDate" class="form-control" type="date">
+                                                        <input name="EndDate" value="{{.detail.PromEndDate}}" id="EndDate" class="form-control" type="date">
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating" >Condition</label>
-                                                        <textarea name="Condition" id="Condition" type="text" class="form-control" ></textarea>
+                                                        <textarea name="Condition" value="{{.detail.PromCondition}}" id="Condition" type="text" class="form-control" ></textarea>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12 mt-2">
+                                                {{ if .detail.PromImage }}
+                                                    <div className="image-wrapper" >
+                                                        <input id="image" name="image" value="{{.detail.ID}}" type="hidden" >
+                                                        <img src="{{ .detail.PromImage }}" class="img-fluid mb-2 ml-2 img-thumbnail" />
+                                                        <Button id="btn-delete-image" color="danger" class="button-wrapper">delete</Button>
+                                                    </div>                                                 
+                                                {{ else }}
                                                     <input id="Image" name="Image" type="file">
-                                                    <p><strong>Image:</strong> Choose any file on your computer and its name will be displayed in an alert dialog box.</p>
+                                                    <p><strong>Note:</strong> Choose any file on your computer and its name will be displayed in an alert dialog box.</p>
+                                                {{ end }}
                                                 </div>
                                             </div>
                                             <input type="submit" rel="tooltip" value="Submit" class="btn btn-success">
@@ -104,12 +119,47 @@
   <script>
    
     (function ($) {
+        function removeImage () {
+            let id = $("#image").val()
+            let _csrf = $("#_csrf").val()
+            let data = [] 
+            data = data.join("&");
+
+            fetch(`/admin/promotion/${id}/remove_image`, {
+                    method: "DELETE",
+                    headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                    body: data
+            }).then(res => {
+                $("#form-image").html(`
+                    <input id="Image" name="Image" type="file">
+                    <p><strong>Note:</strong> Choose any file on your computer and its name will be displayed in an alert dialog box.</p>
+                `)
+            }).catch(err => Swal.fire("fial", "", "warning"))
+        }
+
+        $("#btn-delete-image").click(function () {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then(result => {
+                if (result.value) {
+                    removeImage()
+                }
+            })
+        })
+
         const toBase64 = file => new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = error => reject(error);
-        });
+            const reader = new FileReader()
+            reader.readAsDataURL(file)
+            reader.onload = () => resolve(reader.result)
+            reader.onerror = error => reject(error)
+        })
+        
         $("form[name='create-promotion']").validate({
             rules: {
                 Title: {
@@ -214,41 +264,43 @@
 
                 let data = []
 
+                data.push(encodedKey + "=" + encodedValue)
+                data.push(typePromotionEncodedKey + "=" + typePromotionEncodedValue) 
+                data.push(titleEncodedKey + "=" + titleEncodedValue) 
+                data.push(discountEncodedKey + "=" + discountEncodedValue) 
+                data.push(amountEncodedKey + "=" + amountEncodedValue) 
+                data.push(codeEncodedKey + "=" + codeEncodedValue) 
+                data.push(nameEncodedKey + "=" + nameEncodedValue) 
+                data.push(startDateEncodedKey + "=" + startDateEncodedValue) 
+                data.push(endDateEncodedKey + "=" + endDateEncodedValue) 
+                data.push(conditionEncodedKey + "=" + conditionEncodedValue) 
+
                 toBase64(Image[0].files[0]).then(base64Image => {
                     
                     Image = JSON.stringify(base64Image)
-                    let imageEncodedValue = encodeURIComponent(Image);
-                    data.push(encodedKey + "=" + encodedValue)
-                    data.push(typePromotionEncodedKey + "=" + typePromotionEncodedValue) 
-                    data.push(titleEncodedKey + "=" + titleEncodedValue) 
-                    data.push(discountEncodedKey + "=" + discountEncodedValue) 
-                    data.push(amountEncodedKey + "=" + amountEncodedValue) 
-                    data.push(codeEncodedKey + "=" + codeEncodedValue) 
-                    data.push(nameEncodedKey + "=" + nameEncodedValue) 
-                    data.push(startDateEncodedKey + "=" + startDateEncodedValue) 
-                    data.push(endDateEncodedKey + "=" + endDateEncodedValue) 
-                    data.push(conditionEncodedKey + "=" + conditionEncodedValue) 
+                    let imageEncodedValue = encodeURIComponent(Image)
                     data.push(imageEncodedKey + "=" + imageEncodedValue) 
-                    data = data.join("&");
                     
-                    let method = $("form[name='create-chat-channel']").attr("method")
-
-                    fetch(window.location.href, {
-                        method, 
-                        headers: {"Content-Type": "application/x-www-form-urlencoded"},
-                        body: data
-                    })
-                    .then(res => {
-                        if (res.status === 201)
-                        return res.json()
-                    })
-                    .then(json => {
-                        Swal.fire("success", "", "success").then(result => {
-                            window.location = json.redirect
-                        })
-                    })
-                    .catch(err => Swal.fire("fial", "", "warning"))
                 })
+
+                data = data.join("&");
+                let method = $("form[name='create-chat-channel']").attr("method")
+                fetch(window.location.href, {
+                    method, 
+                    headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                    body: data
+                })
+                .then(res => {
+                    if (res.status === 201)
+                    return res.json()
+                })
+                .then(json => {
+                    Swal.fire("success", "", "success").then(result => {
+                        window.location = json.redirect
+                    })
+                })
+                .catch(err => Swal.fire("fial", "", "warning"))
+
             }
         })
     })(jQuery)

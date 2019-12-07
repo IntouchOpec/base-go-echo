@@ -146,7 +146,6 @@ func PlaceAddChatChannelPostHanlder(c *Context) error {
 	chatChannel := model.ChatChannel{}
 
 	chatChannelID := c.FormValue("chat_channel_id")
-	fmt.Println(chatChannelID)
 	db := model.DB()
 	db.Where("account_id = ?", a.GetAccountID()).Find(&chatChannel, chatChannelID)
 	if err := db.Where("account_id = ? ", a.GetAccountID()).Find(&place, id).Error; err != nil {
@@ -158,5 +157,27 @@ func PlaceAddChatChannelPostHanlder(c *Context) error {
 	return c.JSON(http.StatusCreated, echo.Map{
 		"data":     place,
 		"redirect": fmt.Sprintf("/admin/place/%d", place.ID),
+	})
+}
+
+func PlaceDeleteImageHandler(c *Context) error {
+	place := model.Place{}
+	id := c.Param("id")
+	accID := auth.Default(c).GetAccountID()
+	db := model.DB()
+	if err := db.Where("account_id = ? ", accID).Find(&place, id).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	if err := lib.DeleteFile(place.PlacImage); err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	if err := place.RemoveImage(); err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	return c.JSON(http.StatusOK, echo.Map{
+		"data": place,
 	})
 }

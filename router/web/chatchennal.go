@@ -114,7 +114,11 @@ func ChatChannelAddRegisterLIFF(c *Context) error {
 	} else {
 		setting.Value = res.LIFFID
 	}
-	err = tx.Save(&setting).Error
+	if setting.ID == 0 {
+		tx.Model(&chatChannel).Association("Settings").Append(&setting)
+	} else {
+		err = tx.Save(&setting).Error
+	}
 	if err != nil {
 		fmt.Println(err, "====")
 		tx.Rollback()

@@ -112,3 +112,11 @@ func GetMasterPlace(from, to, day time.Time) (*MasterPlace, error) {
 	}
 	return &mpla, nil
 }
+
+func (pla *Place) RemoveImage() error {
+	pla.PlacImage = ""
+	if err := DB().Save(&pla).Error; err != nil {
+		return err
+	}
+	return nil
+}

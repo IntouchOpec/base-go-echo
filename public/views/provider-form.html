@@ -25,24 +25,32 @@
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating" >name</label>
-                                                        <input name="name" id="name" class="form-control">
+                                                        <input name="name" value="{{.detail.ProvName}}" id="name" class="form-control">
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating" >line id</label>
-                                                        <input name="line_id" id="line_id" class="form-control">
+                                                        <input name="line_id" value="{{.detail.ProvLineID}}" id="line_id" class="form-control">
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating" >detail</label>
-                                                        <textarea name="detail" id="detail" type="text" class="form-control" ></textarea>
+                                                        <textarea name="detail" value="{{.detail.ProvDetail}}" id="detail" type="text" class="form-control" ></textarea>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-12 mt-2">
+                                                <div class="col-md-12 mt-2" id="input-file">
+                                                {{ if .detail.SerImage }}
+                                                    <div className="image-wrapper" >
+                                                        <input id="image" name="image" value="{{.detail.ID}}" type="hidden" >
+                                                        <img src="{{ .detail.ProvImage }}" class="img-fluid mb-2 ml-2 img-thumbnail" />
+                                                        <Button id="btn-delete-image" color="danger" class="button-wrapper">delete</Button>
+                                                    </div>                                                 
+                                                {{ else }}
                                                     <input id="Image" name="Image" type="file">
-                                                    <p><strong>Image:</strong> Choose any file on your computer and its name will be displayed in an alert dialog box.</p>
+                                                    <p><strong>Note:</strong> Choose any file on your computer and its name will be displayed in an alert dialog box.</p>
+                                                {{ end }}
                                                 </div>
                                             </div>
                                             <input type="submit" rel="tooltip" value="Submit" class="btn btn-success">
@@ -61,12 +69,48 @@
   <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
   <script>
     (function ($) {
+
+        function removeImage () {
+            let id = $("#image").val()
+            let _csrf = $("#_csrf").val()
+            let data = [] 
+            data = data.join("&");
+
+            fetch(`/admin/provider/${id}/remove_image`, {
+                    method: "DELETE",
+                    headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                    body: data
+            }).then(res => {
+                $("#form-image").html(`
+                    <input id="Image" name="Image" type="file">
+                    <p><strong>Note:</strong> Choose any file on your computer and its name will be displayed in an alert dialog box.</p>
+                `)
+            }).catch(err => Swal.fire("fial", "", "warning"))
+        }
+
+        $("#btn-delete-image").click(function () {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then(result => {
+                if (result.value) {
+                    removeImage()
+                }
+            })
+        })
+
         const toBase64 = file => new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = error => reject(error);
-        });
+            const reader = new FileReader()
+            reader.readAsDataURL(file)
+            reader.onload = () => resolve(reader.result)
+            reader.onerror = error => reject(error)
+        })
+
         $("form[name='create-provider']").validate({
             rules: {
                 name: {
@@ -114,39 +158,42 @@
                 let line_idEncodeCalue = encodeURIComponent(line_id)
                 let encodedetailKey = encodeURIComponent("prov_detail")
                 let detailEncodeCalue = encodeURIComponent(detail)
-                
 
                 let data = []
+                
+                data.push(encodedKey + "=" + encodedValue)
+                data.push(encodenameKey + "=" + nameEncodeCalue)
+                data.push(encodeline_idKey + "=" + line_idEncodeCalue)
+                data.push(encodedetailKey + "=" + detailEncodeCalue)
+
 
                 toBase64(Image[0].files[0]).then(base64Image => {
                     
                     Image = JSON.stringify(base64Image)
                     let imageEncodedValue = encodeURIComponent(Image);
-                    data.push(encodedKey + "=" + encodedValue)
-                    data.push(encodenameKey + "=" + nameEncodeCalue)
-                    data.push(encodeline_idKey + "=" + line_idEncodeCalue)
-                    data.push(encodedetailKey + "=" + detailEncodeCalue)
-                    data.push(imageEncodedKey + "=" + imageEncodedValue) 
-                    data = data.join("&");
-                    let method = $("form[name='create-chat-channel']").attr("method")
-
-                    fetch(window.location.href, {
-                        method, 
-                        headers: {"Content-Type": "application/x-www-form-urlencoded"},
-                        body: data
-                    })
-                    .then(res => {
-                        if (res.status === 201){  
-                            return res.json()
-                        }
-                    })
-                    .then(json => {
-                        Swal.fire("success", "", "success").then(result => {
-                            window.location = json
-                        })
-                    })
-                    .catch(err => Swal.fire("fial", "", "warning"))
+                    
                 })
+
+                let method = $("form[name='create-chat-channel']").attr("method")
+                data.push(imageEncodedKey + "=" + imageEncodedValue) 
+                data = data.join("&");
+                fetch(window.location.href, {
+                    method, 
+                    headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                    body: data
+                })
+                .then(res => {
+                    if (res.status === 201){  
+                        return res.json()
+                    }
+                })
+                .then(json => {
+                    Swal.fire("success", "", "success").then(result => {
+                        window.location = json
+                    })
+                })
+                .catch(err => Swal.fire("fial", "", "warning"))
+
             }
         })
     })(jQuery)

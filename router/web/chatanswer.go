@@ -55,7 +55,8 @@ func ChatAnswerCreateHandler(c *Context) error {
 		linebot.MessageTypeFlex,
 	}
 
-	return c.Render(http.StatusOK, "chat-answer-form", echo.Map{"method": "PUT",
+	return c.Render(http.StatusOK, "chat-answer-form", echo.Map{
+		"method":       "POST",
 		"title":        "chat_answer",
 		"detail":       chatAnswer,
 		"messageTypes": messageTypes,

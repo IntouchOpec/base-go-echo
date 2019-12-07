@@ -59,3 +59,15 @@
   height: calc(100vh - 70px);
   margin-top: 70px;
 }
+
+.image-wrapper {
+  position: relative;
+  width: 300px;
+  height: 300px;
+}
+
+.button-wrapper {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+}

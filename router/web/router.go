@@ -121,16 +121,18 @@ func Routers() *echo.Echo {
 		managent.GET("/service/:id/edit", handler(ServiceEditViewHandler))
 		managent.PUT("/service/:id/edit", handler(ServiceEditPutHandler))
 		managent.DELETE("/service/:id", handler(ServiceDeleteHandler))
+		managent.DELETE("/service/:id/delete_image", handler(ServiceDeleteImageHandler))
 
 		managent.GET("/promotion", handler(PromotionListHandler))
 		managent.POST("/promotion/create", handler(PromotionPostHandler))
 		managent.GET("/promotion/create", handler(PromotionFormHandler))
 		managent.GET("/promotion/:id", handler(PromotionDetailHandler))
-		managent.GET("/promotion/:id", handler(PromotionDetailHandler))
+		managent.GET("/promotion/:id/edit", handler(PromotionEditHandler))
 		managent.POST("/promotion/:id/register", handler(PromotionAddRegisterlHandler))
 		managent.DELETE("/promotion/:id", handler(PromotionRemoveHandler))
 		managent.GET("/promotion_channel/:id/create", handler(PromotionChannelFormHandler))
 		managent.POST("/promotion_channel/:id/create", handler(PromotionChannelAddHandler))
+		managent.DELETE("/promotion/:id/delete_image", handler(PromotionDeleteImageHandler))
 
 		managent.GET("/users", handler(UserListHandler))
 		managent.GET("/users/:id", handler(UserDetailHandler))
@@ -166,6 +168,7 @@ func Routers() *echo.Echo {
 		managent.GET("/place/create", handler(PlaceCreateHandler))
 		managent.GET("/place/:id", handler(PlaceDetailHandler))
 		managent.DELETE("/place/:id", handler(PlaceDeleteHandler))
+		managent.DELETE("/place/:id/delete_image", handler(PlaceDeleteImageHandler))
 		managent.POST("/place/:id/place_chatchannel/create", handler(PlaceAddChatChannelPostHanlder))
 		managent.GET("/place/:id/place_chatchannel/create", handler(PlaceAddChatChannelViewHanlder))
 
@@ -175,6 +178,7 @@ func Routers() *echo.Echo {
 		managent.GET("/provider/:id", handler(ProviderDetailHandler))
 		managent.GET("/provider/:id/edit", handler(ProviderDetailHandler))
 		managent.DELETE("/provider/:id", handler(ProviderDetailHandler))
+		managent.DELETE("/provider/:id/delete_image", handler(ProviderDeleteImageHandler))
 
 		managent.GET("/provider_service/:id/create", handler(ProviderAddServiceHandler))
 		managent.GET("/provider_service/:prov_id", handler(ProviderSerciveListHandler))

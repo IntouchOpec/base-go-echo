@@ -81,8 +81,9 @@ func Decode(code string, dest string) error {
 	return nil
 }
 
-func deleteFile(path string) error {
+func DeleteFile(path string) error {
 	// delete file
+	path = PathLocal + path
 	var err = os.Remove(path)
 	if isError(err) {
 		return err

@@ -55,7 +55,8 @@ func PromotionDetailHandler(c *Context) error {
 func PromotionFormHandler(c *Context) error {
 	promotion := model.Promotion{}
 	promotionTypes := []model.PromotionType{model.PromotionPromotionType, model.PromotionTypeCoupon, model.PromotionTypeVoucher}
-	return c.Render(http.StatusOK, "promotion-form", echo.Map{"method": "PUT",
+	return c.Render(http.StatusOK, "promotion-form", echo.Map{
+		"method":         "POST",
 		"detail":         promotion,
 		"title":          "promotion",
 		"promotionTypes": promotionTypes,
@@ -85,6 +86,7 @@ func PromotionPostHandler(c *Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
+
 	promotionModel := model.Promotion{
 		PromTitle:     promotion.Title,
 		PromType:      promotion.PromotionType,
@@ -111,8 +113,9 @@ func PromotionEditHandler(c *Context) error {
 	id := c.Param("id")
 	a := auth.Default(c)
 
-	model.DB().Preload("Account").Preload("services").Preload("Customers").Preload("ChatChannels").Where("account_id = ?", a.User.GetAccountID()).Find(&promotion, id)
-	return c.Render(http.StatusOK, "promotion-form", echo.Map{"method": "PUT",
+	model.DB().Preload("ChatChannels").Where("account_id = ?", a.User.GetAccountID()).Find(&promotion, id)
+	return c.Render(http.StatusOK, "promotion-form", echo.Map{
+		"method": "PUT",
 		"detail": promotion,
 		"title":  "promotion",
 	})
@@ -125,7 +128,8 @@ func PromotionChannelFormHandler(c *Context) error {
 	if err := model.DB().Where("account_id = ?", a.User.GetAccountID()).Find(&chatChannels).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	return c.Render(http.StatusOK, "promotion-chat-channel-form", echo.Map{"method": "PUT",
+	return c.Render(http.StatusOK, "promotion-chat-channel-form", echo.Map{
+		"method":       "PUT",
 		"chatChannels": chatChannels,
 		"title":        "promotion",
 		"mode":         "Create",
@@ -189,4 +193,24 @@ func PromotionAddRegisterlHandler(c *Context) error {
 	}
 
 	return c.JSON(http.StatusCreated, chatChannel)
+}
+
+func PromotionDeleteImageHandler(c *Context) error {
+	id := c.Param("id")
+	promotion := model.Promotion{}
+	accID := auth.Default(c).GetAccountID()
+
+	if err := model.DB().Where("account_id = ? ", accID).Find(&promotion, id).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	if err := lib.DeleteFile(promotion.PromImage); err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	if err := promotion.RemoveImage(); err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	return c.JSON(http.StatusOK, echo.Map{
+		"detail": promotion,
+	})
 }

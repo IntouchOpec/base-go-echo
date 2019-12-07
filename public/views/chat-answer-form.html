@@ -25,13 +25,18 @@
                       <div class="col-md-12 mt-2">
                         <div class="form-group">
                           <label class="bmd-label-floating">Input</label>
-                          <input name="Input" id="Input" type="text" class="form-control" >
+                          <input name="Input" id="Input" value="{{.detail.AnsInput}}" type="text" class="form-control" >
                         </div>
                       </div>
                       <div class="col-md-12 mt-2">
                         <div class="form-group">
                           <label class="bmd-label-floating">inputType</label>
-                          <select name="inputType" class="form-control" id="inputType" data-style="btn btn-link" id="exampleFormControlSelect2">
+                          <select name="inputType" class="form-control" id="inputType" data-style="btn btn-link" >
+                            {{ if .detail.AnsInputType }}
+                                <option value="{{.detail.AnsInputType}}">{{.detail.AnsInputType}}</option>
+                            {{ else }}
+                                <option value="">choice Type</option>
+                            {{ end }}
                             {{ with .messageTypes }}
                             {{ range . }}
                                 <option value="{{.}}">{{.}}</option>
@@ -43,13 +48,18 @@
                       <div class="col-md-12 mt-2">
                         <div class="form-group">
                           <label class="bmd-label-floating">Reply</label>
-                          <input name="Reply" id="Reply" type="text" class="form-control" >
+                          <input name="Reply" value="{{.detail.AnsReply}}" id="Reply" type="text" class="form-control" >
                         </div>
                       </div>
                       <div class="col-md-12 mt-2">
                         <div class="form-group">
                           <label class="bmd-label-floating">replyType</label>
-                          <select name="replyType" class="form-control" id="replyType" data-style="btn btn-link" id="exampleFormControlSelect2">
+                          <select name="replyType" class="form-control" id="replyType" data-style="btn btn-link" >
+                              {{ if .detail.AnsReplyType }}
+                                  <option value="{{.detail.AnsReplyType}}">{{.detail.AnsReplyType}}</option>
+                              {{ else }}
+                                  <option value="">choice Type</option>
+                              {{ end }}
                               {{ with .messageTypes }}
                               {{ range . }}
                                   <option value="{{.}}">{{.}}</option>
@@ -61,7 +71,7 @@
                       <div class="col-md-12 mt-2">
                         <div class="form-group">
                             <label class="bmd-label-floating">Source</label>
-                            <textarea name="Source" id="Source"  type="text" class="form-control" > </textarea>
+                            <textarea value="{{.detail.AnsSource}}" name="Source" id="Source"  type="text" class="form-control" > </textarea>
                         </div>
                       </div>
                       <input value="Submit" type="submit" class="btn btn-success">

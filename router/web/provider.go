@@ -214,9 +214,11 @@ func ProviderAddBookingHandler(c *Context) error {
 	provider := model.Provider{}
 
 	chatChannels, err := model.GetChatChannelList(a.GetAccountID())
+
 	if err != nil {
 		return c.Render(http.StatusNotFound, "404-page", echo.Map{})
 	}
+
 	if err := model.DB().Where("account_id = ?", a.GetAccountID()).Find(&provider, id).Error; err != nil {
 		return c.Render(http.StatusNotFound, "404-page", echo.Map{})
 	}
@@ -224,5 +226,27 @@ func ProviderAddBookingHandler(c *Context) error {
 	return c.Render(http.StatusOK, "provider-list", echo.Map{
 		"title":        "provider",
 		"chatChannels": chatChannels,
+	})
+}
+
+func ProviderDeleteImageHandler(c *Context) error {
+	id := c.Param("Prov_id")
+	a := auth.Default(c)
+	provider := model.Provider{}
+
+	if err := model.DB().Where("account_id = ?", a.GetAccountID()).Find(&provider, id).Error; err != nil {
+		return c.JSON(http.StatusNotFound, err)
+	}
+
+	if err := lib.DeleteFile(provider.ProvImage); err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	if err := provider.RemoveImage(); err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	return c.JSON(http.StatusOK, echo.Map{
+		"data": provider,
 	})
 }
