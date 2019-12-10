@@ -31,11 +31,11 @@ type NLPResponse struct {
 
 var dp DialogFlowProcessor
 
-func (dp *DialogFlowProcessor) init(a ...string) error {
-	dp.ProjectID = a[0]
-	dp.AuthJSONFilePath = a[1]
-	dp.Lang = a[2]
-	dp.TimeZone = a[3]
+func (dp *DialogFlowProcessor) Init(ProjectID, AuthJSONFilePath, Lang, TimeZone string) error {
+	dp.ProjectID = ProjectID
+	dp.AuthJSONFilePath = AuthJSONFilePath
+	dp.Lang = Lang
+	dp.TimeZone = TimeZone
 
 	dp.ctx = context.Background()
 	sessionClient, err := dialogflow.NewSessionsClient(dp.ctx, option.WithCredentialsFile(dp.AuthJSONFilePath))
@@ -49,11 +49,11 @@ func (dp *DialogFlowProcessor) init(a ...string) error {
 	return nil
 }
 
-func (dp *DialogFlowProcessor) processNLP(rewMessage, username string) (r NLPResponse) {
+func (dp *DialogFlowProcessor) ProcessNLP(rewMessage, username string) (r NLPResponse) {
 	sessionID := username
 
 	request := dialogflowpb.DetectIntentRequest{
-		Session: fmt.Sprintf("projects/agent/sessions/%s", dp.ProjectID, sessionID),
+		Session: fmt.Sprintf("projects/%s/agent/sessions/%s", dp.ProjectID, sessionID),
 		QueryInput: &dialogflowpb.QueryInput{
 			Input: &dialogflowpb.QueryInput_Text{
 				Text: &dialogflowpb.TextInput{

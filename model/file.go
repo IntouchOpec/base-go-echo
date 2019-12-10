@@ -5,11 +5,11 @@ import (
 
 	"github.com/jinzhu/gorm"
 
-	uuid "github.com/satori/go.uuid"
+	guuid "github.com/google/uuid"
 )
 
 type File struct {
-	ID        uuid.UUID  `gorm:"primary_key ;type:varchar(255)" json:"id"`
+	ID        guuid.UUID `gorm:"primary_key ;type:varchar(255)" json:"id"`
 	Path      string     `json:"path"`
 	AccountID uint       `json:"account_id"`
 	Account   Account    `json:"account"`
@@ -20,10 +20,7 @@ type File struct {
 }
 
 func (f *File) BeforeCreate(scope *gorm.Scope) error {
-	uuid, err := uuid.NewV4()
-	if err != nil {
-		return err
-	}
+	uuid := guuid.New()
 	return scope.SetColumn("ID", uuid)
 }
 

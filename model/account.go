@@ -9,10 +9,14 @@ type Account struct {
 	orm.ModelBase
 
 	// ID   uint64 `json:"id,omitempty"`
-	AccName      string         `json:"acc_name" gorm:"type:varchar(25)"`
-	AccType      string         `json:"acc_type" gorm:"type:varchar(25)"`
-	Settings     []*Setting     `json:"settings" gorm:"many2many:account_setting"`
-	ChatChannels []*ChatChannel `json:"chat_channels"`
+	AccProjectID        string         `json:"acc_project_id" grom:"type:varchar(100)"`
+	AccAuthJSONFilePath string         `json:"acc_auth_json_file_path" grom:"type:varchar(100)"`
+	AccLang             string         `json:"acc_lang" grom:"type:varchar(100)"`
+	AccTimeZone         string         `json:"acc_time_zone" grom:"type:varchar(100)"`
+	AccName             string         `json:"acc_name" gorm:"type:varchar(25)"`
+	AccType             string         `json:"acc_type" gorm:"type:varchar(25)"`
+	Settings            []*Setting     `json:"settings" gorm:"many2many:account_setting"`
+	ChatChannels        []*ChatChannel `json:"chat_channels"`
 }
 
 // func (account *Account) BeforeCreate(scope *gorm.Scope) error {

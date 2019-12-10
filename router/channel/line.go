@@ -58,7 +58,7 @@ func HandleWebHookLineAPI(c echo.Context) error {
 		db.Where("cus_line_id = ?", event.Source.UserID).Find(&customer)
 		chatAnswer := model.ChatAnswer{}
 		eventType := event.Type
-		// eventLog
+
 		chatAnswer.AnsInputType = string(eventType)
 		var messageReply linebot.SendingMessage
 
@@ -85,8 +85,13 @@ func HandleWebHookLineAPI(c echo.Context) error {
 				case "location":
 
 				default:
-					db.Find(&chatAnswer)
-
+					var dp lib.DialogFlowProcessor
+					dp.Init(account.AccProjectID, account.AccAuthJSONFilePath, account.AccLang, account.AccTimeZone)
+					replyDialogflow := dp.ProcessNLP(message.Text, customer.CusDisplayName)
+					fmt.Println(replyDialogflow, "====")
+					if err := db.Find(&chatAnswer).Error; err != nil {
+						db.Find(&chatAnswer)
+					}
 					messageReply = linebot.NewTextMessage(chatAnswer.AnsReply)
 					eventLog.EvenType = string(event.Type)
 				}
@@ -296,9 +301,7 @@ func HandleWebHookLineAPI(c echo.Context) error {
 			// model.DB().Create(&evenLog)
 			// return c.JSON(200, "")
 		}
-		fmt.Println(event)
 		_, err = bot.ReplyMessage(event.ReplyToken, messageReply).Do()
-		fmt.Println(err)
 
 		// eventLog.EvenReplyToken = event.ReplyToken
 		// eventLog.CustomerID = customer.ID

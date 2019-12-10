@@ -24,7 +24,7 @@ type Transaction struct {
 	ChatChannel   ChatChannel    `json:"chat_channel" gorm:"ForeignKey:ChatChannelID"`
 }
 
-func (tran *Transaction) CreateTransaction() error {
+func (tran *Transaction) Create() error {
 	if err := DB().Create(&tran).Error; err != nil {
 		return err
 	}
@@ -54,7 +54,7 @@ func (tran *Transaction) UpdateTransaction() error {
 	return nil
 }
 
-func RemoveTransaction(id string) (*Transaction, error) {
+func RemoveTransaction(id string, accID uint) (*Transaction, error) {
 	tran := Transaction{}
 	if err := DB().Find(&tran).Error; err != nil {
 
