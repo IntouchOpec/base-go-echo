@@ -1,5 +1,8 @@
 FROM nginx:latest
 
+RUN apt-get update && \
+    apt-get install -y software-properties-common && \
+    rm -rf /var/lib/apt/lists/*
 RUN add-apt-repository ppa:certbot/certbot
 
 RUN apt install python-certbot-nginx
