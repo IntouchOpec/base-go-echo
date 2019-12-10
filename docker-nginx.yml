@@ -5,7 +5,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 RUN add-apt-repository ppa:certbot/certbot
 
-RUN apt install python-certbot-nginx
+RUN apt-get install python-certbot-nginx
 
 RUN rm /etc/nginx/conf.d/default.conf
 
