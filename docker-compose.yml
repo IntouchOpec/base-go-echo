@@ -15,7 +15,9 @@ services:
       - backend
 
   nginx:
-    image: nginx:latest
+    build:
+      context: .
+      dockerfile: docker-nginx.yml
     links: 
       - app:api.app
       - app:web.app
@@ -23,27 +25,42 @@ services:
     ports:
       - "80:80"
       - "443:443"
-    depends_on: 
+      depends_on: 
       - app
     networks:
       - backend
     volumes:
       - ./nginx/:/etc/nginx/conf.d/
       - ./public/views:/var/www/html
-      - certbot-etc:/etc/letsencrypt
-      - certbot-var:/var/lib/letsencrypt
-      - ./dhparam:/etc/ssl/certs
+  #   image: nginx:latest
+  #   links: 
+  #     - app:api.app
+  #     - app:web.app
+  #     - app:channel.app
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   depends_on: 
+  #     - app
+  #   networks:
+  #     - backend
+  #   volumes:
+  #     - ./nginx/:/etc/nginx/conf.d/
+  #     - ./public/views:/var/www/html
+  #     - certbot-etc:/etc/letsencrypt
+  #     - certbot-var:/var/lib/letsencrypt
+  #     - ./dhparam:/etc/ssl/certs
    
-  certbot:
-    image: certbot/certbot
-    container_name: certbot
-    volumes:
-      - certbot-etc:/etc/letsencrypt
-      - certbot-var:/var/lib/letsencrypt
-      - ./public/views:/var/www/html
-    depends_on:
-      - nginx
-    command: certonly --webroot --webroot-path=/var/www/html --email intouch.opec@gmail.com --agree-tos --no-eff-email --force-renewal -d channel4.triple-t.cc 
+  # certbot:
+  #   image: certbot/certbot
+  #   container_name: certbot
+  #   volumes:
+  #     - certbot-etc:/etc/letsencrypt
+  #     - certbot-var:/var/lib/letsencrypt
+  #     - ./public/views:/var/www/html
+  #   depends_on:
+  #     - nginx
+  #   command: certonly --webroot --webroot-path=/var/www/html --email intouch.opec@gmail.com --agree-tos --no-eff-email --force-renewal -d channel4.triple-t.cc 
     
   db:
     image: postgres:11.3
