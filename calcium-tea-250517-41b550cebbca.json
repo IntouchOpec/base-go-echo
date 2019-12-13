@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "calcium-tea-250517",
+  "private_key_id": "41b550cebbca90f1b121f8015f6522aa4a92f022",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCFzvDcZwPinm9F\nK35v/PG2zK8py22EBcRzDNnfEB0Aj5nBBWwvPtGuEYUD18D0VY/GgJdyhJveYkLT\nwZoCRTt3j3PX0gKxoh40EEVES1EY5DP3U/zZ5hpDCnup5E/mZxPPHQBAH26t2g13\nhsNLH6AMX998R6cUepnmQBmSKeXOW8dy8XYNxAoTTEnahpx36PnZ7gqfx6HFolWK\nMzmfZaXAqTVFiiTtqMs+SiefvRF7s9eQqbneeQ36No5wSjD7oS00rsLUtXDWW+OC\n3c3EgMxhDlz07/t1qpKd1XLLLFABCkcZTKBHBVACHkaeV9YLio4T7jszQjyKSLpm\nZz6aArqpAgMBAAECggEAA7GYXEszNCGpwmvukfaWcRSCJtoU4Dq9ByyFBKd4F3x/\nUvDcgUrfhKm65WXir5P/k6wX0itXNqq5e8k5wEOLPlQNT3k+hgsKwKbs1JNsLg7Z\noOOWhKjZk31x97kD3CE/Dp33NG3xsxakfcbQdA3P0Bui6pY7RmFSh4TAN/TUYU+E\n0C0D/vSWLcjVUq2+GuTwiX9GacOHgukdObjeud+J6sL4H6sThIMh0R7nI0tXmLQ1\n5ikwDesgoC/DIBL7SiTlhcZ5aSvCc21fW667biqX5MbSiaKJIxxR1+/o4pSUcH0Y\nMa6f90lNeENi303HdEmZN2n2eEJP6TWi7JHZsF820QKBgQC7w492bC7+/K6fJzuT\n411YqTrVl1lqCutQO5b6w93UsILkEozZ34xjUzG6Tqr1tKKiDy7Cer6NRrZId6V3\nZnVYQR+M+thgIchqX3U2XR70R/34PtkrG8CCLgEtaMHg3c9IDppOqEolDV+kf0Og\nDSe8rU0aglMVOXZalEcx2Z3osQKBgQC2b61BPY/cAM4CyRNYuTBZ3PAjQDoa3vCq\nKmy1DOnkOtjgjz1weHvW+0jI++M7l4yEE62PLIQR9u0ih553BbG+HAM3z8HX/RG5\n1Wiue8XzSQVz+28OhZwsGZ3sRezYg4CFIa5sltt3JaesMcWD745P/jDuSLYaYfRw\nvKF0bOtveQKBgHuoziE2GrWAgRj8Y7aAdYfg3IizRwYZ7uRGeqbovH5JScsflHgh\nTHpV3lhPWzS7JKkKysb2w+yTd5W+htFeP0ZCjZ7xzfNyDGZSPAXzymEj0NXfvnMv\nsdeKqOfZKGcKbmuMgn/vQfWpGyZhUo5kW5ldoXwl/MXrtFDvevwP0HnhAoGAFa33\nvMUAD3jZAmO6tNRs9oDW2JmNThwoJVCdUnaSZNjJZQYgmvj2XnnGEHw+aJp9zEQ6\nX8U+fJQHYg8Tubknghv6FevOcUhVjuvZYMK8p0iKKVo7vFIMWQFCTw2QM7qMz0VN\nYQIcWnBTGJdhjWguVTszvV1Oppv1XGBOH3PCFqECgYBz5uD/fj6h5E7juBJOvwFI\nGGUGu8iHLmZG2DF4QWFzHc3ZlTW7YE+fYnbOawyHihNoF5Gk0UUwW3w6rytjpIhJ\nYKtC/Lm5wJ2f+r0oBbOQalLpbOT7o1N1SvmZnvw9En5U5Tdk7vWd782WFY32h+IG\n204arebd8fewrCTvEj8sKg==\n-----END PRIVATE KEY-----\n",
+  "client_email": "line-api-platform@calcium-tea-250517.iam.gserviceaccount.com",
+  "client_id": "103311662987758071186",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/line-api-platform%40calcium-tea-250517.iam.gserviceaccount.com"
+}

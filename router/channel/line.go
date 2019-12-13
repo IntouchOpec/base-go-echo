@@ -1,9 +1,11 @@
 package channel
 
 import (
-	"context"
 	"fmt"
 	"net/http"
+	"time"
+
+	"github.com/jinzhu/gorm"
 
 	"github.com/IntouchOpec/base-go-echo/lib"
 	"github.com/IntouchOpec/base-go-echo/model"
@@ -27,16 +29,23 @@ func HandleWebHookLineAPI(c echo.Context) error {
 	if err := db.Where("cha_channel_id = ?", ChannelID).Find(&chatChannel).Error; err != nil {
 		return c.NoContent(http.StatusNotFound)
 	}
-	ctx := c.Request().Context()
-	if ctx == nil {
-		ctx = context.Background()
-	}
+
+	// ctx := c.Request().Context()
+	// if ctx == nil {
+	// 	ctx = context.Background()
+	// }
 
 	bot, err := lib.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
 
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
+
+	var con Context
+
+	con.Account = account
+	con.ChatChannel = chatChannel
+	con.ClientLine = bot
 
 	events, err := bot.ParseRequest(c.Request())
 
@@ -67,17 +76,38 @@ func HandleWebHookLineAPI(c echo.Context) error {
 			switch message := event.Message.(type) {
 			case *linebot.TextMessage:
 				messageText := message.Text
+				var dp lib.DialogFlowProcessor
+				dp.Init(account.AccProjectID, account.AccAuthJSONFilePath, account.AccLang, account.AccTimeZone)
+				replyDialogflow := dp.ProcessNLP(message.Text, customer.CusDisplayName)
+				fmt.Println(replyDialogflow)
+				con.Massage = message.Text
+				fmt.Println(con.Massage, "===")
 				if len(messageText) >= 8 {
 					keyWord = messageText[0:8]
 				}
-				switch messageText {
+
+				switch keyWord {
 
 				case "service":
+					if len(messageText) >= 8 {
 
+					} else {
+						messageReply = ChooseService(&con)
+					}
 				case "calendar", "booking":
-
+					messageReply = CalandarHandler(&con)
 				case "Service":
+					t, _ := time.Parse("2006-01-02 15:04", messageText[8:]+" 01:00")
 
+					serviceSlot := []model.TimeSlot{}
+					if err := model.DB().Preload("Bookings", "booked_date = ?", t).Preload("ProviderService", func(db *gorm.DB) *gorm.DB {
+						return db.Preload("Bookings", "booked_date = ?", t)
+					}).Where("Day = ?", int(t.Weekday())).Find(&serviceSlot).Error; err != nil {
+						fmt.Println(err)
+						return nil
+					}
+
+					messageReply = serviceListLineTemplate(serviceSlot, messageText[8:])
 				case "booking ":
 
 				case "promotio":
@@ -85,10 +115,6 @@ func HandleWebHookLineAPI(c echo.Context) error {
 				case "location":
 
 				default:
-					var dp lib.DialogFlowProcessor
-					dp.Init(account.AccProjectID, account.AccAuthJSONFilePath, account.AccLang, account.AccTimeZone)
-					replyDialogflow := dp.ProcessNLP(message.Text, customer.CusDisplayName)
-					fmt.Println(replyDialogflow, "====")
 					if err := db.Find(&chatAnswer).Error; err != nil {
 						db.Find(&chatAnswer)
 					}
@@ -289,7 +315,6 @@ func HandleWebHookLineAPI(c echo.Context) error {
 			}
 
 		case linebot.EventTypeFollow:
-			fmt.Println(event.ReplyToken, "===")
 			messageReply = welcomeHandle(&c, event, &chatChannel)
 		case linebot.EventTypeUnfollow:
 			// evenLog := model.EventLog{
@@ -346,67 +371,6 @@ func welcomeHandle(c *echo.Context, event *linebot.Event, chatChannel *model.Cha
 	FlexMessage := linebot.NewFlexMessage(chatChannel.ChaWelcomeMessage, flexContainer)
 	return FlexMessage
 }
-
-// serviceListLineTemplate
-// func serviceListLineTemplate(serviceSlot []model.ServiceSlot, dateTime string) string {
-// 	var slotTime string
-// 	var buttonTime string
-// 	var serviceList string
-// 	var count int
-// 	count = 0
-// 	for t := 0; t < len(serviceSlot); t++ {
-// 		if count == 2 {
-// 			slotTime = slotTime + fmt.Sprintf(`,{"type": "box", "layout": "horizontal", "margin": "md", "contents":[%s]}`, buttonTime[:len(buttonTime)-1])
-// 			buttonTime = ""
-// 			count = 0
-// 		}
-
-// 		if len(serviceSlot[t].Bookings) > 0 {
-// 			if serviceSlot[t].Bookings[0].Queue < serviceSlot[t].Amount {
-// 				buttonTime = buttonTime + fmt.Sprintf(`{"type": "button", "style": "secondary", "margin": "sm", "action": { "type": "message", "label": "%s-%s", "text": "%s" }},`,
-// 					serviceSlot[t].Start, serviceSlot[t].End, "เต็มแล้ว")
-// 			} else {
-// 				buttonTime = buttonTime + fmt.Sprintf(`{"type": "button","style": "primary", "action": { "type": "message", "label": "%s-%s", "text": "%s" }},`,
-// 					serviceSlot[t].Start, serviceSlot[t].End, "booking"+" "+dateTime+" "+serviceSlot[t].Start+"-"+serviceSlot[t].End+" "+serviceSlot[t].Service.Name)
-// 			}
-// 		} else {
-// 			buttonTime = buttonTime + fmt.Sprintf(`{"type": "button","style": "primary", "margin": "sm", "action": { "type": "message", "label": "%s-%s", "text": "%s" }},`,
-// 				serviceSlot[t].Start, serviceSlot[t].End, "booking"+" "+dateTime+" "+serviceSlot[t].Start+"-"+serviceSlot[t].End+" "+serviceSlot[t].Service.Name)
-// 		}
-
-// 		count = count + 1
-// 		if t == len(serviceSlot)-1 {
-// 			slotTime = slotTime + fmt.Sprintf(`,{"type": "box", "layout": "horizontal", "margin": "md", "contents":[%s]}`, buttonTime[:len(buttonTime)-1])
-// 			serviceList += fmt.Sprintf(`{"type": "bubble", "hero": { "type": "image", "size": "full", "aspectRatio": "20:13", "aspectMode": "cover", "url": "%s"},
-// 			"body": { "type": "box", "layout": "vertical", "spacing": "sm", "contents": [
-// 				{ "type": "text", "text": "%s", "wrap": true, "weight": "bold", "size": "xl" },
-// 				{ "type": "box", "layout": "baseline", "contents": [
-// 					{ "type": "text", "text": "฿%s", "wrap": true, "weight": "bold", "size": "xl", "flex": 0 }
-// 				] }
-// 				%s]
-// 			}}`, serviceSlot[t].Service.Image, serviceSlot[t].Service.Name, strconv.FormatInt(int64(serviceSlot[t].Service.Price), 10), slotTime)
-// 		} else if serviceSlot[t].Service.ID != serviceSlot[t+1].Service.ID {
-// 			slotTime = slotTime + fmt.Sprintf(`,{"type": "box", "layout": "horizontal", "margin": "md", "contents":[%s]}`, buttonTime[:len(buttonTime)-1])
-// 			serviceList = serviceList + fmt.Sprintf(`{"type": "bubble", "hero": { "type": "image", "size": "full", "aspectRatio": "20:13", "aspectMode": "cover", "url": "%s"},
-// 			"body": { "type": "box", "layout": "vertical", "spacing": "sm", "contents": [
-// 				{ "type": "text", "text": "%s", "wrap": true, "weight": "bold", "size": "xl" },
-// 				{ "type": "box", "layout": "baseline", "contents": [
-// 					{ "type": "text", "text": "฿%s", "wrap": true, "weight": "bold", "size": "xl", "flex": 0 }
-// 				] }
-// 				%s
-// 			]
-// 			}},`, serviceSlot[t].Service.Image, serviceSlot[t].Service.Name, strconv.FormatInt(int64(serviceSlot[t].Service.Price), 10), slotTime)
-// 			slotTime = ""
-// 			count = 0
-// 			buttonTime = ""
-// 		}
-
-// 	}
-// 	var nextPage string = `{ "type": "bubble", "body": { "type": "box", "layout": "vertical", "spacing": "sm", "contents": [
-// 		{ "type": "button", "flex": 1, "gravity": "center", "action": { "type": "uri", "label": "See more", "uri": "https://linecorp.com" } }] }}`
-// 	var serviceTamplate string = fmt.Sprintf(`{ "type": "carousel", "contents": [%s, %s]}`, serviceList, nextPage)
-// 	return serviceTamplate
-// }
 
 // FollowTemplate
 func FollowTemplate(chatChannel *model.ChatChannel, settings map[string]string) string {

@@ -12,7 +12,7 @@ type ProviderService struct {
 	Provider   *Provider   `json:"provider" gorm:"ForeignKey:ProviderID"`
 	Service    *Service    `json:"Service" gorm:"ForeignKey:ServiceID"`
 	TimeSlots  []*TimeSlot `json:"time_slots"`
-	// Bookings   []*Booking `json:"bookings"`
+	Bookings   []*Booking  `json:"bookings"`
 }
 
 func GetProviderServiceDetail(id string) (*ProviderService, error) {

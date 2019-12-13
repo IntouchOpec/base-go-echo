@@ -56,10 +56,17 @@ func ProviderCreateHandler(c *Context) error {
 func ProviderPUTHandler(c *Context) error {
 	provider := model.Provider{}
 
-	return c.Render(http.StatusOK, "provider-form", echo.Map{
-		"title":  "provider",
-		"detail": provider,
-		"method": "POST",
+	if err := c.Bind(&provider); err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	if err := provider.UpdateProvider(); err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	return c.JSON(http.StatusOK, echo.Map{
+		"detail":   provider,
+		"redirect": fmt.Sprintf("/admin/provider/%d", provider.ID),
 	})
 }
 
@@ -89,7 +96,9 @@ func ProviderPostHandler(c *Context) error {
 	}
 	redirect := fmt.Sprintf("/admin/provider/%d", provider.ID)
 
-	return c.JSON(http.StatusCreated, redirect)
+	return c.JSON(http.StatusCreated, echo.Map{
+		"redirect": redirect,
+	})
 }
 
 func ProviderPutHandler(c *Context) error {
@@ -160,7 +169,8 @@ func ProviderAddServiceHandler(c *Context) error {
 		return c.Render(http.StatusNotFound, "404-page", echo.Map{})
 	}
 
-	return c.Render(http.StatusOK, "provider-service-form", echo.Map{"method": "PUT",
+	return c.Render(http.StatusOK, "provider-service-form", echo.Map{
+		"method":   "POST",
 		"title":    "provider",
 		"services": services,
 		"provider": provider,

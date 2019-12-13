@@ -173,12 +173,20 @@ func Routers() *echo.Echo {
 		managent.GET("/place/:id/place_chatchannel/create", handler(PlaceAddChatChannelViewHanlder))
 
 		managent.GET("/provider", handler(ProviderListHandler))
-		managent.POST("/provider/create", handler(ProviderPostHandler))
 		managent.GET("/provider/create", handler(ProviderCreateHandler))
+		managent.POST("/provider/create", handler(ProviderPostHandler))
 		managent.GET("/provider/:id", handler(ProviderDetailHandler))
-		managent.GET("/provider/:id/edit", handler(ProviderDetailHandler))
-		managent.DELETE("/provider/:id", handler(ProviderDetailHandler))
+		managent.GET("/provider/:id/edit", handler(ProviderEditHandler))
+		managent.PUT("/provider/:id/edit", handler(ProviderEditHandler))
+		managent.DELETE("/provider/:id", handler(ProviderDeleteHandler))
 		managent.DELETE("/provider/:id/delete_image", handler(ProviderDeleteImageHandler))
+
+		managent.GET("/transaction", handler(TransactionListHandler))
+		managent.GET("/transaction/create", handler(TransactionCreateHandler))
+		managent.POST("/transaction/create", handler(TransactionPostHandler))
+		managent.GET("/transaction/:id", handler(TransactionDetailHandler))
+		managent.GET("/transaction/:id/edit", handler(TransactionEditHandler))
+		managent.DELETE("/transaction/:id", handler(TransactionDeleteHandler))
 
 		managent.GET("/provider_service/:id/create", handler(ProviderAddServiceHandler))
 		managent.GET("/provider_service/:prov_id", handler(ProviderSerciveListHandler))
