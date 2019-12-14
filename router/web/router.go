@@ -117,6 +117,7 @@ func Routers() *echo.Echo {
 		managent.GET("/service", handler(ServiceListHandler))
 		managent.GET("/service/create", handler(ServiceCreateHandler))
 		managent.POST("/service/create", handler(ServicePostHandler))
+		managent.PATCH("/service/:id", handler(ServicePostHandler))
 		managent.GET("/service/:id", handler(ServiceDetailHandler))
 		managent.GET("/service/:id/edit", handler(ServiceEditViewHandler))
 		managent.PUT("/service/:id/edit", handler(ServiceEditPutHandler))
@@ -191,8 +192,8 @@ func Routers() *echo.Echo {
 		managent.GET("/provider_service/:id/create", handler(ProviderAddServiceHandler))
 		managent.GET("/provider_service/:prov_id", handler(ProviderSerciveListHandler))
 		managent.POST("/provider_service/", handler(ProviderAddServiceHandler))
-		managent.POST("/provider_service/:id/create", handler(ProviderAddServicePostHandler))
 		managent.GET("/provider_booking/:id/create", handler(ProviderAddBookingHandler))
+		managent.POST("/provider_service/:id/create", handler(ProviderAddServicePostHandler))
 
 		managent.GET("/time_slot/:provider_id/create", handler(TimeSlotCreateHandler))
 		managent.POST("/time_slot/:provider_id/create", handler(TimeSlotPostHandler))

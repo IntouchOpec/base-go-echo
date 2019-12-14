@@ -1,7 +1,11 @@
 package model
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/IntouchOpec/base-go-echo/model/orm"
+	"github.com/jinzhu/gorm"
 )
 
 type TimeSlot struct {
@@ -24,6 +28,18 @@ func (tim *TimeSlot) CreateTimeSlot() error {
 		return err
 	}
 	return nil
+}
+
+func GetTimeSlotByDate(t time.Time) ([]TimeSlot, error) {
+	timeSlots := []TimeSlot{}
+	ps := []ProviderService{}
+	fmt.Println(ps)
+	if err := DB().Preload("ProviderService", func(db *gorm.DB) *gorm.DB {
+		return db.Preload("Provider").Preload("Service")
+	}).Where("time_day = ?", int(t.Weekday())).Find(&timeSlots).Error; err != nil {
+		return nil, err
+	}
+	return timeSlots, nil
 }
 
 type TimeSlots []*TimeSlot

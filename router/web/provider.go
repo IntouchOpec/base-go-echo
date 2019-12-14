@@ -75,8 +75,8 @@ func ProviderPostHandler(c *Context) error {
 	a := auth.Default(c)
 	file := c.FormValue("file")
 
-	fileUrl, _, err := lib.UploadteImage(file)
-
+	fileUrl, fileName, err := lib.UploadteImage(file)
+	fmt.Println(fileUrl, fileName)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
@@ -159,6 +159,7 @@ func ProviderAddServiceHandler(c *Context) error {
 	id := c.Param("id")
 	a := auth.Default(c)
 	provider := model.Provider{}
+
 	if err := model.DB().Where("account_id = ?", a.GetAccountID()).Find(&provider, id).Error; err != nil {
 		return c.Render(http.StatusNotFound, "404-page", echo.Map{})
 	}

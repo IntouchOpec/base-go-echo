@@ -35,7 +35,8 @@ func TimeSlotCreateHandler(c *Context) error {
 	DayWeeks[4] = "Thursday"
 	DayWeeks[5] = "Friday"
 	DayWeeks[6] = "Saturday"
-	return c.Render(http.StatusOK, "time-slot-form", echo.Map{"method": "PUT",
+	return c.Render(http.StatusOK, "time-slot-form", echo.Map{
+		"method":           "POST",
 		"title":            "provider",
 		"ProviderServices": providerServices,
 		"DayWeeks":         DayWeeks,
@@ -80,7 +81,8 @@ func TimeSlotUpdateViewHandler(c *Context) error {
 	if err != nil {
 		return c.Render(http.StatusNotFound, "404-page", echo.Map{})
 	}
-	return c.Render(http.StatusOK, "time-slot-form", echo.Map{"method": "PUT",
+	return c.Render(http.StatusOK, "time-slot-form", echo.Map{
+		"method": "PUT",
 		"title":  "provider",
 		"detail": timeSlot,
 	})

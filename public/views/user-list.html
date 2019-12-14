@@ -90,7 +90,7 @@
     (function ($) {
       $("div[name='pagination'] nav ul.pagination li").each(function () {
         $(this).click(() => {
-          window.location.href = `/admin/service?page=${$(this).val()- 1}&limit=10`
+          window.location.href = `/admin/users?page=${$(this).val()- 1}&limit=10`
         })
       })
       $("button[name='remove']").click(function () {

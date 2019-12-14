@@ -19,7 +19,7 @@
                                         <h4 class="card-title">{{.mode}} time-slot</h4>
                                     </div>
                                     <div class="card-body">
-                                        <form class="form-group" name="create-time-slot">
+                                        <form class="form-group" name="create-time-slot" method="{{.method}}">
                                             <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden" >
                                             <div>
                                                 <label class="bmd-label-floating" >day</label>
@@ -118,7 +118,6 @@
             dayWeeksData = []
             servicesData = []
             timeSlots = {}
-
 
             $("#input-service-list input[type='time']").each(function( ) {
                 let name = $(this).attr('name')
@@ -257,7 +256,7 @@
                 data.push(encodedKey + "=" + encodedValue)
                 data.push(timeSlotsEncodedKey + "=" + timeSlotsEncodedValue)
                 data = data.join("&");
-                let method = $("form[name='create-user']").attr("method")
+                let method = $("form[name='create-time-slot']").attr("method")
                 fetch(window.location.href, {
                     method, 
                     headers: {"Content-Type": "application/x-www-form-urlencoded"},

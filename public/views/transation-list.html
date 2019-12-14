@@ -88,7 +88,7 @@
       })
       $("button[name='remove']").click(function () {
         let id = $(this).val()
-        let data = new URLSearchParams()
+        let data = new FormData()
         data.append("_csrf", _csrf)
         Swal.fire({
             title: 'Are you sure?',
@@ -107,7 +107,7 @@
               return res.json()
             }).then(json => {
               Swal.fire("success", "", "success").then(result => {
-                $(`tr#row${id}`).remove()
+                $(`tr[name='row_${id}']`).remove()
               })
             }).catch(err => {
               Swal.fire({

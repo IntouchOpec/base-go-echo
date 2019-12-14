@@ -5,6 +5,7 @@ import (
 	"log"
 	"strconv"
 
+	. "github.com/IntouchOpec/base-go-echo/conf"
 	"github.com/IntouchOpec/base-go-echo/lib"
 	"github.com/IntouchOpec/base-go-echo/model"
 	"github.com/line/line-bot-sdk-go/linebot"
@@ -40,7 +41,6 @@ func ChooseService(c *Context) linebot.SendingMessage {
 
 func CalandarHandler(c *Context) linebot.SendingMessage {
 	var m string
-	fmt.Println(c.Massage, "====")
 	if len(c.Massage) > 8 {
 		m = lib.MakeCalenda(c.Massage[9:19])
 	} else {
@@ -53,7 +53,8 @@ func CalandarHandler(c *Context) linebot.SendingMessage {
 	return linebot.NewFlexMessage("ตาราง", flexContainer)
 }
 
-func serviceListLineTemplate(timeSlot []model.TimeSlot, dateTime string) linebot.SendingMessage {
+// linebot.SendingMessage
+func serviceListLineHanlder(timeSlot []model.TimeSlot, dateTime string) linebot.SendingMessage {
 	var slotTime string
 	var buttonTime string
 	var serviceList string
@@ -89,7 +90,7 @@ func serviceListLineTemplate(timeSlot []model.TimeSlot, dateTime string) linebot
 						{ "type": "text", "text": "฿%s", "wrap": true, "weight": "bold", "size": "xl", "flex": 0 }
 					] }
 					%s]
-				}}`, timeSlot[t].ProviderService.Service.SerImage, timeSlot[t].ProviderService.Service.SerName, strconv.FormatInt(int64(timeSlot[t].ProviderService.PSPrice), 10), slotTime)
+				}}`, "https://"+Conf.Server.DomainLineChannel+timeSlot[t].ProviderService.Provider.ProvImage, timeSlot[t].ProviderService.Service.SerName, strconv.FormatInt(int64(timeSlot[t].ProviderService.PSPrice), 10), slotTime)
 		} else if timeSlot[t].ProviderService.ID != timeSlot[t+1].ProviderService.ID {
 			slotTime = slotTime + fmt.Sprintf(`,{"type": "box", "layout": "horizontal", "margin": "md", "contents":[%s]}`, buttonTime[:len(buttonTime)-1])
 			serviceList = serviceList + fmt.Sprintf(`{"type": "bubble", "hero": { "type": "image", "size": "full", "aspectRatio": "20:13", "aspectMode": "cover", "url": "%s"},
@@ -100,19 +101,20 @@ func serviceListLineTemplate(timeSlot []model.TimeSlot, dateTime string) linebot
 					] }
 					%s
 				]
-				}},`, timeSlot[t].ProviderService.Service.SerImage, timeSlot[t].ProviderService.Service.SerName, strconv.FormatInt(int64(timeSlot[t].ProviderService.PSPrice), 10), slotTime)
+				}},`, "https://"+Conf.Server.DomainLineChannel+timeSlot[t].ProviderService.Provider.ProvImage, timeSlot[t].ProviderService.Service.SerName, strconv.FormatInt(int64(timeSlot[t].ProviderService.PSPrice), 10), slotTime)
 			slotTime = ""
 			count = 0
 			buttonTime = ""
 		}
-
 	}
-	var nextPage string = `{ "type": "bubble", "body": { "type": "box", "layout": "vertical", "spacing": "sm", "contents": [
+	nextPage := `{ "type": "bubble", "body": { "type": "box", "layout": "vertical", "spacing": "sm", "contents": [
 			{ "type": "button", "flex": 1, "gravity": "center", "action": { "type": "uri", "label": "See more", "uri": "https://linecorp.com" } }] }}`
-	var serviceTamplate string = fmt.Sprintf(`{ "type": "carousel", "contents": [%s, %s]}`, serviceList, nextPage)
+
+	serviceTamplate := fmt.Sprintf(`{ "type": "carousel", "contents": [%s, %s]}`, serviceList, nextPage)
 	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(serviceTamplate))
+	fmt.Println(serviceTamplate)
 	if err != nil {
-		log.Println(err)
+		log.Println(err, "====>>")
 	}
 	return linebot.NewFlexMessage("ตาราง", flexContainer)
 }

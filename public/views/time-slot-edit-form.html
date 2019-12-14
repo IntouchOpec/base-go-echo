@@ -52,7 +52,7 @@
                                                     <div className="image-wrapper" >
                                                         <input id="image" name="image" value="{{.detail.ID}}" type="hidden" >
                                                         <img src="{{ .detail.SerImage }}" class="img-fluid mb-2 ml-2 img-thumbnail" />
-                                                        <Button id="btn-delete-image" color="danger" class="button-wrapper">delete</Button>
+                                                        <button id="btn-delete-image" type="button" rel="tooltip" class="btn btn-danger button-wrapper">delete</button>
                                                     </div>                                                 
                                                 {{ else }}
                                                         <input id="Image" name="Image" type="file">

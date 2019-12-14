@@ -74,8 +74,8 @@
                             <textarea value="{{.detail.AnsSource}}" name="Source" id="Source"  type="text" class="form-control" > </textarea>
                         </div>
                       </div>
-                      <input value="Submit" type="submit" class="btn btn-success">
                     </div>
+                    <input value="Submit" type="submit" class="btn btn-success">
                   </form>
                 </div>
               </div>
@@ -140,6 +140,9 @@
           data.append("reply", Reply)
           data.append("reply_type", replyType)
           data.append("source", Source)
+          
+          let method = $("form[name='create-chat-answer']").attr("method")
+
           fetch(window.location.href, {
               method, 
               body: data

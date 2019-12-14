@@ -88,7 +88,7 @@
     (function($) {
       $("div[name='pagination'] nav ul.pagination li").each(function () {
         $(this).click(() => {
-          window.location.href = `/admin/chat_channel?page=${$(this).val()- 1}&limit=10`
+          window.location.href = `/admin/chat_answer?page=${$(this).val()- 1}&limit=10`
         })
       })
       $("button[name='remove']").click(function () {
@@ -111,15 +111,16 @@
               method: "DELETE",
               body: data
             }).then(res => {
-              if (res.status === 200) {
-              return res.json()
+              if (res.status !== 200) {
+                throw ""
               }
+              return res.json()
             }).then(json => {
               Swal.fire("success", "", "success").then(result => {
                 $(`tr[name='row_${id}']`).remove()
               })
             }).catch(err => {
-              Swal.fire("success", "", "success")          
+              Swal.fire("fial", "", "warning")
             })
           }
         })
@@ -139,11 +140,14 @@
           body: data,
           method: "PACTH"
         }).then(res => {
+          if (res.status !== 200) {
+            throw ""
+          }
           return res.json()
         }).then(json => {
           Swal.fire("success", "", "success")
         }).catch(err => {
-          Swal.fire("success", "", "success")          
+          Swal.fire("fial", "", "warning")
         })
       })
 

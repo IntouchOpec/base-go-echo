@@ -73,6 +73,7 @@ func ServiceEditPutHandler(c *Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
+
 	return c.JSON(http.StatusCreated, echo.Map{
 		"data":     serviceModel,
 		"redirect": fmt.Sprintf("/admin/service/%d", serviceModel.ID),
@@ -167,6 +168,21 @@ var (
 	ErrSize         = errors.New("Invalid size!")
 	ErrInvalidImage = errors.New("Invalid image!")
 )
+
+func ServicePatchHandler(c *Context) error {
+	service := model.Service{}
+	id := c.Param("id")
+
+	if err := model.DB().Find(&service, id).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	if err := c.Bind(&service); err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	return c.JSON(http.StatusOK, service)
+}
 
 func ServicePostHandler(c *Context) error {
 	service := serviceForm{}

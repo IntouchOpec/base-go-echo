@@ -3,9 +3,8 @@ package channel
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
-
-	"github.com/jinzhu/gorm"
 
 	"github.com/IntouchOpec/base-go-echo/lib"
 	"github.com/IntouchOpec/base-go-echo/model"
@@ -29,11 +28,6 @@ func HandleWebHookLineAPI(c echo.Context) error {
 	if err := db.Where("cha_channel_id = ?", ChannelID).Find(&chatChannel).Error; err != nil {
 		return c.NoContent(http.StatusNotFound)
 	}
-
-	// ctx := c.Request().Context()
-	// if ctx == nil {
-	// 	ctx = context.Background()
-	// }
 
 	bot, err := lib.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
 
@@ -76,15 +70,16 @@ func HandleWebHookLineAPI(c echo.Context) error {
 			switch message := event.Message.(type) {
 			case *linebot.TextMessage:
 				messageText := message.Text
+				con.Massage = message.Text
 				var dp lib.DialogFlowProcessor
 				dp.Init(account.AccProjectID, account.AccAuthJSONFilePath, account.AccLang, account.AccTimeZone)
-				replyDialogflow := dp.ProcessNLP(message.Text, customer.CusDisplayName)
+				replyDialogflow := dp.ProcessNLP(messageText, customer.CusDisplayName)
 				fmt.Println(replyDialogflow)
-				con.Massage = message.Text
-				fmt.Println(con.Massage, "===")
+
 				if len(messageText) >= 8 {
 					keyWord = messageText[0:8]
 				}
+				fmt.Println(keyWord)
 
 				switch keyWord {
 
@@ -96,23 +91,20 @@ func HandleWebHookLineAPI(c echo.Context) error {
 					}
 				case "calendar", "booking":
 					messageReply = CalandarHandler(&con)
-				case "Service":
+				case "Service ":
 					t, _ := time.Parse("2006-01-02 15:04", messageText[8:]+" 01:00")
-
-					serviceSlot := []model.TimeSlot{}
-					if err := model.DB().Preload("Bookings", "booked_date = ?", t).Preload("ProviderService", func(db *gorm.DB) *gorm.DB {
-						return db.Preload("Bookings", "booked_date = ?", t)
-					}).Where("Day = ?", int(t.Weekday())).Find(&serviceSlot).Error; err != nil {
-						fmt.Println(err)
-						return nil
-					}
-
-					messageReply = serviceListLineTemplate(serviceSlot, messageText[8:])
+					serviceSlot, _ := model.GetTimeSlotByDate(t)
+					messageReply = serviceListLineHanlder(serviceSlot, messageText[8:])
 				case "booking ":
 
 				case "promotio":
 
 				case "location":
+					position := chatChannel.GetSetting([]string{"Latitude", "Longitude"})
+					Latitude, _ := strconv.ParseFloat(position["Latitude"], 64)
+					Longitude, _ := strconv.ParseFloat(position["Longitude"], 64)
+					messageReply = linebot.NewLocationMessage(chatChannel.ChaName, chatChannel.ChaAddress, Latitude, Longitude)
+				case "check":
 
 				default:
 					if err := db.Find(&chatAnswer).Error; err != nil {
@@ -122,66 +114,6 @@ func HandleWebHookLineAPI(c echo.Context) error {
 					eventLog.EvenType = string(event.Type)
 				}
 
-				// if keyWord == "calendar" || messageText == "booking" {
-				// 	var m string
-				// 	if len(message.Text) > 8 {
-				// 		m = lib.MakeCalenda(messageText[9:19])
-				// 	} else {
-				// 		m = lib.MakeCalenda("")
-				// 	}
-				// 	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(m))
-				// 	if err != nil {
-				// 		log.Println(err)
-				// 	}
-				// 	flexMessage := linebot.NewFlexMessage("ตาราง", flexContainer)
-				// 	_, err = bot.ReplyMessage(event.ReplyToken, flexMessage).Do()
-
-				// 	if err != nil {
-				// 		act := model.ActionLog{
-				// 			ActName:       "calendar",
-				// 			ActStatus:     model.StatusFail,
-				// 			ActUserID:     event.Source.UserID,
-				// 			ChatChannelID: chatChannel.ID,
-				// 			CustomerID:    customer.ID}
-				// 		act.CreateAction()
-				// 		return err
-				// 	}
-				// 	act := model.ActionLog{
-				// 		ActName:       "calendar",
-				// 		ActChannel:    model.ActionChannelLine,
-				// 		ActStatus:     model.StatusSuccess,
-				// 		ActUserID:     event.Source.UserID,
-				// 		ChatChannelID: chatChannel.ID,
-				// 		CustomerID:    customer.ID}
-				// 	db.Create(&act)
-				// } else if keyWord == "Service" {
-				// 	// t, _ := time.Parse("2006-01-02 15:04", messageText[8:]+" 01:00")
-
-				// 	// serviceSlot := []model.ServiceSlot{}
-				// 	// if err := model.DB().Preload("Bookings", "booked_date = ?", t).Preload("service").Where("Day = ?", int(t.Weekday())).Find(&serviceSlot).Error; err != nil {
-				// 	// 	fmt.Println(err)
-				// 	// 	return nil
-				// 	// }
-
-				// 	// m := serviceListLineTemplate(serviceSlot, messageText[8:])
-
-				// 	// flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(m))
-				// 	if err != nil {
-				// 		log.Println(err)
-				// 	}
-				// 	// flexMessage := linebot.NewFlexMessage("ตาราง", flexContainer)
-
-				// 	// res, err := bot.ReplyMessage(event.ReplyToken, flexMessage).Do()
-				// 	if err != nil {
-				// 		return err
-				// 	}
-				// 	act := model.ActionLog{
-				// 		ActName:       "service",
-				// 		ActStatus:     model.StatusSuccess,
-				// 		ActUserID:     event.Source.UserID,
-				// 		ChatChannelID: chatChannel.ID,
-				// 		CustomerID:    customer.ID}
-				// 	act.CreateAction()
 				// } else if keyWord == "booking " {
 				// 	t, _ := time.Parse("2006-01-02 15:04", messageText[8:18]+" 01:00")
 				// 	service := model.Service{}

@@ -41,8 +41,8 @@
                                                         </select>
                                                     </div>
                                                 </div>
-                                                <input type="submit" rel="tooltip" value="Submit" class="btn btn-success">
                                             </div>
+                                            <input type="submit" rel="tooltip" value="Submit" class="btn btn-success">
                                         </form>
                                     </div>
                                 </div>
@@ -81,21 +81,20 @@
                 let service_id = $("#service_id").val()
                 let price = $("#price").val()
 
-                let encodedKey = encodeURIComponent("_csrf");
-                let encodedValue = encodeURIComponent(_csrf);
-                let serviceEncodedKey = encodeURIComponent("service_id");
-                let serviceEncodedValue = encodeURIComponent(service_id);
-                let priceEncodedKey = encodeURIComponent("price");
-                let priceEncodedValue = encodeURIComponent(price);
+                let encodedKey = encodeURIComponent("_csrf")
+                let encodedValue = encodeURIComponent(_csrf)
+                let serviceEncodedKey = encodeURIComponent("service_id")
+                let serviceEncodedValue = encodeURIComponent(service_id)
+                let priceEncodedKey = encodeURIComponent("price")
+                let priceEncodedValue = encodeURIComponent(price)
                 let data = []
 
                 data.push(encodedKey + "=" + encodedValue)
                 data.push(serviceEncodedKey + "=" + serviceEncodedValue)
                 data.push(priceEncodedKey + "=" + priceEncodedValue)
                 
-                let method = $("form[name='create-chat-channel']").attr("method")
-
-                data = data.join("&");
+                let method = $("form[name='create-provider-service']").attr("method")
+                data = data.join("&")
                 fetch(window.location.href, {
                     method, 
                     headers: {"Content-Type": "application/x-www-form-urlencoded"},
