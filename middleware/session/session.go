@@ -83,7 +83,7 @@ func New(name string, store Store) echo.MiddlewareFunc {
 				s.reset()
 				sessionPool.Put(s)
 
-				// gorilla/context 需要清理
+				// gorilla/context
 				context.Clear(request)
 			}()
 

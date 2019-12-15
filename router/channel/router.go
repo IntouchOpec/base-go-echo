@@ -4,6 +4,7 @@ import (
 	"html/template"
 	"io"
 
+	"github.com/IntouchOpec/base-go-echo/module/session"
 	"github.com/IntouchOpec/base-go-echo/router/web"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -33,6 +34,9 @@ func Routers() *echo.Echo {
 		Root:   "public/assets",
 		Browse: true,
 	}))
+
+	e.Use(session.Session())
+
 	e.GET("/", web.LIFFRegisterHandler)
 
 	e.POST("/callback/:account/:ChannelID", HandleWebHookLineAPI)
