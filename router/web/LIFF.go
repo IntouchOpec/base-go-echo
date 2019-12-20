@@ -58,7 +58,7 @@ type LIFFForm struct {
 	URL  string               `form:"url" json:"url"`
 }
 
-func LIFFPostHanlder(c *Context) error {
+func LIFFPostHandler(c *Context) error {
 	a := auth.Default(c)
 
 	var LIFFview LIFFForm
@@ -87,7 +87,7 @@ func LIFFPostHanlder(c *Context) error {
 
 }
 
-func LIFFRemoveHanlder(c *Context) error {
+func LIFFRemoveHandler(c *Context) error {
 	a := auth.Default(c)
 	var chatChannel model.ChatChannel
 	chatChannelID := c.QueryParam("chat_channel_id")

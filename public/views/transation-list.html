@@ -28,6 +28,7 @@
                    <div class="table-responsive">
                      <table class="table">
                        <thead class=" text-primary">
+                        <th>Customer</th>
                         <th>Status</th>
                         <th>Total</th>
                         <th>create at</th>
@@ -38,7 +39,8 @@
                          {{ with .list }}
                            {{ range . }}
                             <tr name="row_{{ .ID }}">
-                              <td>{{ .TranStatus }}</td>
+                              <td>{{ if not .Customer.CusFullName }} {{ .TranLineID }} {{ else }} {{ .Customer.CusFullName }} {{end}}</td>
+                              <td>{{ if  (eq .TranStatus 0) }} Panding {{ else if (eq .TranStatus 1) }} ApproveBooking {{ else if (eq .TranStatus 2) }} Paid {{ end }}</td>
                               <td>{{ .TranTotal }}</td>
                               <td>{{ .CreatedAt.Format "Mon Jan 2 2006" }}</td>
                               <td class="td-actions text-right">
@@ -81,11 +83,13 @@
   {{ template "script" }}
   <script>
     (function($) {
+
       $("div[name='pagination'] nav ul.pagination li").each(function () {
         $(this).click(() => {
           window.location.href = `/admin/transaction?page=${$(this).val()- 1}&limit=10`
         })
       })
+
       $("button[name='remove']").click(function () {
         let id = $(this).val()
         let data = new FormData()
@@ -121,28 +125,6 @@
         })
         return 
       })
-
-      $("input[type='checkbox']").change(function() {
-
-        let _csrf = $("#_csrf").val()
-        let data = new URLSearchParams()
-        let id = $(this).val()
-
-        data.append("_csrf", _csrf)
-        data.append("ans_acive", this.checked)
-                  
-        fetch(`/admin/transaction/${id}`, {
-          body: data,
-          method: "PACTH"
-        }).then(res => {
-          return res.json()
-        }).then(json => {
-          Swal.fire("success", "", "success")
-        }).catch(err => {
-          Swal.fire("success", "", "success")          
-        })
-      })
-
     })(jQuery)
   </script>
 </body>

@@ -5,22 +5,26 @@ import "github.com/IntouchOpec/base-go-echo/model/orm"
 type TranStatusType int
 
 const (
-	StatusReject         TranStatusType = -1
-	StatusPanding        TranStatusType = 0
-	StatusApproveBooking TranStatusType = 1
-	StatusPaid           TranStatusType = 2
-	Status               TranStatusType = 3
+	TranStatusReject         TranStatusType = -1
+	TranStatusPanding        TranStatusType = 0
+	TranStatusApproveBooking TranStatusType = 1
+	TranStatusPaid           TranStatusType = 2
+	TranStatus               TranStatusType = 3
 )
 
 type Transaction struct {
 	orm.ModelBase
 	TranStatus    TranStatusType `json:"tran_status" gorm:"type:varchar(50)"`
-	TranTotal     int            `json:"tran_total"`
+	TranRemark    string         `json:"tran_remark"`
+	TranTotal     float64        `json:"tran_total"`
 	AccountID     uint           `json:"account_id"`
 	ChatChannelID uint           `json:"channel_id"`
 	CustomerID    uint           `json:"customer_id"`
+	TranLineID    string         `json:"tran_line_id" gorm:"type:varchar(50)"`
+	Bookings      []Booking      `json:"bookings"`
 	Customer      Customer       `json:"customer" gorm:"ForeignKey:CustomerID"`
 	Account       Account        `json:"account" gorm:"ForeignKey:AccountID"`
+	Payments      []Payment      `json:"payments"`
 	ChatChannel   ChatChannel    `json:"chat_channel" gorm:"ForeignKey:ChatChannelID"`
 }
 

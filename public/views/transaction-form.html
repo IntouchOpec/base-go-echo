@@ -47,7 +47,7 @@
             let data = [] 
             data = data.join("&");
 
-            fetch(`/admin/transaction/${id}/remove_image`, {
+            fetch(`/admin/transaction/${id}/delete_image`, {
                     method: "DELETE",
                     headers: {"Content-Type": "application/x-www-form-urlencoded"},
                     body: data

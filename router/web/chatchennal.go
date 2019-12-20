@@ -330,6 +330,7 @@ func ChatChannelBroadcastMessageViewHandler(c *Context) error {
 		a.User.GetAccountID()).Find(&chatChannel, id)
 	db.Where("account_id = ?", a.GetAccountID()).Find(&customerTypes)
 	return c.Render(http.StatusOK, "chat-channel-broadcast-message", echo.Map{
+		"method":        "POST",
 		"title":         "chat_channel",
 		"detail":        chatChannel,
 		"customerTypes": customerTypes,
@@ -406,8 +407,7 @@ func ChatChannelBroadcastMessageHandler(c *Context) error {
 			fmt.Println(err)
 			return c.JSON(http.StatusBadRequest, err)
 		}
-		message = linebot.NewFlexMessage("ตาราง", flexContainer)
-		fmt.Println(flex)
+		message = linebot.NewFlexMessage("test", flexContainer)
 	}
 
 	if customerState == "1" {
@@ -439,13 +439,12 @@ func ChatChannelBroadcastMessageHandler(c *Context) error {
 	if customerState == "3" {
 		_, err = bot.BroadcastMessage(message).Do()
 	}
-	fmt.Println(err)
 
 	if sandDate == "3" {
 		_, err = bot.BroadcastMessage().Do()
 		fmt.Println(err)
 	}
-	return c.JSON(http.StatusOK, echo.Map{
+	return c.JSON(http.StatusCreated, echo.Map{
 		"redirect": fmt.Sprintf("/admin/chat_channel/%d", chatChannel.ID),
 	})
 

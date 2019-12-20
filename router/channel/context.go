@@ -15,7 +15,9 @@ type Context struct {
 	Massage     *linebot.TextMessage
 	Account     model.Account
 	ChatChannel model.ChatChannel
+	Customer    model.Customer
 	ClientLine  *lib.ClientLine
+	Event       *linebot.EventSource
 }
 
 type (

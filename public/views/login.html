@@ -13,7 +13,7 @@
                 </div>
                 <div class="card-body">
                   <form class="validate-form">
-                    <input type="hidden" name="_csrf" value="{{._csrf}}" />
+                    <input type="hidden" name="_csrf" method="{{.method}}" value="{{._csrf}}" />
                     <div class="row">
                       <div class="form-group w-100">
                         <input type="email" class="form-control" name="email" placeholder="email">
@@ -52,9 +52,9 @@
         data.append("email", email[0].value);
         data.append("password", password[0].value);
         data.append("_csrf", _csrf[0].value);
-        
-        fetch(window.location.href, {
-          method,
+        let method = $(".validate-form").attr("method")
+        fetch("/login", {
+          method:"POST",
           body: data
         })
         .then(res => {

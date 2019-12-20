@@ -3,6 +3,7 @@ package web
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/IntouchOpec/base-go-echo/lib"
 	"github.com/IntouchOpec/base-go-echo/module/auth"
@@ -157,14 +158,14 @@ func ProviderDeleteHandler(c *Context) error {
 
 func ProviderAddServiceHandler(c *Context) error {
 	id := c.Param("id")
-	a := auth.Default(c)
+	accID := auth.Default(c).GetAccountID()
 	provider := model.Provider{}
 
-	if err := model.DB().Where("account_id = ?", a.GetAccountID()).Find(&provider, id).Error; err != nil {
+	if err := model.DB().Where("account_id = ?", accID).Find(&provider, id).Error; err != nil {
 		return c.Render(http.StatusNotFound, "404-page", echo.Map{})
 	}
 
-	services, err := model.GetServiceList(a.GetAccountID())
+	services, err := model.GetServiceList(accID)
 
 	if err != nil {
 		return c.Render(http.StatusNotFound, "404-page", echo.Map{})
@@ -180,9 +181,9 @@ func ProviderAddServiceHandler(c *Context) error {
 
 func ProviderSerciveListHandler(c *Context) error {
 	id := c.Param("prov_id")
-	a := auth.Default(c)
+	accID := auth.Default(c).GetAccountID()
 
-	provider, err := model.GetProviderServiceTimeSlotList(id, a.GetAccountID())
+	provider, err := model.GetProviderServiceTimeSlotList(id, accID)
 
 	if err != nil {
 		return c.Render(http.StatusNotFound, "404-page", echo.Map{})
@@ -194,29 +195,26 @@ func ProviderSerciveListHandler(c *Context) error {
 }
 
 func ProviderAddServicePostHandler(c *Context) error {
-	a := auth.Default(c)
-	id := c.Param("id")
-	prov, err := model.GetProviderDetail(id, a.GetAccountID())
+	var provService model.ProviderService
+	db := model.DB()
+	price, err := strconv.ParseFloat(c.FormValue("price"), 10)
+	serviceID, err := strconv.ParseUint(c.FormValue("service_id"), 10, 32)
+	providerID, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-
-	provs := model.ProviderService{}
-	if err := c.Bind(&provs); err != nil {
+	provService.PSPrice = price
+	provService.ServiceID = uint(serviceID)
+	provService.ID = 0
+	provService.ProviderID = uint(providerID)
+	if err := db.Create(&provService).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	provs.ProviderID = prov.ID
-	provs.ID = 0
-	if err := model.DB().Create(&provs).Error; err != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
-
-	redirect := fmt.Sprintf("/admin/provider/%s", id)
-
+	redirect := fmt.Sprintf("/admin/provider/%d", providerID)
 	return c.JSON(http.StatusCreated, echo.Map{
 		"redirect": redirect,
+		"provs":    provService,
 	})
-
 }
 
 func ProviderAddBookingHandler(c *Context) error {

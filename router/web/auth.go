@@ -28,8 +28,9 @@ func LoginHandler(c *Context) error {
 	}
 	csrfValue := c.Get("_csrf")
 	err := c.Render(http.StatusOK, "login", echo.Map{
-		"title": "login",
-		"_csrf": csrfValue,
+		"title":  "login",
+		"_csrf":  csrfValue,
+		"method": "POST",
 		// "redirectParam": auth.RedirectParam,
 		"redirect": "",
 	})

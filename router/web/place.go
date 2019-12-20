@@ -81,6 +81,34 @@ func PlacePostHandler(c *Context) error {
 	})
 }
 
+func PlacePutHandler(c *Context) error {
+	a := auth.Default(c)
+	place := model.Place{}
+	if err := c.Bind(&place); err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	var err error
+	image := c.Param("image")
+	if image == "" {
+		file := c.FormValue("file")
+		image, _, err = lib.UploadteImage(file)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, err)
+		}
+	}
+	place.PlacImage = image
+	place.AccountID = a.GetAccountID()
+	if err := place.CreatePlace(); err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	return c.JSON(http.StatusCreated, echo.Map{
+		"data":     place,
+		"title":    "place",
+		"redirect": fmt.Sprintf("/admin/place/%d", place.ID),
+	})
+}
+
 func PlaceEditHandler(c *Context) error {
 	// place := model.Place{}
 	id := c.Param("id")
@@ -110,7 +138,8 @@ func PlaceEditViewHandler(c *Context) error {
 	id := c.Param("id")
 	a := auth.Default(c)
 	model.DB().Where("account_id = ? ", a.User.GetAccountID()).Find(&place, id)
-	err := c.Render(http.StatusOK, "place-form", echo.Map{"method": "PUT",
+	err := c.Render(http.StatusOK, "place-form", echo.Map{
+		"method": "PUT",
 		"detail": place,
 		"title":  "place",
 	})
@@ -126,20 +155,20 @@ func PlaceDeleteHandler(c *Context) error {
 	return c.JSON(http.StatusOK, pla)
 }
 
-func PlaceAddChatChannelViewHanlder(c *Context) error {
+func PlaceAddChatChannelViewHandler(c *Context) error {
 	place := model.Place{}
-	a := auth.Default(c)
+	accID := auth.Default(c).GetAccountID()
 	chatChannels := []model.ChatChannel{}
 	db := model.DB()
-	db.Where("account_id = ?", a.GetAccountID()).Find(&chatChannels)
-	db.Where("account_id = ?", a.GetAccountID()).Find(&place)
+	db.Where("account_id = ?", accID).Find(&chatChannels)
+	db.Where("account_id = ?", accID).Find(&place)
 	return c.Render(http.StatusOK, "place-chat-channel-form", echo.Map{"method": "PUT",
 		"chatChannels": chatChannels,
 		"title":        "place",
 	})
 }
 
-func PlaceAddChatChannelPostHanlder(c *Context) error {
+func PlaceAddChatChannelPostHandler(c *Context) error {
 	place := model.Place{}
 	id := c.Param("id")
 	a := auth.Default(c)

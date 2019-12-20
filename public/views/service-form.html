@@ -79,14 +79,15 @@
         function removeImage () {
             let id = $("#image").val()
             let _csrf = $("#_csrf").val()
-            let data = [] 
-            data = data.join("&");
-
-            fetch(`/admin/servive/${id}/remove_image`, {
+            let data = new FormData()
+            data.append("_csrf", _csrf)
+            fetch(`/admin/service/${id}/delete_image`, {
                     method: "DELETE",
-                    headers: {"Content-Type": "application/x-www-form-urlencoded"},
                     body: data
             }).then(res => {
+                if (res !== 200) {
+                    throw ""
+                }
                 $("#form-image").html(`
                     <input id="Image" name="Image" type="file">
                     <p><strong>Note:</strong> Choose any file on your computer and its name will be displayed in an alert dialog box.</p>
@@ -110,6 +111,28 @@
             })
         })
 
+        function onSubmit (data) {
+            let method = $("form[name='create-service']").attr("method")
+            data = data.join("&")
+            fetch(window.location.href, {
+                method, 
+                headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                body: data
+            })
+            .then(res => {
+                if (res.status !== 201) {
+                    throw ""
+                }
+                return res.json()
+            })
+            .then(json => {
+                Swal.fire("success", "", "success").then(result => {
+                    window.location.href = json.redirect
+                })
+            })
+            .catch(err => Swal.fire("fial", "", "warning"))
+        }
+
         const toBase64 = file => new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.readAsDataURL(file);
@@ -125,6 +148,9 @@
                 Detail: {
                     required: true
                 },
+                Time: {
+                    required: true
+                },
                 Price: {
                     required: true
                 },
@@ -133,6 +159,9 @@
                 },
             },
             messages: {
+                Time: {
+                    required: "Please enter a valid Time"
+                },
                 Name: {
                     required: "Please enter a valid Name"
                 },
@@ -166,8 +195,6 @@
                 let timeEncodedKey = encodeURIComponent("time");
                 let timeEncodedValue = encodeURIComponent(Time);
 
-                let method = $("form[name='create-chat-channel']").attr("method")
-
                 data.push(encodedKey + "=" + encodedValue)
                 data.push(nameEncodedKey + "=" + nameEncodedValue)
                 data.push(detailEncodedKey + "=" + detailEncodedValue)
@@ -177,30 +204,21 @@
                 if (Image.length !== 0) {
                     toBase64(Image[0].files[0]).then(base64Image => {
                         Image = JSON.stringify(base64Image)
-                        let imageEncodedValue = encodeURIComponent(Image);
-                        
+                        let imageEncodedValue = encodeURIComponent(Image)
                         data.push(imageEncodedKey + "=" + imageEncodedValue)
-                        
+                        let serImageEncodedKey = encodeURIComponent("image")
+                        let serImageEncodedValue = encodeURIComponent("")
+                        data.push(serImageEncodedKey + "=" + serImageEncodedValue)
+                        onSubmit(data)
                     })
+                    return
+                } else {
+                    let serImage = $("img").attr("src")
+                    let serImageEncodedKey = encodeURIComponent("image")
+                    let serImageEncodedValue = encodeURIComponent(serImage)
+                    data.push(serImageEncodedKey + "=" + serImageEncodedValue)
+                    onSubmit(data)
                 }
-                data = data.join("&");
-                fetch(window.location.href, {
-                        method, 
-                        headers: {"Content-Type": "application/x-www-form-urlencoded"},
-                        body: data
-                    })
-                    .then(res => {
-                        if (res.status !== 201) {
-                            throw ""
-                        }
-                        return res.json()
-                    })
-                    .then(json => {
-                        Swal.fire("success", "", "success").then(result => {
-                            window.location.href = json.redirect
-                        })
-                    })
-                    .catch(err => Swal.fire("fial", "", "warning"))
             }
         })
         

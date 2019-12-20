@@ -68,11 +68,9 @@
                                                             <i class="material-icons">edit</i>
                                                         </button>
                                                     </a>
-                                                    <a href="/admin/provider_service/{{ .ID }}/detail">
-                                                        <button value="{{ .ID }}" name="remove"  type="button" rel="tooltip" class="btn btn-danger">
-                                                            <i class="material-icons">close</i>
-                                                        </button>
-                                                    </a>
+                                                    <button value="{{ .ID }}" name="remove"  type="button" rel="tooltip" class="btn btn-danger">
+                                                        <i class="material-icons">close</i>
+                                                    </button>
                                                 </td>
                                             </tr>
                                         {{ end }}
@@ -123,6 +121,9 @@
   {{ template "script" }}
     <script>
         (function ($) {
+            $("button[name='remove']").each(function () {
+                
+            })
             $("#get_access_token").on("click",function () {
                 let _csrf = $("#_csrf").val()
                 const data = new URLSearchParams();

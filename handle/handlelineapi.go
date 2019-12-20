@@ -1,4 +1,4 @@
-package hanlder
+package Handler
 
 import (
 	// "github.com/hb-go/gorm"
@@ -16,8 +16,8 @@ type ServiceInfo struct {
 // ServicesInfo array
 type ServicesInfo []ServiceInfo
 
-// HTTPCallBackHanlder call back webhook
-type HTTPCallBackHanlder struct {
+// HTTPCallBackHandler call back webhook
+type HTTPCallBackHandler struct {
 	Bot          *linebot.Client
 	ServicesInfo *ServicesInfo
 	DB           *gorm.DB

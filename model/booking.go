@@ -19,18 +19,18 @@ const (
 type Booking struct {
 	orm.ModelBase
 
-	BooQueue          int             `json:"boo_queue" `
-	BooLineID         string          `json:"boo_line_id" gorm:"type:varchar(50)"`
-	ProviderServiceID uint            `json:"provider_service_id"`
-	CustomerID        uint            `json:"customer_id"`
-	ChatChannelID     uint            `json:"chat_chaneel_id"`
-	ProviderService   ProviderService `json:"provider_service" gorm:"ForeignKey:ProviderServiceID"`
-	Customer          Customer        `json:"customer" gorm:"ForeignKey:BooCustomerID"`
-	ChatChannel       ChatChannel     `gorm:"ForeignKey:BooChatChannelID"`
-	BooStatus         BookStatus      `json:"boo_status"`
-	BookedDate        time.Time       `gorm:"column:booked_date" json:"booked_date"`
-	BooTimeSlotID     TimeSlot        `josn:"boo_time_slot_id"`
-	TimeSlot          TimeSlot        `josn:"time_slot" gorm:"ForeignKey:BooTimeSlotID"`
+	BooQueue      int          `json:"boo_queue" `
+	BooLineID     string       `json:"boo_line_id" gorm:"type:varchar(50)"`
+	CustomerID    uint         `json:"customer_id"`
+	ChatChannelID uint         `json:"chat_chaneel_id"`
+	TimeSlotID    uint         `josn:"time_slot_id"`
+	TransactionID uint         `json:"transaction_id"`
+	Transaction   *Transaction `json:"transaction"  gorm:"ForeignKey:TransactionID"`
+	Customer      *Customer    `json:"customer" gorm:"ForeignKey:CustomerID"`
+	ChatChannel   *ChatChannel `gorm:"ForeignKey:ChatChannelID"`
+	BooStatus     *BookStatus  `json:"boo_status"`
+	BookedDate    time.Time    `gorm:"column:booked_date" json:"booked_date"`
+	TimeSlot      *TimeSlot    `josn:"time_slot" gorm:"ForeignKey:TimeSlotID"`
 }
 
 // BookingStatus is status of booking.
@@ -58,7 +58,7 @@ type BookingState struct {
 func (booking *Booking) SaveBooking() (*Booking, error) {
 	db := DB()
 	booked := Booking{}
-	db.Preload("ServiceSlot").Where("Booked_Date = ? and Sub_service_ID = ?", booking.BookedDate, booking.BooTimeSlotID).Last(&booked)
+	db.Preload("ServiceSlot").Where("Booked_Date = ? and Sub_service_ID = ?", booking.BookedDate, booking.TimeSlotID).Last(&booked)
 	if booked.TimeSlot.TimeAmount == 0 {
 		booking.BooQueue = 1
 	} else if booked.TimeSlot.TimeAmount > booked.BooQueue {

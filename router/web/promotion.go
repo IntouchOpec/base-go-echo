@@ -121,6 +121,47 @@ func PromotionEditHandler(c *Context) error {
 	})
 }
 
+func PromotionEditPutHandler(c *Context) error {
+	id := c.Param("id")
+	a := auth.Default(c)
+	var err error
+	image := c.FormValue("image")
+	if image == "" {
+		file := c.FormValue("file")
+		image, _, err = lib.UploadteImage(file)
+	}
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	promotion := PromotionForm{}
+	promotionModel := model.Promotion{}
+	if err := c.Bind(&promotion); err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	db := model.DB()
+	if err := db.Where("account_id = ?", a.User.GetAccountID()).Find(&promotionModel, id).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	fmt.Println(image)
+	promotionModel.PromTitle = promotion.Title
+	promotionModel.PromType = promotion.PromotionType
+	promotionModel.PromDiscount = promotion.Discount
+	promotionModel.PromAmount = promotion.Amount
+	promotionModel.PromCode = promotion.Code
+	promotionModel.PromName = promotion.Name
+	promotionModel.PromStartDate = promotion.StartDate
+	promotionModel.PromEndDate = promotion.EndDate
+	promotionModel.PromCondition = promotion.Condition
+	promotionModel.PromImage = image
+	if err := db.Save(&promotionModel).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	return c.JSON(http.StatusCreated, echo.Map{
+		"detail":   promotionModel,
+		"redirect": fmt.Sprintf("/admin/promotion/%s", id),
+	})
+}
+
 func PromotionChannelFormHandler(c *Context) error {
 	chatChannels := []*model.ChatChannel{}
 	a := auth.Default(c)
@@ -199,15 +240,16 @@ func PromotionDeleteImageHandler(c *Context) error {
 	id := c.Param("id")
 	promotion := model.Promotion{}
 	accID := auth.Default(c).GetAccountID()
-
-	if err := model.DB().Where("account_id = ? ", accID).Find(&promotion, id).Error; err != nil {
+	db := model.DB()
+	if err := db.Where("account_id = ? ", accID).Find(&promotion, id).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-
 	if err := lib.DeleteFile(promotion.PromImage); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	if err := promotion.RemoveImage(); err != nil {
+
+	promotion.PromImage = ""
+	if err := db.Save(&promotion).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	return c.JSON(http.StatusOK, echo.Map{

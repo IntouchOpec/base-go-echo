@@ -75,7 +75,7 @@
   <script>
 
     (function ($) {
-        let rules = { }
+        let rules = {}
         let messages = {}
 
         $("#form-day input[type='checkbox']").each(function( ) {
@@ -162,9 +162,8 @@
                     })
                 }
             })
-
-            
         })
+
         function removeTimes (startTime, endTime) {
             let times = [ 0, 0, 0 ]
             let max = times.length
@@ -199,10 +198,12 @@
 
             return ('0' + hours).slice(-2) + ':' + ('0' + minutes).slice(-2) + ':' + ('0' + seconds).slice(-2)
         }
+
         function timeToMinutes (arrTime) {
             let minutes = (+arrTime[0]) * 60 + (+arrTime[1]);
             return minutes
         }
+
         function addMinutes(time, minsToAdd) {
             function D(J){ return (J<10? '0':'') + J;};
             let piece = time.split(':');
@@ -210,41 +211,42 @@
 
             return D(mins%(24*60)/60 | 0) + ':' + D(mins%60);  
         }
+
         createTimeslot.validate({
             rules,
             messages,
             submitHandler: function(form) {
-               let minutesService = ""
+                let minutesService = ""
                 let minutesSlot = ""
                 let dayWeek = {}
                 let timeSlot = ""
                 let timeSlotData = {}
                 let serviceData = {}
                 let timeSlotsReq = []
-               dayWeeksData.map(value => {
-                dayWeek = JSON.parse(value)
+                dayWeeksData.map(value => {
+                    dayWeek = JSON.parse(value)
 
-                timeSlot = timeSlots[`form_${dayWeek.name}`]
+                    timeSlot = timeSlots[`form_${dayWeek.name}`]
 
-                servicesData.map(v => {
-                    serviceData = JSON.parse(v)
-                    minutesService = timeToMinutes(serviceData.ser_time.split(':'))
-                    minutesSlot = removeTimes(timeSlots[`form_${dayWeek.name}`], timeSlots[`to_${dayWeek.name}`])
+                    servicesData.map(v => {
+                        serviceData = JSON.parse(v)
+                        minutesService = timeToMinutes(serviceData.ser_time.split(':'))
+                        minutesSlot = removeTimes(timeSlots[`form_${dayWeek.name}`], timeSlots[`to_${dayWeek.name}`])
 
-                    let i = 0;
+                        let i = 0;
 
-                    while(i < timeToMinutes(minutesSlot.split(':')) / minutesService)  {
-                        timeSlotData = {}
-                        timeSlotData.time_start = timeSlot
-                        timeSlot = addMinutes(timeSlot, minutesService)
-                        timeSlotData.time_end = timeSlot
-                        timeSlotData.time_day = dayWeek.id
-                        timeSlotData.provider_service_id = serviceData.id
-                        timeSlotsReq.push(timeSlotData)
-                        i++;
-                    }
+                        while(i < timeToMinutes(minutesSlot.split(':')) / minutesService)  {
+                            timeSlotData = {}
+                            timeSlotData.time_start = timeSlot
+                            timeSlot = addMinutes(timeSlot, minutesService)
+                            timeSlotData.time_end = timeSlot
+                            timeSlotData.time_day = dayWeek.id
+                            timeSlotData.provider_service_id = serviceData.id
+                            timeSlotsReq.push(timeSlotData)
+                            i++;
+                        }
+                    })
                 })
-               })
                 let _csrf = $("#_csrf").val()
 
                 let encodedKey = encodeURIComponent("_csrf");

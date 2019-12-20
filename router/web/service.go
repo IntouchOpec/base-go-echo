@@ -59,16 +59,21 @@ func ServiceEditPutHandler(c *Context) error {
 	if err := c.Bind(&service); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	a := auth.Default(c)
-	serviceModel := model.Service{
-		SerName:   service.Name,
-		SerDetail: service.Detail,
-		SerPrice:  service.Price,
-		SerTime:   service.Time,
-		SerImage:  image,
-		AccountID: a.User.GetAccountID(),
+	accID := auth.Default(c).GetAccountID()
+	serviceModel := model.Service{}
+	db := model.DB()
+	if err := db.Where("account_id = ?", accID).Find(&serviceModel, id).Error; err != nil {
+		return err
 	}
-	err = serviceModel.UpdateService(id)
+	serviceModel.SerName = service.Name
+	serviceModel.SerDetail = service.Detail
+	serviceModel.SerPrice = service.Price
+	serviceModel.SerTime = service.Time
+	serviceModel.SerImage = image
+
+	if err := db.Save(&serviceModel).Error; err != nil {
+		return err
+	}
 
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
@@ -120,7 +125,6 @@ func ServiceDeleteImageHandler(c *Context) error {
 	service := model.Service{}
 	id := c.Param("id")
 	accID := auth.Default(c).GetAccountID()
-
 	if err := model.DB().Where("account_id = ? ", accID).Find(&service, id).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}

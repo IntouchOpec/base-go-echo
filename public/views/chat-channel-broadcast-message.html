@@ -322,20 +322,21 @@
                     break;
                 }
 
-                data = data.join("&");     
-                console.log(data)
+                data = data.join("&")
+                let method = $("form[name='form-broadcast']").attr("method")
                 fetch(window.location.href, {
                     method, 
                     headers: {"Content-Type": "application/x-www-form-urlencoded"},
                     body: data
                 })
                 .then(res =>  {
-                    if (res.status === 201) {
-                        return res.json()
+                    if (res.status !== 201) {
+                        throw ""
                     }
+                    return res.json()
                 })
                 .then(json => {
-                    window.location.href = json
+                    window.location.href = json.redirect
                 })
                 .catch(err => Swal.fire("fial", "", "warning"))
             }

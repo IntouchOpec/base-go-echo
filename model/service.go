@@ -29,10 +29,6 @@ func (service *Service) SaveService() error {
 
 func (service *Service) UpdateService(id string) error {
 
-	if err := DB().Find(&service, id).Error; err != nil {
-		return err
-	}
-
 	if err := DB().Save(&service).Error; err != nil {
 		return err
 	}

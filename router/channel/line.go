@@ -3,7 +3,6 @@ package channel
 import (
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/IntouchOpec/base-go-echo/lib"
 	"github.com/IntouchOpec/base-go-echo/model"
@@ -24,7 +23,7 @@ func HandleWebHookLineAPI(c echo.Context) error {
 	var account model.Account
 	var chatChannel model.ChatChannel
 	var customer model.Customer
-	var eventLog model.EventLog
+	// var eventLog model.EventLog
 	var con Context
 	con.DB = db
 
@@ -44,7 +43,6 @@ func HandleWebHookLineAPI(c echo.Context) error {
 
 	con.Account = account
 	con.ChatChannel = chatChannel
-
 	events, err := bot.ParseRequest(c.Request())
 
 	if err != nil {
@@ -56,7 +54,9 @@ func HandleWebHookLineAPI(c echo.Context) error {
 
 	for _, event := range events {
 		var keyWord string
-		db.Where("cus_line_id = ?", event.Source.UserID).Find(&customer)
+		con.Event = event.Source
+		db.Where("cus_line_id = ? and chat_channel_id = ?", event.Source.UserID, chatChannel.ID).Find(&customer)
+		con.Customer = customer
 		chatAnswer := model.ChatAnswer{}
 		eventType := event.Type
 		chatAnswer.AnsInputType = string(eventType)
@@ -67,13 +67,14 @@ func HandleWebHookLineAPI(c echo.Context) error {
 			switch message := event.Message.(type) {
 			case *linebot.TextMessage:
 				messageText := message.Text
+				keyWord = message.Text
 				con.Massage = message
 				if len(messageText) >= 8 {
 					keyWord = messageText[0:8]
 				}
 				switch keyWord {
-				case "service":
-					if len(messageText) >= 8 {
+				case "service", "service ":
+					if len(messageText) > 8 {
 						messageReply, err = ServiceList(&con)
 					} else {
 						messageReply, err = ChooseService(&con)
@@ -81,10 +82,10 @@ func HandleWebHookLineAPI(c echo.Context) error {
 				case "calendar", "booking":
 					messageReply, err = CalandarHandler(&con)
 				case "Service ":
-					t, _ := time.Parse("2006-01-02 15:04", messageText[8:]+" 01:00")
-					serviceSlot, _ := model.GetTimeSlotByDate(t)
-					messageReply, err = ServiceListLineHanlder(serviceSlot, messageText[8:])
+					messageReply, err = SaveServiceHandler(&con)
 				case "booking ":
+					messageReply, err = ServiceListLineHandler(&con)
+				case "timeslot":
 					messageReply, err = ThankyouTemplate(&con)
 				case "promotio":
 					messageReply, err = PromotionHandler(&con)
@@ -97,11 +98,11 @@ func HandleWebHookLineAPI(c echo.Context) error {
 				case "comment":
 
 				default:
-					if err := db.Find(&chatAnswer).Error; err != nil {
-						db.Find(&chatAnswer)
-					}
-					messageReply = linebot.NewTextMessage(chatAnswer.AnsReply)
-					eventLog.EvenType = string(event.Type)
+					// if err := db.Find(&chatAnswer).Error; err != nil {
+					// 	db.Find(&chatAnswer)
+					// }
+					// messageReply = linebot.NewTextMessage(chatAnswer.AnsReply)
+					// eventLog.EvenType = string(event.Type)
 				}
 			case *linebot.ImageMessage:
 			case *linebot.VideoMessage:
@@ -139,6 +140,7 @@ func HandleWebHookLineAPI(c echo.Context) error {
 
 		}
 		_, err = bot.ReplyMessage(event.ReplyToken, messageReply).Do()
+		fmt.Println(err)
 	}
 	return c.JSON(200, "")
 }
