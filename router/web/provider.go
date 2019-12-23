@@ -35,6 +35,9 @@ func ProviderDetailHandler(c *Context) error {
 	a := auth.Default(c)
 
 	provider, err := model.GetProviderDetail(id, a.GetAccountID())
+	bookings := []model.Booking{}
+	db := model.DB()
+	db.Find(&bookings)
 	if err != nil {
 		return c.Render(http.StatusNotFound, "404-page", echo.Map{})
 	}
@@ -178,11 +181,21 @@ func ProviderAddServiceHandler(c *Context) error {
 		"provider": provider,
 	})
 }
+func weeDayString(day int) string {
+	var weeDay []string
+	weeDay[0] = "Mon"
+	weeDay[1] = "Tue"
+	weeDay[2] = "Wed"
+	weeDay[3] = "Thu"
+	weeDay[4] = "Fri"
+	weeDay[5] = "Sat"
+	weeDay[6] = "Sun"
+	return weeDay[day]
+}
 
 func ProviderSerciveListHandler(c *Context) error {
 	id := c.Param("prov_id")
 	accID := auth.Default(c).GetAccountID()
-
 	provider, err := model.GetProviderServiceTimeSlotList(id, accID)
 
 	if err != nil {

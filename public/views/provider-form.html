@@ -19,7 +19,7 @@
                                         <h4 class="card-title">{{.mode}} provider</h4>
                                     </div>
                                     <div class="card-body">
-                                       <form name="create-provider" >
+                                       <form name="create-provider" method="{{.method}}" >
                                             <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden" >
                                             <div class="row">
                                                 <div class="col-md-12 mt-2">
@@ -112,10 +112,10 @@
         })
         
         const onSubmit = (data) => {
-            // let method = $("form[name='create-provider']").attr("method")
+            let method = $("form[name='create-provider']").attr("method")
             data = data.join("&")
             fetch(window.location.href, {
-                method: "POST", 
+                method, 
                 headers: {"Content-Type": "application/x-www-form-urlencoded"},
                 body: data
             })

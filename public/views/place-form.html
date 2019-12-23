@@ -41,7 +41,7 @@
                                                             {{ if .detail.PlacType }}
                                                                 <option value="{{.detail.PlacType}}">{{.detail.PlacType}}</option>
                                                             {{ else }}
-                                                                <option value="">choice Type</option>
+                                                                <option value="">choose Type</option>
                                                             {{ end }}
 
                                                             {{ with .PlacTypes }}
@@ -195,7 +195,7 @@
                     let imageEncodedValue = encodeURIComponent(Image)
                 })
 
-                let method = $("form[name='create-chat-channel']").attr("method")
+                let method = $("form[name='create-place']").attr("method")
 
                 fetch(window.location.href, {
                     headers: {"Content-Type": "application/x-www-form-urlencoded"},

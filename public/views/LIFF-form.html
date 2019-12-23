@@ -19,14 +19,14 @@
                                         <h4 class="card-title">{{.mode}} LIFF</h4>
                                     </div>
                                     <div class="card-body">
-                                       <form method="{{.method}}" name="create-promotion" >
+                                       <form method="{{.method}}" name="create-LIFF" >
                                             <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden" >
                                             <div class="row">
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating">chat channel</label>
                                                         <select name="chatChannelID" id="chatChannelID" class="form-control"  data-style="btn btn-link" >
-                                                            <option value="">choice chat channel </option>
+                                                            <option value="">choose chat channel </option>
                                                             {{ with .chatChannels }}
                                                             {{ range . }}
                                                                 <option value="{{.ID}}">{{.ChaName}}</option>
@@ -45,7 +45,7 @@
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating" >LIFF type</label>
                                                         <select name="LIFF_type" id="LIFF_type" class="form-control"  data-style="btn btn-link" >
-                                                            <option value="">choice LIFF type </option>
+                                                            <option value="">choose LIFF type </option>
                                                             {{ with .LIFFViewTypes }}
                                                             {{ range . }}
                                                                 <option value="{{.}}">{{.}}</option>
@@ -71,7 +71,7 @@
   <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
   <script>
     (function ($) {
-        $("form[name='create-promotion']").validate({
+        $("form[name='create-LIFF']").validate({
             rules: {
                 URL: { required: true },
                 LIFF_type: { required: true },
@@ -107,7 +107,7 @@
                 data.push(URLEncodedKey + "=" + URLEncodedValue)
                 data.push(LIFFTypeEncodedKey + "=" + LIFFTypeEncodedValue)
                 data = data.join("&");
-                let method = $("form[name='create-chat-channel']").attr("method")
+                let method = $("form[name='create-LIFF']").attr("method")
 
                 fetch(window.location.href, {
                     method, 
@@ -115,9 +115,10 @@
                     body: data
                 })
                 .then(res => {
-                    if (res.status === 201) {
-                        return res.json()
+                    if (res.status !== 201) {
+                        throw ""
                     }
+                        return res.json()
                 })
                 .then(json => {
                     Swal.fire("success", "", "success").then(() => {

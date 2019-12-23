@@ -21,10 +21,12 @@ type Booking struct {
 
 	BooQueue      int          `json:"boo_queue" `
 	BooLineID     string       `json:"boo_line_id" gorm:"type:varchar(50)"`
+	ProviderID    uint         `json:"provider_id"`
 	CustomerID    uint         `json:"customer_id"`
 	ChatChannelID uint         `json:"chat_chaneel_id"`
 	TimeSlotID    uint         `josn:"time_slot_id"`
 	TransactionID uint         `json:"transaction_id"`
+	Provider      Provider     `json:"provider" gorm:"ForeignKey:ProviderID"`
 	Transaction   *Transaction `json:"transaction"  gorm:"ForeignKey:TransactionID"`
 	Customer      *Customer    `json:"customer" gorm:"ForeignKey:CustomerID"`
 	ChatChannel   *ChatChannel `gorm:"ForeignKey:ChatChannelID"`

@@ -305,6 +305,7 @@ func ThankyouTemplate(c *Context) (linebot.SendingMessage, error) {
 	book.CustomerID = c.Customer.ID
 	book.BooLineID = c.Massage.ID
 	book.TimeSlotID = timeSlot.ID
+	book.ProviderID = timeSlot.ProviderService.ProviderID
 	layout := "2006-01-02 15:00"
 	updatedAt, err := time.Parse(layout, c.Massage.Text[9:19]+" 15:00")
 	if err != nil {

@@ -26,7 +26,7 @@
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating" >chat channel</label>
                                                         <select name="chatChannelID" class="form-control" data-style="btn btn-link" id="chatChannelID">
-                                                            <option value="">choice chat channel</option>
+                                                            <option value="">choose chat channel</option>
                                                             {{ with .chatChannels }}
                                                             {{ range . }}
                                                                 <option value='{{ .ID }}'>{{.ChaName}}</option>
@@ -80,7 +80,7 @@
                 data.push(encodeKey + "=" + encodedValue)
                 data.push(chatChannelIDEncodeKey + "=" + chatChannelIDEncodeValue)
                 
-                let method = $("form[name='create-chat-channel']").attr("method")
+                let method = $("form[name='create-place']").attr("method")
 
                 fetch(window.location.href, {
                     headers: {"Content-Type": "application/x-www-form-urlencoded"},
@@ -88,9 +88,10 @@
                     body: data.join("&")
                 })
                 .then(res => {
-                if (res.status === 201) {
-                    return res.json();
+                if (res.status !== 201) {
+                    throw ""
                 }
+                    return res.json();
                 })
                 .then(data => {
                     Swal.fire("success", "", "success").then(result => {

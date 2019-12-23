@@ -48,6 +48,7 @@
                         <th></th>
                        </thead>
                        <tbody>
+                          {{ $ID := .detail.ID }}
                           {{if not .list}}<tr><td colspan="8" class="text-center">No content</td></tr> {{end}}
                           {{ with .list }}
                             {{ range . }}
@@ -60,14 +61,9 @@
                               <td> {{ .ChatBarText }}</td>
                               <td> {{ .RichMenuID }}</td>
                               <td class="td-actions text-right">
-                                <a href="/admin/richmenu/%s?chat_channel_id=%d">
+                                <a href="/admin/richmenu/{{ .RichMenuID }}?chat_channel_id={{$ID}}">
                                   <button type="button" rel="tooltip" class="btn btn-success">
                                   <i class="material-icons">settings_applications</i>
-                                  </button>
-                                </a>
-                                <a href="/admin/richmenu/%s/edit">
-                                  <button type="button" rel="tooltip" class="btn btn-warning">
-                                    <i class="material-icons">edit</i>
                                   </button>
                                 </a>
                                 <button value="{{ .RichMenuID }}" name="remove"  type="button" rel="tooltip" class="btn btn-danger">

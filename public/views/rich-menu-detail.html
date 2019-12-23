@@ -13,9 +13,13 @@
          <div class="container-fluid">
             <div class="row">
                 <div class="col-md-4">
-                    <div class="card card-profile">
+                    <div class="card">
+                        <div class="card-header card-header-primary d-flex justify-content-between">
+                            <h4 class="card-title">Rich Menu Detail</h4>
+                        </div>
                         <div class="card-body">
                             <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden" >
+                            <input name="chat_channel_id" id="chat_channel_id" value="{{.chatChannel.ID}}" type="hidden" >
                             <div id="form-upload-image">
                                 {{ if not .ImageRichMenu.Value }} 
                                     ไม่มีรูป rich menu
@@ -51,9 +55,34 @@
                     </div>
                 </div>
                 <div class="col-md-4">
-                        <div class="card" id="image-card">
-                            <img src="{{.ImageRichMenu.Value}}" class="w-100 h-100">
+                    <div class="card" id="image-card">
+                        <div class="card-header card-header-primary d-flex justify-content-between">
+                            <h4 class="card-title">Rich Menu Image</h4>
                         </div>
+                        <div class="card-body" name='deplay-image-rich-menu'>
+                            {{ if not .ImageRichMenu.Value }} 
+                                <button type="button" class="btn btn-warning mt-3" value="{{ .detail.RichMenuID }}" id="download_rich_menu">
+                                    <i class="material-icons">cloud_download</i>
+                                    Download
+                                </button>
+                            {{ else }}
+                                <img src="{{.ImageRichMenu.Value}}" class="w-100 h-100">                               
+                            {{end}}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card" id="image-card">
+                        <div class="card-header card-header-primary d-flex justify-content-between">
+                            <h4 class="card-title">Bulk Link</h4>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST" name="bulk-link">
+                            <textarea name="line_id" value="" id="line_id" type="text" class="form-control" ></textarea>  
+                            <input type="submit" class="btn btn-warning">
+                        </form>                          
+                        </div>
+                    </div>
                 </div>
             </div>
          </div>
@@ -64,6 +93,64 @@
   {{ template "script" }}
   <script>
       (function ($) {
+          $("#download_rich_menu").click(function () {
+            const chat_channel_id = $("#chat_channel_id").val()
+            const RichMenuID = $("#RichMenuID").val()
+            let data = new FormData()
+            let _csrf = $("#_csrf").val()
+            data.append("_csrf", _csrf);
+
+            fetch(`/admin/richmenu/${RichMenuID}/download_image?chat_channel_id=${chat_channel_id}`,{
+                method: "PATCH",
+                body: data
+            }).then(res => {
+                if (res.status === 200) {
+                    $("#download_rich_menu").remove()
+                    return res.json()
+                }
+            }).then(data => {
+                $("div [name='deplay-image-rich-menu']").append(`
+                    <img class="img-fluid" src="${data.urlImage}" />
+                `)
+                data.urlImage
+            }).catch(err => Swal.fire("fial", "", "warning"))
+          })
+        $("form[name='bulk-link'").validate({
+        rules: {
+            line_id: {
+                required: true
+            }
+        },
+        messages: {
+            line_id:{
+                required: "Please enter a valid name"
+            }
+        },
+        submitHandler: function(form) {
+            let _csrf = $("#_csrf").val()
+            const RichMenuID = $("#RichMenuID").val()     
+            const chat_channel_id = $("#chat_channel_id").val()       
+            let data = new FormData()
+            data.append("_csrf", _csrf)
+            data.append("line_id", $("#line_id").val())
+            let method = $("form[name='bulk-link']").attr("method")
+            fetch(`/admin/richmenu/${RichMenuID}/bulk_link?chat_channel_id=${chat_channel_id}`, {
+                method, 
+                body: data
+            }).then(res => {
+                if (res.status !== 201){
+                    throw ""
+                }
+                return res.json()
+            }).then(res => {
+                Swal.fire("success", "", "success").then(result => {
+                    $("#line_id").val("")
+                })
+            }).catch(err => {
+                Swal.fire("fial", "", "warning")
+            })
+        }   
+        })
         $("#Active-btn").click(function() {
             const urlParams = new URLSearchParams(window.location.search);
             const chat_channel_id = urlParams.get('chat_channel_id');
@@ -84,9 +171,10 @@
                 headers: {"Content-Type": "application/x-www-form-urlencoded"},
                 body: data
             }).then(res => {
-                if (res.status === 200) {
-                    Swal.fire("success", "", "success") 
+                if (res.status !== 200) {
+                    throw ""
                 }
+                Swal.fire("success", "", "success") 
             }).catch(err => {
 
             })
@@ -120,14 +208,14 @@
                         body: data
                     })
                     .then(res => {
-                        if (res.status === 201){ 
-                            Swal.fire("success", "", "success") 
-                            $("#form-upload-image").remove()
-                            return res.json()
+                        if (res.status !== 201){ 
+                           throw ""
                         }
+                        Swal.fire("success", "", "success") 
+                        $("#form-upload-image").remove()
+                        return res.json()
                     })
                     .then(json => {
-                        console.log(json)
                         $("#image-card").append(` <img src="${json.Value}" class="w-100 h-100">`)
                     })
                     .catch(err => Swal.fire("fial", "", "warning"))

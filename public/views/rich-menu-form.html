@@ -26,7 +26,7 @@
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating" >Chat Channel</label>
                                                         <select name="ChatChannelID" class="form-control" data-style="btn btn-link" id="ChatChannelID">
-                                                            <option value="">choice Chat Channels</option>
+                                                            <option value="">choose Chat Channels</option>
                                                             {{ with .chatChannels }}
                                                             {{ range . }}
                                                                 <option value='{{.ID }}'>{{.ChaName}}</option>
@@ -39,7 +39,7 @@
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating" >Size</label>
                                                         <select name="Size" class="form-control" data-style="btn btn-link" id="Size">
-                                                            <option value="">choice size rich menu</option>
+                                                            <option value="">choose size rich menu</option>
                                                             {{ with .sizes }}
                                                             {{ range . }}
                                                                 <option value='{ "Width": {{.Size.Width}}, "Height": {{.Size.Height}} }'>{{.Name}}</option>
@@ -128,7 +128,7 @@
                 data.push(ChatChannelIDEncodeKey + "=" + ChatChannelIDEncodeValue)
                 data = data.join("&");
                 
-                let method = $("form[name='create-chat-channel']").attr("method")
+                let method = $("form[name='create-rich-menu']").attr("method")
 
                 fetch(window.location.href, {
                     method, 
@@ -136,9 +136,11 @@
                     body: data
                 })
                 .then(res => {
-                    if (res.status === 201) {
-                        return res.json()
+                    console.log(res)
+                    if (res.status !== 201) {
+                        throw ""
                     }
+                    return res.json()
                 })
                 .then(json => {
                     Swal.fire("success", "", "success").then(result => {

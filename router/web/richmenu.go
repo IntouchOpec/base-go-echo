@@ -84,6 +84,7 @@ func RichMenuDetailHandler(c *Context) error {
 		"detail":        &res,
 		"title":         "rich-menu",
 		"ImageRichMenu": setting,
+		"chatChannel":   chatChannel,
 	})
 }
 
@@ -111,6 +112,25 @@ func RichMenuActiveHandler(c *Context) error {
 	return c.JSON(http.StatusOK, res)
 }
 
+func RichMenuAddCustomerHandler(c *Context) error {
+	chatChannel := model.ChatChannel{}
+	accID := auth.Default(c).GetAccountID()
+	db := model.DB()
+	id := c.Param("id")
+	chatChannelID := c.QueryParam("chat_channel_id")
+	lineID := c.FormValue("line_id")
+	db.Where("account_id = ?", accID).Find(&chatChannel, chatChannelID)
+	bot, err := lib.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	res, err := bot.BulkLinkRichMenu(id, lineID).Do()
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	return c.JSON(http.StatusCreated, res)
+}
+
 func RichMenuImageHandler(c *Context) error {
 	chatChannel := model.ChatChannel{}
 	a := auth.Default(c)
@@ -121,14 +141,12 @@ func RichMenuImageHandler(c *Context) error {
 
 	fileURL, file, err := lib.UploadteImage(file)
 	if err != nil {
-		fmt.Println(err)
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	db.Where("account_id = ?", a.GetAccountID()).Find(&chatChannel, chatChannelID)
 
 	bot, err := lib.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
 	if err != nil {
-		fmt.Println(err)
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
@@ -159,8 +177,6 @@ func RichMenuDonwloadImage(c *Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	fmt.Println(res.ContentType)
-	fmt.Println(res.ContentLength)
 	data, err := ioutil.ReadAll(res.Content)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
@@ -199,7 +215,8 @@ func RichMenuCreateViewHandler(c *Context) error {
 	a := auth.Default(c)
 	db.Where("account_id = ?", a.GetAccountID()).Find(&chatChannels)
 
-	return c.Render(http.StatusOK, "rich-menu-form", echo.Map{"method": "PUT",
+	return c.Render(http.StatusOK, "rich-menu-form", echo.Map{
+		"method":       "POST",
 		"chatChannels": chatChannels,
 		"title":        "rich-menu",
 		"sizes":        richMenu,
@@ -263,6 +280,94 @@ func RichMenuCreateHandler(c *Context) error {
 	return c.JSON(http.StatusCreated, echo.Map{
 		"data":     res,
 		"redirect": redirect,
+	})
+}
+
+// func RichMenuPutHandler(c *Context) error {
+// 	richMenu := RichMenuReq{}
+// 	chatChannel := model.ChatChannel{}
+// 	chatChennalID := c.FormValue("chat_channel_id")
+// 	db := model.DB()
+
+// 	if err := c.Bind(&richMenu); err != nil {
+// 		return c.JSON(http.StatusBadRequest, err)
+// 	}
+
+// 	if err := db.Find(&chatChannel, chatChennalID).Error; err != nil {
+// 		return c.JSON(http.StatusBadRequest, err)
+// 	}
+
+// 	bot, err := lib.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
+
+// 	if err != nil {
+// 		return c.JSON(http.StatusBadRequest, err)
+// 	}
+
+// 	richMenuSize := linebot.RichMenuSize{}
+// 	err = json.Unmarshal([]byte(richMenu.Size), &richMenuSize)
+// 	if err != nil {
+// 		return c.JSON(http.StatusBadRequest, err)
+// 	}
+
+// 	areas := []linebot.AreaDetail{}
+// 	err = json.Unmarshal([]byte(richMenu.Areas), &areas)
+
+// 	if err != nil {
+// 		fmt.Println(err)
+// 		return c.JSON(http.StatusBadRequest, err)
+// 	}
+// 	richMenuLineBot := linebot.RichMenu{
+// 		Size:        richMenuSize,
+// 		Name:        richMenu.Name,
+// 		ChatBarText: richMenu.ChatBarText,
+// 		Areas:       areas,
+// 	}
+
+// 	richID := c.Param("id")
+
+// 	res, err := bot.rich
+// 	if err != nil {
+// 		return c.JSON(http.StatusBadRequest, err)
+// 	}
+
+// 	redirect := fmt.Sprintf("/admin/richmenu/%s?chat_channel_id=%d", res.RichMenuID, chatChannel.ID)
+// 	return c.JSON(http.StatusCreated, echo.Map{
+// 		"data":     res,
+// 		"redirect": redirect,
+// 	})
+// }
+
+func RichMenuEditView(c *Context) error {
+	richID := c.Param("id")
+	chatChannel := model.ChatChannel{}
+	a := auth.Default(c)
+	db := model.DB()
+	chatChannelID := c.QueryParam("chat_channel_id")
+
+	if err := db.Where("account_id = ?", a.GetAccountID()).Find(&chatChannel, chatChannelID).Error; err != nil {
+		return c.NoContent(http.StatusBadRequest)
+	}
+
+	bot, err := lib.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
+
+	if err != nil {
+		return c.NoContent(http.StatusBadRequest)
+	}
+
+	res, err := bot.GetRichMenu(richID).Do()
+
+	if err != nil {
+		return c.NoContent(http.StatusBadGateway)
+	}
+
+	setting := model.Setting{}
+	db.Where("name = ?", res.RichMenuID).Find(&setting)
+	return c.Render(http.StatusOK, "rich-menu-form", echo.Map{
+		"detail":        &res,
+		"method":        "PUT",
+		"title":         "rich-menu",
+		"ImageRichMenu": setting,
+		"chatChannel":   chatChannel,
 	})
 }
 

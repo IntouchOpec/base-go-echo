@@ -49,7 +49,23 @@
                                                 <tr name="row_{{ .ID }}">
                                                     <td>{{ .TimeStart }}</td>
                                                     <td>{{ .TimeEnd }}</td>
-                                                    <td>{{ .TimeDay }}</td>
+                                                    <td>
+                                                        {{ if (eq .TimeDay 0) }}
+                                                            Mon
+                                                        {{ else if (eq .TimeDay 1) }}
+                                                            Tue
+                                                        {{ else if (eq .TimeDay 2) }}
+                                                            Wed
+                                                        {{ else if (eq .TimeDay 3) }}
+                                                            Thu
+                                                        {{ else if (eq .TimeDay 4) }}
+                                                            Fri
+                                                        {{ else if (eq .TimeDay 5) }}
+                                                            Sat
+                                                        {{ else if (eq .TimeDay 6) }}
+                                                            Sun
+                                                        {{ end }}
+                                                    </td>
                                                     <td>{{ .TimeAmount }}</td>
                                                     <td><input type="checkbox" checked data-toggle="toggle" checked="{{ .TimeActive }}"></td>
                                                     <td>
