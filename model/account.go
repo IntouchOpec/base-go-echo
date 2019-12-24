@@ -8,7 +8,6 @@ import (
 type Account struct {
 	orm.ModelBase
 
-	// ID   uint64 `json:"id,omitempty"`
 	AccProjectID        string         `json:"acc_project_id" grom:"type:varchar(100)"`
 	AccAuthJSONFilePath string         `json:"acc_auth_json_file_path" grom:"type:varchar(100)"`
 	AccLang             string         `json:"acc_lang" grom:"type:varchar(100)"`

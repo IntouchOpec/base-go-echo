@@ -18,24 +18,44 @@ const (
 type Promotion struct {
 	orm.ModelBase
 
-	PromTitle          string             `form:"title" json:"prom_title" gorm:"type:varchar(50)"`
-	PromType           string             `form:"prom_type" json:"prom_type" gorm:"type:varchar(25)"`
-	PromDiscount       int                `form:"discount" json:"prom_discount"`
-	PromAmount         int                `form:"amount" json:"prom_amount"`
-	PromCode           string             `form:"code" json:"prom_code" gorm:"type:varchar(25)"`
-	PromName           string             `form:"name" json:"prom_name" gorm:"type:varchar(25)"`
-	PromStartDate      time.Time          `from:"start_time" gorm:"column:start_time" json:"prom_start_time"`
-	PromEndDate        time.Time          `from:"end_time" gorm:"column:end_time" json:"prom_end_time"`
-	PromCondition      string             `form:"condition" json:"prom_condition"`
-	PromImage          string             `form:"image" json:"prom_image" gorm:"type:varchar(255)"`
-	ProUsed            int                `json:"pro_used" gorm:"default:0"`
-	AccountID          uint               `json:"account_id"`
-	RegisterPromotions []*Promotion       `json:"register_promotions"`
-	Customers          []*Customer        `gorm:"many2many:promotion_customer" json:"customer"`
-	ChatChannels       []*ChatChannel     `json:"chat_channels" gorm:"many2many:chat_channel_promotion"`
-	Account            Account            `gorm:"ForeignKey:AccountID"`
-	Settings           []*Setting         `json:"settings" gorm:"many2many:promotion_setting"`
-	ProviderServices   []*ProviderService `json:"provider_service" gorm:"many2many:promotion_provider_service"`
+	PromTitle          string       `form:"title" json:"prom_title" gorm:"type:varchar(50)"`
+	PromType           string       `form:"prom_type" json:"prom_type" gorm:"type:varchar(25)"`
+	PromDiscount       int          `form:"discount" json:"prom_discount"`
+	PromCode           string       `form:"code" json:"prom_code" gorm:"type:varchar(25)"`
+	PromName           string       `form:"name" json:"prom_name" gorm:"type:varchar(25)"`
+	PromImage          string       `form:"image" json:"prom_image" gorm:"type:varchar(255)"`
+	ProUsed            int          `json:"pro_used" gorm:"default:0"`
+	AccountID          uint         `json:"account_id"`
+	RegisterPromotions []*Promotion `json:"register_promotions"`
+	Account            Account      `gorm:"ForeignKey:AccountID"`
+	Settings           []*Setting   `json:"settings" gorm:"many2many:promotion_setting"`
+	// Customers          []*Customer  `gorm:"many2many:promotion_customer" json:"customer"`
+	// ChatChannels       []*ChatChannel `json:"chat_channels" gorm:"many2many:chat_channel_promotion"`
+	// ProviderServices   []*ProviderService `json:"provider_service" gorm:"many2many:promotion_provider_service"`
+}
+
+type Voucher struct {
+	orm.ModelBase
+	PromotionID   uint         `json:"promotion_id"`
+	ChatChannelID uint         `json:"chat_channel_id"`
+	ChatChannel   *ChatChannel `json:"chat_channel" gorm:"many2many:chat_channel_promotion"`
+	Promotion     Promotion    `json:"promotion"`
+	PromStartDate time.Time    `from:"start_time" gorm:"column:start_time" json:"prom_start_time"`
+	PromEndDate   time.Time    `from:"end_time" gorm:"column:end_time" json:"prom_end_time"`
+	PromAmount    int          `form:"amount" json:"prom_amount"`
+	PromCondition string       `form:"condition" json:"prom_condition"`
+}
+
+type Coupon struct {
+	orm.ModelBase
+	PromotionID   uint         `json:"promotion_id"`
+	Promotion     Promotion    `json:"promotion"`
+	ChatChannelID uint         `json:"chat_channel_id"`
+	ChatChannel   *ChatChannel `json:"chat_channel" gorm:"many2many:chat_channel_promotion"`
+	PromStartDate time.Time    `from:"start_time" gorm:"column:start_time" json:"prom_start_time"`
+	PromEndDate   time.Time    `from:"end_time" gorm:"column:end_time" json:"prom_end_time"`
+	PromAmount    int          `form:"amount" json:"prom_amount"`
+	PromCondition string       `form:"condition" json:"prom_condition"`
 }
 
 // SavePromotion is function create Promotion.
