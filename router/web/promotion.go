@@ -44,11 +44,11 @@ func PromotionDetailHandler(c *Context) error {
 	if err != nil {
 		fmt.Println(err, "===")
 	}
-	sumCustomer := len(promotion.Customers)
+	// sumCustomer := len(promotion.Customers)
 	return c.Render(http.StatusOK, "promotion-detail", echo.Map{
-		"detail":      promotion,
-		"title":       "promotion",
-		"sumCustomer": sumCustomer,
+		"detail": promotion,
+		"title":  "promotion",
+		// "sumCustomer": sumCustomer,
 	})
 }
 
@@ -88,17 +88,17 @@ func PromotionPostHandler(c *Context) error {
 	}
 
 	promotionModel := model.Promotion{
-		PromTitle:     promotion.Title,
-		PromType:      promotion.PromotionType,
-		PromDiscount:  promotion.Discount,
-		PromAmount:    promotion.Amount,
-		PromCode:      promotion.Code,
-		PromName:      promotion.Name,
-		PromStartDate: promotion.StartDate,
-		PromEndDate:   promotion.EndDate,
-		PromCondition: promotion.Condition,
-		PromImage:     fileUrl,
-		AccountID:     a.User.GetAccountID(),
+		PromTitle:    promotion.Title,
+		PromType:     promotion.PromotionType,
+		PromDiscount: promotion.Discount,
+		// PromAmount:    promotion.Amount,
+		// PromCode:      promotion.Code,
+		// PromName:      promotion.Name,
+		// PromStartDate: promotion.StartDate,
+		// PromEndDate:   promotion.EndDate,
+		// PromCondition: promotion.Condition,
+		PromImage: fileUrl,
+		AccountID: a.User.GetAccountID(),
 	}
 
 	promotionModel.SavePromotion()
@@ -146,12 +146,12 @@ func PromotionEditPutHandler(c *Context) error {
 	promotionModel.PromTitle = promotion.Title
 	promotionModel.PromType = promotion.PromotionType
 	promotionModel.PromDiscount = promotion.Discount
-	promotionModel.PromAmount = promotion.Amount
-	promotionModel.PromCode = promotion.Code
-	promotionModel.PromName = promotion.Name
-	promotionModel.PromStartDate = promotion.StartDate
-	promotionModel.PromEndDate = promotion.EndDate
-	promotionModel.PromCondition = promotion.Condition
+	// promotionModel.PromAmount = promotion.Amount
+	// promotionModel.PromCode = promotion.Code
+	// promotionModel.PromName = promotion.Name
+	// promotionModel.PromStartDate = promotion.StartDate
+	// promotionModel.PromEndDate = promotion.EndDate
+	// promotionModel.PromCondition = promotion.Condition
 	promotionModel.PromImage = image
 	if err := db.Save(&promotionModel).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)

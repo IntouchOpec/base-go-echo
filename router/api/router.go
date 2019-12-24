@@ -1,6 +1,8 @@
 package api
 
 import (
+	"net/http"
+
 	"github.com/labstack/echo"
 	mw "github.com/labstack/echo/middleware"
 
@@ -50,6 +52,8 @@ func Routers() *echo.Echo {
 	// e.GET("/users/:id", ec.CachePage(ec.NewMemcachedStore([]string{conf.MEMCACHED_SERVER}, time.Hour), time.Minute, UserHandler))
 
 	// Routers
+	e.GET("/", indexHandler)
+
 	e.POST("/login", UserLoginHandler)
 	e.POST("/register", UserRegisterHandler)
 
@@ -169,4 +173,8 @@ func handler(h HandlerFunc) echo.HandlerFunc {
 		ctx := c.(*Context)
 		return h(ctx)
 	}
+}
+
+func indexHandler(c echo.Context) error {
+	return c.JSON(http.StatusOK, "api ready on "+Conf.Server.DomainAPI)
 }

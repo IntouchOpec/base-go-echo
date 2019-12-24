@@ -104,7 +104,7 @@ func ChatChannelAddRegisterLIFF(c *Context) error {
 		return c.NoContent(http.StatusBadRequest)
 	}
 
-	URLRegister := fmt.Sprintf("https://%s/register/%s", Conf.Server.DomainLineChannel, chatChannel.ChaLineID)
+	URLRegister := fmt.Sprintf("https://%s/register/%s", Conf.Server.DomainWeb, chatChannel.ChaLineID)
 	view := linebot.View{Type: "full", URL: URLRegister}
 
 	// status = "success"
@@ -268,7 +268,7 @@ func ChatChannelCreatePostHandler(c *Context) error {
 		if err != nil {
 			return c.NoContent(http.StatusBadRequest)
 		}
-		URLRegister := fmt.Sprintf("https://%s/register/%s", Conf.Server.DomainLineChannel, chatChannel.LineID)
+		URLRegister := fmt.Sprintf("https://%s/register/%s", Conf.Server.DomainWeb, chatChannel.LineID)
 		view := linebot.View{Type: "full", URL: URLRegister}
 		var status string = "success"
 		var LIFFID string = ""
@@ -370,7 +370,7 @@ func ChatChannelBroadcastMessageHandler(c *Context) error {
 	case "Image":
 		image := c.FormValue("image")
 		filePath, _, err := lib.UploadteImage(image)
-		urlFile := "https://" + Conf.Server.DomainLineChannel + filePath
+		urlFile := "https://" + Conf.Server.DomainWeb + filePath
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, err)
 		}
@@ -379,7 +379,7 @@ func ChatChannelBroadcastMessageHandler(c *Context) error {
 		video := c.FormValue("video")
 		fmt.Println(video[:9])
 		filePath, _, err := lib.UploadFile(video, ".mp4")
-		urlFile := "https://" + Conf.Server.DomainLineChannel + filePath
+		urlFile := "https://" + Conf.Server.DomainWeb + filePath
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, err)
 		}
@@ -397,7 +397,7 @@ func ChatChannelBroadcastMessageHandler(c *Context) error {
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, err)
 		}
-		urlFile := "https://" + Conf.Server.DomainLineChannel + filePath
+		urlFile := "https://" + Conf.Server.DomainWeb + filePath
 		fmt.Println(urlFile)
 		message = linebot.NewAudioMessage(urlFile, i)
 	case "Line_Bot_Designer":

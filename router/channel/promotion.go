@@ -10,20 +10,21 @@ import (
 )
 
 func promotionCardTemplate(promotion *model.Promotion) string {
-	return fmt.Sprintf(`{
-		"type": "bubble",
-		"hero": { "type": "image", "size": "full", "aspectRatio": "20:13", "aspectMode": "cover", "url": "%s" },
-		"body": { "type": "box", "layout": "vertical", "spacing": "sm", "contents": [
-			{ "type": "text", "text": "%s", "wrap": true, "weight": "bold", "size": "xl"
-			},
-			{ "type": "box", "layout": "baseline", "flex": 1, "contents": [
-				{ "type": "text", "text": "%s", "wrap": true, "weight": "bold", "size": "xl", "flex": 0 } ] } ]
-		},
-		"footer": { "type": "box", "layout": "vertical", "spacing": "sm", "contents": [
-			{ "type": "button", "flex": 2, "style": "primary", "color": "#aaaaaa", "action":
-			{ "type": "uri", "label": "Add to Cart", "uri": "https://linecorp.com" } } ]
-		}
-	  },`, promotion.PromImage, promotion.PromTitle, promotion.PromCondition)
+	return ""
+	// fmt.Sprintf(`{
+	// 	"type": "bubble",
+	// 	"hero": { "type": "image", "size": "full", "aspectRatio": "20:13", "aspectMode": "cover", "url": "%s" },
+	// 	"body": { "type": "box", "layout": "vertical", "spacing": "sm", "contents": [
+	// 		{ "type": "text", "text": "%s", "wrap": true, "weight": "bold", "size": "xl"
+	// 		},
+	// 		{ "type": "box", "layout": "baseline", "flex": 1, "contents": [
+	// 			{ "type": "text", "text": "%s", "wrap": true, "weight": "bold", "size": "xl", "flex": 0 } ] } ]
+	// 	},
+	// 	"footer": { "type": "box", "layout": "vertical", "spacing": "sm", "contents": [
+	// 		{ "type": "button", "flex": 2, "style": "primary", "color": "#aaaaaa", "action":
+	// 		{ "type": "uri", "label": "Add to Cart", "uri": "https://linecorp.com" } } ]
+	// 	}
+	//   },`, promotion.PromImage, promotion.PromTitle, promotion.PromCondition)
 }
 
 func PromotionHandler(c *Context) (linebot.SendingMessage, error) {

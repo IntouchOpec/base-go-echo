@@ -3,6 +3,7 @@ package web
 import (
 	"fmt"
 	"io"
+	"net/http"
 	"text/template"
 
 	. "github.com/IntouchOpec/base-go-echo/conf"
@@ -66,18 +67,16 @@ func Routers() *echo.Echo {
 	}
 
 	e.Renderer = t
-	e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
-		Root:   "public/assets",
-		Browse: true,
-	}))
+
+	e.GET("/register/:lineID", LIFFRegisterHandler)
+	e.POST("/register/:lineID", LIIFRegisterSaveCustomer)
+
 	e.Use(auth.New())
-	e.GET("/", handler(LoginHandler))
+	e.GET("/", handler(indexHandler))
 
 	e.GET("/login", handler(LoginHandler))
 	e.POST("/login", handler(LoginPostHandler))
 	e.GET("/logout", handler(LogoutHandler))
-	e.GET("/register/:lineID", LIFFRegisterHandler)
-	e.POST("/register/:lineID", LIIFRegisterSaveCustomer)
 
 	managent := e.Group("/admin")
 	managent.Use(auth.LoginRequired())
@@ -213,9 +212,31 @@ func Routers() *echo.Echo {
 		managent.DELETE("/upload_file/:id", handler(FileRemoveHandler))
 	}
 
+	e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
+		Root: "public/assets",
+		// Browse: true,
+	}))
+
 	return e
 }
 
+func indexHandler(c *Context) error {
+	a := c.Auth()
+	fmt.Println(a.User.IsAuthenticated(), "====")
+	if a.User.IsAuthenticated() {
+		c.Redirect(http.StatusMovedPermanently, fmt.Sprintf("/admin/dashboard"))
+		return nil
+	}
+	csrfValue := c.Get("_csrf")
+	return c.Render(http.StatusOK, "login", echo.Map{
+		"title":  "login",
+		"_csrf":  csrfValue,
+		"method": "POST",
+		// "redirectParam": auth.RedirectParam,
+		"redirect": "",
+	})
+
+}
 func handler(h HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ctx := c.(*Context)

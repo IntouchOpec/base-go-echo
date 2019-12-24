@@ -28,7 +28,7 @@ func LIFFRegisterHandler(c echo.Context) error {
 	}
 	db.Where("account_id = ?", chatChannel.AccountID).Find(&customerTypes)
 	fmt.Println(customerTypes, chatChannel.AccountID)
-	APIRegister := fmt.Sprintf("https://%s/register/%s", Conf.Server.DomainLineChannel, lineID)
+	APIRegister := fmt.Sprintf("https://%s/register/%s", Conf.Server.DomainWeb, lineID)
 	return c.Render(http.StatusOK, "register", echo.Map{
 		"web":           APIRegister,
 		"customerTypes": customerTypes,
@@ -109,35 +109,35 @@ func ValidateVoucher(promotions []*model.Promotion) bool {
 }
 
 func VoucherTemplate(promotion *model.Promotion) string {
-	StartDateStr := promotion.PromStartDate.Format("02-12-2006")
-	EndDateStr := promotion.PromEndDate.Format("02-12-2006")
-	temp := fmt.Sprintf(`{
-		"type": "bubble",
-		"hero": { "type": "image", "url": "%s", "size": "full", "aspectRatio": "20:13", "aspectMode": "cover" },
-		"body": { "type": "box", "layout": "vertical", "contents": [
-			{ "type": "text", "text": "%s", "weight": "bold", "size": "xl"},
-			{ "type": "box", "layout": "vertical", "margin": "lg", "spacing": "sm", "contents": [
-				{ "type": "box", "layout": "baseline", "contents": [
-					{ "type": "text", "text": "Date", "color": "#aaaaaa", "size": "sm", "flex": 1 },
-					{ "type": "text", "text": "%s", "wrap": true, "color": "#666666", "size": "sm", "flex": 5 } ]
-				},
-				{ "type": "box", "layout": "baseline", "spacing": "sm", "contents": [
-					{ "type": "text", "text": "exp", "color": "#aaaaaa", "flex": 1 },
-					{ "type": "text", "text": "%s", "wrap": true, "color": "#666666", "size": "sm", "flex": 5 } ]
-				},
-				{"type": "text", "margin": "lg", "text": "%s", "align": "center"},
-				{"type": "button", "style": "secondary", "action": { "type": "uri", "label": "%s", "uri": "https://linecorp.com" }
-				}
-			  ]
-			}
-		  ]
-		},
-		"footer": { "type": "box", "layout": "vertical", "spacing": "sm", "contents": [
-			{ "type": "button", "style": "link", "height": "sm",
-			  "action": { "type": "uri", "label": "เงื่อนไขการใช้", "uri": "https://linecorp.com" } }
-		  ],
-		  "flex": 0
-		}
-	  }`, "https://"+Conf.Server.DomainLineChannel+promotion.PromImage, promotion.PromTitle, StartDateStr, EndDateStr, promotion.PromCondition, promotion.PromCode)
-	return temp
+	// StartDateStr := promotion.PromStartDate.Format("02-12-2006")
+	// EndDateStr := promotion.PromEndDate.Format("02-12-2006")
+	// temp := fmt.Sprintf(`{
+	// 	"type": "bubble",
+	// 	"hero": { "type": "image", "url": "%s", "size": "full", "aspectRatio": "20:13", "aspectMode": "cover" },
+	// 	"body": { "type": "box", "layout": "vertical", "contents": [
+	// 		{ "type": "text", "text": "%s", "weight": "bold", "size": "xl"},
+	// 		{ "type": "box", "layout": "vertical", "margin": "lg", "spacing": "sm", "contents": [
+	// 			{ "type": "box", "layout": "baseline", "contents": [
+	// 				{ "type": "text", "text": "Date", "color": "#aaaaaa", "size": "sm", "flex": 1 },
+	// 				{ "type": "text", "text": "%s", "wrap": true, "color": "#666666", "size": "sm", "flex": 5 } ]
+	// 			},
+	// 			{ "type": "box", "layout": "baseline", "spacing": "sm", "contents": [
+	// 				{ "type": "text", "text": "exp", "color": "#aaaaaa", "flex": 1 },
+	// 				{ "type": "text", "text": "%s", "wrap": true, "color": "#666666", "size": "sm", "flex": 5 } ]
+	// 			},
+	// 			{"type": "text", "margin": "lg", "text": "%s", "align": "center"},
+	// 			{"type": "button", "style": "secondary", "action": { "type": "uri", "label": "%s", "uri": "https://linecorp.com" }
+	// 			}
+	// 		  ]
+	// 		}
+	// 	  ]
+	// 	},
+	// 	"footer": { "type": "box", "layout": "vertical", "spacing": "sm", "contents": [
+	// 		{ "type": "button", "style": "link", "height": "sm",
+	// 		  "action": { "type": "uri", "label": "เงื่อนไขการใช้", "uri": "https://linecorp.com" } }
+	// 	  ],
+	// 	  "flex": 0
+	// 	}
+	//   }`, "https://"+Conf.Server.DomainWeb+promotion.PromImage, promotion.PromTitle, StartDateStr, EndDateStr, promotion.PromCondition, promotion.PromCode)
+	return "temp"
 }
