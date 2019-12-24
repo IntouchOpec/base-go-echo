@@ -1,0 +1,107 @@
+
+{{define "setting-form"}}
+<!DOCTYPE html>
+<html lang="en">
+
+{{ template "header" .title }}
+
+<body class="">
+    <div class="wrapper ">
+    {{ template "sidebar" .base }}
+        <div class="main-panel">
+            {{ template "navbar" .title }}
+            <div class="content">
+                <div class="container-fluid">
+                    <div class="row">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header card-header-primary">
+                                        <h4 class="card-title">{{.mode}} Setting</h4>
+                                    </div>
+                                    <div class="card-body">
+                                       <form method="{{.method}}" name="setting-form" >
+                                            <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden" >
+                                            <div class="row">
+                                                <div class="col-md-12 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="bmd-label-floating" >Name</label>
+                                                        <input name="Name" id="Name" type="text" class="form-control" >
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="bmd-label-floating" >Value</label>
+                                                        <input name="Value" id="Value" type="text" class="form-control" >
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="bmd-label-floating" >Detail</label>
+                                                        <textarea name="Detail" id="Detail" type="text" class="form-control" ></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <input type="submit" rel="tooltip" value="Submit" class="btn btn-success">
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {{ template "footer" }}
+            </div>
+        </div>
+    </div>
+  {{ template "script" }}
+  <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+  <script>
+    (function ($) {
+        $("form[name='create-rich-menu']").validate({
+            rules: {
+                Name: { required: true },
+                Value: { required: true },
+                Detail: { required: true }
+            },
+            messages: {
+                Name: { required: `Please enter a valid Name` },
+                Value: { required: `Please enter a valid Value` },
+                Detail: { required: `Please enter a valid Detail` },
+            },
+            submitHandler: function(form) {
+                let _csrf = $("#_csrf").val()
+                let name = $("#Name")
+                let value = $("#Value")
+                let detail = $("#Detail")
+                let data = new FormData()
+                data.append("name", name)
+                data.append("value", value)
+                data.append("detail", detail)
+                let method = $("form[name='setting-form']").attr("method")
+
+                fetch(window.location.href, {
+                    method, 
+                    body: data
+                })
+                .then(res => {
+                    if (res.status !== 200) {
+                        throw ""
+                    }
+                    return res.json()
+                })
+                .then(json => {
+                    Swal.fire("success", "", "success").then(result => {
+                        window.location = json.redirect
+                    })
+                })
+                .catch(err => Swal.fire("fial", "", "warning"))
+            }
+        })
+        
+    })(jQuery)
+  </script>
+</body>
+
+</html>
+
+{{end}}

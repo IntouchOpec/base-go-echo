@@ -51,7 +51,6 @@ func CreateChatChannelSetting(c echo.Context) error {
 
 	db := model.DB()
 	if err := c.Bind(&settings); err != nil {
-		fmt.Println(err)
 		return c.NoContent(http.StatusBadRequest)
 	}
 

@@ -183,9 +183,6 @@ func ChatChannelDetailHandler(c *Context) error {
 	NumberMulticastMessages, _ := bot.GetNumberMulticastMessages(dateLineFormat).Do()
 	richMenuDefault, _ := bot.GetDefaultRichMenu().Do()
 	deplayDetailChatChannels := []DeplayDetailChatChannel{}
-	for _, setting := range chatChannel.Settings {
-		deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{ID: setting.ID, Name: setting.Name, Value: setting.Value})
-	}
 
 	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Quota Total Usage", Value: fmt.Sprintf("%d", MessageQuota.TotalUsage)})
 	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Quota Type", Value: MessageQuota.Type})
@@ -216,6 +213,7 @@ func ChatChannelDetailHandler(c *Context) error {
 		"richMenuDefault":          richMenuDefault.RichMenuID,
 		"urlRichMenu":              setting,
 		"deplayDetailChatChannels": deplayDetailChatChannels,
+		"list":                     chatChannel.Settings,
 	})
 }
 

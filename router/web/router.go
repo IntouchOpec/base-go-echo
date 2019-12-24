@@ -155,6 +155,8 @@ func Routers() *echo.Echo {
 		managent.POST("/richmenu/:id/bulk_link", handler(RichMenuAddCustomerHandler))
 
 		managent.GET("/setting", handler(SettingHandler))
+		managent.GET("/setting/:id/edit", handler(SettingEditViewHandler))
+		managent.PUT("/setting/:id/edit", handler(SettingPutHandler))
 		managent.PUT("/setting", handler(SettingPostHandler))
 		managent.DELETE("/setting/auth_json_file", handler(RemoaveAuthJSONFile))
 		// managent.GET("/service/:id/sub_service/create", handler(ServiceSlotCreateHandler))
