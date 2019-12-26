@@ -13,7 +13,7 @@
             <div class="content">
                 <div class="container-fluid">
                     <div class="row">
-                            <div class="col-md-12">
+                            <div class="col-md-8">
                                 <div class="card">
                                     <div class="card-header card-header-primary">
                                         <h4 class="card-title">{{.mode}} Chat Channel</h4>
@@ -23,64 +23,64 @@
                                        <form method="{{.method}}" name="form-chat-channel" >
                                             <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden" >
                                             <div class="row">
-                                                <div class="col-md-6 mt-2">
+                                                <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating" >Name</label>
                                                         <input name="name" id="name" type="text" class="form-control" >
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6 mt-2">
+                                                <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating" >PhoneNumber</label>
                                                         <input name="phone_number" id="phone_number" type="text" class="form-control" >
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6 mt-2">
+                                                <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating">ChannelID</label>
                                                         <input name="channel_id" id="channel_id" type="text" class="form-control" >
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6 mt-2">
+                                                <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating">LineID</label>
                                                         <input name="line_id" id="line_id" type="text" class="form-control" >
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6 mt-2">
+                                                <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating">WebSite</label>
                                                         <input name="website" id="website" type="text" class="form-control" >
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6 mt-2">
+                                                <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating">Address</label>
                                                         <textarea name="address" id="address" type="text" class="form-control" ></textarea>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6 mt-2">
+                                                <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating">WelcomeMessage</label>
                                                         <input name="welcome_message" id="welcome_message" type="text" class="form-control" >
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6 mt-2">
+                                                <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating">ChannelSecret</label>
                                                         <textarea name="channel_secret" id="channel_secret" type="text" class="form-control" ></textarea>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6 mt-2">
+                                                <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating">ChannelAccessToken</label>
                                                         <textarea name="channel_access_token" id="channel_access_token" type="text" class="form-control" ></textarea>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6 mt-2">
+                                                <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label for="exampleFormControlSelect2">Type</label>
-                                                        <select name="type" class="form-control" id="type" data-style="btn btn-link" id="exampleFormControlSelect2">
+                                                        <select name="type" class="form-control" id="type" data-style="btn btn-link">
                                                             {{ with .typeChatChannels }}
                                                             {{ range . }}
                                                                 <option value="{{.}}">{{.}}</option>
@@ -89,22 +89,35 @@
                                                         </select>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6 mt-2">
+                                                <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating">Latitude</label>
                                                         <input name="Latitude" id="Latitude" type="text" class="form-control" >
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6 mt-2">
+                                                <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label for="Longitude" class="bmd-label-floating">Longitude</label>
                                                         <input name="Longitude" id="Longitude" type="text" class="form-control" >
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6 mt-2">
+                                                <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label for="Longitude" class="bmd-label-floating">image</label>
                                                         <input name="image" id="image" type="text" class="form-control" >
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12 mt-2">
+                                                    <div class="form-group">
+                                                        <label for="Longitude" class="bmd-label-floating">image</label>
+                                                        <select name="systemConfirmation" class="form-control" data-style="btn btn-link" id="systemConfirmation">
+                                                            <option value="">choose </option>
+                                                            {{ with .systemConfirmation }}
+                                                            {{ range . }}
+                                                                <option value='{{ . }}'>{{.}}</option>
+                                                            {{ end }}
+                                                            {{ end }}
+                                                        </select>
                                                     </div>
                                                 </div>
                                             </div>
@@ -138,6 +151,7 @@
                 type: "required",
                 Latitude: "required",
                 Longitude: "required",
+                systemConfirmation: {redirect: true}
             },
             messages: {
                 name: "Please enter a valid name",
@@ -152,6 +166,7 @@
                 type: "Please enter a valid type",
                 Latitude: "Please enter a valid Latitude",
                 Longitude: "Please enter a valid Longitude",
+                systemConfirmation: {messages: "systemConfirmation"}
             },
             submitHandler: function(form) {
                 let _csrf = $("#_csrf").val()
@@ -168,6 +183,7 @@
                 let Latitude = $("#Latitude").val()
                 let Longitude = $("#Longitude").val()
                 let image = $("#image").val()
+                let systemConfirmation = $("#systemConfirmation").val()
                 let data = new URLSearchParams();
                 data.append("_csrf", _csrf)
                 data.append("name", name)
@@ -181,12 +197,12 @@
                 data.append("channel_access_token", channel_access_token)
                 data.append("type", type)
                 data.append("image", image)
-                data.append("settings", JSON.stringify([{name: "Latitude", value: Latitude}, {name: "Longitude", value: Latitude}]))
+                data.append("settings", JSON.stringify([
+                    {detail: "", name: "latitude", value: Latitude},
+                    {detail: "", name: "longitude", value: Latitude,}, 
+                    {detail: "", name: "system_confirmation", value: systemConfirmation}]))
                 let method = $("form[name='create-chat-channel']").attr("method")
-                fetch("/admin/chat_channel", {
-                    method, 
-                    body: data
-                })
+                fetch("/admin/chat_channel", { method, body: data })
                 .then(res => {
                     if (res.status === 201) {
                         return res.json()

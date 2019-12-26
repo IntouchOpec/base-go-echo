@@ -120,7 +120,6 @@ func ChatChannelAddRegisterLIFF(c *Context) error {
 		err = tx.Save(&setting).Error
 	}
 	if err != nil {
-		fmt.Println(err, "====")
 		tx.Rollback()
 	}
 	tx.Commit()
@@ -220,12 +219,14 @@ func ChatChannelDetailHandler(c *Context) error {
 // ChatChannelCreateHandler
 func ChatChannelCreateViewHandler(c *Context) error {
 	typeChatChannels := []string{"Facebook", "Line"}
+	systemConfirmation := []string{"auto", "man"}
 	csrfValue := c.Get("_csrf")
 	return c.Render(http.StatusOK, "chat-channel-form", echo.Map{"method": "PUT",
-		"title":            "chat_channel",
-		"typeChatChannels": typeChatChannels,
-		"mode":             "Create",
-		"_csrf":            csrfValue,
+		"title":              "chat_channel",
+		"typeChatChannels":   typeChatChannels,
+		"mode":               "Create",
+		"_csrf":              csrfValue,
+		"systemConfirmation": systemConfirmation,
 	})
 }
 
@@ -277,10 +278,10 @@ func ChatChannelCreatePostHandler(c *Context) error {
 			LIFFID = res.LIFFID
 		}
 		if err := model.DB().Model(&chatChannelModel).Association("Settings").Append(
-			&model.Setting{Name: "LIFFregister", Value: LIFFID},
-			&model.Setting{Name: "statusLIFFregister", Value: status},
-			&model.Setting{Name: "statusAccessToken", Value: status},
-			&model.Setting{Name: "dateStatusToken", Value: time.Now().Format("Mon Jan 2 2006")},
+			&model.Setting{Detail: "", Name: "LIFFregister", Value: LIFFID},
+			&model.Setting{Detail: "", Name: "statusLIFFregister", Value: status},
+			&model.Setting{Detail: "", Name: "statusAccessToken", Value: status},
+			&model.Setting{Detail: "", Name: "dateStatusToken", Value: time.Now().Format("Mon Jan 2 2006")},
 		).Error; err != nil {
 			return c.JSON(http.StatusBadRequest, chatChannelModel)
 		}

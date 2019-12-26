@@ -26,7 +26,7 @@ var serviceMassage string = `
 	]
 }`
 var buttonTimeSecondaryTemplate string = `{"type": "button", "style": "secondary", "margin": "sm", "action": { "type": "message", "label": "%s", "text": "%s" }},`
-var buttonTimePrimaryTemplate string = `{"type": "button","style": "primary", "action": { "type": "message", "label": "%s", "text": "%s" }},`
+var buttonTimePrimaryTemplate string = `{"type": "button","style": "primary", "margin": "sm", "action": { "type": "message", "label": "%s", "text": "%s" }},`
 var buttonTimePrimaryLastTemplate string = `{"type": "button","style": "primary", "margin": "sm", "action": { "type": "message", "label": "%s", "text": "%s" }},`
 var slotTimeTemplate string = `,{"type": "box", "layout": "horizontal", "margin": "md", "contents":[%s]}`
 var serviceListTemplate string = `{"type": "bubble", "hero": { "type": "image", "size": "full", "aspectRatio": "20:13", "aspectMode": "cover", "url": "%s"},
