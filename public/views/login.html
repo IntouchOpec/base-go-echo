@@ -37,39 +37,36 @@
 
   {{ template "script" }}
   <script>
-    (function($) {
-      
-    })(jQuery);
-  </script>
-  <script>
     (function ($) {
-      "use strict";
-      $(".validate-form").on("submit",function(){
-        let email = document.getElementsByName("email");
-        let password = document.getElementsByName("password");
-        let _csrf = document.getElementsByName("_csrf");
-        const data = new URLSearchParams();
-        data.append("email", email[0].value);
-        data.append("password", password[0].value);
-        data.append("_csrf", _csrf[0].value);
-        let method = $(".validate-form").attr("method")
-        fetch("/login", {
-          method:"POST",
-          body: data
-        })
-        .then(res => {
-          if (res.status === 301) {
-            return res.json();
-          }
-        })
-        .then(data => {
-          location.replace(data.redirect)
-        })
-				.catch(err => {
-					console.log("error", err);
-				})
-        return false
-      })
+      $("form[name='validate-form']").validate({
+        rules: {
+            email: { required: true },
+            password: { required: true }
+        },
+        messages: {
+            email: { required: `Please enter a valid email` },
+            password: { required: `Please enter a valid password` }
+        },
+        submitHandler: function(form) {
+          let email = $("#email").val();
+          let password = $("#password").val();
+          let _csrf = $("#_csrf").val();
+          const data = new FormData();
+          data.append("email", email);
+          data.append("password", password);
+          data.append("_csrf", _csrf);
+          let method = $(".validate-form").attr("method")
+          fetch("/login", { method:"POST", body: data}).then(res => {
+            if (res.status === 301) {
+              return res.json();
+            }
+          }).then(data => {
+            location.replace(data.redirect)
+          })
+          .catch(err => {
+
+          })
+        }})
     })(jQuery);
   </script>
 {{ end }}
