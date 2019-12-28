@@ -111,22 +111,7 @@
                                 <h4 class="card-title ">Promotion Register</h4>
                             </div>
                             <div class="card-body">
-                                {{ if not .detail.Promotion.ID }}
-                                <a href="/admin/promotion" >
-                                    <button type="button" class="btn btn-warning mt-3" value="{{ .detail.ID }}" name="{{ .richMenuDefault }}" id="download_rich_menu">
-                                        <i class="material-icons">cloud_download</i>
-                                        Promotion List
-                                    </button>
-                                </a>
-                                {{ else }}
-                                <img class="img-fluid" src="{{ .detail.Promotion.PromImage }}" />
-                                <div>
-                                    <div>Name: {{ .detail.Promotion.PromName }}</div>
-                                    <div>Title: {{ .detail.Promotion.PromTitle }}</div>
-                                    <div>code: {{ .detail.Promotion.PromCode }}</div>
-                                    <div>Discount: {{ .detail.Promotion.PromDiscount }}</div>
-                                </div> 
-                                {{ end }}
+                               
                             </div>
                         </div>
                     </div>
@@ -359,8 +344,8 @@
                            </div>
                          </div>
                        </div>
-                     </div>
-                      </div>
+                    </div>
+                </div>
             </div>
          </div>
        </div>
@@ -463,21 +448,16 @@
                     method: "PATCH",
                     body: data
                 }).then(res => {
+                    if (res.status !== 200) {
+                        throw ""
+                    }
                     return res.json();
                 }).then(data => {
-                    Swal.fire(
-                    'New Access Token',
-                    '',
-                    'success'
-                    )
-                    $("#access_token").text(data.access_token)
-                }).catch(err => Swal.fire(
-                    'New Access Token',
-                    '',
-                    'error'
-                    ))
+                    Swal.fire('New Access Token', '', 'success').then(result => {
+                        $("#access_token").text(data.access_token)
+                    })
+                }).catch(err => Swal.fire('New Access Token','','error'))
             })
-
 
             $("#add_LIIF_register").on("click",function () {
                 let LIFFregister = $("#LIFFregister").attr("name")

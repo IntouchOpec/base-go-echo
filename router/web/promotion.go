@@ -3,6 +3,7 @@ package web
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/IntouchOpec/base-go-echo/lib"
@@ -64,20 +65,17 @@ func PromotionFormHandler(c *Context) error {
 }
 
 type PromotionForm struct {
-	Title         string    `form:"title"`
-	PromotionType string    `form:"promotion_type"`
-	Discount      int       `form:"discount"`
-	Amount        int       `form:"amount"`
-	Code          string    `form:"code"`
-	Name          string    `form:"name"`
-	StartDate     time.Time `form:"start_time"`
-	EndDate       time.Time `form:"end_time"`
-	Condition     string    `form:"condition"`
+	Title         string `form:"title"`
+	PromotionType string `form:"promotion_type"`
+	Discount      int    `form:"discount"`
+	Amount        int    `form:"amount"`
+	Code          string `form:"code"`
+	Name          string `form:"name"`
 }
 
 func PromotionPostHandler(c *Context) error {
 	file := c.FormValue("file")
-	a := auth.Default(c)
+	accID := auth.Default(c).GetAccountID()
 	promotion := PromotionForm{}
 	if err := c.Bind(&promotion); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
@@ -91,20 +89,64 @@ func PromotionPostHandler(c *Context) error {
 		PromTitle:    promotion.Title,
 		PromType:     promotion.PromotionType,
 		PromDiscount: promotion.Discount,
-		// PromAmount:    promotion.Amount,
-		// PromCode:      promotion.Code,
-		// PromName:      promotion.Name,
-		// PromStartDate: promotion.StartDate,
-		// PromEndDate:   promotion.EndDate,
-		// PromCondition: promotion.Condition,
-		PromImage: fileUrl,
-		AccountID: a.User.GetAccountID(),
+		PromAmount:   promotion.Amount,
+		PromCode:     promotion.Code,
+		PromName:     promotion.Name,
+		PromImage:    fileUrl,
+		AccountID:    accID,
 	}
 
 	promotionModel.SavePromotion()
 	return c.JSON(http.StatusCreated, echo.Map{
 		"data":     promotionModel,
 		"redirect": fmt.Sprintf("/admin/promotion/%d", promotionModel.ID),
+	})
+}
+
+type reqSubPromotion struct {
+	StartDate string `json:"start_date"`
+	EndDate   string `json:"end_date"`
+	Amount    string `json:"amount"`
+	Condition string `json:"condition"`
+}
+
+func PromotionCreateDetailHandler(c *Context) error {
+	id := c.Param("id")
+	var promotion model.Promotion
+	var req reqSubPromotion
+	db := model.DB()
+	if err := db.Find(&promotion, id).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	startDate, err := time.Parse("12/01/2019", req.StartDate)
+	endDate, err := time.Parse("12/01/2019", req.EndDate)
+	amount, err := strconv.Atoi(req.Amount)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	switch promotion.PromType {
+	case "Coupon":
+		db.Model(&promotion).Association("Coupons").Append(&model.Coupon{
+			PromStartDate: startDate,
+			PromEndDate:   endDate,
+			PromAmount:    amount,
+			PromCondition: req.Condition,
+		})
+	case "Voucher":
+		db.Model(&promotion).Association("Vouchers").Append(&model.Voucher{
+			PromStartDate: startDate,
+			PromEndDate:   endDate,
+			PromAmount:    amount,
+			PromCondition: req.Condition,
+		})
+
+	}
+
+	return c.JSON(http.StatusCreated, echo.Map{
+		"data": promotion,
 	})
 }
 
@@ -215,7 +257,7 @@ func PromotionRemoveHandler(c *Context) error {
 
 func PromotionAddRegisterlHandler(c *Context) error {
 	id := c.Param("id")
-	promotion := model.Promotion{}
+	voucher := model.Voucher{}
 	chatChannel := model.ChatChannel{}
 	db := model.DB()
 	chatChannelID := c.FormValue("chat_channel_id")
@@ -224,11 +266,11 @@ func PromotionAddRegisterlHandler(c *Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	if err := db.Find(&promotion, id).Error; err != nil {
+	if err := db.Find(&voucher, id).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	chatChannel.PromotionID = promotion.ID
+	chatChannel.VoucherID = voucher.ID
 	if err := db.Save(&chatChannel).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}

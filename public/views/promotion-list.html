@@ -34,9 +34,6 @@
                         <th>Amount</th>
                         <th>Code</th>
                         <th>Name</th>
-                        <th>StartDate</th>
-                        <th>EndDate</th>
-                        <th>Condition</th>
                         <th>Image</th>
                         <th>create at</th>
                         <th></th>
@@ -52,9 +49,6 @@
                               <td>{{.PromAmount}}</td>
                               <td>{{.PromCode}}</td>
                               <td>{{.PromName}}</td>
-                              <td>{{ .PromStartDate.Format "Mon Jan 2 2006" }}</td>
-                              <td>{{ .PromEndDate.Format "Mon Jan 2 2006" }}</td>
-                              <td>{{ .PromCondition }}</td>
                               <td><img width="32" height="32" class="img-fluid" src="{{.PromImage}}"></td>
                               <td>{{ .CreatedAt.Format "Mon Jan 2 2006" }}</td>
                               <td class="td-actions text-right">

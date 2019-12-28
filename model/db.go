@@ -66,6 +66,8 @@ func Initialize() {
 	newDb.AutoMigrate(&EventLog{})
 	newDb.AutoMigrate(&Customer{})
 	newDb.AutoMigrate(&Promotion{})
+	newDb.AutoMigrate(&Voucher{})
+	newDb.AutoMigrate(&Coupon{})
 	newDb.AutoMigrate(&Account{})
 	newDb.AutoMigrate(&User{})
 	newDb.AutoMigrate(&ChatAnswer{})

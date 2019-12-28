@@ -24,11 +24,14 @@ type Promotion struct {
 	PromCode           string       `form:"code" json:"prom_code" gorm:"type:varchar(25)"`
 	PromName           string       `form:"name" json:"prom_name" gorm:"type:varchar(25)"`
 	PromImage          string       `form:"image" json:"prom_image" gorm:"type:varchar(255)"`
+	PromAmount         int          `form:"amount" json:"prom_amount"`
 	ProUsed            int          `json:"pro_used" gorm:"default:0"`
 	AccountID          uint         `json:"account_id"`
 	RegisterPromotions []*Promotion `json:"register_promotions"`
 	Account            Account      `gorm:"ForeignKey:AccountID"`
 	Settings           []*Setting   `json:"settings" gorm:"many2many:promotion_setting"`
+	Vouchers           []*Voucher   `json:"vouchers"`
+	Coupons            []*Coupon    `json:"coupons"`
 	// Customers          []*Customer  `gorm:"many2many:promotion_customer" json:"customer"`
 	// ChatChannels       []*ChatChannel `json:"chat_channels" gorm:"many2many:chat_channel_promotion"`
 	// ProviderServices   []*ProviderService `json:"provider_service" gorm:"many2many:promotion_provider_service"`

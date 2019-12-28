@@ -133,13 +133,16 @@ func HandleWebHookLineAPI(c echo.Context) error {
 			case *linebot.ImagemapMessage:
 			case *linebot.FlexMessage:
 			}
+			_, err = bot.ReplyMessage(event.ReplyToken, messageReply).Do()
+			return c.JSON(200, "")
 
 		case linebot.EventTypeFollow:
 			messageReply = welcomeHandle(&c, event, &chatChannel)
 		case linebot.EventTypeUnfollow:
+		case linebot.EventTypeJoin:
+			fmt.Println(linebot.EventTypeJoin)
 
 		}
-		_, err = bot.ReplyMessage(event.ReplyToken, messageReply).Do()
 		fmt.Println(err)
 	}
 	return c.JSON(200, "")

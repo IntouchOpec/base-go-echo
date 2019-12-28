@@ -54,33 +54,49 @@ func ChatChannelListHandler(c *Context) error {
 func ChatChannelGetChannelAccessTokenHandler(c *Context) error {
 	id := c.Param("id")
 	chatChannel := model.ChatChannel{}
-	a := auth.Default(c)
+	accID := auth.Default(c).GetAccountID()
 	db := model.DB()
-	db.Where("account_id = ?", a.User.GetAccountID()).Find(&chatChannel, id)
-	bot, err := linebot.New(chatChannel.ChaChannelID, chatChannel.ChaChannelSecret)
-	if err != nil {
-		return c.NoContent(http.StatusBadRequest)
-	}
-	res, err := bot.IssueAccessToken(chatChannel.ChaChannelID, chatChannel.ChaChannelSecret).Do()
-	if err != nil {
-		return c.NoContent(http.StatusBadRequest)
+	db.Preload("Settings", "name in (?)", []string{"dateStatusToken", "statusAccessToken"}).Where("account_id = ?", accID).Find(&chatChannel, id)
+	// bot, err := linebot.New(chatChannel.ChaChannelID, chatChannel.ChaChannelSecret)
+	// if err != nil {
+	// 	return c.NoContent(http.StatusBadRequest)
+	// }
+	// res, err := bot.IssueAccessToken(chatChannel.ChaChannelID, chatChannel.ChaChannelSecret).Do()
+	// if err != nil {
+	// 	return c.NoContent(http.StatusBadRequest)
+	// }
+
+	// chatChannel.ChaChannelAccessToken = res.AccessToken
+	// if err := db.Save(&chatChannel).Error; err != nil {
+	// 	return c.NoContent(http.StatusInternalServerError)
+	// }
+	fmt.Println(chatChannel.Settings)
+	dateStatusToken := model.Setting{Detail: "", Name: "dateStatusToken", Value: "success"}
+	statusAccessToken := model.Setting{Detail: "", Name: "statusAccessToken", Value: time.Now().Format("Mon Jan 2 2006")}
+	if len(chatChannel.Settings) == 0 {
+
+		if err := db.Save(&statusAccessToken).Error; err != nil {
+			fmt.Println(err)
+		}
+		if err := db.Save(&dateStatusToken).Error; err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println(statusAccessToken.ID, dateStatusToken.ID)
+		db.Model(&chatChannel).Association("Settings").Append(&statusAccessToken)
+		db.Model(&chatChannel).Association("Settings").Append(&dateStatusToken)
+	} else {
+		for _, setting := range chatChannel.Settings {
+			if setting.Name == dateStatusToken.Name {
+				setting.Value = dateStatusToken.Value
+			}
+			if statusAccessToken.Name == setting.Name {
+				setting.Value = statusAccessToken.Value
+			}
+			db.Save(&setting)
+		}
 	}
 
-	chatChannel.ChaChannelAccessToken = res.AccessToken
-	if err := db.Save(&chatChannel).Error; err != nil {
-		return c.NoContent(http.StatusInternalServerError)
-	}
-
-	dateStatusToken := model.Setting{Name: "dateStatusToken"}
-	statusAccessToken := model.Setting{Name: "statusAccessToken"}
-	db.Model(&chatChannel).Association("Settings").Find(&statusAccessToken)
-	db.Model(&chatChannel).Association("Settings").Find(&dateStatusToken)
-	statusAccessToken.Value = "success"
-	dateStatusToken.Value = time.Now().Format("Mon Jan 2 2006")
-	db.Save(&statusAccessToken)
-	db.Save(&dateStatusToken)
-
-	return c.JSON(http.StatusOK, res)
+	return c.JSON(http.StatusOK, chatChannel)
 }
 
 func ChatChannelAddRegisterLIFF(c *Context) error {
@@ -163,8 +179,8 @@ func ChatChannelDetailHandler(c *Context) error {
 	paginationActionLogs = MakePagination(totalAction, 0, 10)
 	filteractionLogs.Preload("Customer").Find(&actionLogs).Limit(10).Offset(0).Order("id")
 
-	db.Preload("Settings").Preload("Promotion").Where("account_id = ?", a.GetAccountID()).Find(&chatChannel, id)
-
+	db.Preload("Settings").Where("account_id = ?", a.GetAccountID()).Find(&chatChannel, id)
+	// .Preload("Promotion")
 	insightFollowers, _ := lib.InsightFollowers(chatChannel.ChaChannelAccessToken)
 	bot, _ := linebot.New(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
 	timeNow := time.Now()
@@ -174,7 +190,8 @@ func ChatChannelDetailHandler(c *Context) error {
 	}
 	dateLineFormat := fmt.Sprintf("%d%d%s", timeNow.Year(), timeNow.Month(), day)
 	MessageQuota, _ := bot.GetMessageQuota().Do()
-	MessageQuotaConsumption, _ := bot.GetMessageQuotaConsumption().Do()
+	MessageQuotaConsumption, err := bot.GetMessageQuotaConsumption().Do()
+
 	MessageConsumption, _ := bot.GetMessageConsumption().Do()
 	NumberReplyMessages, _ := bot.GetNumberReplyMessages(dateLineFormat).Do()
 	NumberPushMessages, _ := bot.GetNumberPushMessages(dateLineFormat).Do()
@@ -182,25 +199,26 @@ func ChatChannelDetailHandler(c *Context) error {
 	NumberMulticastMessages, _ := bot.GetNumberMulticastMessages(dateLineFormat).Do()
 	richMenuDefault, _ := bot.GetDefaultRichMenu().Do()
 	deplayDetailChatChannels := []DeplayDetailChatChannel{}
-
-	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Quota Total Usage", Value: fmt.Sprintf("%d", MessageQuota.TotalUsage)})
-	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Quota Type", Value: MessageQuota.Type})
-	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Quota Value", Value: fmt.Sprintf("%d", MessageQuota.Value)})
-	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Quota Consumption Type", Value: MessageQuotaConsumption.Type})
-	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Quota Consumption TotalUsage", Value: fmt.Sprintf("%d", MessageQuotaConsumption.TotalUsage)})
-	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Quota Consumption Value", Value: fmt.Sprintf("%d", MessageQuotaConsumption.Value)})
-	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Consumption TotalUsage", Value: fmt.Sprintf("%d", MessageConsumption.TotalUsage)})
-	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Reply Messages Status", Value: NumberReplyMessages.Status})
-	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Reply Messages Success", Value: strconv.FormatInt(NumberReplyMessages.Success, 16)})
-	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Push Messages Status", Value: NumberPushMessages.Status})
-	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Push Messages Success", Value: strconv.FormatInt(NumberPushMessages.Success, 16)})
-	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Broadcast Messages Status", Value: NumberBroadcastMessages.Status})
-	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Broadcast Messages Success", Value: strconv.FormatInt(NumberBroadcastMessages.Success, 16)})
-	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Multicast Messages Status", Value: NumberMulticastMessages.Status})
-	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Multicast Messages Success", Value: strconv.FormatInt(NumberMulticastMessages.Success, 16)})
 	setting := model.Setting{}
+	if err == nil {
+		deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Quota Total Usage", Value: fmt.Sprintf("%d", MessageQuota.TotalUsage)})
+		deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Quota Type", Value: MessageQuota.Type})
+		deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Quota Value", Value: fmt.Sprintf("%d", MessageQuota.Value)})
+		deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Quota Consumption Type", Value: MessageQuotaConsumption.Type})
+		deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Quota Consumption TotalUsage", Value: fmt.Sprintf("%d", MessageQuotaConsumption.TotalUsage)})
+		deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Quota Consumption Value", Value: fmt.Sprintf("%d", MessageQuotaConsumption.Value)})
+		deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Consumption TotalUsage", Value: fmt.Sprintf("%d", MessageConsumption.TotalUsage)})
+		deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Reply Messages Status", Value: NumberReplyMessages.Status})
+		deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Reply Messages Success", Value: strconv.FormatInt(NumberReplyMessages.Success, 16)})
+		deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Push Messages Status", Value: NumberPushMessages.Status})
+		deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Push Messages Success", Value: strconv.FormatInt(NumberPushMessages.Success, 16)})
+		deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Broadcast Messages Status", Value: NumberBroadcastMessages.Status})
+		deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Broadcast Messages Success", Value: strconv.FormatInt(NumberBroadcastMessages.Success, 16)})
+		deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Multicast Messages Status", Value: NumberMulticastMessages.Status})
+		deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Multicast Messages Success", Value: strconv.FormatInt(NumberMulticastMessages.Success, 16)})
+		db.Where("name = ?", richMenuDefault.RichMenuID).Find(&setting)
+	}
 
-	db.Where("name = ?", richMenuDefault.RichMenuID).Find(&setting)
 	return c.Render(http.StatusOK, "chat-channel-detail", echo.Map{
 		"title":                    "chat_channel",
 		"detail":                   chatChannel,

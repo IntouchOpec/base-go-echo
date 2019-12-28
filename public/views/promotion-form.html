@@ -71,24 +71,6 @@
                                                         <input name="Name" value="{{.detail.PromName}}" id="Name" type="text" class="form-control" >
                                                     </div>
                                                 </div>
-                                                <div class="col-md-12 mt-2">
-                                                    <div class="form-group">
-                                                        <label class="bmd-label-floating" >StartDate</label>
-                                                        <input name="StartDate" value="{{.detail.PromStartDate}}" id="StartDate" class="form-control" type="date">
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-12 mt-2">
-                                                    <div class="form-group">
-                                                        <label class="bmd-label-floating" >EndDate</label>
-                                                        <input name="EndDate" value="{{.detail.PromEndDate}}" id="EndDate" class="form-control" type="date">
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-12 mt-2">
-                                                    <div class="form-group">
-                                                        <label class="bmd-label-floating" >Condition</label>
-                                                        <textarea name="Condition" value="{{.detail.PromCondition}}" id="Condition" type="text" class="form-control" ></textarea>
-                                                    </div>
-                                                </div>
                                                 <div class="col-md-12 mt-2" id="form-image">
                                                 {{ if .detail.PromImage }}
                                                     <div className="image-wrapper" >
@@ -203,15 +185,6 @@
                 Name: {
                     required: true
                 },
-                StartDate: {
-                    required: true
-                },
-                EndDate: {
-                    required: true
-                },
-                Condition: {
-                    required: true
-                }, 
                 Image: {
                     required: true
                 },
@@ -235,15 +208,6 @@
                 Name: {
                     required: "Please enter a valid Name"
                 },
-                StartDate: {
-                    required: "Please enter a valid StartDate"
-                },
-                EndDate: {
-                    required: "Please enter a valid EndDate"
-                },
-                Condition: {
-                    required: "Please enter a valid Condition"
-                },
                 Image: {
                     required: "Please enter a valid Image"
                 },
@@ -256,9 +220,6 @@
                 let Amount = $("#Amount").val()
                 let Code = $("#Code").val()
                 let Name = $("#Name").val()
-                let StartDate = $("#StartDate").val()
-                let EndDate = $("#EndDate").val()
-                let Condition = $("#Condition").val()
                 let Image =  $("#Image")
 
                 let typePromotionEncodedKey = encodeURIComponent("promotion_type") 
@@ -267,9 +228,6 @@
                 let amountEncodedKey = encodeURIComponent("amount") 
                 let codeEncodedKey = encodeURIComponent("code") 
                 let nameEncodedKey = encodeURIComponent("name") 
-                let startDateEncodedKey = encodeURIComponent("start_date") 
-                let endDateEncodedKey = encodeURIComponent("end_date") 
-                let conditionEncodedKey = encodeURIComponent("condition") 
                 let imageEncodedKey = encodeURIComponent("file") 
 
                 let typePromotionEncodedValue = encodeURIComponent(PromotionType)
@@ -279,9 +237,6 @@
                 let codeEncodedValue = encodeURIComponent(Code)
                 let nameEncodedValue = encodeURIComponent(Name)
 
-                let startDateEncodedValue = encodeURIComponent(new Date(StartDate).toISOString())
-                let endDateEncodedValue = encodeURIComponent(new Date(EndDate).toISOString())
-                let conditionEncodedValue = encodeURIComponent(Condition)
                 let encodedKey = encodeURIComponent("_csrf");
                 let encodedValue = encodeURIComponent(_csrf);
 
@@ -294,9 +249,6 @@
                 data.push(amountEncodedKey + "=" + amountEncodedValue) 
                 data.push(codeEncodedKey + "=" + codeEncodedValue) 
                 data.push(nameEncodedKey + "=" + nameEncodedValue) 
-                data.push(startDateEncodedKey + "=" + startDateEncodedValue) 
-                data.push(endDateEncodedKey + "=" + endDateEncodedValue) 
-                data.push(conditionEncodedKey + "=" + conditionEncodedValue) 
 
                 if (Image.length !== 0) {
                     toBase64(Image[0].files[0]).then(base64Image => {

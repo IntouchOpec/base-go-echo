@@ -26,7 +26,7 @@
                                 <h2 class="card-category text-gray">{{ .detail.PromName }}</h2>
                                 <h2 class="card-category text-gray">{{ .detail.PromCode }}</h2>
                                 <h6 class="card-category text-gray">{{ .detail.PromType }}</h6>
-                                <h6 class="card-category text-gray">{{ .detail.PromStartDate.Format "Mon Jan 2 2006" }} - {{ .detail.PromEndDate.Format "Mon Jan 2 2006" }}</h6>
+                                <h6 class="card-category text-gray"></h6>
                                 <div class="d-flex justify-content-center">
                                     <button type="button" class="btn btn-warning"><i class="material-icons">edit</i>edit</button>
                                     <button type="button" class="btn btn-danger"><i class="material-icons">delete</i>delete</button>
@@ -64,33 +64,24 @@
                     <div class="col-md-12">
                         <div class="card">
                             <div class="card-header card-header-primary d-flex justify-content-between">
-                                <h4 class="card-title ">chat channel</h4>
-                                <a href="/admin/promotion_channel/{{ .detail.ID }}/create">
-                                    <button class="btn btn-info">
+                                <h4 id="PromType" value="{{.detail.PromType}}" class="card-title ">{{.detail.PromType}}</h4>
+                                <!-- <a href="/admin/promotion_channel/{{ .detail.ID }}/create"> -->
+                                    <button class="btn btn-info" id="create">
                                     <i class="material-icons">add</i>
-                                    Add Channel
+                                        create {{ .detail.PromType }}
                                     </button>
-                                </a>
+                                <!-- </a> -->
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
                                     <table class="table">
                                         <thead>
-                                            <th>register voucher</th>
+                                            <th></th>
                                             <th>Name</th>
                                             <th>Type</th>
                                         </thead>
                                         <tbody>
-                                            {{ $promotionID := .detail.ID }}
-                                            {{ with .detail.ChatChannels }}
-                                            {{ range . }}
-                                                <tr name="row_{{ .ID }}">
-                                                    <td><input value="{{ .ID }}" type="checkbox" {{ if (eq .PromotionID  $promotionID ) }} checked="true" {{ end }} data-toggle="toggle" ></td>
-                                                    <td>{{ .ChaName }}</td>
-                                                    <td>{{ .ChaType }}</td>
-                                                </tr>
-                                            {{ end }}
-                                            {{ end }}
+                                            
                                         </tbody>
                                     </table>
                                 </div>
@@ -110,6 +101,76 @@
 
   <script>
       (function ($) {
+          $("#create").click(function () {
+            Swal.fire({
+                title: '<strong>Create <u>{{.detail.PromType}}</u></strong>',
+                icon: 'info',
+                html:
+                   `
+                   <form method="{{.method}}" class="text-left" name="create-promotion" >
+                    <div class="col-md-12 mt-2">
+                        <div class="form-group">
+                            <label class="bmd-label-floating">StartDate</label>
+                            <input name="StartDate"  value="" id="StartDate" type="date" class="form-control" >
+                        </div>
+                    </div>
+                    <div class="col-md-12 mt-2">
+                        <div class="form-group">
+                            <label class="bmd-label-floating">EndDate</label>
+                            <input name="EndDate" value="" id="EndDate" type="date" class="form-control" >
+                        </div>
+                    </div>
+                   <div class="col-md-12 mt-2">
+                        <div class="form-group">
+                            <label class="bmd-label-floating">Amount</label>
+                            <input name="Amount" value="" id="Amount" type="text" class="form-control" >
+                        </div>
+                    </div>
+                    <div class="col-md-12 mt-2">
+                        <div class="form-group">
+                            <label class="bmd-label-floating" >Condition</label>
+                            <textarea name="Condition" id="Condition" type="text" class="form-control" ></textarea>
+                        </div>
+                    </div>
+                    </form>
+                   `,
+                showCloseButton: true,
+                showCancelButton: true,
+                focusConfirm: false,
+                confirmButtonText:
+                    '<i class="fa fa-thumbs-up"></i> Great!',
+                confirmButtonAriaLabel: 'Thumbs up, great!',
+                cancelButtonText:
+                    '<i class="fa fa-thumbs-down"></i>',
+                cancelButtonAriaLabel: 'Thumbs down'
+            }).then(result => {
+                if (result.value) {
+                    let _csrf = $("#_csrf").val()
+                    let StartDate = ("#StartDate").val()
+                    let EndDate = ("#EndDate").val()
+                    let Amount = ("#Amount").val()
+                    let Condition = ("#Condition").val()
+
+                    let data = new FormData()
+                    data.append("start_date", StartDate)
+                    data.append("end_date", EndDate)
+                    data.append("amount", Amount)
+                    data.append("condition", Condition)
+
+                    fetch(`/admin/promotion/${id}`, {
+                        method: "POST",
+                        body: data,
+                    }).then(res => {
+                        if (res.status !== 201) {
+                            throw ""
+                        }
+                        return res.json()
+                    }).catch(err => {
+                        Swal.fire("fial", "", "warning")
+                    })
+                }
+            })
+          })
           $("input[type='checkbox']").change(function () {
               let chacked = $(this).attr("checked")
               let id = $(this).val()
