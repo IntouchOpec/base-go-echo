@@ -20,7 +20,7 @@
                                         <p class="card-category">Complete your Chat Channel</p>
                                     </div>
                                     <div class="card-body">
-                                       <form method="{{.method}}" name="form-chat-channel" >
+                                       <form  name="form-chat-channel" >
                                             <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden" >
                                             <div class="row">
                                                 <div class="col-md-12 mt-2">
@@ -109,9 +109,9 @@
                                                 </div>
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
-                                                        <label for="Longitude" class="bmd-label-floating">system Confirmation</label>
+                                                        <label for="Longitude" class="bmd-label-floating">System Confirmation</label>
                                                         <select name="systemConfirmation" class="form-control" data-style="btn btn-link" id="systemConfirmation">
-                                                            <option value="">choose </option>
+                                                            <option value="">choose System Confirmation</option>
                                                             {{ with .systemConfirmation }}
                                                             {{ range . }}
                                                                 <option value='{{ . }}'>{{.}}</option>
@@ -139,19 +139,19 @@
     (function ($) {
         $("form[name='form-chat-channel']").validate({
             rules: {
-                name: { redirect: true },
-                phone_number: { redirect: true },
-                channel_id: { redirect: true },
-                line_id: { redirect: true },
-                website: { redirect: true },
-                address: { redirect: true },
-                welcome_message: { redirect: true },
-                channel_secret: { redirect: true },
-                channel_access_token: { redirect: true },
-                type: { redirect: true },
-                Latitude: { redirect: true },
-                Longitude: { redirect: true },
-                systemConfirmation: { redirect: true }
+                name: { required: true },
+                phone_number: { required: true },
+                channel_id: { required: true },
+                line_id: { required: true },
+                website: { required: true },
+                address: { required: true },
+                welcome_message: { required: true },
+                channel_secret: { required: true },
+                channel_access_token: { required: true },
+                type: { required: true },
+                Latitude: { required: true },
+                Longitude: { required: true },
+                systemConfirmation: { required: true }
             },
             messages: {
                 name: "Please enter a valid name",
@@ -169,7 +169,6 @@
                 systemConfirmation: {messages: "systemConfirmation"}
             },
             submitHandler: function(form) {
-                debugger
                 let _csrf = $("#_csrf").val()
                 let name = $("#name").val()
                 let phone_number = $("#phone_number").val()
@@ -186,37 +185,37 @@
                 let image = $("#image").val()
                 let systemConfirmation = $("#systemConfirmation").val()
                 let data = new URLSearchParams();
-                // data.append("_csrf", _csrf)
-                // data.append("name", name)
-                // data.append("phone_number", phone_number)
-                // data.append("channel_id", channel_id)
-                // data.append("line_id", line_id)
-                // data.append("website", website)
-                // data.append("address", address)
-                // data.append("welcome_message", welcome_message)
-                // data.append("channel_secret", channel_secret)
-                // data.append("channel_access_token", channel_access_token)
-                // data.append("type", type)
-                // data.append("image", image)
-                // data.append("settings", JSON.stringify([
-                //     {detail: "", name: "latitude", value: Latitude},
-                //     {detail: "", name: "longitude", value: Latitude,}, 
-                //     {detail: "", name: "system_confirmation", value: systemConfirmation}]))
-                // let method = $("form[name='create-chat-channel']").attr("method")
+                data.append("_csrf", _csrf)
+                data.append("name", name)
+                data.append("phone_number", phone_number)
+                data.append("channel_id", channel_id)
+                data.append("line_id", line_id)
+                data.append("website", website)
+                data.append("address", address)
+                data.append("welcome_message", welcome_message)
+                data.append("channel_secret", channel_secret)
+                data.append("channel_access_token", channel_access_token)
+                data.append("type", type)
+                data.append("image", image)
+                data.append("settings", JSON.stringify([
+                    {detail: "", name: "latitude", value: Latitude},
+                    {detail: "", name: "longitude", value: Latitude,}, 
+                    {detail: "", name: "system_confirmation", value: systemConfirmation}]))
+                let method = $("form[name='create-chat-channel']").attr("method")
                 
-                // fetch("/admin/chat_channel", { method, body: data })
-                // .then(res => {
-                //     if (res.status !== 201) {
-                //         throw ""
-                //     }
-                //     return res.json()
-                // })
-                // .then(json => {
-                //     Swal.fire("success", "", "success").then(result => {
-                //         window.location.href = json.redirect
-                //     })
-                // })
-                // .catch(err => Swal.fire("fial", "", "warning"))
+                fetch("/admin/chat_channel", { method, body: data })
+                .then(res => {
+                    if (res.status !== 201) {
+                        throw ""
+                    }
+                    return res.json()
+                })
+                .then(json => {
+                    Swal.fire("success", "", "success").then(result => {
+                        window.location.href = json.required
+                    })
+                })
+                .catch(err => Swal.fire("fial", "", "warning"))
             }
         })
     })(jQuery)
