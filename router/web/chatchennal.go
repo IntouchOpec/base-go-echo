@@ -252,11 +252,12 @@ func ChatChannelCreateViewHandler(c *Context) error {
 	typeChatChannels := []string{"Facebook", "Line"}
 	systemConfirmation := []string{"auto", "man"}
 	csrfValue := c.Get("_csrf")
-	return c.Render(http.StatusOK, "chat-channel-form", echo.Map{"method": "PUT",
+	return c.Render(http.StatusOK, "chat-channel-form", echo.Map{
 		"title":              "chat_channel",
 		"typeChatChannels":   typeChatChannels,
 		"mode":               "Create",
 		"_csrf":              csrfValue,
+		"method":             "POST",
 		"systemConfirmation": systemConfirmation,
 	})
 }
