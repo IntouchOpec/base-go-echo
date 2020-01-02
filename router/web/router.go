@@ -239,6 +239,7 @@ func indexHandler(c *Context) error {
 	})
 
 }
+
 func handler(h HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ctx := c.(*Context)

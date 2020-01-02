@@ -413,7 +413,6 @@ func ChatChannelBroadcastMessageHandler(c *Context) error {
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, err)
 		}
-		fmt.Println(urlFile)
 		message = linebot.NewVideoMessage(urlFile, urlFile)
 	case "Audio":
 		audio := c.FormValue("audio")
@@ -428,7 +427,6 @@ func ChatChannelBroadcastMessageHandler(c *Context) error {
 			return c.JSON(http.StatusBadRequest, err)
 		}
 		urlFile := "https://" + Conf.Server.DomainWeb + filePath
-		fmt.Println(urlFile)
 		message = linebot.NewAudioMessage(urlFile, i)
 	case "Line_Bot_Designer":
 		flex := c.FormValue("line_bot_designer")
@@ -471,7 +469,10 @@ func ChatChannelBroadcastMessageHandler(c *Context) error {
 
 	if sandDate == "3" {
 		_, err = bot.BroadcastMessage().Do()
-		fmt.Println(err)
+	}
+
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
 	}
 	return c.JSON(http.StatusCreated, echo.Map{
 		"redirect": fmt.Sprintf("/admin/chat_channel/%d", chatChannel.ID),

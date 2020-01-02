@@ -110,7 +110,6 @@ func PlacePutHandler(c *Context) error {
 }
 
 func PlaceEditHandler(c *Context) error {
-	// place := model.Place{}
 	id := c.Param("id")
 	a := auth.Default(c)
 
@@ -127,6 +126,7 @@ func PlaceEditHandler(c *Context) error {
 	if err := pla.Update(); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
+
 	return c.Render(http.StatusOK, "place-detail", echo.Map{
 		"detail": pla,
 		"title":  "place",

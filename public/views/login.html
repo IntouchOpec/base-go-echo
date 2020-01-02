@@ -12,16 +12,16 @@
                   </div>
                 </div>
                 <div class="card-body">
-                  <form class="validate-form">
-                    <input type="hidden" name="_csrf" method="{{.method}}" value="{{._csrf}}" />
+                  <form class="validate-form" method="{{.method}}">
+                    <input type="hidden" id="_csrf" name="_csrf" value="{{._csrf}}" />
                     <div class="row">
                       <div class="form-group w-100">
-                        <input type="email" class="form-control" name="email" placeholder="email">
+                        <input type="email" class="form-control" id="email" name="email" placeholder="email">
                       </div>
                     </div>
                     <div class="row">
                       <div class="form-group w-100">
-                        <input type="password" class="form-control" name="password" placeholder="password">                        
+                        <input type="password" class="form-control" id="password" name="password" placeholder="password">                        
                       </div>
                     </div>
                     <button type="submit" class="btn btn-primary pull-right">login</button>
@@ -38,7 +38,7 @@
   {{ template "script" }}
   <script>
     (function ($) {
-      $("form[name='validate-form']").validate({
+      $("form.validate-form").validate({
         rules: {
             email: { required: true },
             password: { required: true }
@@ -57,14 +57,15 @@
           data.append("_csrf", _csrf);
           let method = $(".validate-form").attr("method")
           fetch("/login", { method:"POST", body: data}).then(res => {
-            if (res.status === 301) {
-              return res.json();
+            if (res.status !== 301) {
+              throw ""
             }
+            return res.json();
           }).then(data => {
             location.replace(data.redirect)
           })
           .catch(err => {
-
+            Swal.fire("fial", "", "warning")
           })
         }})
     })(jQuery);

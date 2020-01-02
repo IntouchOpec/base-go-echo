@@ -166,7 +166,6 @@ func RichMenuDonwloadImage(c *Context) error {
 
 	bot, err := lib.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
 	if err != nil {
-		fmt.Println(err)
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	res, err := bot.DownloadRichMenuImage(id).Do()
