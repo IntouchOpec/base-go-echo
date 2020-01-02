@@ -194,6 +194,14 @@
                                 {{ .detail.ChaChannelAccessToken }}
                             </div>
                         </div>
+                        <div class="row">
+                            <div class="col-3">
+                            WEB Hook:
+                            </div>
+                            <div id="access_token" class="col-7">
+                                https://channel.triple-t.cc/callback/{{.detail.Account.AccName}}/{{ .detail.ChaChannelID }}
+                            </div>
+                        </div>
                         <a href="/admin/chat_channel/{{ .detail.ID }}/edit">
                             <button type="button" class="btn btn-warning mt-3">
                                 <i class="material-icons">edit</i>

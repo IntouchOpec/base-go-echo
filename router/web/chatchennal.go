@@ -174,7 +174,7 @@ func ChatChannelDetailHandler(c *Context) error {
 	paginationActionLogs = MakePagination(totalAction, 0, 10)
 	filteractionLogs.Preload("Customer").Find(&actionLogs).Limit(10).Offset(0).Order("id")
 
-	db.Preload("Settings").Where("account_id = ?", a.GetAccountID()).Find(&chatChannel, id)
+	db.Preload("Settings").Preload("Account").Where("account_id = ?", a.GetAccountID()).Find(&chatChannel, id)
 
 	insightFollowers, err := lib.InsightFollowers(chatChannel.ChaChannelAccessToken)
 	if err != nil {
