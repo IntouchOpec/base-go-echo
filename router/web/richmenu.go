@@ -19,7 +19,6 @@ func RichMenuListHandler(c *Context) error {
 	chatChannel := model.ChatChannel{}
 	a := auth.Default(c)
 	db := model.DB()
-	var rows string
 	filterChatChannelDB := db.Where("account_id = ?", a.GetAccountID()).Find(&chatChannels)
 	chatChannelID := c.QueryParam("chat_channel_id")
 
@@ -27,29 +26,27 @@ func RichMenuListHandler(c *Context) error {
 
 	bot, err := lib.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
 	if err != nil {
-		rows = `<tr><td colspan="8" class="text-center">No content</td></tr>`
 		return c.Render(http.StatusOK, "rich-menu-list", echo.Map{
 			"chatChannels": chatChannels,
 			"detail":       chatChannel,
-			"list":         rows,
+			"err":          err,
 			"title":        "rich-menu",
 		})
 	}
 
 	res, err := bot.GetRichMenuList().Do()
 	if err != nil {
-		rows = `<tr><td colspan="8" class="text-center">No content</td></tr>`
 		return c.Render(http.StatusOK, "rich-menu-list", echo.Map{
 			"detail":       chatChannel,
 			"chatChannels": chatChannels,
-			"list":         rows,
+			"err":          err,
 			"title":        "rich-menu",
 		})
 	}
 
 	return c.Render(http.StatusOK, "rich-menu-list", echo.Map{
 		"detail":       chatChannel,
-		"list":         &res,
+		"list":         res,
 		"chatChannels": chatChannels,
 		"title":        "rich-menu",
 	})
@@ -94,7 +91,7 @@ func RichMenuActiveHandler(c *Context) error {
 	a := auth.Default(c)
 	db := model.DB()
 	chatChannelID := c.FormValue("chat_channel_id")
-	fmt.Println(chatChannelID)
+
 	if err := db.Where("account_id = ?", a.GetAccountID()).Find(&chatChannel, chatChannelID).Error; err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}
@@ -152,7 +149,6 @@ func RichMenuImageHandler(c *Context) error {
 
 	_, err = bot.UploadRichMenuImage(id, file).Do()
 	if err != nil {
-		fmt.Println(err)
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	setting := model.Setting{Name: id, Value: fileURL}
@@ -261,7 +257,6 @@ func RichMenuCreateHandler(c *Context) error {
 	err = json.Unmarshal([]byte(richMenu.Areas), &areas)
 
 	if err != nil {
-		fmt.Println(err)
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	richMenuLineBot := linebot.RichMenu{

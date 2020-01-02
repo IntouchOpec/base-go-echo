@@ -79,8 +79,7 @@ func ProviderPostHandler(c *Context) error {
 	a := auth.Default(c)
 	file := c.FormValue("file")
 
-	fileUrl, fileName, err := lib.UploadteImage(file)
-	fmt.Println(fileUrl, fileName)
+	fileUrl, _, err := lib.UploadteImage(file)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
@@ -91,8 +90,6 @@ func ProviderPostHandler(c *Context) error {
 	if err := c.Bind(&provider); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-
-	fmt.Println(provider.ProvName, "===")
 
 	err = provider.CreateProvider()
 	if err != nil {
@@ -122,8 +119,6 @@ func ProviderPutHandler(c *Context) error {
 	if err := c.Bind(&provider); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-
-	fmt.Println(provider.ProvName, "===")
 
 	err = provider.CreateProvider()
 	if err != nil {

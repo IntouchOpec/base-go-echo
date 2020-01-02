@@ -164,7 +164,6 @@ func ChooseService(c *Context) (linebot.SendingMessage, error) {
 	m := fmt.Sprintf(serviceMassage, c.ChatChannel.ChaImage)
 	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(m))
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 	return linebot.NewFlexMessage("service", flexContainer), nil
@@ -309,8 +308,6 @@ func ThankyouTemplate(c *Context) (linebot.SendingMessage, error) {
 	layout := "2006-01-02 15:00"
 	updatedAt, err := time.Parse(layout, c.Massage.Text[9:19]+" 15:00")
 	if err != nil {
-		fmt.Println(err)
-		fmt.Println(updatedAt, c.Massage.Text[9:20])
 		return nil, err
 	}
 	book.BookedDate = updatedAt

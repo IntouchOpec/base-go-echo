@@ -143,7 +143,6 @@ func HandleWebHookLineAPI(c echo.Context) error {
 			fmt.Println(linebot.EventTypeJoin)
 
 		}
-		fmt.Println(err)
 	}
 	return c.JSON(200, "")
 }

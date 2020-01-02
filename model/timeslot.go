@@ -1,7 +1,6 @@
 package model
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/IntouchOpec/base-go-echo/model/orm"
@@ -33,7 +32,6 @@ func GetTimeSlotByDate(t time.Time, serName string) ([]TimeSlot, error) {
 	timeSlots := []TimeSlot{}
 	var service Service
 	if err := DB().Where("ser_name = ?", serName).Find(&service).Error; err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 	if err := DB().Where("time_day = ?", int(t.Weekday())).Preload("ProviderService", func(db *gorm.DB) *gorm.DB {

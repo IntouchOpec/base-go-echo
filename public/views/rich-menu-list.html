@@ -49,30 +49,33 @@
                        </thead>
                        <tbody>
                           {{ $ID := .detail.ID }}
-                          {{if not .list}}<tr><td colspan="8" class="text-center">No content</td></tr> {{end}}
-                          {{ with .list }}
+                          {{if not .list}}
+                            <tr><td colspan="8" class="text-center">{{.err}}</td></tr> 
+                          {{ else }}
+                            {{ with .list }}
                             {{ range . }}
-                            <tr name="row_{{ .RichMenuID }}">
-                              <td> {{ .RichMenuID }}</td>
-                              <td> {{ .Size.Height }}</td>
-                              <td> {{ .Size.Width }}</td>
-                              <td> {{ .Selected }}</td>
-                              <td> {{ .Name }}</td>
-                              <td> {{ .ChatBarText }}</td>
-                              <td> {{ .RichMenuID }}</td>
-                              <td class="td-actions text-right">
-                                <a href="/admin/richmenu/{{ .RichMenuID }}?chat_channel_id={{$ID}}">
-                                  <button type="button" rel="tooltip" class="btn btn-success">
-                                  <i class="material-icons">settings_applications</i>
+                              <tr name="row_{{ .RichMenuID }}">
+                                <td> {{ .RichMenuID }}</td>
+                                <td> {{ .Size.Height }}</td>
+                                <td> {{ .Size.Width }}</td>
+                                <td> {{ .Selected }}</td>
+                                <td> {{ .Name }}</td>
+                                <td> {{ .ChatBarText }}</td>
+                                <td> {{ .RichMenuID }}</td>
+                                <td class="td-actions text-right">
+                                  <a href="/admin/richmenu/{{ .RichMenuID }}?chat_channel_id={{$ID}}">
+                                    <button type="button" rel="tooltip" class="btn btn-success">
+                                      <i class="material-icons">settings_applications</i>
+                                    </button>
+                                  </a>
+                                  <button value="{{ .RichMenuID }}" name="remove"  type="button" rel="tooltip" class="btn btn-danger">
+                                    <i class="material-icons">close</i>
                                   </button>
-                                </a>
-                                <button value="{{ .RichMenuID }}" name="remove"  type="button" rel="tooltip" class="btn btn-danger">
-                                  <i class="material-icons">close</i>
-                                </button>
-                              </td>
-                            </tr>
+                                </td>
+                              </tr>
                             {{ end }}
                             {{ end }}
+                          {{end}}
                        </tbody>
                      </table>
                    </div>
@@ -134,7 +137,7 @@
                 $(`tr[name='row_${id}']`).remove()
               })
             }).catch(err => {
-              // Swal.fire("success", "", "success")          
+              Swal.fire("fial", "", "warning")        
             })
           }
         })

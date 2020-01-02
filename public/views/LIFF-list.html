@@ -45,32 +45,35 @@
                        </thead>
                        <tbody>
                           {{ $ID := .detail.ID }}
-                          {{if not .list}}<tr><td colspan="8" class="text-center">No content</td></tr> {{end}}
-                          {{ with .list.Apps }}
-                          {{ range . }}
-                          <tr name="row_{{ .LIFFID }}">
-                              <td>{{ .LIFFID }}</td>
-                              <td>{{ .View.Type }}</td>
-                              <td>{{ .View.URL }}</td>
-                              <td>
-                                <td class="td-actions text-right">
-                                  <a href="/admin/richmenu/{{.LIFFID}}?chat_channel_id={{$ID}}">
-                                    <button type="button" rel="tooltip" class="btn btn-success">
-                                    <i class="material-icons">settings_applications</i>
-                                    </button>
-                                  </a>
-                                  <a href="/admin/richmenu/{{.LIFFID}}/edit">
-                                    <button type="button" rel="tooltip" class="btn btn-warning">
-                                      <i class="material-icons">edit</i>
-                                    </button>
-                                  </a>
-                                  <button value="{{ .LIFFID }}" name="remove"  type="button" rel="tooltip" class="btn btn-danger">
-                                    <i class="material-icons">close</i>
-                                  </button>
-                                </td>
-                              </td>
-                          </tr>
-                          {{end}}
+                          {{if not .list}}
+                            <tr><td colspan="8" class="text-center">{{.err}}</td></tr> 
+                          {{ else }} 
+                            {{ with .list.Apps }}
+                            {{ range . }}
+                              <tr name="row_{{ .LIFFID }}">
+                                  <td>{{ .LIFFID }}</td>
+                                  <td>{{ .View.Type }}</td>
+                                  <td>{{ .View.URL }}</td>
+                                  <td>
+                                    <td class="td-actions text-right">
+                                      <a href="/admin/richmenu/{{.LIFFID}}?chat_channel_id={{$ID}}">
+                                        <button type="button" rel="tooltip" class="btn btn-success">
+                                        <i class="material-icons">settings_applications</i>
+                                        </button>
+                                      </a>
+                                      <a href="/admin/richmenu/{{.LIFFID}}/edit">
+                                        <button type="button" rel="tooltip" class="btn btn-warning">
+                                          <i class="material-icons">edit</i>
+                                        </button>
+                                      </a>
+                                      <button value="{{ .LIFFID }}" name="remove"  type="button" rel="tooltip" class="btn btn-danger">
+                                        <i class="material-icons">close</i>
+                                      </button>
+                                    </td>
+                                  </td>
+                              </tr>
+                            {{end}}
+                            {{end}}
                           {{end}}
                        </tbody>
                      </table>

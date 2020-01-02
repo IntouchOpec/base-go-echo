@@ -150,7 +150,7 @@ func TransactionPostHandler(c *Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	fmt.Println(Transaction.ID)
+
 	redirect := fmt.Sprintf("/admin/transaction/%d", Transaction.ID)
 	return c.JSON(http.StatusCreated, echo.Map{
 		"redirect": redirect,

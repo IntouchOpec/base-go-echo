@@ -75,7 +75,6 @@ func ChatAnswerPostHandler(c *Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	fmt.Println(chatAnswer.ID)
 	redirect := fmt.Sprintf("/admin/chat_answer/%d", chatAnswer.ID)
 	return c.JSON(http.StatusCreated, echo.Map{
 		"redirect": redirect,

@@ -127,6 +127,7 @@ func Routers() *echo.Echo {
 		managent.POST("/promotion/create", handler(PromotionPostHandler))
 		managent.GET("/promotion/create", handler(PromotionFormHandler))
 		managent.GET("/promotion/:id", handler(PromotionDetailHandler))
+		managent.POST("/promotion/:id", handler(PromotionCreateDetailHandler))
 		managent.GET("/promotion/:id/edit", handler(PromotionEditHandler))
 		managent.PUT("/promotion/:id/edit", handler(PromotionEditPutHandler))
 		managent.POST("/promotion/:id/register", handler(PromotionAddRegisterlHandler))
@@ -224,7 +225,6 @@ func Routers() *echo.Echo {
 
 func indexHandler(c *Context) error {
 	a := c.Auth()
-	fmt.Println(a.User.IsAuthenticated(), "====")
 	if a.User.IsAuthenticated() {
 		c.Redirect(http.StatusMovedPermanently, fmt.Sprintf("/admin/dashboard"))
 		return nil

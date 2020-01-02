@@ -207,8 +207,6 @@ func UpdateLIFF(c echo.Context) error {
 	}
 	res, err := bot.UpdateLIFF(LIFFID, view).Do()
 	if err != nil {
-		fmt.Println(err)
-
 		return c.NoContent(http.StatusBadRequest)
 	}
 	return c.JSON(http.StatusOK, res)

@@ -106,7 +106,7 @@ func SettingEditViewHandler(c *Context) error {
 	if err := db.Find(&setting, id).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	return c.Render(http.StatusOK, "ssetting-form", echo.Map{
+	return c.Render(http.StatusOK, "setting-form", echo.Map{
 		"detail": setting,
 		"method": "PUT",
 	})

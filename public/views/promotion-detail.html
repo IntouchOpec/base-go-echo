@@ -65,23 +65,59 @@
                         <div class="card">
                             <div class="card-header card-header-primary d-flex justify-content-between">
                                 <h4 id="PromType" value="{{.detail.PromType}}" class="card-title ">{{.detail.PromType}}</h4>
-                                <!-- <a href="/admin/promotion_channel/{{ .detail.ID }}/create"> -->
                                     <button class="btn btn-info" id="create">
                                     <i class="material-icons">add</i>
                                         create {{ .detail.PromType }}
                                     </button>
-                                <!-- </a> -->
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
                                     <table class="table">
                                         <thead>
+                                            <th>ChatChannel</th>
+                                            <th>IsActive</th>
+                                            <th>StartDate</th>
+                                            <th>EndDate</th>
+                                            <th>Amount</th>
+                                            <th>Condition</th>
                                             <th></th>
-                                            <th>Name</th>
-                                            <th>Type</th>
                                         </thead>
-                                        <tbody>
-                                            
+                                        <tbody id="body-child">
+                                            {{ if (eq .detail.PromType "Coupon") }}
+                                                {{ with .detail.Coupons }}
+                                                {{ range . }}
+                                                <tr name="row_{{ .ID }}">
+                                                    <td>{{.ChatChannel}}</td>
+                                                    <td>{{.IsActive}}</td>
+                                                    <td>{{.PromStartDate}}</td>
+                                                    <td>{{.PromEndDate}}</td>
+                                                    <td>{{.PromAmount}}</td>
+                                                    <td>{{.PromCondition}}</td>
+                                                </tr>
+                                                {{ end }}
+                                                {{ end }}
+                                            {{ else if (eq .detail.PromType "Voucher")  }}
+                                                {{ with .detail.Vouchers }}
+                                                {{ range . }}
+                                                <tr name="row_{{ .ID }}">
+                                                    <td>{{.ChatChannel}}</td>
+                                                    <td><input type="checkbox" checked data-toggle="toggle" checked="{{.IsActive}}"></td>
+                                                    <td>{{.PromStartDate}}</td>
+                                                    <td>{{.PromEndDate}}</td>
+                                                    <td>{{.PromAmount}}</td>
+                                                    <td>{{.PromCondition}}</td>
+                                                    <td class="td-actions text-right">
+                                                        <button value="{{ .ID }}" type="button" rel="tooltip" class="btn btn-success">
+                                                            <i class="material-icons">settings_applications</i>
+                                                        </button>
+                                                        <button value="{{ .ID }}" name="remove" type="button" rel="tooltip" class="btn btn-danger">
+                                                            <i class="material-icons">close</i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                                {{ end }}
+                                                {{ end }}
+                                            {{ end }}
                                         </tbody>
                                     </table>
                                 </div>
@@ -108,6 +144,19 @@
                 html:
                    `
                    <form method="{{.method}}" class="text-left" name="create-promotion" >
+                    <div class="col-md-12 mt-2">
+                        <div class="form-group">
+                            <label class="bmd-label-floating" >service</label>
+                            <select name="provider-serviceType" class="form-control" data-style="btn btn-link" id="chat_channel_id">
+                                <option value="">choose chat channel </option>
+                                {{ with .chatChannels }}
+                                {{ range . }}
+                                    <option value="{{.ID}}">{{.ChaName}}</option>
+                                {{ end }}
+                                {{ end }}
+                            </select>
+                        </div>
+                    </div>
                     <div class="col-md-12 mt-2">
                         <div class="form-group">
                             <label class="bmd-label-floating">StartDate</label>
@@ -138,26 +187,31 @@
                 showCancelButton: true,
                 focusConfirm: false,
                 confirmButtonText:
-                    '<i class="fa fa-thumbs-up"></i> Great!',
+                    'Submit',
                 confirmButtonAriaLabel: 'Thumbs up, great!',
                 cancelButtonText:
                     '<i class="fa fa-thumbs-down"></i>',
                 cancelButtonAriaLabel: 'Thumbs down'
             }).then(result => {
                 if (result.value) {
+                    let proID = $("#promotion_id").val()
+
                     let _csrf = $("#_csrf").val()
-                    let StartDate = ("#StartDate").val()
-                    let EndDate = ("#EndDate").val()
-                    let Amount = ("#Amount").val()
-                    let Condition = ("#Condition").val()
+                    let StartDate = $("#StartDate").val()
+                    let EndDate = $("#EndDate").val()
+                    let Amount = $("#Amount").val()
+                    let chat_channel_id = $("#chat_channel_id").val()
+                    let Condition = $("#Condition").val()
 
                     let data = new FormData()
+                    data.append("_csrf", _csrf)
+                    data.append("chat_channel_id", chat_channel_id)
                     data.append("start_date", StartDate)
                     data.append("end_date", EndDate)
                     data.append("amount", Amount)
                     data.append("condition", Condition)
 
-                    fetch(`/admin/promotion/${id}`, {
+                    fetch(`/admin/promotion/${proID}`, {
                         method: "POST",
                         body: data,
                     }).then(res => {
@@ -165,6 +219,15 @@
                             throw ""
                         }
                         return res.json()
+                    }).then(data => {
+                        Swal.fire("success", "", "success").then(result => {
+                            $("#body-child").append(`
+                            <tr name="row_${result.id}">
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            `)
+                        })
                     }).catch(err => {
                         Swal.fire("fial", "", "warning")
                     })
@@ -193,9 +256,11 @@
                   }
                   return res.json()
               }).then(data => {
-
+                Swal.fire("success", "", "success").then(result => {
+                    $("body-child")
+                })
               }).catch(err => {
-
+                Swal.fire("fial", "", "warning")
               })
           })
       })(jQuery)

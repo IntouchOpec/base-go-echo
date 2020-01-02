@@ -40,16 +40,12 @@ func PromotionDetailHandler(c *Context) error {
 	id := c.Param("id")
 	a := auth.Default(c)
 
-	err := model.DB().Preload("Account").Preload("Customers").Preload("ChatChannels").Where("account_id = ?",
+	model.DB().Preload("Account").Preload("Coupons").Preload("Vouchers").Where("account_id = ?",
 		a.User.GetAccountID()).Find(&promotion, id)
-	if err != nil {
-		fmt.Println(err, "===")
-	}
 	// sumCustomer := len(promotion.Customers)
 	return c.Render(http.StatusOK, "promotion-detail", echo.Map{
 		"detail": promotion,
 		"title":  "promotion",
-		// "sumCustomer": sumCustomer,
 	})
 }
 
@@ -184,7 +180,6 @@ func PromotionEditPutHandler(c *Context) error {
 	if err := db.Where("account_id = ?", a.User.GetAccountID()).Find(&promotionModel, id).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	fmt.Println(image)
 	promotionModel.PromTitle = promotion.Title
 	promotionModel.PromType = promotion.PromotionType
 	promotionModel.PromDiscount = promotion.Discount
@@ -226,7 +221,6 @@ func PromotionChannelAddHandler(c *Context) error {
 	chatChannel := model.ChatChannel{}
 	chatChannelID := c.FormValue("chat_channel_id")
 	db := model.DB()
-	fmt.Println(id, "id")
 	if err := db.Where("account_id = ?", a.User.GetAccountID()).Find(&chatChannel, chatChannelID).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
@@ -235,7 +229,6 @@ func PromotionChannelAddHandler(c *Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	if err := db.Model(&pro).Association("ChatChannels").Append(&chatChannel).Error; err != nil {
-		fmt.Println(chatChannel)
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	redirect := fmt.Sprintf("/admin/promotion/%d", pro.ID)

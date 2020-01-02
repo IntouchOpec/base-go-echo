@@ -23,7 +23,6 @@ func LIIFListHandler(c *Context) error {
 
 	if err != nil {
 		return c.Render(http.StatusBadRequest, "LIFF-list", echo.Map{
-			"list":         "",
 			"title":        "LIFF",
 			"detail":       chatChannel,
 			"chatChannels": chatChannels,
@@ -31,7 +30,14 @@ func LIIFListHandler(c *Context) error {
 	}
 
 	res, err := bot.GetLIFF().Do()
-
+	if err != nil {
+		return c.Render(http.StatusBadRequest, "LIFF-list", echo.Map{
+			"err":          err,
+			"title":        "LIFF",
+			"detail":       chatChannel,
+			"chatChannels": chatChannels,
+		})
+	}
 	return c.Render(http.StatusOK, "LIFF-list", echo.Map{
 		"list":         &res,
 		"detail":       chatChannel,
@@ -99,7 +105,6 @@ func LIFFRemoveHandler(c *Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	fmt.Println(id, chatChannelID)
 	res, err := bot.DeleteRichMenu(id).Do()
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)

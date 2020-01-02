@@ -18,7 +18,6 @@ const PathLocal = "public/assets"
 func UploadteImage(file string) (string, string, error) {
 	idx := strings.Index(file, ";base64,")
 	if idx < 0 {
-		fmt.Println("=======1")
 		return "", "", errors.New("ErrInvalidImage")
 	}
 	reader := base64.NewDecoder(base64.StdEncoding, strings.NewReader(file[idx+8:]))
@@ -56,7 +55,6 @@ func UploadFile(file string, typeFile string) (string, string, error) {
 	fileName := fileNameBase + typeFile
 	fileNameBase = fmt.Sprintf("/mp3/%s", u) + typeFile
 	if err := Decode(file, fileName); err != nil {
-		fmt.Println(err)
 		return "", "", err
 	}
 	return fileNameBase, fileName, nil

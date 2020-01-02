@@ -27,7 +27,6 @@ func LIFFRegisterHandler(c echo.Context) error {
 		return c.NoContent(http.StatusBadRequest)
 	}
 	db.Where("account_id = ?", chatChannel.AccountID).Find(&customerTypes)
-	fmt.Println(customerTypes, chatChannel.AccountID)
 	APIRegister := fmt.Sprintf("https://%s/register/%s", Conf.Server.DomainWeb, lineID)
 	return c.Render(http.StatusOK, "register", echo.Map{
 		"web":           APIRegister,
