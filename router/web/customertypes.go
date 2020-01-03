@@ -49,12 +49,16 @@ func CustomerTypeEditPutHandler(c *Context) error {
 	id := c.Param("id")
 	accID := auth.Default(c).GetAccountID()
 	db := model.DB()
+
 	if err := db.Where("account_id = ?", accID).Find(&customerType, id).Error; err != nil {
 		return err
 	}
+
 	if err := c.Bind(&customerType); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
+	fmt.Println(customerType.ID)
+
 	if err := db.Save(&customerType).Error; err != nil {
 		return err
 	}
