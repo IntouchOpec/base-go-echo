@@ -158,6 +158,7 @@ func ChatChannelDetailHandler(c *Context) error {
 	a := auth.Default(c)
 	var totalEvent int
 	var totalAction int
+	var richMenu string
 	var paginationEventLogs Pagination
 	var paginationActionLogs Pagination
 	var deplayDetailChatChannels []DeplayDetailChatChannel
@@ -208,6 +209,22 @@ func ChatChannelDetailHandler(c *Context) error {
 	MessageQuota, _ := bot.GetMessageQuota().Do()
 	MessageQuotaConsumption, err := bot.GetMessageQuotaConsumption().Do()
 
+	if err != nil {
+		return c.Render(http.StatusOK, "chat-channel-detail", echo.Map{
+			"title":                    "chat_channel",
+			"detail":                   chatChannel,
+			"actionLogs":               actionLogs,
+			"eventLogs":                eventLogs,
+			"insightFollowers":         insightFollowers,
+			"paginationActionLogs":     paginationActionLogs,
+			"paginationEventLogs":      paginationEventLogs,
+			"richMenuDefault":          richMenu,
+			"urlRichMenu":              setting,
+			"deplayDetailChatChannels": deplayDetailChatChannels,
+			"list":                     chatChannel.Settings,
+		})
+	}
+
 	MessageConsumption, _ := bot.GetMessageConsumption().Do()
 	NumberReplyMessages, _ := bot.GetNumberReplyMessages(dateLineFormat).Do()
 	NumberPushMessages, _ := bot.GetNumberPushMessages(dateLineFormat).Do()
@@ -230,7 +247,11 @@ func ChatChannelDetailHandler(c *Context) error {
 	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Broadcast Messages Success", Value: strconv.FormatInt(NumberBroadcastMessages.Success, 16)})
 	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Multicast Messages Status", Value: NumberMulticastMessages.Status})
 	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Multicast Messages Success", Value: strconv.FormatInt(NumberMulticastMessages.Success, 16)})
-	db.Where("name = ?", richMenuDefault.RichMenuID).Find(&setting)
+
+	if richMenuDefault != nil {
+		richMenu = richMenuDefault.RichMenuID
+		db.Where("name = ?", richMenuDefault.RichMenuID).Find(&setting)
+	}
 
 	return c.Render(http.StatusOK, "chat-channel-detail", echo.Map{
 		"title":                    "chat_channel",
@@ -240,7 +261,7 @@ func ChatChannelDetailHandler(c *Context) error {
 		"insightFollowers":         insightFollowers,
 		"paginationActionLogs":     paginationActionLogs,
 		"paginationEventLogs":      paginationEventLogs,
-		"richMenuDefault":          richMenuDefault.RichMenuID,
+		"richMenuDefault":          richMenu,
 		"urlRichMenu":              setting,
 		"deplayDetailChatChannels": deplayDetailChatChannels,
 		"list":                     chatChannel.Settings,
@@ -291,7 +312,6 @@ func ChatChannelCreatePostHandler(c *Context) error {
 		Settings:              *settingsModel,
 	}
 	if err := chatChannelModel.SaveChatChannel(); err != nil {
-		fmt.Println(err, "SaveChatChannel")
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
@@ -305,7 +325,6 @@ func ChatChannelCreatePostHandler(c *Context) error {
 		var status string = "success"
 		var LIFFID string = ""
 		res, err := bot.AddLIFF(view).Do()
-		fmt.Println(err, "AddLIFF")
 		if err != nil {
 			status = "error"
 		} else {
@@ -317,12 +336,14 @@ func ChatChannelCreatePostHandler(c *Context) error {
 			&model.Setting{Detail: "", Name: "statusAccessToken", Value: status},
 			&model.Setting{Detail: "", Name: "dateStatusToken", Value: time.Now().Format("Mon Jan 2 2006")},
 		).Error; err != nil {
-			fmt.Println(err, "chatChannelModel")
 			return c.JSON(http.StatusBadRequest, chatChannelModel)
 		}
 	}
 	redirect := fmt.Sprintf("/admin/chat_channel/%d", chatChannelModel.ID)
-	return c.JSON(http.StatusCreated, redirect)
+	return c.JSON(http.StatusCreated, echo.Map{
+		"redirect": redirect,
+		"data":     chatChannel,
+	})
 }
 
 // ChatChannelEditHandler

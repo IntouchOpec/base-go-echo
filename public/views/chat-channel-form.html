@@ -20,7 +20,7 @@
                                         <p class="card-category">Complete your Chat Channel</p>
                                     </div>
                                     <div class="card-body">
-                                       <form  name="form-chat-channel" >
+                                       <form method="{{.method}}" name="form-chat-channel" >
                                             <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden" >
                                             <div class="row">
                                                 <div class="col-md-12 mt-2">
@@ -184,7 +184,7 @@
                 let Longitude = $("#Longitude").val()
                 let image = $("#image").val()
                 let systemConfirmation = $("#systemConfirmation").val()
-                let data = new URLSearchParams();
+                let data = new FormData();
                 data.append("_csrf", _csrf)
                 data.append("name", name)
                 data.append("phone_number", phone_number)
@@ -201,9 +201,9 @@
                     {detail: "", name: "latitude", value: Latitude},
                     {detail: "", name: "longitude", value: Latitude,}, 
                     {detail: "", name: "system_confirmation", value: systemConfirmation}]))
-                let method = $("form[name='create-chat-channel']").attr("method")
-                
-                fetch("/admin/chat_channel", { method, body: data })
+                let method = $("form[name='form-chat-channel']").attr("method")
+                // console.log(data,method)
+                fetch(window.location.href, { method, body: data })
                 .then(res => {
                     if (res.status !== 201) {
                         throw ""
