@@ -90,7 +90,7 @@ func Routers() *echo.Echo {
 		managent.GET("/customer_type", handler(CustomerTypeListHandler))
 		managent.GET("/customer_type/create", handler(CustomerTypeCreateHandler))
 		managent.POST("/customer_type/create", handler(CustomerTypeCreateHandler))
-		managent.GET("/customer_type/:id/edit", handler(CustomerTypeEditHandler))
+		managent.GET("/customer_type/:id/edit", handler(CustomerTypeEditViewHandler))
 		managent.PUT("/customer_type/:id/edit", handler(CustomerTypeEditPutHandler))
 		managent.DELETE("/customer_type/:id", handler(CustomerTypeDeleteHandler))
 

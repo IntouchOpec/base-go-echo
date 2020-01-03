@@ -34,15 +34,15 @@
                                <td>{{ .Name }}</td>
                                <td>{{ .CreatedAt.Format "Mon Jan 2 2006" }}</td>
                                <td class="td-actions text-right">
-                                    <a href="/admin/customer_type/{{ .ID }}">
+                                    <a href="/admin/customer_type/{{ .ID }}/edit">
                                         <button type="button" rel="tooltip" class="btn btn-warning">
                                             <i class="material-icons">edit</i>
                                         </button>
                                      </a>
 
-                                  <button value="{{ .ID }}" name="remove" type="button" rel="tooltip" class="btn btn-danger">
-                                      <i class="material-icons">close</i>
-                                  </button>
+                                    <button value="{{ .ID }}" name="remove" type="button" rel="tooltip" class="btn btn-danger">
+                                        <i class="material-icons">close</i>
+                                    </button>
                               </td>
                              </tr>
                            {{ end }} 

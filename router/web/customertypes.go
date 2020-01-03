@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/IntouchOpec/base-go-echo/lib"
 	"github.com/IntouchOpec/base-go-echo/model"
 	"github.com/IntouchOpec/base-go-echo/module/auth"
 	"github.com/labstack/echo"
@@ -19,12 +18,12 @@ func CustomerTypeListHandler(c *Context) error {
 	var total int
 	db := model.DB()
 
-	filterCustomerType := db.Model(&customerTypes).Where("account_id = ?", a.User.GetAccountID()).Count(&total)
+	filterCustomerType := db.Model(&customerTypes).Where("account_id = ?", a.GetAccountID()).Count(&total)
 
 	pagination := MakePagination(total, page, limit)
 	filterCustomerType.Limit(pagination.Record).Offset(pagination.Offset).Find(&customerTypes)
 
-	err := c.Render(http.StatusOK, "service-list", echo.Map{
+	err := c.Render(http.StatusOK, "customer-type-list", echo.Map{
 		"list":       customerTypes,
 		"title":      "customer_type",
 		"pagination": pagination,
@@ -38,7 +37,7 @@ func CustomerTypeEditViewHandler(c *Context) error {
 	accID := auth.Default(c).GetAccountID()
 
 	model.DB().Where("account_id = ?", accID).Find(&CustomerType, id)
-	return c.Render(http.StatusOK, "service-form", echo.Map{
+	return c.Render(http.StatusOK, "customer-type-form", echo.Map{
 		"detail": CustomerType,
 		"title":  "customer_type",
 		"method": "PUT",
@@ -46,42 +45,29 @@ func CustomerTypeEditViewHandler(c *Context) error {
 }
 
 func CustomerTypeEditPutHandler(c *Context) error {
-	customerType := serviceForm{}
-	image := c.FormValue("image")
+	customerType := model.CustomerType{}
 	id := c.Param("id")
-	var err error
-	if image == "" {
-		file := c.FormValue("file")
-		image, _, err = lib.UploadteImage(file)
+	accID := auth.Default(c).GetAccountID()
+	db := model.DB()
+	if err := db.Where("account_id = ?", accID).Find(&customerType, id).Error; err != nil {
+		return err
 	}
-
 	if err := c.Bind(&customerType); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	accID := auth.Default(c).GetAccountID()
-	serviceModel := model.CustomerType{}
-	db := model.DB()
-	if err := db.Where("account_id = ?", accID).Find(&serviceModel, id).Error; err != nil {
+	if err := db.Save(&customerType).Error; err != nil {
 		return err
 	}
-	if err := db.Save(&serviceModel).Error; err != nil {
-		return err
-	}
-
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
-
 	return c.JSON(http.StatusCreated, echo.Map{
-		"data":     serviceModel,
-		"redirect": fmt.Sprintf("/admin/service/%d", serviceModel.ID),
+		"data":     customerType,
+		"redirect": "/admin/customer_tpye",
 	})
 }
 
 func CustomerTypeCreateHandler(c *Context) error {
 	CustomerType := model.CustomerType{}
 
-	err := c.Render(http.StatusOK, "service-form", echo.Map{
+	err := c.Render(http.StatusOK, "customer-type-form", echo.Map{
 		"detail": CustomerType,
 		"title":  "customer_type",
 		"method": "POST",
@@ -102,19 +88,6 @@ func CustomerTypePostHandler(c *Context) error {
 	return c.JSON(http.StatusCreated, echo.Map{
 		"redirect": fmt.Sprintf("/admin/customer_type"),
 	})
-}
-
-func CustomerTypeEditHandler(c *Context) error {
-	customerType := model.CustomerType{}
-	id := c.Param("id")
-	a := auth.Default(c)
-	model.DB().Preload("Account").Preload("CustomerTypeSlots").Preload("ChatChannels").Where("account_id = ? ", a.User.GetAccountID()).Find(&customerType, id)
-	err := c.Render(http.StatusOK, "service-form", echo.Map{
-		"method": "PUT",
-		"detail": customerType,
-		"title":  "customer_type",
-	})
-	return err
 }
 
 func CustomerTypeDeleteHandler(c *Context) error {
