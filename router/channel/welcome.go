@@ -8,7 +8,7 @@ import (
 	"github.com/line/line-bot-sdk-go/linebot"
 )
 
-func welcomeHandle(c *echo.Context, event *linebot.Event, chatChannel *model.ChatChannel) linebot.SendingMessage {
+func welcomeHandle(c *echo.Context, event *linebot.Event, chatChannel *model.ChatChannel) (linebot.SendingMessage, error) {
 	customer := model.Customer{}
 
 	settingNames := []string{"LIFFregister"}
@@ -16,16 +16,16 @@ func welcomeHandle(c *echo.Context, event *linebot.Event, chatChannel *model.Cha
 	if err := model.DB().FirstOrCreate(&customer, model.Customer{
 		CusLineID: event.Source.UserID,
 		AccountID: chatChannel.AccountID}).Error; err != nil {
-		// return c.JSON(http.StatusBadRequest, err)
+		return nil, err
 	}
 
 	jsonFlexMessage := FollowTemplate(chatChannel, setting)
 	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(jsonFlexMessage))
 	if err != nil {
-		// return c.JSON(http.StatusBadRequest, err)
+		return nil, err
 	}
 	FlexMessage := linebot.NewFlexMessage(chatChannel.ChaWelcomeMessage, flexContainer)
-	return FlexMessage
+	return FlexMessage, nil
 }
 
 // FollowTemplate
