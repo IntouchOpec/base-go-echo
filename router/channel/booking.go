@@ -179,7 +179,7 @@ func ServiceList(c *Context) (linebot.SendingMessage, error) {
 	}
 	for _, service := range services {
 		button = fmt.Sprintf(buttonTimePrimaryTemplate, service.SerName, "Service "+service.SerName)
-		image = "https://" + Conf.Server.DomainWeb + service.SerImage
+		image = "https://" + Conf.Server.Domain + service.SerImage
 		template += fmt.Sprintf(serviceListTemplate, image, service.SerName, strconv.FormatInt(int64(service.SerPrice), 10), ","+button[:len(button)-1]) + ","
 	}
 	template = fmt.Sprintf(`{ "type": "carousel", "contents": [%s]}`, template[:len(template)-1])
@@ -258,11 +258,11 @@ func ServiceListLineHandler(c *Context) (linebot.SendingMessage, error) {
 		}
 		if index == len(providerServices)-1 {
 			slotTime = slotTime + fmt.Sprintf(slotTimeTemplate, buttonTime[:len(buttonTime)-1])
-			serviceList += fmt.Sprintf(serviceListTemplate, "https://"+Conf.Server.DomainWeb+providerService.Provider.ProvImage, providerService.Provider.ProvName, strconv.FormatInt(int64(providerService.PSPrice), 10), slotTime)
+			serviceList += fmt.Sprintf(serviceListTemplate, "https://web."+Conf.Server.Domain+providerService.Provider.ProvImage, providerService.Provider.ProvName, strconv.FormatInt(int64(providerService.PSPrice), 10), slotTime)
 			break
 		}
 		serviceList = serviceList + fmt.Sprintf(serviceListTemplate+",",
-			"https://"+Conf.Server.DomainWeb+providerService.Provider.ProvImage,
+			"https://"+Conf.Server.Domain+providerService.Provider.ProvImage,
 			providerService.Provider.ProvName, strconv.FormatInt(int64(providerService.PSPrice), 10), slotTime)
 		slotTime = ""
 		count = 0

@@ -27,7 +27,7 @@ func LIFFRegisterHandler(c echo.Context) error {
 		return c.NoContent(http.StatusBadRequest)
 	}
 	db.Where("account_id = ?", chatChannel.AccountID).Find(&customerTypes)
-	APIRegister := fmt.Sprintf("https://%s/register/%s", Conf.Server.DomainWeb, lineID)
+	APIRegister := fmt.Sprintf("https://web.%s/register/%s", Conf.Server.Domain, lineID)
 	return c.Render(http.StatusOK, "register", echo.Map{
 		"web":           APIRegister,
 		"customerTypes": customerTypes,
@@ -125,7 +125,7 @@ func VoucherTemplate(promotion *model.Promotion) string {
 	// 				{ "type": "text", "text": "%s", "wrap": true, "color": "#666666", "size": "sm", "flex": 5 } ]
 	// 			},
 	// 			{"type": "text", "margin": "lg", "text": "%s", "align": "center"},
-	// 			{"type": "button", "style": "secondary", "action": { "type": "uri", "label": "%s", "uri": "https://linecorp.com" }
+	// 			{"type": "button", "style": "secondary", "action": { "type": "uri", "label": "%s", "uri": "https://web.linecorp.com" }
 	// 			}
 	// 		  ]
 	// 		}
@@ -133,10 +133,10 @@ func VoucherTemplate(promotion *model.Promotion) string {
 	// 	},
 	// 	"footer": { "type": "box", "layout": "vertical", "spacing": "sm", "contents": [
 	// 		{ "type": "button", "style": "link", "height": "sm",
-	// 		  "action": { "type": "uri", "label": "เงื่อนไขการใช้", "uri": "https://linecorp.com" } }
+	// 		  "action": { "type": "uri", "label": "เงื่อนไขการใช้", "uri": "https://web.linecorp.com" } }
 	// 	  ],
 	// 	  "flex": 0
 	// 	}
-	//   }`, "https://"+Conf.Server.DomainWeb+promotion.PromImage, promotion.PromTitle, StartDateStr, EndDateStr, promotion.PromCondition, promotion.PromCode)
+	//   }`, "https://web."+Conf.Server.DomainWeb+promotion.PromImage, promotion.PromTitle, StartDateStr, EndDateStr, promotion.PromCondition, promotion.PromCode)
 	return "temp"
 }

@@ -59,6 +59,7 @@ type server struct {
 	Graceful bool   `toml:"graceful"`
 	Addr     string `toml:"addr"`
 
+	Domain            string `toml:"domain"`
 	DomainAPI         string `toml:"domain_api"`
 	DomainWeb         string `toml:"domain_web"`
 	DomainSocket      string `toml:"domain_socket"`

@@ -28,7 +28,7 @@ func FileListHandler(c *Context) error {
 		"pagination": pagination,
 		"list":       fils,
 		"title":      "upload_file",
-		"host":       Conf.Server.DomainWeb,
+		"host":       "web." + Conf.Server.Domain,
 	})
 }
 
@@ -49,7 +49,7 @@ func FileCreateHandler(c *Context) error {
 	}
 	return c.JSON(http.StatusCreated, echo.Map{
 		"data": filModel,
-		"host": Conf.Server.DomainWeb,
+		"host": "web." + Conf.Server.Domain,
 	})
 
 }
