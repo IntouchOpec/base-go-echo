@@ -106,7 +106,7 @@ func ChatChannelAddRegisterLIFF(c *Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	tx.Where("account_id = ?", a.User.GetAccountID()).Find(&chatChannel, id)
+	tx.Preload("Settings", "name in (?)", []string{"LIFFregister", "statusLIFFregister"}).Where("account_id = ?", a.User.GetAccountID()).Find(&chatChannel, id)
 
 	bot, err := linebot.New(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
 	if err != nil {
@@ -115,18 +115,28 @@ func ChatChannelAddRegisterLIFF(c *Context) error {
 
 	URLRegister := fmt.Sprintf("https://web.%s/register/%s", Conf.Server.Domain, chatChannel.ChaLineID)
 	view := linebot.View{Type: "full", URL: URLRegister}
-
-	// status = "success"
 	res, err := bot.AddLIFF(view).Do()
+
+	LIFFregister := model.Setting{Detail: "", Name: "LIFFregister", Value: res.LIFFID}
+	statusLIFFregister := model.Setting{Detail: "", Name: "statusLIFFregister", Value: "success"}
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
-	} else {
-		setting.Value = res.LIFFID
 	}
-	if setting.ID == 0 {
-		tx.Model(&chatChannel).Association("Settings").Append(&setting)
+	if len(chatChannel.Settings) == 0 {
+		tx.Save(&LIFFregister)
+		tx.Save(&statusLIFFregister)
+		tx.Model(&chatChannel).Association("Settings").Append(&LIFFregister)
+		tx.Model(&chatChannel).Association("Settings").Append(&statusLIFFregister)
 	} else {
-		err = tx.Save(&setting).Error
+		for _, setting := range chatChannel.Settings {
+			if setting.Name == LIFFregister.Name {
+				setting.Value = LIFFregister.Value
+			}
+			if statusLIFFregister.Name == setting.Name {
+				setting.Value = statusLIFFregister.Value
+			}
+			tx.Save(&setting)
+		}
 	}
 	if err != nil {
 		tx.Rollback()
