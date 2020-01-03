@@ -229,14 +229,13 @@ func ProviderAddBookingHandler(c *Context) error {
 	id := c.Param("Prov_id")
 	a := auth.Default(c)
 	provider := model.Provider{}
-
-	chatChannels, err := model.GetChatChannelList(a.GetAccountID())
-
-	if err != nil {
+	db := model.DB()
+	var chatChannels []model.ChatChannel
+	if err := db.Where("account_id = ?", a.GetAccountID()).Find(&chatChannels).Error; err != nil {
 		return c.Render(http.StatusNotFound, "404-page", echo.Map{})
 	}
 
-	if err := model.DB().Where("account_id = ?", a.GetAccountID()).Find(&provider, id).Error; err != nil {
+	if err := db.Where("account_id = ?", a.GetAccountID()).Find(&provider, id).Error; err != nil {
 		return c.Render(http.StatusNotFound, "404-page", echo.Map{})
 	}
 

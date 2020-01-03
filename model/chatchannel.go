@@ -2,7 +2,6 @@ package model
 
 import (
 	"github.com/IntouchOpec/base-go-echo/model/orm"
-	"github.com/jinzhu/gorm"
 )
 
 // ChatChannels list ChatChannel
@@ -46,17 +45,15 @@ func (cha *ChatChannel) SaveChatChannel() error {
 // GetChatChannel query account list.
 func GetChatChannel(AccountID uint) *ChatChannel {
 	chatChannels := ChatChannel{}
-	if err := DB().Where("account_id = ?", AccountID).Preload("EventLogs").Preload("ActionLogs", func(db *gorm.DB) *gorm.DB {
-		return db.Preload("Customer")
-	}).Find(&chatChannels, 1).Error; err != nil {
+	if err := DB().Find(&chatChannels, 1).Error; err != nil {
 		return nil
 	}
 	return &chatChannels
 }
 
-func GetChatChannelList(chatChannelID uint) (*[]ChatChannel, error) {
+func GetChatChannelList() (*[]ChatChannel, error) {
 	chatChannels := []ChatChannel{}
-	if err := DB().Where("account_id = ?", chatChannelID).Find(&chatChannels).Error; err != nil {
+	if err := DB().Find(&chatChannels).Error; err != nil {
 		return nil, err
 	}
 	return &chatChannels, nil

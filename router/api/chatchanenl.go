@@ -123,7 +123,10 @@ func GetChannelAccessToken(c echo.Context) error {
 }
 
 func GetChatChannelList(c echo.Context) error {
-	chatChannels := model.GetChatChannel(1)
+	chatChannels, err := model.GetChatChannelList()
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
 	return c.JSON(http.StatusOK, chatChannels)
 }
 
