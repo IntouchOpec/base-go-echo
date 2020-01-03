@@ -31,6 +31,12 @@
                     <p>Customer</p>
                 </a>
             </li>
+            <li class="nav-item {{ if (eq .title "customer_type") }}active{{ end }}">
+                <a class="nav-link" href="/admin/customer_type">
+                    <i class="material-icons">face</i>
+                    <p>Customer Type</p>
+                </a>
+            </li>
             <li class="nav-item {{ if (eq .title "service") }}active{{ end }}">
                 <a class="nav-link" href="/admin/service">
                     <i class="material-icons">local_grocery_store</i>

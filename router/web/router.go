@@ -87,9 +87,16 @@ func Routers() *echo.Echo {
 		managent.GET("/customer/:id", handler(CustomerDetailHandler))
 		managent.DELETE("/customer/:id", handler(CustomerDeleteHandler))
 
+		managent.GET("/customer_type", handler(CustomerTypeListHandler))
+		managent.GET("/customer_type/create", handler(CustomerTypeCreateHandler))
+		managent.POST("/customer_type/create", handler(CustomerTypeCreateHandler))
+		managent.GET("/customer_type/:id/edit", handler(CustomerTypeEditHandler))
+		managent.PUT("/customer_type/:id/edit", handler(CustomerTypeEditPutHandler))
+		managent.DELETE("/customer_type/:id", handler(CustomerTypeDeleteHandler))
+
 		managent.GET("/chat_channel", handler(ChatChannelListHandler))
 		managent.GET("/chat_channel/create", handler(ChatChannelCreateViewHandler))
-		managent.POST("/chat_channel/create", handler(ChatChannelCreatePostHandler))
+		managent.POST("/chat_channel/create", handler(CustomerTypePostHandler))
 		managent.PATCH("/chat_channel/:id/channel_access_token", handler(ChatChannelGetChannelAccessTokenHandler))
 		managent.PATCH("/chat_channel/:id/add_liff_register", handler(ChatChannelAddRegisterLIFF))
 		managent.DELETE("/chat_channel/:id", handler(ChatChannelDeleteHandler))
