@@ -78,7 +78,7 @@ func Routers() *echo.Echo {
 	e.POST("/chatchannel", CreateChatChannel)
 	e.POST("/chatchannel/:id/setting", CreateChatChannelSetting)
 	e.PATCH("/chatchannel/:id", UpdateChatChannel)
-	e.DELETE("/chatchannel/id", DeleteChatChannel)
+	e.DELETE("/chatchannel/:id", DeleteChatChannel)
 	e.PATCH("/chatchannel/:id/getaccesstoken", GetChannelAccessToken)
 	e.PATCH("/chatchannel/:lineID/activeregisterliff", ActiveRegisterLIFFAPI)
 
