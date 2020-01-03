@@ -131,6 +131,6 @@ func SettingPutHandler(c *Context) error {
 
 	return c.JSON(http.StatusOK, echo.Map{
 		"data":     setting,
-		"redirect": "/admin",
+		"redirect": "/admin/",
 	})
 }
