@@ -38,14 +38,15 @@ func HandleWebHookLineAPI(c echo.Context) error {
 	bot, err := lib.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
 
 	if err != nil {
+		fmt.Println(err, "bot", bot)
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
 	con.Account = account
 	con.ChatChannel = chatChannel
 	events, err := bot.ParseRequest(c.Request())
-
 	if err != nil {
+		fmt.Println(err, "events", events)
 		if err == linebot.ErrInvalidSignature {
 			return c.String(400, linebot.ErrInvalidSignature.Error())
 		}
@@ -134,6 +135,9 @@ func HandleWebHookLineAPI(c echo.Context) error {
 			case *linebot.FlexMessage:
 			}
 			_, err = bot.ReplyMessage(event.ReplyToken, messageReply).Do()
+			if err != nil {
+				fmt.Println("err", err, "ReplyMessage")
+			}
 			return c.JSON(200, "")
 
 		case linebot.EventTypeFollow:
