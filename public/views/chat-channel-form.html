@@ -212,7 +212,7 @@
                 })
                 .then(json => {
                     Swal.fire("success", "", "success").then(result => {
-                        window.location.href = json.required
+                        window.location.href = json.redirect
                     })
                 })
                 .catch(err => Swal.fire("fial", "", "warning"))

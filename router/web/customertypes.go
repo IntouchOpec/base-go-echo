@@ -85,6 +85,7 @@ func CustomerTypePostHandler(c *Context) error {
 	if err := c.Bind(&CustomerType); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
+	CustomerType.AccountID = auth.Default(c).GetAccountID()
 	if err := db.Create(&CustomerType).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
