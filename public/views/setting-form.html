@@ -57,23 +57,22 @@
   <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
   <script>
     (function ($) {
-        $("form[name='create-rich-menu']").validate({
+        $("form[name='setting-form']").validate({
             rules: {
                 Name: { required: true },
                 Value: { required: true },
-                Detail: { required: true }
             },
             messages: {
                 Name: { required: `Please enter a valid Name` },
                 Value: { required: `Please enter a valid Value` },
-                Detail: { required: `Please enter a valid Detail` },
             },
             submitHandler: function(form) {
                 let _csrf = $("#_csrf").val()
-                let name = $("#Name")
-                let value = $("#Value")
-                let detail = $("#Detail")
+                let name = $("#Name").val()
+                let value = $("#Value").val()
+                let detail = $("#Detail").val()
                 let data = new FormData()
+                data.append("_csrf", _csrf)
                 data.append("name", name)
                 data.append("value", value)
                 data.append("detail", detail)

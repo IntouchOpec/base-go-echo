@@ -12,9 +12,9 @@ type ChatChannels []ChatChannel
 type ChatChannel struct {
 	orm.ModelBase
 
-	ChaChannelID          string       `json:"cha_channel_id" form:"cha_channel_id" binding:"required" gorm:"type:varchar(25);unique_index"`
+	ChaChannelID          string       `json:"cha_channel_id" form:"cha_channel_id" binding:"required" gorm:"type:varchar(255);unique_index"`
 	ChaName               string       `json:"cha_name" form:"cha_name" binding:"required" gorm:"type:varchar(25)"`
-	ChaLineID             string       `json:"cha_line_id" form:"cha_line_id" binding:"required" gorm:"type:varchar(25);unique_index"`
+	ChaLineID             string       `json:"cha_line_id" form:"cha_line_id" binding:"required" gorm:"type:varchar(255);unique_index"`
 	ChaChannelSecret      string       `json:"cha_channel_secret" form:"cha_channel_secret" binding:"required" gorm:"type:varchar(255)"`
 	ChaChannelAccessToken string       `json:"cha_channel_access_token" form:"cha_channel_access_token" binding:"required" gorm:"type:varchar(255)"`
 	ChaType               string       `form:"cha_type" json:"cha_type"  gorm:"type:varchar(10)"`

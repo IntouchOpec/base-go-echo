@@ -311,7 +311,7 @@ func ChatChannelCreatePostHandler(c *Context) error {
 		ChaAddress:            chatChannel.Address,
 		Settings:              *settingsModel,
 	}
-	if err := chatChannelModel.SaveChatChannel(); err != nil {
+	if err := model.DB().Create(&chatChannelModel).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
@@ -339,9 +339,8 @@ func ChatChannelCreatePostHandler(c *Context) error {
 			return c.JSON(http.StatusBadRequest, chatChannelModel)
 		}
 	}
-	redirect := fmt.Sprintf("/admin/chat_channel/%d", chatChannelModel.ID)
 	return c.JSON(http.StatusCreated, echo.Map{
-		"redirect": redirect,
+		"redirect": fmt.Sprintf("/admin/chat_channel/%d", chatChannelModel.ID),
 		"data":     chatChannel,
 	})
 }
