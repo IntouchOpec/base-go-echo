@@ -13,6 +13,7 @@ func Routers() *echo.Echo {
 	e := echo.New()
 	e.GET("/", indexHandler)
 	e.POST("/callback/:account/:ChannelID", HandleWebHookLineAPI)
+	e.POST("/webhook-facebook", HandleWebHookFacebookAPI)
 	return e
 }
 
