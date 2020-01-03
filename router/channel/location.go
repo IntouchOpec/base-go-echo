@@ -12,6 +12,7 @@ func LocationHandler(c *Context) (linebot.SendingMessage, error) {
 	position := chatChannel.GetSetting([]string{"Latitude", "Longitude"})
 	Latitude, err := strconv.ParseFloat(position["Latitude"], 64)
 	if err != nil {
+		fmt.Println(err, "err location")
 		return nil, err
 	}
 	Longitude, err := strconv.ParseFloat(position["Longitude"], 64)
