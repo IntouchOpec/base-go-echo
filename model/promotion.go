@@ -42,7 +42,7 @@ type Voucher struct {
 	PromotionID   uint         `json:"promotion_id"`
 	ChatChannelID uint         `json:"chat_channel_id"`
 	IsActive      bool         `json:"is_active"`
-	ChatChannel   *ChatChannel `json:"chat_channel" gorm:"many2many:chat_channel_promotion"`
+	ChatChannel   *ChatChannel `json:"chat_channel" gorm:"ForeignKey:ChatChannelID"`
 	Promotion     Promotion    `json:"promotion"`
 	PromStartDate time.Time    `from:"start_time" gorm:"column:start_time" json:"prom_start_time"`
 	PromEndDate   time.Time    `from:"end_time" gorm:"column:end_time" json:"prom_end_time"`
@@ -56,7 +56,7 @@ type Coupon struct {
 	Promotion     Promotion    `json:"promotion"`
 	IsActive      bool         `json:"is_active"`
 	ChatChannelID uint         `json:"chat_channel_id"`
-	ChatChannel   *ChatChannel `json:"chat_channel" gorm:"many2many:chat_channel_promotion"`
+	ChatChannel   *ChatChannel `json:"chat_channel" gorm:"ForeignKey:ChatChannelID"`
 	PromStartDate time.Time    `from:"start_time" gorm:"column:start_time" json:"prom_start_time"`
 	PromEndDate   time.Time    `from:"end_time" gorm:"column:end_time" json:"prom_end_time"`
 	PromAmount    int          `form:"amount" json:"prom_amount"`

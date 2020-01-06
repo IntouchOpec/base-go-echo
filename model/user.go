@@ -93,6 +93,7 @@ type User struct {
 	Account       Account `gorm:"ForeignKey:AccountID"`
 	Authenticated bool    `form:"-" db:"-" json:"-"`
 	LineID        string  `form:"LineID" json:"line_id" gorm:"type:varchar(50)"`
+	Tester        bool    `json:"tester"`
 }
 
 type Role struct {

@@ -115,7 +115,7 @@ func TransactionDetailHandler(c *Context) error {
 	Transaction := model.Transaction{}
 	a := auth.Default(c).GetAccountID()
 
-	if err := model.DB().Where("account_id = ?", a).Preload("Bookings", func(db *gorm.DB) *gorm.DB {
+	if err := model.DB().Preload("Account").Where("account_id = ?", a).Preload("Bookings", func(db *gorm.DB) *gorm.DB {
 		return db.Preload("TimeSlot", func(db *gorm.DB) *gorm.DB {
 			return db.Preload("EmployeeService", func(db *gorm.DB) *gorm.DB {
 				return db.Preload("Employee").Preload("Service")
