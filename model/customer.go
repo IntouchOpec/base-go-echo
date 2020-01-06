@@ -80,7 +80,7 @@ func (customer *Customer) UpdateCustomer(id int) *Customer {
 
 // UpdateCustomerByAtt update by atti
 func (customer *Customer) UpdateCustomerByAtt(pictureURL, displayName, email, phoneNumber, FullName, Type string) (*Customer, error) {
-	if err := DB().Preload("Promotions").Where("cus_line_id = ?", customer.CusLineID).Find(&customer).Error; err != nil {
+	if err := DB().Where("cus_line_id = ?", customer.CusLineID).Find(&customer).Error; err != nil {
 		return nil, err
 	}
 	customer.CusPictureURL = pictureURL

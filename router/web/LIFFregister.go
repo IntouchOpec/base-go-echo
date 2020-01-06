@@ -2,14 +2,11 @@ package web
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 
 	. "github.com/IntouchOpec/base-go-echo/conf"
-	"github.com/IntouchOpec/base-go-echo/lib"
 	"github.com/IntouchOpec/base-go-echo/model"
 	"github.com/labstack/echo"
-	"github.com/line/line-bot-sdk-go/linebot"
 )
 
 // LIFFloginHandler
@@ -50,7 +47,7 @@ func LIIFRegisterSaveCustomer(c echo.Context) error {
 
 	chatChannel := model.ChatChannel{}
 	req := LineReqRegister{}
-	promotion := model.Promotion{}
+	// promotion := model.Promotion{}
 
 	if err := c.Bind(&req); err != nil {
 		return c.NoContent(http.StatusBadRequest)
@@ -64,37 +61,40 @@ func LIIFRegisterSaveCustomer(c echo.Context) error {
 
 	custo := model.Customer{CusLineID: req.UserID, AccountID: chatChannel.AccountID}
 	// pictureURL string, displayName string, email string, phoneNumber string
-	bot, err := lib.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
+	// bot, err := lib.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
+	// if err != nil {
+	// 	return c.NoContent(http.StatusBadRequest)
+	// }
+	_, err := custo.UpdateCustomerByAtt(req.PictureURL, req.DisplayName, req.Email, req.Phone, req.FullName, req.Type)
 	if err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}
-	_, err = custo.UpdateCustomerByAtt(req.PictureURL, req.DisplayName, req.Email, req.Phone, req.FullName, req.Type)
-	check := ValidateVoucher(custo.Promotions)
-	if check {
-		return c.NoContent(http.StatusBadRequest)
-	}
+	// check := ValidateVoucher(custo.Promotions)
+	// if check {
+	// 	return c.NoContent(http.StatusBadRequest)
+	// }
 
-	if err := db.Where("prom_name = ?", "register_voucher").Find(&promotion).Error; err != nil {
-		return c.NoContent(http.StatusBadRequest)
-	}
+	// if err := db.Where("prom_name = ?", "register_voucher").Find(&promotion).Error; err != nil {
+	// 	return c.NoContent(http.StatusBadRequest)
+	// }
 
-	temp := VoucherTemplate(&promotion)
-	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(temp))
+	// temp := VoucherTemplate(&promotion)
+	// flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(temp))
 
-	if err != nil {
-		log.Print(err)
-		return c.NoContent(http.StatusBadRequest)
-	}
+	// if err != nil {
+	// 	log.Print(err)
+	// 	return c.NoContent(http.StatusBadRequest)
+	// }
 
-	flexMessage := linebot.NewFlexMessage(chatChannel.ChaWelcomeMessage, flexContainer)
+	// flexMessage := linebot.NewFlexMessage(chatChannel.ChaWelcomeMessage, flexContainer)
 
-	if _, err = bot.PushMessage(req.UserID, flexMessage).Do(); err != nil {
-		log.Print(err)
-		return c.NoContent(http.StatusBadRequest)
-	}
-	if err := db.Model(&custo).Association("Promotions").Append(promotion).Error; err != nil {
-		return c.NoContent(http.StatusBadRequest)
-	}
+	// if _, err = bot.PushMessage(req.UserID, flexMessage).Do(); err != nil {
+	// 	log.Print(err)
+	// 	return c.NoContent(http.StatusBadRequest)
+	// }
+	// if err := db.Model(&custo).Association("Promotions").Append(promotion).Error; err != nil {
+	// 	return c.NoContent(http.StatusBadRequest)
+	// }
 	return c.JSON(http.StatusOK, custo)
 }
 
