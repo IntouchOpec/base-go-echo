@@ -436,10 +436,11 @@
                     method: "PATCH",
                     body: data
                 }).then(res => {
-                    if (res.status === 200) {
-                        $("#download_rich_menu").remove()
-                        return res.json()
+                    if (res.status !== 200) {
+                        throw ""
                     }
+                    $("#download_rich_menu").remove()
+                    return res.json()
                 }).then(data => {
                     $("div [name='deplay-image-rich-menu']").append(`
                         <img class="img-fluid" src="${data.urlImage}" />
@@ -461,15 +462,14 @@
                     }
                     return res.json();
                 }).then(data => {
-                    Swal.fire('New Access Token', '', 'success').then(result => {
+                    Swal.fire('', '', 'success').then(result => {
                         $("#access_token").text(data.access_token)
                     })
-                }).catch(err => Swal.fire('New Access Token','','error'))
+                }).catch(err => Swal.fire('','','error'))
             })
 
             $("#add_LIIF_register").on("click",function () {
                 let LIFFregister = $("#LIFFregister").attr("name")
-                console.log(LIFFregister)
                 const data = new URLSearchParams();
                 data.append("_csrf", _csrf);
 
@@ -483,9 +483,10 @@
                     method: "PATCH",
                     body: data
                 }).then(res => {
-                    if (res.status === 200) {
-                        return res.json();
+                    if (res.status !== 200) {
+                        throw ""
                     }
+                    return res.json();
                 }).then(data => {
                     Swal.fire(
                     'New Access Token',
@@ -497,7 +498,7 @@
                     //         <i class="material-icons">done</i>
                     // </button>`)
                 }).catch(err => Swal.fire(
-                    'New Access Token',
+                    '',
                     '',
                     'error'
                 ))

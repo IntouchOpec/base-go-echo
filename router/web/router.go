@@ -224,7 +224,6 @@ func Routers() *echo.Echo {
 
 	e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
 		Root: "public/assets",
-		// Browse: true,
 	}))
 
 	return e

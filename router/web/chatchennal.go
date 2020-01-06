@@ -97,16 +97,12 @@ func ChatChannelAddRegisterLIFF(c *Context) error {
 	chatChannel := model.ChatChannel{}
 	a := auth.Default(c)
 	db := model.DB()
-	tx := db.Begin()
-	if err := tx.Error; err != nil {
-		return err
-	}
 	setting := model.Setting{}
 	if err := c.Bind(&setting); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	tx.Preload("Settings", "name in (?)", []string{"LIFFregister", "statusLIFFregister"}).Where("account_id = ?", a.User.GetAccountID()).Find(&chatChannel, id)
+	db.Preload("Settings", "name in (?)", []string{"LIFFregister", "statusLIFFregister"}).Where("account_id = ?", a.User.GetAccountID()).Find(&chatChannel, id)
 
 	bot, err := linebot.New(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
 	if err != nil {
@@ -114,19 +110,20 @@ func ChatChannelAddRegisterLIFF(c *Context) error {
 	}
 
 	URLRegister := fmt.Sprintf("https://web.%s/register/%s", Conf.Server.Domain, chatChannel.ChaLineID)
+	// URLRegister := fmt.Sprintf("https://%s/register/%s", "586f1140.ngrok.io", chatChannel.ChaLineID)
 	view := linebot.View{Type: "full", URL: URLRegister}
 	res, err := bot.AddLIFF(view).Do()
-
+	fmt.Println(res)
 	LIFFregister := model.Setting{Detail: "", Name: "LIFFregister", Value: res.LIFFID}
 	statusLIFFregister := model.Setting{Detail: "", Name: "statusLIFFregister", Value: "success"}
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	if len(chatChannel.Settings) == 0 {
-		tx.Save(&LIFFregister)
-		tx.Save(&statusLIFFregister)
-		tx.Model(&chatChannel).Association("Settings").Append(&LIFFregister)
-		tx.Model(&chatChannel).Association("Settings").Append(&statusLIFFregister)
+		db.Save(&LIFFregister)
+		db.Save(&statusLIFFregister)
+		db.Model(&chatChannel).Association("Settings").Append(&LIFFregister)
+		db.Model(&chatChannel).Association("Settings").Append(&statusLIFFregister)
 	} else {
 		for _, setting := range chatChannel.Settings {
 			if setting.Name == LIFFregister.Name {
@@ -135,13 +132,9 @@ func ChatChannelAddRegisterLIFF(c *Context) error {
 			if statusLIFFregister.Name == setting.Name {
 				setting.Value = statusLIFFregister.Value
 			}
-			tx.Save(&setting)
+			db.Save(&setting)
 		}
 	}
-	if err != nil {
-		tx.Rollback()
-	}
-	tx.Commit()
 
 	return c.JSON(http.StatusOK, res)
 }

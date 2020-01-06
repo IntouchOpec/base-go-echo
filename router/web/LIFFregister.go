@@ -16,15 +16,18 @@ func LIFFRegisterHandler(c echo.Context) error {
 	customerTypes := []model.CustomerType{}
 	db := model.DB()
 	if err := db.Where("cha_line_id = ?", lineID).Find(&chatChannel).Error; err != nil {
-		return c.NoContent(http.StatusBadRequest)
+		return c.JSON(http.StatusBadRequest, err)
 	}
 
 	custo := model.Customer{}
 	if err := db.FirstOrCreate(&custo).Error; err != nil {
-		return c.NoContent(http.StatusBadRequest)
+		return c.JSON(http.StatusBadRequest, err)
 	}
+	fmt.Println(chatChannel.AccountID)
 	db.Where("account_id = ?", chatChannel.AccountID).Find(&customerTypes)
 	APIRegister := fmt.Sprintf("https://web.%s/register/%s", Conf.Server.Domain, lineID)
+	// APIRegister := fmt.Sprintf("https://%s/register/%s", "586f1140.ngrok.io", lineID)
+
 	return c.Render(http.StatusOK, "register", echo.Map{
 		"web":           APIRegister,
 		"customerTypes": customerTypes,
@@ -50,13 +53,13 @@ func LIIFRegisterSaveCustomer(c echo.Context) error {
 	// promotion := model.Promotion{}
 
 	if err := c.Bind(&req); err != nil {
-		return c.NoContent(http.StatusBadRequest)
+		return c.JSON(http.StatusBadRequest, err)
 	}
 
 	db := model.DB()
 
 	if err := db.Where("cha_line_ID = ?", lineID).Find(&chatChannel).Error; err != nil {
-		return c.NoContent(http.StatusBadRequest)
+		return c.JSON(http.StatusBadRequest, err)
 	}
 
 	custo := model.Customer{CusLineID: req.UserID, AccountID: chatChannel.AccountID}
