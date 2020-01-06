@@ -8,6 +8,7 @@ import (
 
 	"github.com/IntouchOpec/base-go-echo/lib"
 	"github.com/IntouchOpec/base-go-echo/module/auth"
+	"github.com/hb-go/gorm"
 
 	"github.com/IntouchOpec/base-go-echo/model"
 	"github.com/labstack/echo"
@@ -36,16 +37,24 @@ func PromotionListHandler(c *Context) error {
 
 // PromotionDetailHandler
 func PromotionDetailHandler(c *Context) error {
+	var chatChannels []model.ChatChannel
 	promotion := model.Promotion{}
 	id := c.Param("id")
 	a := auth.Default(c)
 
-	model.DB().Preload("Account").Preload("Coupons").Preload("Vouchers").Where("account_id = ?",
+	model.DB().Preload("Account").Preload("Coupons", func(db *gorm.DB) *gorm.DB {
+		return db.Preload("ChatChannel")
+	}).Preload("Vouchers", func(db *gorm.DB) *gorm.DB {
+		return db.Preload("ChatChannel")
+	}).Where("account_id = ?",
 		a.User.GetAccountID()).Find(&promotion, id)
-	// sumCustomer := len(promotion.Customers)
+	if err := model.DB().Where("account_id = ?", a.GetAccountID()).Find(&chatChannels).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
 	return c.Render(http.StatusOK, "promotion-detail", echo.Map{
-		"detail": promotion,
-		"title":  "promotion",
+		"detail":       promotion,
+		"chatChannels": chatChannels,
+		"title":        "promotion",
 	})
 }
 
@@ -117,12 +126,14 @@ func PromotionCreateDetailHandler(c *Context) error {
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	startDate, err := time.Parse("12/01/2019", req.StartDate)
-	endDate, err := time.Parse("12/01/2019", req.EndDate)
+	chatChannelID, _ := strconv.ParseUint(c.FormValue("chat_channel_id"), 10, 32)
+	startDate, err := time.Parse("2020-01-07", req.StartDate)
+	endDate, err := time.Parse("2020-01-07", req.EndDate)
 	amount, err := strconv.Atoi(req.Amount)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
+	fmt.Println(chatChannelID, c.FormValue("chat_channel_id"))
 	switch promotion.PromType {
 	case "Coupon":
 		db.Model(&promotion).Association("Coupons").Append(&model.Coupon{
@@ -130,6 +141,7 @@ func PromotionCreateDetailHandler(c *Context) error {
 			PromEndDate:   endDate,
 			PromAmount:    amount,
 			PromCondition: req.Condition,
+			ChatChannelID: uint(chatChannelID),
 		})
 	case "Voucher":
 		db.Model(&promotion).Association("Vouchers").Append(&model.Voucher{
@@ -137,8 +149,8 @@ func PromotionCreateDetailHandler(c *Context) error {
 			PromEndDate:   endDate,
 			PromAmount:    amount,
 			PromCondition: req.Condition,
+			ChatChannelID: uint(chatChannelID),
 		})
-
 	}
 
 	return c.JSON(http.StatusCreated, echo.Map{

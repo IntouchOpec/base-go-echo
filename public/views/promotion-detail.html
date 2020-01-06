@@ -100,7 +100,7 @@
                                                 {{ with .detail.Vouchers }}
                                                 {{ range . }}
                                                 <tr name="row_{{ .ID }}">
-                                                    <td>{{.ChatChannel}}</td>
+                                                    <td>{{.ChatChannel.ChaName}}</td>
                                                     <td><input type="checkbox" checked data-toggle="toggle" checked="{{.IsActive}}"></td>
                                                     <td>{{.PromStartDate}}</td>
                                                     <td>{{.PromEndDate}}</td>
@@ -222,9 +222,21 @@
                     }).then(data => {
                         Swal.fire("success", "", "success").then(result => {
                             $("#body-child").append(`
-                            <tr name="row_${result.id}">
-                                <td></td>
-                                <td></td>
+                            <tr name="row_${data.data.ID}">
+                                <td>${data.data.chat_channel}</td>
+                                <td><input type="checkbox" checked data-toggle="toggle" checked="${data.data.is_active}"></td>
+                                <td>${data.data.prom_start_date}</td>
+                                <td>${data.data.prom_end_date}</td>
+                                <td>${data.data.prom_amount}</td>
+                                <td>${data.data.prom_condition}</td>
+                                <td class="td-actions text-right">
+                                    <button value="${data.data.ID}" type="button" rel="tooltip" class="btn btn-success">
+                                        <i class="material-icons">settings_applications</i>
+                                    </button>
+                                    <button value="${data.data.ID}" name="remove" type="button" rel="tooltip" class="btn btn-danger">
+                                        <i class="material-icons">close</i>
+                                    </button>
+                                </td>
                             </tr>
                             `)
                         })

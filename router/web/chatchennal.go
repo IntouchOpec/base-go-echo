@@ -113,7 +113,7 @@ func ChatChannelAddRegisterLIFF(c *Context) error {
 	// URLRegister := fmt.Sprintf("https://%s/register/%s", "586f1140.ngrok.io", chatChannel.ChaLineID)
 	view := linebot.View{Type: "full", URL: URLRegister}
 	res, err := bot.AddLIFF(view).Do()
-	fmt.Println(res)
+
 	LIFFregister := model.Setting{Detail: "", Name: "LIFFregister", Value: res.LIFFID}
 	statusLIFFregister := model.Setting{Detail: "", Name: "statusLIFFregister", Value: "success"}
 	if err != nil {
