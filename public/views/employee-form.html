@@ -1,5 +1,5 @@
 
-{{define "provider-form"}}
+{{define "employee-form"}}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -16,10 +16,10 @@
                             <div class="col-md-6">
                                 <div class="card">
                                     <div class="card-header card-header-primary">
-                                        <h4 class="card-title">{{.mode}} provider</h4>
+                                        <h4 class="card-title">{{.mode}} employee</h4>
                                     </div>
                                     <div class="card-body">
-                                       <form name="create-provider" method="{{.method}}" >
+                                       <form name="create-employee" method="{{.method}}" >
                                             <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden" >
                                             <div class="row">
                                                 <div class="col-md-12 mt-2">
@@ -76,7 +76,7 @@
         //     let data = [] 
         //     data = data.join("&");
 
-        //     fetch(`/admin/provider/${id}/delete_image`, {
+        //     fetch(`/admin/employee/${id}/delete_image`, {
         //             method: "DELETE",
         //             headers: {"Content-Type": "application/x-www-form-urlencoded"},
         //             body: data
@@ -112,7 +112,7 @@
         })
         
         const onSubmit = (data) => {
-            let method = $("form[name='create-provider']").attr("method")
+            let method = $("form[name='create-employee']").attr("method")
             data = data.join("&")
             fetch(window.location.href, {
                 method, 
@@ -135,7 +135,7 @@
 
         
 
-        $("form[name='create-provider']").validate({
+        $("form[name='create-employee']").validate({
             rules: {
                 name: {
                     required: true

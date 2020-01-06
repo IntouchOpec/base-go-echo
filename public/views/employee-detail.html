@@ -1,5 +1,5 @@
 
-{{define "provider-detail"}}
+{{define "employee-detail"}}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -33,13 +33,13 @@
                     <div class="card">
                         <div class="card-header card-header-primary d-flex justify-content-between">
                             <h4 class="card-title ">service list</h4>
-                            <a href="/admin/provider_service/{{ .detail.ID }}/create">
+                            <a href="/admin/employee_service/{{ .detail.ID }}/create">
                                 <button class="btn btn-info">
                                 <i class="material-icons">add</i>
                                     Create
                                 </button>
                             </a>
-                            <a href="/admin/provider_service/{{ .detail.ID }}">
+                            <a href="/admin/employee_service/{{ .detail.ID }}">
                                 <button class="btn btn-info">
                                 <i class="material-icons">av_timer</i>
                                     time slot
@@ -56,14 +56,14 @@
                                         <th></th>
                                     </thead>
                                     <tbody>
-                                        {{ with .detail.ProviderServices }}
+                                        {{ with .detail.EmployeeServices }}
                                         {{ range . }}
                                             <tr name="row_{{ .ID }}">
                                                 <td>{{ .Service.SerName }}</td>
                                                 <td>{{ .PSPrice }}</td>
                                                 <td>{{ .CreatedAt.Format "Mon Jan 2 2006" }}</td>
                                                 <td class="td-actions text-right">
-                                                    <a href="/admin/provider_service/{{ .ID }}/edit">
+                                                    <a href="/admin/employee_service/{{ .ID }}/edit">
                                                         <button type="button" rel="tooltip" class="btn btn-warning">
                                                             <i class="material-icons">edit</i>
                                                         </button>
@@ -85,7 +85,7 @@
                     <div class="card">
                         <div class="card-header card-header-primary d-flex justify-content-between">
                             <h4 class="card-title ">booking list</h4>
-                            <a href="/admin/provider_booking/{{ .detail.ID }}/create">
+                            <a href="/admin/employee_booking/{{ .detail.ID }}/create">
                                 <button class="btn btn-info">
                                 <i class="material-icons">add</i>
                                     Create

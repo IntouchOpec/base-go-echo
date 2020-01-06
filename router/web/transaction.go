@@ -117,8 +117,8 @@ func TransactionDetailHandler(c *Context) error {
 
 	if err := model.DB().Where("account_id = ?", a).Preload("Bookings", func(db *gorm.DB) *gorm.DB {
 		return db.Preload("TimeSlot", func(db *gorm.DB) *gorm.DB {
-			return db.Preload("ProviderService", func(db *gorm.DB) *gorm.DB {
-				return db.Preload("Provider").Preload("Service")
+			return db.Preload("EmployeeService", func(db *gorm.DB) *gorm.DB {
+				return db.Preload("Employee").Preload("Service")
 			})
 		})
 	}).Preload("ChatChannel").Find(&Transaction, id).Error; err != nil {

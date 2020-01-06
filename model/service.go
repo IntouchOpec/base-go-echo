@@ -16,7 +16,7 @@ type Service struct {
 	SerImage         string             `form:"image" json:"ser_image" gorm:"type:varchar(255)"`
 	Account          Account            `json:"account" gorm:"ForeignKey:AccountID"`
 	ChatChannels     []*ChatChannel     `json:"chat_channels" gorm:"many2many:service_chat_channel"`
-	ProviderServices []*ProviderService `json:"provider_services" gorm:"many2many:ProviderService"`
+	EmployeeServices []*EmployeeService `json:"employee_services" gorm:"many2many:EmployeeService"`
 }
 
 // Saveservice is function create service.

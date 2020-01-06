@@ -1,5 +1,5 @@
 
-{{define "provider-list"}}
+{{define "employee-list"}}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -16,8 +16,8 @@
              <div class="col-md-12">
                <div class="card">
                 <div class="card-header card-header-primary d-flex justify-content-between">
-                  <h4 class="card-title ">provider list</h4>
-                  <a href="/admin/provider/create">
+                  <h4 class="card-title ">employee list</h4>
+                  <a href="/admin/employee/create">
                     <button class="btn btn-info">
                       <i class="material-icons">add</i>
                       Create
@@ -44,12 +44,12 @@
                               <td>{{ .ProvLineID }}</td>
                               <td>{{ .CreatedAt.Format "Mon Jan 2 2006" }}</td>
                               <td class="td-actions text-right">
-                                <a href="/admin/provider/{{ .ID }}">
+                                <a href="/admin/employee/{{ .ID }}">
                                   <button type="button" rel="tooltip" class="btn btn-success">
                                     <i class="material-icons">settings_applications</i>
                                   </button>
                                 </a>
-                                <a href="/admin/provider/{{ .ID }}/edit">
+                                <a href="/admin/employee/{{ .ID }}/edit">
                                   <button type="button" rel="tooltip" class="btn btn-warning">
                                       <i class="material-icons">edit</i>
                                   </button>
@@ -85,7 +85,7 @@
     (function($) {
       $("div[name='pagination'] nav ul.pagination li").each(function () {
         $(this).click(() => {
-          window.location.href = `/admin/provider?page=${$(this).val()- 1}&limit=10`
+          window.location.href = `/admin/employee?page=${$(this).val()- 1}&limit=10`
         })
       })
       $("button[name='remove']").click(function () {
@@ -103,7 +103,7 @@
             confirmButtonText: 'Yes, delete it!'
           }).then(result => {
           if (result) {
-            fetch(`/admin/provider/${id}`, {
+            fetch(`/admin/employee/${id}`, {
               body: data,
               method: "DELETE"
             }).then(res => {

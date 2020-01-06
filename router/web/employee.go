@@ -12,70 +12,70 @@ import (
 	"github.com/labstack/echo"
 )
 
-func ProviderListHandler(c *Context) error {
-	provider := []*model.Provider{}
+func EmployeeListHandler(c *Context) error {
+	employee := []*model.Employee{}
 	a := auth.Default(c)
 	db := model.DB()
 	queryPar := c.QueryParams()
 	page, limit := SetPagination(queryPar)
 	var total int
-	filterProvider := db.Model(&provider).Where("account_id = ?", a.GetAccountID()).Count(&total)
+	filterEmployee := db.Model(&employee).Where("account_id = ?", a.GetAccountID()).Count(&total)
 	pagination := MakePagination(total, page, limit)
-	filterProvider.Limit(pagination.Record).Offset(pagination.Offset).Find(&provider)
+	filterEmployee.Limit(pagination.Record).Offset(pagination.Offset).Find(&employee)
 
-	return c.Render(http.StatusOK, "provider-list", echo.Map{
-		"title":      "provider",
-		"list":       provider,
+	return c.Render(http.StatusOK, "employee-list", echo.Map{
+		"title":      "employee",
+		"list":       employee,
 		"pagination": pagination,
 	})
 }
 
-func ProviderDetailHandler(c *Context) error {
+func EmployeeDetailHandler(c *Context) error {
 	id := c.Param("id")
 	a := auth.Default(c)
 
-	provider, err := model.GetProviderDetail(id, a.GetAccountID())
+	employee, err := model.GetEmployeeDetail(id, a.GetAccountID())
 	bookings := []model.Booking{}
 	db := model.DB()
 	db.Find(&bookings)
 	if err != nil {
 		return c.Render(http.StatusNotFound, "404-page", echo.Map{})
 	}
-	return c.Render(http.StatusOK, "provider-detail", echo.Map{
-		"title":  "provider",
-		"detail": provider,
+	return c.Render(http.StatusOK, "employee-detail", echo.Map{
+		"title":  "employee",
+		"detail": employee,
 	})
 }
 
-func ProviderCreateHandler(c *Context) error {
-	provider := model.Provider{}
+func EmployeeCreateHandler(c *Context) error {
+	employee := model.Employee{}
 
-	return c.Render(http.StatusOK, "provider-form", echo.Map{
-		"title":  "provider",
-		"detail": provider,
+	return c.Render(http.StatusOK, "employee-form", echo.Map{
+		"title":  "employee",
+		"detail": employee,
 		"method": "POST",
 	})
 }
 
-func ProviderPUTHandler(c *Context) error {
-	provider := model.Provider{}
+func EmployeePUTHandler(c *Context) error {
+	employee := model.Employee{}
 
-	if err := c.Bind(&provider); err != nil {
+	if err := c.Bind(&employee); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	if err := provider.UpdateProvider(); err != nil {
+	if err := employee.UpdateEmployee(); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{
-		"detail":   provider,
-		"redirect": fmt.Sprintf("/admin/provider/%d", provider.ID),
+		"detail":   employee,
+		"redirect": fmt.Sprintf("/admin/employee/%d", employee.ID),
 	})
 }
 
-func ProviderPostHandler(c *Context) error {
-	provider := model.Provider{}
+func EmployeePostHandler(c *Context) error {
+	employee := model.Employee{}
 	a := auth.Default(c)
 	file := c.FormValue("file")
 
@@ -84,26 +84,26 @@ func ProviderPostHandler(c *Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	provider.ProvImage = fileUrl
-	provider.AccountID = a.GetAccountID()
+	employee.ProvImage = fileUrl
+	employee.AccountID = a.GetAccountID()
 
-	if err := c.Bind(&provider); err != nil {
+	if err := c.Bind(&employee); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	err = provider.CreateProvider()
+	err = employee.CreateEmployee()
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	redirect := fmt.Sprintf("/admin/provider/%d", provider.ID)
+	redirect := fmt.Sprintf("/admin/employee/%d", employee.ID)
 
 	return c.JSON(http.StatusCreated, echo.Map{
 		"redirect": redirect,
 	})
 }
 
-func ProviderPutHandler(c *Context) error {
-	provider := model.Provider{}
+func EmployeePutHandler(c *Context) error {
+	employee := model.Employee{}
 	a := auth.Default(c)
 	file := c.FormValue("file")
 
@@ -113,53 +113,53 @@ func ProviderPutHandler(c *Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	provider.ProvImage = file
-	provider.AccountID = a.GetAccountID()
+	employee.ProvImage = file
+	employee.AccountID = a.GetAccountID()
 
-	if err := c.Bind(&provider); err != nil {
+	if err := c.Bind(&employee); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	err = provider.CreateProvider()
+	err = employee.CreateEmployee()
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	redirect := fmt.Sprintf("/admin/provider/%d", provider.ID)
+	redirect := fmt.Sprintf("/admin/employee/%d", employee.ID)
 
 	return c.JSON(http.StatusCreated, redirect)
 }
 
-func ProviderEditHandler(c *Context) error {
+func EmployeeEditHandler(c *Context) error {
 	id := c.Param("id")
-	provider := model.Provider{}
+	employee := model.Employee{}
 	a := auth.Default(c)
 
-	if err := model.DB().Where("account_id = ?", a.GetAccountID()).Find(&provider, id).Error; err != nil {
+	if err := model.DB().Where("account_id = ?", a.GetAccountID()).Find(&employee, id).Error; err != nil {
 		return c.Render(http.StatusNotFound, "404-page", echo.Map{})
 	}
-	return c.Render(http.StatusOK, "provider-form", echo.Map{
-		"title":  "provider",
+	return c.Render(http.StatusOK, "employee-form", echo.Map{
+		"title":  "employee",
 		"method": "PUT",
-		"detail": provider,
+		"detail": employee,
 	})
 }
 
-func ProviderDeleteHandler(c *Context) error {
+func EmployeeDeleteHandler(c *Context) error {
 	id := c.Param("id")
 
-	chatChannel, err := model.RemoveProvider(id)
+	chatChannel, err := model.RemoveEmployee(id)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	return c.JSON(http.StatusOK, chatChannel)
 }
 
-func ProviderAddServiceHandler(c *Context) error {
+func EmployeeAddServiceHandler(c *Context) error {
 	id := c.Param("id")
 	accID := auth.Default(c).GetAccountID()
-	provider := model.Provider{}
+	employee := model.Employee{}
 
-	if err := model.DB().Where("account_id = ?", accID).Find(&provider, id).Error; err != nil {
+	if err := model.DB().Where("account_id = ?", accID).Find(&employee, id).Error; err != nil {
 		return c.Render(http.StatusNotFound, "404-page", echo.Map{})
 	}
 
@@ -169,11 +169,11 @@ func ProviderAddServiceHandler(c *Context) error {
 		return c.Render(http.StatusNotFound, "404-page", echo.Map{})
 	}
 
-	return c.Render(http.StatusOK, "provider-service-form", echo.Map{
+	return c.Render(http.StatusOK, "employee-service-form", echo.Map{
 		"method":   "POST",
-		"title":    "provider",
+		"title":    "employee",
 		"services": services,
-		"provider": provider,
+		"employee": employee,
 	})
 }
 func weeDayString(day int) string {
@@ -188,81 +188,81 @@ func weeDayString(day int) string {
 	return weeDay[day]
 }
 
-func ProviderSerciveListHandler(c *Context) error {
+func EmployeeSerciveListHandler(c *Context) error {
 	id := c.Param("prov_id")
 	accID := auth.Default(c).GetAccountID()
-	provider, err := model.GetProviderServiceTimeSlotList(id, accID)
+	employee, err := model.GetEmployeeServiceTimeSlotList(id, accID)
 
 	if err != nil {
 		return c.Render(http.StatusNotFound, "404-page", echo.Map{})
 	}
-	return c.Render(http.StatusOK, "provider-service-detail", echo.Map{
-		"title":  "provider",
-		"detail": provider,
+	return c.Render(http.StatusOK, "employee-service-detail", echo.Map{
+		"title":  "employee",
+		"detail": employee,
 	})
 }
 
-func ProviderAddServicePostHandler(c *Context) error {
-	var provService model.ProviderService
+func EmployeeAddServicePostHandler(c *Context) error {
+	var provService model.EmployeeService
 	db := model.DB()
 	price, err := strconv.ParseFloat(c.FormValue("price"), 10)
 	serviceID, err := strconv.ParseUint(c.FormValue("service_id"), 10, 32)
-	providerID, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	employeeID, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	provService.PSPrice = price
 	provService.ServiceID = uint(serviceID)
 	provService.ID = 0
-	provService.ProviderID = uint(providerID)
+	provService.EmployeeID = uint(employeeID)
 	if err := db.Create(&provService).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	redirect := fmt.Sprintf("/admin/provider/%d", providerID)
+	redirect := fmt.Sprintf("/admin/employee/%d", employeeID)
 	return c.JSON(http.StatusCreated, echo.Map{
 		"redirect": redirect,
 		"provs":    provService,
 	})
 }
 
-func ProviderAddBookingHandler(c *Context) error {
+func EmployeeAddBookingHandler(c *Context) error {
 	id := c.Param("Prov_id")
 	a := auth.Default(c)
-	provider := model.Provider{}
+	employee := model.Employee{}
 	db := model.DB()
 	var chatChannels []model.ChatChannel
 	if err := db.Where("account_id = ?", a.GetAccountID()).Find(&chatChannels).Error; err != nil {
 		return c.Render(http.StatusNotFound, "404-page", echo.Map{})
 	}
 
-	if err := db.Where("account_id = ?", a.GetAccountID()).Find(&provider, id).Error; err != nil {
+	if err := db.Where("account_id = ?", a.GetAccountID()).Find(&employee, id).Error; err != nil {
 		return c.Render(http.StatusNotFound, "404-page", echo.Map{})
 	}
 
-	return c.Render(http.StatusOK, "provider-list", echo.Map{
-		"title":        "provider",
+	return c.Render(http.StatusOK, "employee-list", echo.Map{
+		"title":        "employee",
 		"chatChannels": chatChannels,
 	})
 }
 
-func ProviderDeleteImageHandler(c *Context) error {
+func EmployeeDeleteImageHandler(c *Context) error {
 	id := c.Param("Prov_id")
 	a := auth.Default(c)
-	provider := model.Provider{}
+	employee := model.Employee{}
 
-	if err := model.DB().Where("account_id = ?", a.GetAccountID()).Find(&provider, id).Error; err != nil {
+	if err := model.DB().Where("account_id = ?", a.GetAccountID()).Find(&employee, id).Error; err != nil {
 		return c.JSON(http.StatusNotFound, err)
 	}
 
-	if err := lib.DeleteFile(provider.ProvImage); err != nil {
+	if err := lib.DeleteFile(employee.ProvImage); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	if err := provider.RemoveImage(); err != nil {
+	if err := employee.RemoveImage(); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{
-		"data": provider,
+		"data": employee,
 	})
 }

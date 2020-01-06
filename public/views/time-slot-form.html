@@ -41,7 +41,7 @@
                                                 <label class="bmd-label-floating" >service</label>
                                             </div>
                                             <div class="form-check form-check-inline" id="service-list">
-                                                {{ with .ProviderServices }}
+                                                {{ with .EmployeeServices }}
                                                 {{ range . }}
                                                     <div name="servic-list" class="form-check mx-2">
                                                         <label class="form-check-label">
@@ -241,7 +241,7 @@
                             timeSlot = addMinutes(timeSlot, minutesService)
                             timeSlotData.time_end = timeSlot
                             timeSlotData.time_day = dayWeek.id
-                            timeSlotData.provider_service_id = serviceData.id
+                            timeSlotData.employee_service_id = serviceData.id
                             timeSlotsReq.push(timeSlotData)
                             i++;
                         }

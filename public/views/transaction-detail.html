@@ -88,7 +88,7 @@
                                         <th>Day</th>
                                         <th>Start</th>
                                         <th>To</th>
-                                        <th>Provider</th>
+                                        <th>Employee</th>
                                         <th>Price</th>
                                         <th></th>
                                     </thead>
@@ -99,8 +99,8 @@
                                             <td>{{.BookedDate.Format "Mon Jan 2 2006"}}</td>
                                             <td>{{.TimeSlot.TimeStart}}</td>
                                             <td>{{.TimeSlot.TimeEnd}}</td>
-                                            <td>{{.TimeSlot.ProviderService.Provider.ProvName}}</td>
-                                            <td>{{.TimeSlot.ProviderService.PSPrice}}</td>
+                                            <td>{{.TimeSlot.EmployeeService.Employee.ProvName}}</td>
+                                            <td>{{.TimeSlot.EmployeeService.PSPrice}}</td>
                                             <td>
                                                 <button value="{{ .ID }}" name="remove"  type="button" rel="tooltip" class="btn btn-danger">
                                                     <i class="material-icons">close</i>

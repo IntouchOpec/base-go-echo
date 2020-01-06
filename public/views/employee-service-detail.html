@@ -1,5 +1,5 @@
 
-{{define "provider-service-detail"}}
+{{define "employee-service-detail"}}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -24,7 +24,7 @@
                                 </button>
                             </a>
                         </div>
-                        {{ with .detail.ProviderServices }}
+                        {{ with .detail.EmployeeServices }}
                         {{ range . }}
                             <div class="card-body">
                                 {{ .Service.SerName}}

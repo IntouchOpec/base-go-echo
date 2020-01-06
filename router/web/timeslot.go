@@ -24,9 +24,9 @@ const (
 
 func TimeSlotCreateHandler(c *Context) error {
 	// a := auth.Default(c)
-	id := c.Param("provider_id")
-	providerServices := []*model.ProviderService{}
-	model.DB().Preload("Service").Where("provider_id = ?", id).Find(&providerServices)
+	id := c.Param("employee_id")
+	employeeServices := []*model.EmployeeService{}
+	model.DB().Preload("Service").Where("employee_id = ?", id).Find(&employeeServices)
 	var DayWeeks [7]string
 	DayWeeks[0] = "Sunday"
 	DayWeeks[1] = "Monday"
@@ -37,8 +37,8 @@ func TimeSlotCreateHandler(c *Context) error {
 	DayWeeks[6] = "Saturday"
 	return c.Render(http.StatusOK, "time-slot-form", echo.Map{
 		"method":           "POST",
-		"title":            "provider",
-		"ProviderServices": providerServices,
+		"title":            "employee",
+		"EmployeeServices": employeeServices,
 		"DayWeeks":         DayWeeks,
 	})
 }
@@ -65,9 +65,9 @@ func TimeSlotPostHandler(c *Context) error {
 	if err = tx.Commit().Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	id := c.Param("provider_id")
+	id := c.Param("employee_id")
 
-	redirect := fmt.Sprintf("/admin/provider_service/%s", id)
+	redirect := fmt.Sprintf("/admin/employee_service/%s", id)
 
 	return c.JSON(http.StatusCreated, redirect)
 }
@@ -83,7 +83,7 @@ func TimeSlotUpdateViewHandler(c *Context) error {
 	}
 	return c.Render(http.StatusOK, "time-slot-form", echo.Map{
 		"method": "PUT",
-		"title":  "provider",
+		"title":  "employee",
 		"detail": timeSlot,
 	})
 }
@@ -103,14 +103,14 @@ func TimeSlotUpdateHandler(c *Context) error {
 	if err := timeSlot.UpdateTimeSlot(id); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	redirect := fmt.Sprintf("/admin/provider_service/%d", timeSlot.ProviderService.ProviderID)
+	redirect := fmt.Sprintf("/admin/employee_service/%d", timeSlot.EmployeeService.EmployeeID)
 	return c.JSON(http.StatusOK, redirect)
 }
 
 func TimeSlotDeleteHandler(c *Context) error {
 	id := c.Param("id")
 
-	provi, err := model.RemoveProviderService(id)
+	provi, err := model.RemoveEmployeeService(id)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}

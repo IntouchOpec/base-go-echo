@@ -1,5 +1,5 @@
 
-{{define "provider-service-form"}}
+{{define "employee-booking-form"}}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -16,32 +16,30 @@
                             <div class="col-md-6">
                                 <div class="card">
                                     <div class="card-header card-header-primary">
-                                        <h4 class="card-title">{{.mode}} provider-service {{ .provider.ProvName }}</h4>
+                                        <h4 class="card-title">{{.mode}} employee-service</h4>
                                     </div>
                                     <div class="card-body">
-                                       <form method="{{.method}}" name="create-provider-service" >
+                                       <form method="{{.method}}" name="create-employee-service" >
                                             <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden" >
                                             <div class="row">
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
-                                                        <label class="bmd-label-floating" >Price</label>
-                                                        <input name="price" id="price" type="text" class="form-control" >
+                                                        <label class="bmd-label-floating" >Title</label>
+                                                        <input name="Title" id="Title" type="text" class="form-control" >
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
-                                                        <label class="bmd-label-floating" >service</label>
-                                                        <select name="provider-serviceType" class="form-control" data-style="btn btn-link" id="service_id">
-                                                            <option value="">choose service </option>
-                                                            {{ with .services }}
+                                                        <label class="bmd-label-floating" >employee-serviceType</label>
+                                                        <select name="employee-serviceType" class="form-control" id="employee-serviceType" data-style="btn btn-link" id="exampleFormControlSelect2">
+                                                            {{ with . }}
                                                             {{ range . }}
-                                                                <option value="{{.ID}}">{{.SerName}}</option>
+                                                                <option value="{{.}}">{{.}}</option>
                                                             {{ end }}
                                                             {{ end }}
                                                         </select>
                                                     </div>
                                                 </div>
-                                            </div>
                                             <input type="submit" rel="tooltip" value="Submit" class="btn btn-success">
                                         </form>
                                     </div>
@@ -59,57 +57,36 @@
   <script>
    
     (function ($) {
-        $("form[name='create-provider-service']").validate({
+        $("form[name='create-employee-service']").validate({
             rules: {
-                service_id: {
-                    required: true
-                },
-                price: {
-                    required: true
-                },
+                
             },
             messages: {
-                service_id: {
-                    required: "Please enter a valid service"
-                },
-                price: {
-                    required: "Please enter a valid price"
-                },
+                
             },
             submitHandler: function(form) {
                 let _csrf = $("#_csrf").val()
-                let service_id = $("#service_id").val()
-                let price = $("#price").val()
 
-                let encodedKey = encodeURIComponent("_csrf")
-                let encodedValue = encodeURIComponent(_csrf)
-                let serviceEncodedKey = encodeURIComponent("service_id")
-                let serviceEncodedValue = encodeURIComponent(service_id)
-                let priceEncodedKey = encodeURIComponent("price")
-                let priceEncodedValue = encodeURIComponent(price)
-                let data = []
+                let encodedKey = encodeURIComponent("_csrf");
+                let encodedValue = encodeURIComponent(_csrf);
 
                 data.push(encodedKey + "=" + encodedValue)
-                data.push(serviceEncodedKey + "=" + serviceEncodedValue)
-                data.push(priceEncodedKey + "=" + priceEncodedValue)
-                
-                let method = $("form[name='create-provider-service']").attr("method")
-                data = data.join("&")
+
+                let data = []
+                data = data.join("&");
                 fetch(window.location.href, {
                     method, 
                     headers: {"Content-Type": "application/x-www-form-urlencoded"},
                     body: data
                 })
                 .then(res => {
-                    if (res.status !== 201) {
-                        Swal.fire("fial", "", "warning")
-                        throw ""
-                    } 
-                    return res.json()
+                    if (res.status === 201){
+                        return res.json()
+                    }  
                 })
-                .then(data => {
+                .then(json => {
                     Swal.fire("success", "", "success").then(result => {
-                        window.location = data.redirect
+                        window.location = json
                     })
                 })
                 .catch(err => Swal.fire("fial", "", "warning"))

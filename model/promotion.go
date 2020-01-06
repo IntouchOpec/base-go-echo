@@ -34,7 +34,7 @@ type Promotion struct {
 	Coupons            []*Coupon    `json:"coupons"`
 	// Customers          []*Customer  `gorm:"many2many:promotion_customer" json:"customer"`
 	// ChatChannels       []*ChatChannel `json:"chat_channels" gorm:"many2many:chat_channel_promotion"`
-	// ProviderServices   []*ProviderService `json:"provider_service" gorm:"many2many:promotion_provider_service"`
+	// EmployeeServices   []*EmployeeService `json:"employee_service" gorm:"many2many:promotion_employee_service"`
 }
 
 type Voucher struct {

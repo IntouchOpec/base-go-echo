@@ -15,9 +15,9 @@ type TimeSlot struct {
 	TimeDay           int             `json:"time_day"`
 	TimeAmount        int             `json:"time_amount"`
 	TimeActive        bool            `json:"time_active" gorm:"default:true"`
-	ProviderServiceID uint            `json:"provider_service_id"`
+	EmployeeServiceID uint            `json:"employee_service_id"`
 	AccountID         uint            `json:"account_id"`
-	ProviderService   ProviderService `json:"provider_service" gorm:"ForeignKey:ProviderServiceID"`
+	EmployeeService   EmployeeService `json:"employee_service" gorm:"ForeignKey:EmployeeServiceID"`
 	Account           Account         `json:"account" gorm:"ForeignKey:AccountID"`
 }
 
@@ -34,8 +34,8 @@ func GetTimeSlotByDate(t time.Time, serName string) ([]TimeSlot, error) {
 	if err := DB().Where("ser_name = ?", serName).Find(&service).Error; err != nil {
 		return nil, err
 	}
-	if err := DB().Where("time_day = ?", int(t.Weekday())).Preload("ProviderService", func(db *gorm.DB) *gorm.DB {
-		return db.Where("service_id = ?", service.ID).Preload("Provider").Preload("Service")
+	if err := DB().Where("time_day = ?", int(t.Weekday())).Preload("EmployeeService", func(db *gorm.DB) *gorm.DB {
+		return db.Where("service_id = ?", service.ID).Preload("Employee").Preload("Service")
 	}).Find(&timeSlots).Error; err != nil {
 		return nil, err
 	}
