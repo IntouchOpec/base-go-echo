@@ -10,22 +10,23 @@ import (
 type Customer struct {
 	orm.ModelBase
 
-	CusFullName    string         `json:"cus_full_name" gorm:"type:varchar(50);"`
-	CusPictureURL  string         `json:"cus_picture_url"`
-	CusDisplayName string         `json:"cus_display_name"`
-	CusLineID      string         `json:"cus_line_id" gorm:"type:varchar(255)"`
-	CusEmail       string         `json:"cus_email" gorm:"type:varchar(25)"`
-	CusPhoneNumber string         `json:"cus_phone_number" gorm:"type:varchar(25)"`
-	AccountID      uint           `json:"account_id" gorm:"not null;"`
-	CustomerTypeID uint           `json:"customer_type_id"`
-	Account        Account        `json:"account" gorm:"ForeignKey:AccountID"`
-	CustomerType   CustomerType   `json:"customer" gorm:"ForeignKey:CustomerTypeID"`
-	ChatChannels   []*ChatChannel `gorm:"many2many:chat_channel_customer" json:"chat_channels"`
-	Promotions     []*Promotion   `gorm:"many2many:promotion_customer" json:"promotions"`
-	EventLogs      []*EventLog    `json:"even_logs" gorm:"foreignkey:ID"`
-	ActionLogs     []*ActionLog   `json:"action_logs" gorm:"foreignkey:ID"`
-	Bookings       []*Booking     `json:"bookings"`
-	Transactions   []*Transaction `json:"transactions"`
+	CusFullName      string             `json:"cus_full_name" gorm:"type:varchar(50);"`
+	CusPictureURL    string             `json:"cus_picture_url"`
+	CusDisplayName   string             `json:"cus_display_name"`
+	CusLineID        string             `json:"cus_line_id" gorm:"type:varchar(255)"`
+	CusEmail         string             `json:"cus_email" gorm:"type:varchar(25)"`
+	CusPhoneNumber   string             `json:"cus_phone_number" gorm:"type:varchar(25)"`
+	AccountID        uint               `json:"account_id" gorm:"not null;"`
+	CustomerTypeID   uint               `json:"customer_type_id"`
+	Account          Account            `json:"account" gorm:"ForeignKey:AccountID"`
+	CustomerType     CustomerType       `json:"customer" gorm:"ForeignKey:CustomerTypeID"`
+	ChatChannels     []*ChatChannel     `gorm:"many2many:chat_channel_customer" json:"chat_channels"`
+	VoucherCustomers []*VoucherCustomer `json:"voucher_customers"`
+	CouponCustomer   []*CouponCustomer  `json:"coupon_customer"`
+	EventLogs        []*EventLog        `json:"even_logs" gorm:"foreignkey:ID"`
+	ActionLogs       []*ActionLog       `json:"action_logs" gorm:"foreignkey:ID"`
+	Bookings         []*Booking         `json:"bookings"`
+	Transactions     []*Transaction     `json:"transactions"`
 }
 
 // LoginRespose is instacne respose line json

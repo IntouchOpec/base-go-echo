@@ -24,8 +24,8 @@ type ChatChannel struct {
 	ChaAddress            string       `json:"cha_address" form:"cha_address" binding:"required" gorm:"type:varchar(100)"`
 	AccountID             uint         `form:"account_id" json:"account_id" gorm:"not null;"`
 	VoucherID             uint         `json:"voucher_id"`
-	Voucher               Voucher      `json:"voucher" gorm:"ForeignKey:VoucherID"`
-	Account               Account      `gorm:"ForeignKey:AccountID"`
+	Voucher               *Voucher     `json:"voucher" gorm:"ForeignKey:VoucherID"`
+	Account               *Account     `gorm:"ForeignKey:AccountID"`
 	Customers             []*Customer  `gorm:"many2many:chat_channel_customer"`
 	Settings              []*Setting   `gorm:"many2many:setting_chat_channel;" json:"settings" form:"settings"`
 	EventLogs             []*EventLog  `json:"event_logs"`
