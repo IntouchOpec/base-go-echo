@@ -41,7 +41,7 @@ type Voucher struct {
 	orm.ModelBase
 	PromotionID   uint         `json:"promotion_id"`
 	ChatChannelID uint         `json:"chat_channel_id"`
-	IsActive      bool         `json:"is_active"`
+	IsActive      bool         `json:"is_active" gorm:"default:true"`
 	ChatChannel   *ChatChannel `json:"chat_channel" gorm:"ForeignKey:ChatChannelID"`
 	Promotion     Promotion    `json:"promotion"`
 	PromStartDate time.Time    `from:"start_time" gorm:"column:start_time" json:"prom_start_time"`
@@ -50,17 +50,35 @@ type Voucher struct {
 	PromCondition string       `form:"condition" json:"prom_condition"`
 }
 
+type VoucherCustomer struct {
+	orm.ModelBase
+	VoucherID  uint      `json:"voucher_id"`
+	Voucher    *Voucher  `gorm:"ForeignKey:VoucherID" json:"voucher"`
+	CustomerID uint      `json:"customer_id"`
+	Customer   *Customer `gorm:"ForeignKey:CustomerID" json:"customer"`
+	VCStatus   int       `json:"v_c_status" gorm:"default:0"`
+}
+
 type Coupon struct {
 	orm.ModelBase
 	PromotionID   uint         `json:"promotion_id"`
 	Promotion     Promotion    `json:"promotion"`
-	IsActive      bool         `json:"is_active"`
+	IsActive      bool         `json:"is_active" gorm:"default:true"`
 	ChatChannelID uint         `json:"chat_channel_id"`
 	ChatChannel   *ChatChannel `json:"chat_channel" gorm:"ForeignKey:ChatChannelID"`
 	PromStartDate time.Time    `from:"start_time" gorm:"column:start_time" json:"prom_start_time"`
 	PromEndDate   time.Time    `from:"end_time" gorm:"column:end_time" json:"prom_end_time"`
 	PromAmount    int          `form:"amount" json:"prom_amount"`
 	PromCondition string       `form:"condition" json:"prom_condition"`
+}
+
+type CouponCustomer struct {
+	orm.ModelBase
+	CouponID   uint      `json:"coupon_id"`
+	Coupon     *Coupon   `gorm:"ForeignKey:vouponID" json:"coupon"`
+	CustomerID uint      `json:"customer_id"`
+	Customer   *Customer `gorm:"ForeignKey:CustomerID" json:"customer"`
+	CCStatus   int       `json:"c_c_status" gorm:"default:0"`
 }
 
 // SavePromotion is function create Promotion.

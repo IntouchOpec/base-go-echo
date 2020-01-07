@@ -89,8 +89,8 @@
                                                 <tr name="row_{{ .ID }}">
                                                     <td>{{.ChatChannel}}</td>
                                                     <td>{{.IsActive}}</td>
-                                                    <td>{{.PromStartDate}}</td>
-                                                    <td>{{.PromEndDate}}</td>
+                                                    <td>{{.PromStartDate.Format "Mon Jan 2 2006"}}</td>
+                                                    <td>{{.PromEndDate.Format "Mon Jan 2 2006"}}</td>
                                                     <td>{{.PromAmount}}</td>
                                                     <td>{{.PromCondition}}</td>
                                                 </tr>
@@ -102,8 +102,8 @@
                                                 <tr name="row_{{ .ID }}">
                                                     <td>{{.ChatChannel.ChaName}}</td>
                                                     <td><input type="checkbox" checked data-toggle="toggle" checked="{{.IsActive}}"></td>
-                                                    <td>{{.PromStartDate}}</td>
-                                                    <td>{{.PromEndDate}}</td>
+                                                    <td>{{.PromStartDate.Format "Mon Jan 2 2006"}}</td>
+                                                    <td>{{.PromEndDate.Format "Mon Jan 2 2006"}}</td>
                                                     <td>{{.PromAmount}}</td>
                                                     <td>{{.PromCondition}}</td>
                                                     <td class="td-actions text-right">
@@ -189,8 +189,6 @@
                 confirmButtonText:
                     'Submit',
                 confirmButtonAriaLabel: 'Thumbs up, great!',
-                cancelButtonText:
-                    '<i class="fa fa-thumbs-down"></i>',
                 cancelButtonAriaLabel: 'Thumbs down'
             }).then(result => {
                 if (result.value) {
@@ -220,20 +218,26 @@
                         }
                         return res.json()
                     }).then(data => {
+                        let type = ""
+                        if (data.data.vouchers !== null) {
+                            type = "vouchers"
+                        } else {
+                            type = "coupons"
+                        }
                         Swal.fire("success", "", "success").then(result => {
                             $("#body-child").append(`
-                            <tr name="row_${data.data.ID}">
-                                <td>${data.data.chat_channel}</td>
-                                <td><input type="checkbox" checked data-toggle="toggle" checked="${data.data.is_active}"></td>
-                                <td>${data.data.prom_start_date}</td>
-                                <td>${data.data.prom_end_date}</td>
-                                <td>${data.data.prom_amount}</td>
-                                <td>${data.data.prom_condition}</td>
+                            <tr name="row_${data.data[type][0].ID}">
+                                <td>${data.chat_channel.cha_name}</td>
+                                <td><input type="checkbox" checked data-toggle="toggle" checked="${data.data[type][0].is_active}"></td>
+                                <td>${data.data[type][0].prom_start_time}</td>
+                                <td>${data.data[type][0].prom_end_time}</td>
+                                <td>${data.data[type][0].prom_amount}</td>
+                                <td>${data.data[type][0].prom_condition}</td>
                                 <td class="td-actions text-right">
-                                    <button value="${data.data.ID}" type="button" rel="tooltip" class="btn btn-success">
+                                    <button value="${data.data[type][0].ID}" type="button" rel="tooltip" class="btn btn-success">
                                         <i class="material-icons">settings_applications</i>
                                     </button>
-                                    <button value="${data.data.ID}" name="remove" type="button" rel="tooltip" class="btn btn-danger">
+                                    <button value="${data.data[type][0].ID}" name="remove" type="button" rel="tooltip" class="btn btn-danger">
                                         <i class="material-icons">close</i>
                                     </button>
                                 </td>

@@ -8,7 +8,7 @@ import (
 
 	"github.com/IntouchOpec/base-go-echo/lib"
 	"github.com/IntouchOpec/base-go-echo/module/auth"
-	"github.com/hb-go/gorm"
+	"github.com/jinzhu/gorm"
 
 	"github.com/IntouchOpec/base-go-echo/model"
 	"github.com/labstack/echo"
@@ -47,7 +47,8 @@ func PromotionDetailHandler(c *Context) error {
 	}).Preload("Vouchers", func(db *gorm.DB) *gorm.DB {
 		return db.Preload("ChatChannel")
 	}).Where("account_id = ?",
-		a.User.GetAccountID()).Find(&promotion, id)
+		a.GetAccountID()).Find(&promotion, id)
+
 	if err := model.DB().Where("account_id = ?", a.GetAccountID()).Find(&chatChannels).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
@@ -109,15 +110,24 @@ func PromotionPostHandler(c *Context) error {
 }
 
 type reqSubPromotion struct {
-	StartDate string `json:"start_date"`
-	EndDate   string `json:"end_date"`
-	Amount    string `json:"amount"`
-	Condition string `json:"condition"`
+	StartDate string `form:"start_date" json:"start_date"`
+	EndDate   string `form:"end_date" json:"end_date"`
+	Amount    string `form:"amount" json:"amount"`
+	Condition string `form:"condition" json:"condition"`
+}
+
+type Timestamp time.Time
+
+func (t *Timestamp) UnmarshalParam(src string) error {
+	ts, err := time.Parse(time.RFC3339, src)
+	*t = Timestamp(ts)
+	return err
 }
 
 func PromotionCreateDetailHandler(c *Context) error {
 	id := c.Param("id")
 	var promotion model.Promotion
+	var chatChannel model.ChatChannel
 	var req reqSubPromotion
 	db := model.DB()
 	if err := db.Find(&promotion, id).Error; err != nil {
@@ -127,13 +137,18 @@ func PromotionCreateDetailHandler(c *Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	chatChannelID, _ := strconv.ParseUint(c.FormValue("chat_channel_id"), 10, 32)
-	startDate, err := time.Parse("2020-01-07", req.StartDate)
-	endDate, err := time.Parse("2020-01-07", req.EndDate)
+	startDate, err := time.Parse("2006-01-02", req.EndDate)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	endDate, err := time.Parse("2006-01-02", req.EndDate)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
 	amount, err := strconv.Atoi(req.Amount)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	fmt.Println(chatChannelID, c.FormValue("chat_channel_id"))
 	switch promotion.PromType {
 	case "Coupon":
 		db.Model(&promotion).Association("Coupons").Append(&model.Coupon{
@@ -153,8 +168,13 @@ func PromotionCreateDetailHandler(c *Context) error {
 		})
 	}
 
+	if err := db.Find(&chatChannel, chatChannelID).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
 	return c.JSON(http.StatusCreated, echo.Map{
-		"data": promotion,
+		"data":         promotion,
+		"chat_channel": chatChannel,
 	})
 }
 
