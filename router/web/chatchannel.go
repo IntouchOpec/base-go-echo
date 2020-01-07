@@ -478,15 +478,13 @@ func ChatChannelBroadcastMessageHandler(c *Context) error {
 	if customerState == "2" {
 		customers := []model.Customer{}
 		customerTypeID := c.FormValue("customer_type_id")
-		textMessage := linebot.NewTextMessage(c.FormValue("text"))
 		db.Preload("CustomerType", "id = ?", customerTypeID).Find(&customers)
 
 		var recipient []string
 		for _, customer := range customers {
 			recipient = append(recipient, customer.CusLineID)
 		}
-		fmt.Println(recipient)
-		_, err = bot.Multicast(recipient, textMessage).Do()
+		_, err = bot.Multicast(recipient, message).Do()
 
 	}
 
@@ -494,11 +492,17 @@ func ChatChannelBroadcastMessageHandler(c *Context) error {
 		_, err = bot.BroadcastMessage(message).Do()
 	}
 
-	if sandDate == "3" {
-		_, err = bot.BroadcastMessage().Do()
+	if customerState == "4" {
+		var testers []model.User
+		db.Where("tester = ?", true).Find(&testers)
+		var recipient []string
+		for _, tester := range testers {
+			recipient = append(recipient, tester.LineID)
+		}
+		_, err = bot.Multicast(recipient, message).Do()
 	}
 
-	if sandDate == "4" {
+	if sandDate == "3" {
 		_, err = bot.BroadcastMessage().Do()
 	}
 
