@@ -498,6 +498,10 @@ func ChatChannelBroadcastMessageHandler(c *Context) error {
 		_, err = bot.BroadcastMessage().Do()
 	}
 
+	if sandDate == "4" {
+		_, err = bot.BroadcastMessage().Do()
+	}
+
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}

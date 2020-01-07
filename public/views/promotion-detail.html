@@ -101,7 +101,7 @@
                                                 {{ range . }}
                                                 <tr name="row_{{ .ID }}">
                                                     <td>{{.ChatChannel.ChaName}}</td>
-                                                    <td><input type="checkbox" checked data-toggle="toggle" checked="{{.IsActive}}"></td>
+                                                    <td><input type="checkbox" data-toggle="toggle" checked="{{.IsActive}}"></td>
                                                     <td>{{.PromStartDate.Format "Mon Jan 2 2006"}}</td>
                                                     <td>{{.PromEndDate.Format "Mon Jan 2 2006"}}</td>
                                                     <td>{{.PromAmount}}</td>
@@ -228,7 +228,7 @@
                             $("#body-child").append(`
                             <tr name="row_${data.data[type][0].ID}">
                                 <td>${data.chat_channel.cha_name}</td>
-                                <td><input type="checkbox" checked data-toggle="toggle" checked="${data.data[type][0].is_active}"></td>
+                                <td><input type="checkbox" data-toggle="toggle" checked="${data.data[type][0].is_active}"></td>
                                 <td>${data.data[type][0].prom_start_time}</td>
                                 <td>${data.data[type][0].prom_end_time}</td>
                                 <td>${data.data[type][0].prom_amount}</td>
