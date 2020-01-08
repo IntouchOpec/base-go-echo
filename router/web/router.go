@@ -113,13 +113,6 @@ func Routers() *echo.Echo {
 		managent.GET("/chat_answer/:id/edit", handler(ChatAnswerEditHandler))
 		managent.DELETE("/chat_answer/:id", handler(ChatAnswerDeleteHandler))
 
-		managent.GET("/chat_request", handler(ChatRequestListHandler))
-		managent.POST("/chat_request/create", handler(ChatRequestPostHandler))
-		managent.GET("/chat_request/create", handler(ChatRequestCreateHandler))
-		managent.GET("/chat_request/:id", handler(ChatRequestDetailHandler))
-		managent.GET("/chat_request/:id/edit", handler(ChatRequestEditHandler))
-		managent.DELETE("/chat_request/:id", handler(ChatRequestDeleteHandler))
-
 		managent.GET("/service", handler(ServiceListHandler))
 		managent.GET("/service/create", handler(ServiceCreateHandler))
 		managent.POST("/service/create", handler(ServicePostHandler))

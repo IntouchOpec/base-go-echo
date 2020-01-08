@@ -72,7 +72,6 @@ func Initialize() {
 	newDb.AutoMigrate(&User{})
 	newDb.AutoMigrate(&ChatAnswer{})
 	newDb.AutoMigrate(&ChatChannel{})
-	newDb.AutoMigrate(&ChatRequest{})
 	newDb.AutoMigrate(&Service{})
 	newDb.AutoMigrate(&Employee{})
 	newDb.AutoMigrate(&EmployeeService{})
