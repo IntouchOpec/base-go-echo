@@ -109,7 +109,13 @@
                                                 </div>
 
                                                 <div class="row" id="time-form">
-                                                    <div class="col-md-12 mt-2">
+                                                    <div class="col-md-6 mt-2">
+                                                        <div class="form-group">
+                                                            <label class="bmd-label-floating" >date</label>
+                                                            <input name="date" id="date" type="date" class="form-control" >
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6 mt-2">
                                                         <div class="form-group">
                                                             <label class="bmd-label-floating" >time</label>
                                                             <input name="time" id="time" type="time" class="form-control" >
@@ -316,6 +322,8 @@
                 }
                 if (sand_date === "2") {
                     let time = $("#time").val()  
+                    let date = $("#date").val()
+                    data.push(encodeURIComponent("date") + "=" + encodeURIComponent(date))
                     data.push(encodeURIComponent("time") + "=" + encodeURIComponent(time))
                 }
 
@@ -344,7 +352,9 @@
                     return res.json()
                 })
                 .then(json => {
-                    window.location.href = json.redirect
+                    Swal.fire("success", "", "success").then(result => {
+                        window.location.href = json.redirect
+                    })
                 })
                 .catch(err => Swal.fire("fial", "", "warning"))
             }

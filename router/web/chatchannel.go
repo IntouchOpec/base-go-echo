@@ -463,47 +463,62 @@ func ChatChannelBroadcastMessageHandler(c *Context) error {
 		}
 		message = linebot.NewFlexMessage("test", flexContainer)
 	}
-
-	if customerState == "1" {
+	var multicastCall *linebot.MulticastCall
+	var broadcastMessageCall *linebot.BroadcastMessageCall
+	var recipient []string
+	switch customerState {
+	case "1":
 		customers := []model.Customer{}
 		lineNames := c.FormValue("line_name")
 		db.Where("cus_display_name = ?", lineNames).Find(&customers)
-		var recipient []string
 		for _, customer := range customers {
 			recipient = append(recipient, customer.CusLineID)
 		}
-		bot.Multicast(recipient, message).Do()
-	}
-
-	if customerState == "2" {
+		multicastCall = bot.Multicast(recipient, message)
+	case "2":
 		customers := []model.Customer{}
 		customerTypeID := c.FormValue("customer_type_id")
 		db.Preload("CustomerType", "id = ?", customerTypeID).Find(&customers)
-
 		var recipient []string
 		for _, customer := range customers {
 			recipient = append(recipient, customer.CusLineID)
 		}
-		_, err = bot.Multicast(recipient, message).Do()
-
-	}
-
-	if customerState == "3" {
-		_, err = bot.BroadcastMessage(message).Do()
-	}
-
-	if customerState == "4" {
+		multicastCall = bot.Multicast(recipient, message)
+	case "3":
+		broadcastMessageCall = bot.BroadcastMessage(message)
+	case "4":
 		var testers []model.User
 		db.Where("tester = ?", true).Find(&testers)
 		var recipient []string
 		for _, tester := range testers {
 			recipient = append(recipient, tester.LineID)
 		}
-		_, err = bot.Multicast(recipient, message).Do()
+		multicastCall = bot.Multicast(recipient, message)
 	}
 
-	if sandDate == "3" {
-		_, err = bot.BroadcastMessage().Do()
+	switch sandDate {
+	case "1":
+		if broadcastMessageCall != nil {
+			_, err = multicastCall.Do()
+		} else {
+			_, err = broadcastMessageCall.Do()
+		}
+	case "2":
+		date := c.FormValue("date")
+		timeValue := c.FormValue("time")
+		now := time.Now()
+		datetime, err := time.Parse("2006-01-02 15:04", fmt.Sprintf("%s %s", date, timeValue))
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, err)
+		}
+		seconds := datetime.Sub(now)
+		time.AfterFunc(seconds, func() {
+			if broadcastMessageCall != nil {
+				_, err = multicastCall.Do()
+			} else {
+				_, err = broadcastMessageCall.Do()
+			}
+		})
 	}
 
 	if err != nil {
