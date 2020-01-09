@@ -403,6 +403,14 @@ type RequestBroadcastMessage struct {
 	CustomerTypeID string    `json:"customer_type_id"`
 }
 
+func TimeIn(t time.Time, name string) (time.Time, error) {
+	loc, err := time.LoadLocation(name)
+	if err == nil {
+		t = t.In(loc)
+	}
+	return t, err
+}
+
 func ChatChannelBroadcastMessageHandler(c *Context) error {
 	id := c.Param("id")
 	chatChannel := model.ChatChannel{}
@@ -495,10 +503,9 @@ func ChatChannelBroadcastMessageHandler(c *Context) error {
 		}
 		multicastCall = bot.Multicast(recipient, message)
 	}
-
 	switch sandDate {
 	case "1":
-		if broadcastMessageCall != nil {
+		if broadcastMessageCall == nil {
 			_, err = multicastCall.Do()
 		} else {
 			_, err = broadcastMessageCall.Do()
@@ -506,14 +513,16 @@ func ChatChannelBroadcastMessageHandler(c *Context) error {
 	case "2":
 		date := c.FormValue("date")
 		timeValue := c.FormValue("time")
-		now := time.Now()
+
 		datetime, err := time.Parse("2006-01-02 15:04", fmt.Sprintf("%s %s", date, timeValue))
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, err)
 		}
-		seconds := datetime.Sub(now)
+		now := time.Now()
+		then := now.Add(7 * time.Hour)
+		seconds := datetime.Sub(then)
 		time.AfterFunc(seconds, func() {
-			if broadcastMessageCall != nil {
+			if broadcastMessageCall == nil {
 				_, err = multicastCall.Do()
 			} else {
 				_, err = broadcastMessageCall.Do()
