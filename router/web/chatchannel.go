@@ -1,6 +1,7 @@
 package web
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -434,34 +435,34 @@ func ChatChannelBroadcastMessageHandler(c *Context) error {
 		message = linebot.NewTextMessage(c.FormValue("text"))
 	case "Image":
 		image := c.FormValue("image")
-		filePath, _, err := lib.UploadteImage(image)
-		urlFile := "https://web." + Conf.Server.Domain + filePath
+		ctx := context.Background()
+		imagePath, err := lib.UploadGoolgeStorage(ctx, image, "images/broadcast/")
+		urlFile := fmt.Sprintf("https://web.%s/file?path=%s", Conf.Server.Domain, imagePath)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, err)
 		}
 		message = linebot.NewImageMessage(urlFile, urlFile)
 	case "Video":
 		video := c.FormValue("video")
-		fmt.Println(video[:9])
-		filePath, _, err := lib.UploadFile(video, ".mp4")
-		urlFile := "https://web." + Conf.Server.Domain + filePath
+		ctx := context.Background()
+		videoPath, err := lib.UploadGoolgeStorage(ctx, video, "video/broadcast/")
+		urlFile := fmt.Sprintf("https://web.%s/file?path=%s", Conf.Server.Domain, videoPath)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, err)
 		}
 		message = linebot.NewVideoMessage(urlFile, urlFile)
 	case "Audio":
 		audio := c.FormValue("audio")
-		filePath, _, err := lib.UploadFile(audio, ".mp3")
+		ctx := context.Background()
+		audioPath, err := lib.UploadGoolgeStorage(ctx, audio, "audio/broadcast/")
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, err)
 		}
-
 		i, err := strconv.Atoi(c.FormValue("duration"))
-		fmt.Println(c.FormValue("duration"))
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, err)
 		}
-		urlFile := "https://web." + Conf.Server.Domain + filePath
+		urlFile := fmt.Sprintf("https://web.%s/file?path=%s", Conf.Server.Domain, audioPath)
 		message = linebot.NewAudioMessage(urlFile, i)
 	case "Line_Bot_Designer":
 		flex := c.FormValue("line_bot_designer")

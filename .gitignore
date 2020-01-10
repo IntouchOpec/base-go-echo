@@ -14,3 +14,4 @@
 /conf/
 .goreload
 main.go
+public/assets/

@@ -72,10 +72,10 @@ func FileRemoveHandler(c *Context) error {
 	return c.JSON(http.StatusOK, file)
 }
 
-func GetFileGoogleStorage(c *Context) error {
-	imagePath := c.QueryParam("imagePath")
+func GetFileGoogleStorageHandler(c *Context) error {
+	path := c.QueryParam("path")
 	ctx := context.Background()
-	image, size, err := lib.GetGoolgeStorage(ctx, "triple-t", imagePath)
+	image, size, err := lib.GetGoolgeStorage(ctx, "triple-t", path)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err)
 	}
@@ -86,7 +86,7 @@ func GetFileGoogleStorage(c *Context) error {
 	return nil
 }
 
-func UploadFileGoogleStorage(c *Context) error {
+func UploadFileGoogleStorageHandler(c *Context) error {
 	ctx := context.Background()
 	code := c.FormValue("file")
 	path, err := lib.UploadGoolgeStorage(ctx, code, "images/")

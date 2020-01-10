@@ -213,9 +213,9 @@ func Routers() *echo.Echo {
 		managent.DELETE("/upload_file/:id", handler(FileRemoveHandler))
 	}
 
-	images := e.Group("/images")
-	images.GET("", handler(GetFileGoogleStorage))
-	images.PUT("", handler(UploadFileGoogleStorage))
+	files := e.Group("/files")
+	files.GET("", handler(GetFileGoogleStorageHandler))
+	files.PUT("", handler(UploadFileGoogleStorageHandler))
 
 	e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
 		Root: "public/assets",
