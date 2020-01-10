@@ -1,6 +1,7 @@
 package web
 
 import (
+	"context"
 	"net/http"
 
 	. "github.com/IntouchOpec/base-go-echo/conf"
@@ -68,4 +69,27 @@ func FileRemoveHandler(c *Context) error {
 	}
 
 	return c.JSON(http.StatusOK, file)
+}
+
+func GetFileGoogleStorage(c *Context) error {
+	imagePath := c.QueryParam("imagePath")
+	ctx := context.Background()
+	image, size, err := lib.GetGoolgeStorage(ctx, "triple-t", imagePath)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err)
+	}
+	c.Response().Header().Set(echo.HeaderContentLength, size)
+	c.Response().WriteHeader(http.StatusOK)
+	c.Response().Write(image)
+	c.Response().Flush()
+	return nil
+}
+
+func UploadFileGoogleStorage(c *Context) error {
+	ctx := context.Background()
+	code := c.FormValue("file")
+	if err := lib.UploadGoolgeStorage(ctx, code, "/images/"); err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	return c.JSON(http.StatusCreated, echo.Map{})
 }
