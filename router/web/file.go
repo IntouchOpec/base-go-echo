@@ -88,8 +88,11 @@ func GetFileGoogleStorage(c *Context) error {
 func UploadFileGoogleStorage(c *Context) error {
 	ctx := context.Background()
 	code := c.FormValue("file")
-	if err := lib.UploadGoolgeStorage(ctx, code, "/images/"); err != nil {
+	path, err := lib.UploadGoolgeStorage(ctx, code, "images/")
+	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	return c.JSON(http.StatusCreated, echo.Map{})
+	return c.JSON(http.StatusCreated, echo.Map{
+		"path": path,
+	})
 }

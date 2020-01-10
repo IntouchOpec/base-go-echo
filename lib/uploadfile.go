@@ -104,28 +104,32 @@ func isError(err error) bool {
 	return (err != nil)
 }
 
-func UploadGoolgeStorage(ctx context.Context, code, imagePath string) error {
+func UploadGoolgeStorage(ctx context.Context, code, imagePath string) (string, error) {
 	client, err := storage.NewClient(ctx, option.WithCredentialsFile("/Users/intouchteeramartwanit/Downloads/lineconnect-99ca66b2bd16.json"))
 	if err != nil {
-		return err
+		fmt.Println(err)
+		return "", err
 	}
 	idx := strings.Index(code, ";base64,")
 	if idx < 0 {
-		return errors.New("ErrInvalidImage")
+		return "", errors.New("ErrInvalidImage")
 	}
 	reader := base64.NewDecoder(base64.StdEncoding, strings.NewReader(code[idx+8:]))
-
+	imagePath = fmt.Sprintf("%s%s", imagePath, guuid.New())
 	wc := client.Bucket("triple-t").Object(imagePath).NewWriter(ctx)
 	if err != nil {
-		return err
+		fmt.Println(err)
+		return "", err
 	}
 	if _, err := io.Copy(wc, reader); err != nil {
-		return err
+		fmt.Println(err)
+		return "", err
 	}
 	if err := wc.Close(); err != nil {
-		return err
+		fmt.Println(err)
+		return "", err
 	}
-	return nil
+	return imagePath, nil
 }
 
 func GetGoolgeStorage(ctx context.Context, bucket, folder string) ([]byte, string, error) {

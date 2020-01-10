@@ -47,10 +47,10 @@ func Routers() *echo.Echo {
 
 	e.Use(session.Session())
 
-	e.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
-		ContextKey:  "_csrf",
-		TokenLookup: "form:_csrf",
-	}))
+	// e.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
+	// 	ContextKey:  "_csrf",
+	// 	TokenLookup: "form:_csrf",
+	// }))
 
 	// Middleware
 	e.Use(middleware.Logger())
@@ -215,7 +215,7 @@ func Routers() *echo.Echo {
 
 	images := e.Group("/images")
 	images.GET("", handler(GetFileGoogleStorage))
-	images.PUT("/:imagePath", handler(UploadFileGoogleStorage))
+	images.PUT("", handler(UploadFileGoogleStorage))
 
 	e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
 		Root: "public/assets",
