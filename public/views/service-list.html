@@ -41,7 +41,7 @@
                              <tr name="row_{{ .ID }}">
                                 <td>{{.SerName}}</td>
                                 <td>{{.SerPrice}}</td>
-                                <td><img width="32" height="32" class="img-fluid" src="{{.SerImage}}"></td>
+                                <td><img width="32" height="32" class="img-fluid" src="/images?imagePath={{.SerImage}}"></td>
                                 <td>{{ .CreatedAt.Format "Mon Jan 2 2006" }}</td>
                                 <td><input type="checkbox" value="{{ .ID }}" data-toggle="toggle" checked="{{.SerActive}}"></td>
                                 <td class="td-actions text-right">

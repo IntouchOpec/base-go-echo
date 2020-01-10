@@ -34,7 +34,7 @@
                          {{ range .list }}
                          {{ with  . }}
                             <div class="col-md-3 text-center">
-                                <img style="height: 240px;" src="{{ .Path }}" class="rounded img-fluid card-image" >
+                                <img style="height: 240px;"src="/images?imagePath={{ .Path }}" class="rounded img-fluid card-image" >
                                 <button id="image_{{ .ID }}" class="btn btn-info" value="{{ .Path }}">
                                     <i class="material-icons">file_copy</i>
                                     Copy Url

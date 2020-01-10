@@ -62,7 +62,7 @@
                                                 {{ if .detail.PlacImage }}
                                                     <div className="image-wrapper" >
                                                         <input id="image" name="image" value="{{.detail.ID}}" type="hidden" >
-                                                        <img src="{{ .detail.PlacImage }}" class="img-fluid mb-2 ml-2 img-thumbnail" />
+                                                        <imgsrc="/images?imagePath={{ .detail.PlacImage }}" class="img-fluid mb-2 ml-2 img-thumbnail" />
                                                         <button id="btn-delete-image" type="button" rel="tooltip" class="btn btn-danger button-wrapper">delete</button>
                                                     </div>                                                 
                                                 {{ else }}

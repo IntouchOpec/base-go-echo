@@ -72,7 +72,7 @@
                                 <h4 class="card-title ">Profile Image</h4>
                             </div>
                             <div class="card-body">
-                                <img class="img-fluid" src="{{ .detail.ChaImage }}" />
+                                <img class="img-fluid" src="/images?imagePath={{ .detail.ChaImage }}" />
                             </div>
                         </div>
                     </div>
@@ -98,7 +98,7 @@
                                         Download
                                     </button>
                                 {{ else }}
-                                    <img class="img-fluid" src="{{ .urlRichMenu.Value }}" />
+                                    <img class="img-fluid" src="/images?imagePath={{ .urlRichMenu.Value }}" />
                                 {{ end }}
                             </div>
                         </div>
