@@ -1,6 +1,7 @@
 package web
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -78,13 +79,14 @@ func EmployeePostHandler(c *Context) error {
 	employee := model.Employee{}
 	a := auth.Default(c)
 	file := c.FormValue("file")
+	ctx := context.Background()
 
-	fileUrl, _, err := lib.UploadteImage(file)
+	imagePath, err := lib.UploadGoolgeStorage(ctx, file, "images/")
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	employee.ProvImage = fileUrl
+	employee.ProvImage = imagePath
 	employee.AccountID = a.GetAccountID()
 
 	if err := c.Bind(&employee); err != nil {
@@ -106,14 +108,13 @@ func EmployeePutHandler(c *Context) error {
 	employee := model.Employee{}
 	a := auth.Default(c)
 	file := c.FormValue("file")
-
-	file, _, err := lib.UploadteImage(file)
-
+	ctx := context.Background()
+	imagePath, err := lib.UploadGoolgeStorage(ctx, file, "images/")
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	employee.ProvImage = file
+	employee.ProvImage = imagePath
 	employee.AccountID = a.GetAccountID()
 
 	if err := c.Bind(&employee); err != nil {

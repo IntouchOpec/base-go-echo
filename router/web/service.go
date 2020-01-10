@@ -1,6 +1,7 @@
 package web
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -191,7 +192,8 @@ func ServicePatchHandler(c *Context) error {
 func ServicePostHandler(c *Context) error {
 	service := serviceForm{}
 	file := c.FormValue("file")
-	fileUrl, _, err := lib.UploadteImage(file)
+	ctx := context.Background()
+	imagePath, err := lib.UploadGoolgeStorage(ctx, file, "images/")
 
 	if err := c.Bind(&service); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
@@ -202,7 +204,7 @@ func ServicePostHandler(c *Context) error {
 		SerDetail: service.Detail,
 		SerPrice:  service.Price,
 		SerTime:   service.Time,
-		SerImage:  fileUrl,
+		SerImage:  imagePath,
 		AccountID: a.User.GetAccountID(),
 	}
 	err = serviceModel.SaveService()

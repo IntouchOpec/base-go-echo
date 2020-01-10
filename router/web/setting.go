@@ -1,6 +1,7 @@
 package web
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/IntouchOpec/base-go-echo/lib"
@@ -41,14 +42,15 @@ func SettingPostHandler(c *Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	file := c.FormValue("file")
+	imagePath := c.FormValue("file")
 
-	if file == "" {
-		fileURL, _, err := lib.UploadFile(acc.AccName, "json")
+	if imagePath == "" {
+		ctx := context.Background()
+		imagePath, err := lib.UploadGoolgeStorage(ctx, imagePath, "images/")
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, err)
 		}
-		acc.AccAuthJSONFilePath = fileURL
+		acc.AccAuthJSONFilePath = imagePath
 	}
 
 	if err := db.Save(&acc).Error; err != nil {

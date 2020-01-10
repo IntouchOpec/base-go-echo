@@ -37,13 +37,14 @@ func FileCreateHandler(c *Context) error {
 	db := model.DB()
 	accountID := auth.Default(c).GetAccountID()
 	file := c.FormValue("file")
-	fileUrl, _, err := lib.UploadteImage(file)
+	ctx := context.Background()
+	imagePath, err := lib.UploadGoolgeStorage(ctx, file, "images/")
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	filModel := model.File{
 		AccountID: accountID,
-		Path:      fileUrl,
+		Path:      imagePath,
 	}
 	if err := db.Create(&filModel).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)

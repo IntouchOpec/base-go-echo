@@ -1,6 +1,7 @@
 package web
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -86,7 +87,8 @@ func PromotionPostHandler(c *Context) error {
 	if err := c.Bind(&promotion); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	fileUrl, _, err := lib.UploadteImage(file)
+	ctx := context.Background()
+	imagePath, err := lib.UploadGoolgeStorage(ctx, file, "images/")
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
@@ -98,7 +100,7 @@ func PromotionPostHandler(c *Context) error {
 		PromAmount:   promotion.Amount,
 		PromCode:     promotion.Code,
 		PromName:     promotion.Name,
-		PromImage:    fileUrl,
+		PromImage:    imagePath,
 		AccountID:    accID,
 	}
 
@@ -195,10 +197,11 @@ func PromotionEditPutHandler(c *Context) error {
 	id := c.Param("id")
 	a := auth.Default(c)
 	var err error
-	image := c.FormValue("image")
-	if image == "" {
+	imagePath := c.FormValue("image")
+	if imagePath == "" {
 		file := c.FormValue("file")
-		image, _, err = lib.UploadteImage(file)
+		ctx := context.Background()
+		imagePath, err = lib.UploadGoolgeStorage(ctx, file, "images/")
 	}
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
@@ -221,7 +224,7 @@ func PromotionEditPutHandler(c *Context) error {
 	// promotionModel.PromStartDate = promotion.StartDate
 	// promotionModel.PromEndDate = promotion.EndDate
 	// promotionModel.PromCondition = promotion.Condition
-	promotionModel.PromImage = image
+	promotionModel.PromImage = imagePath
 	if err := db.Save(&promotionModel).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}

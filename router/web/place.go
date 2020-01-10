@@ -1,6 +1,7 @@
 package web
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
@@ -64,11 +65,12 @@ func PlacePostHandler(c *Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	file := c.FormValue("file")
-	fileUrl, _, err := lib.UploadteImage(file)
+	ctx := context.Background()
+	imagePath, err := lib.UploadGoolgeStorage(ctx, file, "images/")
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	place.PlacImage = fileUrl
+	place.PlacImage = imagePath
 	place.AccountID = a.GetAccountID()
 	if err := place.CreatePlace(); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
@@ -88,15 +90,16 @@ func PlacePutHandler(c *Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	var err error
-	image := c.Param("image")
-	if image == "" {
+	imagePath := c.Param("image")
+	if imagePath == "" {
 		file := c.FormValue("file")
-		image, _, err = lib.UploadteImage(file)
+		ctx := context.Background()
+		imagePath, err = lib.UploadGoolgeStorage(ctx, file, "images/")
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, err)
 		}
 	}
-	place.PlacImage = image
+	place.PlacImage = imagePath
 	place.AccountID = a.GetAccountID()
 	if err := place.CreatePlace(); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
