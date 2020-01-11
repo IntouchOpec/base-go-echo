@@ -88,7 +88,7 @@ func PromotionPostHandler(c *Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	ctx := context.Background()
-	imagePath, err := lib.UploadGoolgeStorage(ctx, file, "images/")
+	imagePath, err := lib.UploadGoolgeStorage(ctx, file, "images/promotion/")
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}

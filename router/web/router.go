@@ -47,10 +47,10 @@ func Routers() *echo.Echo {
 
 	e.Use(session.Session())
 
-	// e.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
-	// 	ContextKey:  "_csrf",
-	// 	TokenLookup: "form:_csrf",
-	// }))
+	e.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
+		ContextKey:  "_csrf",
+		TokenLookup: "form:_csrf",
+	}))
 
 	// Middleware
 	e.Use(middleware.Logger())

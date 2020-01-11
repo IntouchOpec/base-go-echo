@@ -176,7 +176,7 @@
                 
                 if (Image.length !== 0) {
                     toBase64(Image[0].files[0]).then(base64Image => {
-                        Image = JSON.stringify(base64Image)
+                        Image = base64Image
                         let imageEncodedValue = encodeURIComponent(Image);
                         
                         data.push(imageEncodedKey + "=" + imageEncodedValue)

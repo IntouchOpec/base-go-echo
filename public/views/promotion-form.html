@@ -75,7 +75,7 @@
                                                 {{ if .detail.PromImage }}
                                                     <div className="image-wrapper" >
                                                         <input id="image" name="image" value="{{.detail.ID}}" type="hidden" >
-                                                        <imgsrc="/files?path={{ .detail.PromImage }}" class="img-fluid mb-2 ml-2 img-thumbnail" />
+                                                        <img src="/files?path={{ .detail.PromImage }}" class="img-fluid mb-2 ml-2 img-thumbnail" />
                                                         <button id="btn-delete-image" type="button" rel="tooltip" class="btn btn-danger button-wrapper">delete</button>
                                                     </div>                                                 
                                                 {{ else }}
@@ -162,7 +162,9 @@
                     window.location = json.redirect
                 })
             })
-            .catch(err => Swal.fire("fial", "", "warning"))
+            .catch(err => {
+                Swal.fire("fial", "", "warning")
+            })
         }
         
         $("form[name='create-promotion']").validate({
@@ -253,7 +255,7 @@
                 if (Image.length !== 0) {
                     toBase64(Image[0].files[0]).then(base64Image => {
                         
-                        Image = JSON.stringify(base64Image)
+                        Image = base64Image
                         let imageEncodedValue = encodeURIComponent(Image)
                         let promImageEncodedKey = encodeURIComponent("image")
                         let promImageEncodedValue = encodeURIComponent("")
