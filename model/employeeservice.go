@@ -13,6 +13,8 @@ type EmployeeService struct {
 	Service    Service     `json:"service" gorm:"ForeignKey:ServiceID"`
 	TimeSlots  []*TimeSlot `json:"time_slots"`
 	Bookings   []*Booking  `json:"bookings"`
+	AccountID  uint        `json:"account_id"`
+	Account    Account     `json:"account" gorm:"ForeignKey:AccountID"`
 }
 
 func GetEmployeeServiceDetail(id string) (*EmployeeService, error) {

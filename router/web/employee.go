@@ -50,11 +50,18 @@ func EmployeeDetailHandler(c *Context) error {
 
 func EmployeeCreateHandler(c *Context) error {
 	employee := model.Employee{}
+	chatChannels := []model.ChatChannel{}
+	a := auth.Default(c).GetAccountID()
+
+	db := model.DB()
+
+	db.Where("account_id = ?", a).Find(&chatChannels)
 
 	return c.Render(http.StatusOK, "employee-form", echo.Map{
-		"title":  "employee",
-		"detail": employee,
-		"method": "POST",
+		"title":        "employee",
+		"chatChannels": chatChannels,
+		"detail":       employee,
+		"method":       "POST",
 	})
 }
 
@@ -135,13 +142,19 @@ func EmployeeEditHandler(c *Context) error {
 	employee := model.Employee{}
 	a := auth.Default(c)
 
-	if err := model.DB().Where("account_id = ?", a.GetAccountID()).Find(&employee, id).Error; err != nil {
+	chatChannels := []model.ChatChannel{}
+
+	db := model.DB()
+
+	db.Where("account_id = ?", a).Find(&chatChannels)
+	if err := db.Where("account_id = ?", a.GetAccountID()).Preload("ChatChannel").Find(&employee, id).Error; err != nil {
 		return c.Render(http.StatusNotFound, "404-page", echo.Map{})
 	}
 	return c.Render(http.StatusOK, "employee-form", echo.Map{
-		"title":  "employee",
-		"method": "PUT",
-		"detail": employee,
+		"title":        "employee",
+		"chatChannels": chatChannels,
+		"method":       "PUT",
+		"detail":       employee,
 	})
 }
 
@@ -206,6 +219,7 @@ func EmployeeSerciveListHandler(c *Context) error {
 func EmployeeAddServicePostHandler(c *Context) error {
 	var provService model.EmployeeService
 	db := model.DB()
+	accID := auth.Default(c).GetAccountID()
 	price, err := strconv.ParseFloat(c.FormValue("price"), 10)
 	serviceID, err := strconv.ParseUint(c.FormValue("service_id"), 10, 32)
 	employeeID, err := strconv.ParseUint(c.Param("id"), 10, 32)
@@ -215,6 +229,7 @@ func EmployeeAddServicePostHandler(c *Context) error {
 	provService.PSPrice = price
 	provService.ServiceID = uint(serviceID)
 	provService.ID = 0
+	provService.AccountID = accID
 	provService.EmployeeID = uint(employeeID)
 	if err := db.Create(&provService).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)

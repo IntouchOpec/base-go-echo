@@ -40,6 +40,24 @@
                                                         <textarea name="detail" value="{{.detail.ProvDetail}}" id="detail" type="text" class="form-control" ></textarea>
                                                     </div>
                                                 </div>
+                                                <div class="col-md-12 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="bmd-label-floating" >Chat Channel</label>
+                                                        <select name="PlacTypes" class="form-control" data-style="btn btn-link" id="PlacTypes">
+                                                            {{ if .detail.ChatChannelID }}
+                                                                <option value="{{.detail.PlacType}}">{{.detail.ChatChannel.ChaName}}</option>
+                                                            {{ else }}
+                                                                <option value="">choose chat channel</option>
+                                                            {{ end }}
+
+                                                            {{ with .chatChannels }}
+                                                            {{ range . }}
+                                                                <option value='{{ . }}'>{{.}}</option>
+                                                            {{ end }}
+                                                            {{ end }}
+                                                        </select>
+                                                    </div>
+                                                </div>
                                                 <div class="col-md-12 mt-2" id="input-file">
                                                 {{ if .detail.ProvImage }}
                                                     <div className="image-wrapper" >

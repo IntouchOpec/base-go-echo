@@ -24,7 +24,7 @@ type Booking struct {
 	EmployeeID    uint         `json:"employee_id"`
 	CustomerID    uint         `json:"customer_id"`
 	ChatChannelID uint         `json:"chat_chaneel_id"`
-	TimeSlotID    uint         `josn:"time_slot_id"`
+	TimeSlotID    uint         `json:"time_slot_id"`
 	TransactionID uint         `json:"transaction_id"`
 	Employee      Employee     `json:"employee" gorm:"ForeignKey:EmployeeID"`
 	Transaction   *Transaction `json:"transaction"  gorm:"ForeignKey:TransactionID"`
@@ -32,7 +32,9 @@ type Booking struct {
 	ChatChannel   *ChatChannel `gorm:"ForeignKey:ChatChannelID"`
 	BooStatus     *BookStatus  `json:"boo_status"`
 	BookedDate    time.Time    `gorm:"column:booked_date" json:"booked_date"`
-	TimeSlot      *TimeSlot    `josn:"time_slot" gorm:"ForeignKey:TimeSlotID"`
+	TimeSlot      *TimeSlot    `json:"time_slot" gorm:"ForeignKey:TimeSlotID"`
+	AccountID     uint         `json:"account_id"`
+	Account       Account      `json:"account" gorm:"ForeignKey:AccountID"`
 }
 
 // BookingStatus is status of booking.

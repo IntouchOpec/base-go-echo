@@ -13,7 +13,9 @@ type Employee struct {
 	ProvLineID       string             `form:"prov_line_id" json:"prov_line_id" gorm:"type:varchar(50)"`
 	ProvImage        string             `form:"image" json:"prov_image" gorm:"type:varchar(255)"`
 	AccountID        uint               `form:"account_id" json:"account_id"`
+	ChatChannelID    uint               `json:"chat_channel_id"`
 	EmployeeServices []*EmployeeService `json:"employee_services" `
+	ChatChannel      ChatChannel        `json:"chat_channel" gorm:"ForeignKey:ChatChannelID"`
 	Account          Account            `json:"account" gorm:"ForeignKey:AccountID"`
 }
 

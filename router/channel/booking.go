@@ -5,6 +5,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/jinzhu/gorm"
+
 	. "github.com/IntouchOpec/base-go-echo/conf"
 	"github.com/IntouchOpec/base-go-echo/model"
 	"github.com/line/line-bot-sdk-go/linebot"
@@ -226,34 +228,45 @@ func ServiceListLineHandler(c *Context) (linebot.SendingMessage, error) {
 	var serviceList string
 	var actionMessge string
 	var count int
+	// var bookings []model.Booking
 	var service model.Service
 	count = 0
 	dateTime := c.Massage.Text[9:19]
 	var employeeServices []model.EmployeeService
 
-	t, err := time.Parse("2006-01-02 15:04", dateTime+" 01:00")
+	start, err := time.Parse("2006-01-02 15:04", dateTime+" 15:00")
+	// end, err := time.Parse("2006-01-02 15:04", dateTime+" 23:59")
+
 	if err != nil {
 		return nil, err
 	}
-	if err := c.DB.Where("ser_name = ?", c.Massage.Text[20:]).Find(&service).Error; err != nil {
+
+	if err := c.DB.Where("ser_name = ? and account_id = ?", c.Massage.Text[20:], c.Account.ID).Find(&service).Error; err != nil {
 		return nil, err
 	}
-	if err := c.DB.Preload("Service").Preload("Employee").Preload(
-		"TimeSlots",
-		"time_day = ?",
-		t.Weekday()).Where("service_id = ?",
-		service.ID).Find(&employeeServices).Error; err != nil {
+
+	if err := c.DB.Preload("Service").Preload("Employee").Preload("TimeSlots", func(db *gorm.DB) *gorm.DB {
+		return db.Where("time_day = ?", start.Weekday()).Preload("Bookings", "booked_date = ?", start)
+	}).Where("service_id = ? and account_id = ?",
+		service.ID, c.Account.ID).Find(&employeeServices).Error; err != nil {
 		return nil, err
 	}
 	for index, employeeService := range employeeServices {
+		if employeeService.Employee.ChatChannelID != c.ChatChannel.ID {
+			continue
+		}
 		for _, timeSlot := range employeeService.TimeSlots {
 			if count == 2 {
 				slotTime = slotTime + fmt.Sprintf(slotTimeTemplate, buttonTime[:len(buttonTime)-1])
 				buttonTime = ""
 				count = 0
 			}
-			actionMessge = "timeslot" + " " + dateTime + " " + timeSlot.TimeStart + "-" + timeSlot.TimeEnd + " " + fmt.Sprint(timeSlot.ID)
-			buttonTime = buttonTime + fmt.Sprintf(buttonTimePrimaryTemplate, fmt.Sprintf("%s-%s", timeSlot.TimeStart, timeSlot.TimeEnd), actionMessge)
+			if len(timeSlot.Bookings) > 0 {
+				buttonTime = buttonTime + fmt.Sprintf(buttonTimeSecondaryTemplate, fmt.Sprintf("%s-%s", timeSlot.TimeStart, timeSlot.TimeEnd), "เต็มแล้ว")
+			} else {
+				actionMessge = "timeslot" + " " + dateTime + " " + timeSlot.TimeStart + "-" + timeSlot.TimeEnd + " " + fmt.Sprint(timeSlot.ID)
+				buttonTime = buttonTime + fmt.Sprintf(buttonTimePrimaryTemplate, fmt.Sprintf("%s-%s", timeSlot.TimeStart, timeSlot.TimeEnd), actionMessge)
+			}
 			count = count + 1
 		}
 		if index == len(employeeServices)-1 {
@@ -269,17 +282,6 @@ func ServiceListLineHandler(c *Context) (linebot.SendingMessage, error) {
 		buttonTime = ""
 
 	}
-	// 	if len(timeSlot[t].Bookings) > 0 {
-	// 		if timeSlot[t].Bookings[0].BooQueue < timeSlot[t].TimeAmount {
-	// 			buttonTime = buttonTime + fmt.Sprintf(buttonTimeSecondaryTemplate, fmt.Sprintf("%s-%s", timeSlot[t].TimeStart, timeSlot[t].TimeEnd), "เต็มแล้ว")
-	// 		} else {
-	// 			actionMessge = "booking" + " " + dateTime + " " + timeSlot[t].TimeStart + "-" + timeSlot[t].TimeEnd + " " + timeSlot[t].EmployeeService.Service.SerName
-	// 			buttonTime = buttonTime + fmt.Sprintf(buttonTimePrimaryTemplate, fmt.Sprintf("%s-%s", timeSlot[t].TimeStart, timeSlot[t].TimeEnd), actionMessge)
-	// 		}
-	// 	} else {
-	// 		actionMessge = "booking" + " " + dateTime + " " + timeSlot[t].TimeStart + "-" + timeSlot[t].TimeEnd + " " + timeSlot[t].EmployeeService.Service.SerName
-	// 		buttonTime = buttonTime + fmt.Sprintf(buttonTimePrimaryLastTemplate, fmt.Sprintf("%s-%s", timeSlot[t].TimeStart, timeSlot[t].TimeEnd), actionMessge)
-	// 	}
 	nextPage := nextPageTemplate
 
 	serviceTamplate := fmt.Sprintf(`{ "type": "carousel", "contents": [%s, %s]}`, serviceList, nextPage)
@@ -297,7 +299,7 @@ func ThankyouTemplate(c *Context) (linebot.SendingMessage, error) {
 	var book model.Booking
 	tx := c.DB.Begin()
 
-	if err := tx.Preload("EmployeeService").Find(&timeSlot, c.Massage.Text[33:]).Error; err != nil {
+	if err := tx.Preload("EmployeeService").Find(&timeSlot, c.Massage.Text[32:]).Error; err != nil {
 		return nil, err
 	}
 	book.ChatChannelID = c.ChatChannel.ID
@@ -339,4 +341,8 @@ func ThankyouTemplate(c *Context) (linebot.SendingMessage, error) {
 		return nil, err
 	}
 	return linebot.NewFlexMessage("ตาราง", flexContainer), nil
+}
+
+func inTimeSpan(start, end, check time.Time) bool {
+	return check.After(start) && check.Before(end)
 }
