@@ -81,7 +81,7 @@ func EmployeePostHandler(c *Context) error {
 	file := c.FormValue("file")
 	ctx := context.Background()
 
-	imagePath, err := lib.UploadGoolgeStorage(ctx, file, "images/")
+	imagePath, err := lib.UploadGoolgeStorage(ctx, file, "images/employee/")
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
@@ -109,7 +109,7 @@ func EmployeePutHandler(c *Context) error {
 	a := auth.Default(c)
 	file := c.FormValue("file")
 	ctx := context.Background()
-	imagePath, err := lib.UploadGoolgeStorage(ctx, file, "images/")
+	imagePath, err := lib.UploadGoolgeStorage(ctx, file, "images/employee/")
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}

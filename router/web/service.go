@@ -54,7 +54,8 @@ func ServiceEditPutHandler(c *Context) error {
 	var err error
 	if image == "" {
 		file := c.FormValue("file")
-		image, _, err = lib.UploadteImage(file)
+		ctx := context.Background()
+		image, err = lib.UploadGoolgeStorage(ctx, file, "images/Service/")
 	}
 
 	if err := c.Bind(&service); err != nil {
@@ -193,7 +194,7 @@ func ServicePostHandler(c *Context) error {
 	service := serviceForm{}
 	file := c.FormValue("file")
 	ctx := context.Background()
-	imagePath, err := lib.UploadGoolgeStorage(ctx, file, "images/")
+	imagePath, err := lib.UploadGoolgeStorage(ctx, file, "images/Service/")
 
 	if err := c.Bind(&service); err != nil {
 		return c.JSON(http.StatusBadRequest, err)

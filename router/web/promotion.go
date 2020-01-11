@@ -201,7 +201,7 @@ func PromotionEditPutHandler(c *Context) error {
 	if imagePath == "" {
 		file := c.FormValue("file")
 		ctx := context.Background()
-		imagePath, err = lib.UploadGoolgeStorage(ctx, file, "images/")
+		imagePath, err = lib.UploadGoolgeStorage(ctx, file, "images/promotion/")
 	}
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)

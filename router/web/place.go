@@ -67,7 +67,7 @@ func PlacePostHandler(c *Context) error {
 	}
 	file := c.FormValue("file")
 	ctx := context.Background()
-	imagePath, err := lib.UploadGoolgeStorage(ctx, file, "images/")
+	imagePath, err := lib.UploadGoolgeStorage(ctx, file, "images/Place/")
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
@@ -95,7 +95,7 @@ func PlacePutHandler(c *Context) error {
 	if imagePath == "" {
 		file := c.FormValue("file")
 		ctx := context.Background()
-		imagePath, err = lib.UploadGoolgeStorage(ctx, file, "images/")
+		imagePath, err = lib.UploadGoolgeStorage(ctx, file, "images/Place/")
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, err)
 		}

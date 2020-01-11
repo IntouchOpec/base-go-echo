@@ -1,6 +1,7 @@
 package web
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -136,7 +137,10 @@ func RichMenuImageHandler(c *Context) error {
 	chatChannelID := c.QueryParam("chat_channel_id")
 	file := c.FormValue("file")
 
-	fileURL, file, err := lib.UploadteImage(file)
+	fileURL, _, err := lib.UploadteImage(file)
+	ctx := context.Background()
+	image, err := lib.UploadGoolgeStorage(ctx, file, "images/RichMenu/")
+
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
@@ -147,7 +151,7 @@ func RichMenuImageHandler(c *Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	_, err = bot.UploadRichMenuImage(id, file).Do()
+	_, err = bot.UploadRichMenuImage(id, image).Do()
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
