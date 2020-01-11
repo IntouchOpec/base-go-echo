@@ -254,15 +254,12 @@
 
                 if (Image.length !== 0) {
                     toBase64(Image[0].files[0]).then(base64Image => {
-                        
-                        Image = base64Image
-                        let imageEncodedValue = encodeURIComponent(Image)
+                        let imageEncodedValue = encodeURIComponent(base64Image)
                         let promImageEncodedKey = encodeURIComponent("image")
                         let promImageEncodedValue = encodeURIComponent("")
                         data.push(promImageEncodedKey + "=" + promImageEncodedValue)
                         data.push(imageEncodedKey + "=" + imageEncodedValue)
                         onSubmit(data)
-                        
                     })
                     return
                 } else {

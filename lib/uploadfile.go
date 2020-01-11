@@ -139,13 +139,11 @@ func GetGoolgeStorage(ctx context.Context, bucket, folder string) ([]byte, strin
 	}
 	rc, err := client.Bucket(bucket).Object(folder).NewReader(ctx)
 	if err != nil {
-		fmt.Println(err, "===2")
 		return nil, "", err
 	}
 	defer rc.Close()
 	data, err := ioutil.ReadAll(rc)
 	if err != nil {
-		fmt.Println(err, "====3")
 		return nil, "", err
 	}
 	length := len(data)

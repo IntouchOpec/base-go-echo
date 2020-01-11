@@ -138,11 +138,8 @@
                 data.push(encodedetailKey + "=" + detailEncodeCalue)
 
 
-                toBase64(Image[0].files[0]).then(base64Image => {
-                    
-                    Image = base64Image
-                    let imageEncodedValue = encodeURIComponent(Image);
-                    
+                toBase64(Image[0].files[0]).then(base64Image => {           
+                    let imageEncodedValue = encodeURIComponent(base64Image);
                 })
 
                 let method = $("form[name='create-transaction']").attr("method")

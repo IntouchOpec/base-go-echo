@@ -51,7 +51,7 @@
                                                 {{ if .detail.SerImage }}
                                                     <div className="image-wrapper" >
                                                         <input id="image" name="image" value="{{.detail.ID}}" type="hidden" >
-                                                        <imgsrc="/files?path={{ .detail.SerImage }}" class="img-fluid mb-2 ml-2 img-thumbnail" />
+                                                        <img src="/files?path={{ .detail.SerImage }}" class="img-fluid mb-2 ml-2 img-thumbnail" />
                                                         <button id="btn-delete-image" type="button" rel="tooltip" class="btn btn-danger button-wrapper">delete</button>
                                                     </div>                                                 
                                                 {{ else }}
@@ -117,6 +117,30 @@
             reader.onerror = error => reject(error);
         })
 
+        function onSubmit (data) {
+            data = data.join("&");
+            let method = $("form[name='create-service']").attr("method")
+            fetch(window.location.href, {
+                method, 
+                headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                body: data
+            })
+            .then(res => {
+                if (res.status !== 201) {
+                    throw ""
+                }
+                return res.json()
+            })
+            .then(json => {
+                Swal.fire("success", "", "success").then(result => {
+                    window.location = json.redirect
+                })
+            })
+            .catch(err => {
+                Swal.fire("fial", "", "warning")
+            })
+        }
+
         $("form[name='create-service']").validate({
             rules: {
                 Name: {
@@ -176,31 +200,13 @@
                 
                 if (Image.length !== 0) {
                     toBase64(Image[0].files[0]).then(base64Image => {
-                        Image = base64Image
-                        let imageEncodedValue = encodeURIComponent(Image);
-                        
+                        let imageEncodedValue = encodeURIComponent(base64Image);
                         data.push(imageEncodedKey + "=" + imageEncodedValue)
-                        
+                        onSubmit(data)
                     })
+                    return
                 }
-                data = data.join("&");
-                fetch(window.location.href, {
-                        method, 
-                        headers: {"Content-Type": "application/x-www-form-urlencoded"},
-                        body: data
-                    })
-                    .then(res => {
-                        if (res.status !== 201) {
-                            throw ""
-                        }
-                        return res.json()
-                    })
-                    .then(json => {
-                        Swal.fire("success", "", "success").then(result => {
-                            window.location.href = json.redirect
-                        })
-                    })
-                    .catch(err => Swal.fire("fial", "", "warning"))
+                onSubmit(data)
             }
         })
         
