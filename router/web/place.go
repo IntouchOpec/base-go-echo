@@ -50,7 +50,8 @@ func PlaceDetailHandler(c *Context) error {
 func PlaceCreateHandler(c *Context) error {
 	Place := model.Place{}
 	PlacTypes := []model.PlaceType{model.PlaceRoom}
-	err := c.Render(http.StatusOK, "place-form", echo.Map{"method": "PUT",
+	err := c.Render(http.StatusOK, "place-form", echo.Map{
+		"method":    "POST",
 		"detail":    Place,
 		"title":     "place",
 		"PlacTypes": PlacTypes,

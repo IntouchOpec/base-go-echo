@@ -44,6 +44,7 @@
                                                 {{ if .detail.ProvImage }}
                                                     <div className="image-wrapper" >
                                                         <input id="image" name="image" value="{{.detail.ID}}" type="hidden" >
+                                                        <input id="ProvImage" name="ProvImage" value="{{.detail.ProvImage}}" type="hidden" >
                                                         <img src="/files?path={{ .detail.ProvImage }}" class="img-fluid mb-2 ml-2 img-thumbnail" />
                                                         <button id="btn-delete-image" type="button" rel="tooltip" class="btn btn-danger button-wrapper">delete</button>
                                                     </div>                                                 
@@ -133,8 +134,6 @@
             .catch(err => Swal.fire("fial", "", "warning"))
         }
 
-        
-
         $("form[name='create-employee']").validate({
             rules: {
                 name: {
@@ -197,6 +196,9 @@
                         onSubmit(data)
                     })
                 } else {
+                    imageEncodedValue = $("#ProvImage").val()
+                    let imageEncodedKey = encodeURIComponent("prov_image") 
+                    data.push(imageEncodedKey + "=" + imageEncodedValue) 
                     onSubmit(data)
                 }
             }

@@ -170,7 +170,7 @@ func Routers() *echo.Echo {
 		managent.DELETE("/LIFF/:id", handler(LIFFRemoveHandler))
 
 		managent.GET("/place", handler(PlaceListHandler))
-		managent.POST("/place/create/create", handler(PlacePostHandler))
+		managent.POST("/place/create", handler(PlacePostHandler))
 		managent.GET("/place/create", handler(PlaceCreateHandler))
 		managent.GET("/place/:id", handler(PlaceDetailHandler))
 		managent.PUT("/place/:id", handler(PlacePutHandler))

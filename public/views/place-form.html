@@ -62,6 +62,7 @@
                                                 {{ if .detail.PlacImage }}
                                                     <div className="image-wrapper" >
                                                         <input id="image" name="image" value="{{.detail.ID}}" type="hidden" >
+                                                        <input id="PlacImage" name="PlacImage" value="{{.detail.PlacImage}}" type="hidden" >
                                                         <img src="/files?path={{ .detail.PlacImage }}" class="img-fluid mb-2 ml-2 img-thumbnail" />
                                                         <button id="btn-delete-image" type="button" rel="tooltip" class="btn btn-danger button-wrapper">delete</button>
                                                     </div>                                                 
@@ -188,34 +189,45 @@
                 data.push(typeEncodeKey + "=" + typeEncodeValue)
                 data.push(amountEncodeKey + "=" + amountEncodeValue)
                 data.push(detailEncodeKey + "=" + detailEncodeValue)
-                data.push(imageEncodeKey + "=" + imageEncodedValue) 
 
-                toBase64(Image[0].files[0]).then(base64Image => {
-                    let imageEncodedValue = encodeURIComponent(base64Image)
-                })
-
-                let method = $("form[name='create-place']").attr("method")
-
-                fetch(window.location.href, {
-                    headers: {"Content-Type": "application/x-www-form-urlencoded"},
-                    method,
-                    body: data.join("&")
-                })
-                .then(res => {
-                    if (res.status === 201) {
-                        return res.json();
-                    }
-                })
-                .then(data => {
-                    Swal.fire("success", "", "success").then(result => {
-                        location.replace(data.redirect)
+                if (Image.length !== 0) {
+                    toBase64(Image[0].files[0]).then(base64Image => {
+                        let imageEncodedValue = encodeURIComponent(base64Image)
+                        data.push(imageEncodeKey + "=" + imageEncodedValue) 
+                        onSubmit(data)
                     })
-                })
-                .catch(err => {
-                    Swal.fire("success", "", "success")
-                })
+                    return 
+                }
+                let imageEncodedValue = $("#PlacImage").val()
+                let imageEncodedKey = encodeURIComponent("place_image") 
+                data.push(imageEncodedKey + "=" + imageEncodedValue) 
+                onSubmit(data)                
             }
         })
+
+        function onSubmit(data) {
+            data = data.join("&")
+            let method = $("form[name='create-place']").attr("method")
+            fetch(window.location.href, {
+                headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                method,
+                body: data
+            })
+            .then(res => {
+                if (res.status !== 201) {
+                    throw ""
+                }
+                return res.json();
+            })
+            .then(data => {
+                Swal.fire("success", "", "success").then(result => {
+                    window.location.href = data.redirect
+                })
+            })
+            .catch(err => {
+                Swal.fire("success", "", "success")
+            })
+        }
         
     })(jQuery)
   </script>
