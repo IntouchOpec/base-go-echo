@@ -1,0 +1,113 @@
+
+{{define "place-service-form"}}
+<!DOCTYPE html>
+<html lang="en">
+
+{{ template "header" .title }}
+
+<body class="">
+    <div class="wrapper ">
+    {{ template "sidebar" .base }}
+        <div class="main-panel">
+            {{ template "navbar" .title }}
+            <div class="content">
+                <div class="container-fluid">
+                    <div class="row">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header card-header-primary">
+                                        <h4 class="card-title">{{.mode}} add place service</h4>
+                                    </div>
+                                    <div class="card-body">
+                                       <form method="{{.method}}" name="create-place" >
+                                            <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden" >
+                                            <div class="row">
+                                                <div class="col-md-12 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="bmd-label-floating" >service</label>
+                                                        <select name="serviceID" class="form-control" data-style="btn btn-link" id="serviceID">
+                                                            <option value="">choose service</option>
+                                                            {{ with .services }}
+                                                            {{ range . }}
+                                                                <option value='{{ .ID }}'>{{.SerName}}</option>
+                                                            {{ end }}
+                                                            {{ end }}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <input type="submit" rel="tooltip" value="Submit" class="btn btn-success">
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {{ template "footer" }}
+            </div>
+        </div>
+    </div>
+  {{ template "script" }}
+  <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+  <script>
+    (function ($) {
+        $("form[name='create-place']").validate({
+            rules: {
+                serviceID: {
+                    required: true                
+                },
+            },
+            messages: { 
+                serviceID: {
+                    required: "Please enter a valid service"                
+                },
+            },
+            submitHandler: function(form) {
+
+                let _csrf = $("#_csrf").val()
+                let serviceID = $("#serviceID").val()
+                const data = []
+
+                let encodedetailKey = encodeURIComponent("prov_detail")
+
+                let encodeKey = encodeURIComponent("_csrf")
+                let serviceIDEncodeKey = encodeURIComponent("service_id")
+
+                let encodedValue = encodeURIComponent(_csrf)
+                let serviceIDEncodeValue = encodeURIComponent(serviceID)
+
+                data.push(encodeKey + "=" + encodedValue)
+                data.push(serviceIDEncodeKey + "=" + serviceIDEncodeValue)
+                
+                let method = $("form[name='create-place']").attr("method")
+
+                fetch(window.location.href, {
+                    headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                    method,
+                    body: data.join("&")
+                })
+                .then(res => {
+                if (res.status !== 201) {
+                    throw ""
+                }
+                    return res.json();
+                })
+                .then(data => {
+                    Swal.fire("success", "", "success").then(result => {
+                        location.replace(data.redirect)
+                    })
+                })
+                .catch(err => {
+                    console.log("error", err);
+                })
+            }
+        })
+        
+    })(jQuery)
+  </script>
+</body>
+
+</html>
+
+{{end}}

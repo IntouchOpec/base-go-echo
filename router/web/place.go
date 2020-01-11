@@ -38,13 +38,12 @@ func PlaceListHandler(c *Context) error {
 func PlaceDetailHandler(c *Context) error {
 	place := model.Place{}
 	id := c.Param("id")
-	a := auth.Default(c)
-	model.DB().Preload("Account").Preload("ChatChannels").Where("account_id = ? ", a.User.GetAccountID()).Find(&place, id)
-	err := c.Render(http.StatusOK, "place-detail", echo.Map{
+	accID := auth.Default(c).GetAccountID()
+	model.DB().Preload("Account").Preload("Services").Preload("ChatChannels").Where("account_id = ? ", accID).Find(&place, id)
+	return c.Render(http.StatusOK, "place-detail", echo.Map{
 		"detail": place,
 		"title":  "place",
 	})
-	return err
 }
 
 func PlaceCreateHandler(c *Context) error {
@@ -169,6 +168,39 @@ func PlaceAddChatChannelViewHandler(c *Context) error {
 	return c.Render(http.StatusOK, "place-chat-channel-form", echo.Map{"method": "PUT",
 		"chatChannels": chatChannels,
 		"title":        "place",
+	})
+}
+func PlaceAddSercivePostHandler(c *Context) error {
+	place := model.Place{}
+	id := c.Param("id")
+	a := auth.Default(c)
+	service := model.Service{}
+
+	serviceID := c.FormValue("service_id")
+	db := model.DB()
+	db.Where("account_id = ?", a.GetAccountID()).Find(&service, serviceID)
+	if err := db.Where("account_id = ? ", a.GetAccountID()).Find(&place, id).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	if err := db.Model(&place).Association("Services").Append(&service).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	return c.JSON(http.StatusCreated, echo.Map{
+		"data":     place,
+		"redirect": fmt.Sprintf("/admin/place/%d", place.ID),
+	})
+}
+func PlaceAddSerciveViewHandler(c *Context) error {
+	place := model.Place{}
+	accID := auth.Default(c).GetAccountID()
+	services := []model.Service{}
+	db := model.DB()
+	db.Where("account_id = ?", accID).Find(&services)
+	db.Where("account_id = ?", accID).Find(&place)
+	return c.Render(http.StatusOK, "place-service-form", echo.Map{
+		"method":   "POST",
+		"services": services,
+		"title":    "place",
 	})
 }
 

@@ -66,6 +66,37 @@
                             </div>
                         </div>
                     </div>
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header card-header-primary d-flex justify-content-between">
+                                <h4 class="card-title ">service</h4>
+                                <a href="/admin/place/{{.detail.ID}}/place_service/create">
+                                    <button class="btn btn-info">
+                                    <i class="material-icons">add</i>
+                                    Create
+                                    </button>
+                                </a>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <thead>
+                                            <th>Name</th>
+                                        </thead>
+                                        <tbody>
+                                            {{ with .detail.Services }}
+                                            {{ range . }}
+                                                <tr name="row_{{ .ID }}">
+                                                    <td>{{ .SerName }}</td>
+                                                </tr>
+                                            {{ end }}
+                                            {{ end }}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
          </div>
@@ -77,26 +108,26 @@
   {{ template "script" }}
 
   <script>
-      (function ($) {
+        (function ($) {
             $("input[type='checkbox']").change(function() {
-            let id = $(this).val()
+                let id = $(this).val()
 
-            let _csrf = $("#_csrf").val()
-            let data = new URLSearchParams()
+                let _csrf = $("#_csrf").val()
+                let data = new URLSearchParams()
 
-            data.append("_csrf", _csrf)
-            data.append("plac_acive", this.checked)
-                    
-            fetch(`/admin/place_chatchannel/${id}`, {
-                body: data,
-                method: "PACTH"
+                data.append("_csrf", _csrf)
+                data.append("plac_acive", this.checked)
+                        
+                fetch(`/admin/place_chatchannel/${id}`, {
+                    body: data,
+                    method: "PACTH"
                 }).then(res => {
-                return res.json()
+                    return res.json()
                 }).then(json => {
-                Swal.fire("success", "", "success")
+                    Swal.fire("success", "", "success")
                 }).catch(err => {
-                Swal.fire("success", "", "success")          
-            })
+                    Swal.fire("fial", "", "fial")          
+                })
         })
       })(jQuery)
   </script>

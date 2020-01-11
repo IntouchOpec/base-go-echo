@@ -26,6 +26,7 @@ type Place struct {
 	PlacImage    string         `form:"image" json:"plac_image" gorm:"type:varchar(255)"`
 	ChatChannels []*ChatChannel `json:"chat_channels" gorm:"many2many:place_chat_channel"`
 	AccountID    uint           `json:"account_id"`
+	Services     []*Service     `json:"services" gorm:"many2many:place_service"`
 	Account      Account        `json:"account" gorm:"ForeignKey:AccountID"`
 	MasterPlaces []*MasterPlace `json:"master_places"`
 }

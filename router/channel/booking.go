@@ -228,14 +228,12 @@ func ServiceListLineHandler(c *Context) (linebot.SendingMessage, error) {
 	var serviceList string
 	var actionMessge string
 	var count int
-	// var bookings []model.Booking
 	var service model.Service
 	count = 0
 	dateTime := c.Massage.Text[9:19]
 	var employeeServices []model.EmployeeService
 
 	start, err := time.Parse("2006-01-02 15:04", dateTime+" 15:00")
-	// end, err := time.Parse("2006-01-02 15:04", dateTime+" 23:59")
 
 	if err != nil {
 		return nil, err

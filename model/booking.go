@@ -26,10 +26,12 @@ type Booking struct {
 	ChatChannelID uint         `json:"chat_chaneel_id"`
 	TimeSlotID    uint         `json:"time_slot_id"`
 	TransactionID uint         `json:"transaction_id"`
-	Employee      Employee     `json:"employee" gorm:"ForeignKey:EmployeeID"`
+	PlaceID       uint         `json:"place_id"`
+	Place         *Place       `json:"place" gorm:"ForeignKey:PlaceID"`
+	Employee      *Employee    `json:"employee" gorm:"ForeignKey:EmployeeID"`
 	Transaction   *Transaction `json:"transaction"  gorm:"ForeignKey:TransactionID"`
 	Customer      *Customer    `json:"customer" gorm:"ForeignKey:CustomerID"`
-	ChatChannel   *ChatChannel `gorm:"ForeignKey:ChatChannelID"`
+	ChatChannel   *ChatChannel `json:"chat_channel" gorm:"ForeignKey:ChatChannelID"`
 	BooStatus     *BookStatus  `json:"boo_status"`
 	BookedDate    time.Time    `gorm:"column:booked_date" json:"booked_date"`
 	TimeSlot      *TimeSlot    `json:"time_slot" gorm:"ForeignKey:TimeSlotID"`
