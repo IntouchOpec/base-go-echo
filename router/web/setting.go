@@ -42,15 +42,15 @@ func SettingPostHandler(c *Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	imagePath := c.FormValue("file")
+	jsonPath := c.FormValue("file")
 
-	if imagePath == "" {
+	if jsonPath == "" {
 		ctx := context.Background()
-		imagePath, err := lib.UploadGoolgeStorage(ctx, imagePath, "images/")
+		jsonPath, err := lib.UploadGoolgeStorage(ctx, jsonPath, "json/AuthJSONGoogle/")
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, err)
 		}
-		acc.AccAuthJSONFilePath = imagePath
+		acc.AccAuthJSONFilePath = jsonPath
 	}
 
 	if err := db.Save(&acc).Error; err != nil {
