@@ -14,6 +14,7 @@ type Service struct {
 	AccountID        uint               `form:"account_id" json:"account_id" gorm:"not null;"`
 	SerTime          string             `form:"time" json:"ser_time" gorm:"type:varchar(10)"`
 	SerImage         string             `form:"image" json:"ser_image" gorm:"type:varchar(255)"`
+	Places           []*Place           `json:"places" gorm:"many2many:place_service"`
 	Account          Account            `json:"account" gorm:"ForeignKey:AccountID"`
 	ChatChannels     []*ChatChannel     `json:"chat_channels" gorm:"many2many:service_chat_channel"`
 	EmployeeServices []*EmployeeService `json:"employee_services" gorm:"many2many:EmployeeService"`

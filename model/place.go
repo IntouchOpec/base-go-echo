@@ -31,17 +31,25 @@ type Place struct {
 	MasterPlaces []*MasterPlace `json:"master_places"`
 }
 
+type MPlaStatus uint
+
+const (
+	MPlaStatusOpen MPlaStatus = 0
+	MPlaStatusBusy MPlaStatus = 1
+)
+
 type MasterPlace struct {
 	orm.ModelBase
 
-	PlaceID    uint      `json:"place_id"`
-	MPlaAmount int       `json:"mpla_amount"`
-	AccountID  uint      `json:"account_id"`
-	MPlaDay    time.Time `json:"mpla_day"`
-	MPlaFrom   time.Time `json:"mpla_from"`
-	MPlaTo     time.Time `json:"mpla_to"`
-	Place      Place     `json:"place" gorm:"ForeignKey:PlaceID"`
-	Account    Account   `json:"account" gorm:"ForeignKey:AccountID"`
+	PlaceID    uint       `json:"place_id"`
+	MPlaAmount int        `json:"m_pla_amount"`
+	MPlaStatus MPlaStatus `json:"m_place_status" gorm:"default:0"`
+	AccountID  uint       `json:"account_id"`
+	MPlaDay    time.Time  `json:"m_pla_day"`
+	MPlaFrom   time.Time  `json:"m_pla_from"`
+	MPlaTo     time.Time  `json:"m_pla_to"`
+	Place      Place      `json:"place" gorm:"ForeignKey:PlaceID"`
+	Account    Account    `json:"account" gorm:"ForeignKey:AccountID"`
 }
 
 func (pla *Place) CreatePlace() error {

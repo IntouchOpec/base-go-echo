@@ -1,6 +1,7 @@
 package channel
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"time"
@@ -229,26 +230,37 @@ func ServiceListLineHandler(c *Context) (linebot.SendingMessage, error) {
 	var actionMessge string
 	var count int
 	var service model.Service
+	var MSPlaces []*model.MasterPlace
 	count = 0
 	dateTime := c.Massage.Text[9:19]
+
 	var employeeServices []model.EmployeeService
 
-	start, err := time.Parse("2006-01-02 15:04", dateTime+" 15:00")
+	day, err := time.Parse("2006-01-02 15:04", dateTime+" 15:00")
+	var start time.Time
+	var end time.Time
 
 	if err != nil {
 		return nil, err
 	}
 
-	if err := c.DB.Where("ser_name = ? and account_id = ?", c.Massage.Text[20:], c.Account.ID).Find(&service).Error; err != nil {
+	if err := c.DB.Preload("Places").Where("ser_name = ? and account_id = ?", c.Massage.Text[20:], c.Account.ID).Find(&service).Error; err != nil {
 		return nil, err
 	}
 
-	if err := c.DB.Preload("Service").Preload("Employee").Preload("TimeSlots", func(db *gorm.DB) *gorm.DB {
-		return db.Where("time_day = ?", start.Weekday()).Preload("Bookings", "booked_date = ?", start)
+	var placeIDs []uint
+
+	for _, place := range service.Places {
+		placeIDs = append(placeIDs, place.ID)
+	}
+
+	if err := c.DB.Preload("Employee").Preload("TimeSlots", func(db *gorm.DB) *gorm.DB {
+		return db.Where("time_day = ?", day.Weekday()).Preload("Bookings", "booked_date = ?", day)
 	}).Where("service_id = ? and account_id = ?",
 		service.ID, c.Account.ID).Find(&employeeServices).Error; err != nil {
 		return nil, err
 	}
+	c.DB.Where("m_pla_day = ?", day).Find(&MSPlaces)
 	for index, employeeService := range employeeServices {
 		if employeeService.Employee.ChatChannelID != c.ChatChannel.ID {
 			continue
@@ -262,18 +274,25 @@ func ServiceListLineHandler(c *Context) (linebot.SendingMessage, error) {
 			if len(timeSlot.Bookings) > 0 {
 				buttonTime = buttonTime + fmt.Sprintf(buttonTimeSecondaryTemplate, fmt.Sprintf("%s-%s", timeSlot.TimeStart, timeSlot.TimeEnd), "เต็มแล้ว")
 			} else {
-				actionMessge = "timeslot" + " " + dateTime + " " + timeSlot.TimeStart + "-" + timeSlot.TimeEnd + " " + fmt.Sprint(timeSlot.ID)
-				buttonTime = buttonTime + fmt.Sprintf(buttonTimePrimaryTemplate, fmt.Sprintf("%s-%s", timeSlot.TimeStart, timeSlot.TimeEnd), actionMessge)
+				start, err = time.Parse("15:04", timeSlot.TimeStart)
+				end, err = time.Parse("15:04", timeSlot.TimeEnd)
+				fmt.Println(start, end)
+				if len(MSPlaces) != 0 {
+
+				} else {
+					actionMessge = "timeslot" + " " + dateTime + " " + timeSlot.TimeStart + "-" + timeSlot.TimeEnd + " " + fmt.Sprint(timeSlot.ID)
+					buttonTime = buttonTime + fmt.Sprintf(buttonTimePrimaryTemplate, fmt.Sprintf("%s-%s", timeSlot.TimeStart, timeSlot.TimeEnd), actionMessge)
+				}
 			}
 			count = count + 1
 		}
 		if index == len(employeeServices)-1 {
 			slotTime = slotTime + fmt.Sprintf(slotTimeTemplate, buttonTime[:len(buttonTime)-1])
-			serviceList += fmt.Sprintf(serviceListTemplate, "https://web."+Conf.Server.Domain+employeeService.Employee.ProvImage, employeeService.Employee.ProvName, strconv.FormatInt(int64(employeeService.PSPrice), 10), slotTime)
+			serviceList += fmt.Sprintf(serviceListTemplate, fmt.Sprintf("https://web.%s/file?path=%s", Conf.Server.Domain, employeeService.Employee.ProvImage), employeeService.Employee.ProvName, strconv.FormatInt(int64(employeeService.PSPrice), 10), slotTime)
 			break
 		}
 		serviceList = serviceList + fmt.Sprintf(serviceListTemplate+",",
-			"https://"+Conf.Server.Domain+employeeService.Employee.ProvImage,
+			fmt.Sprintf("https://web.%s/file?path=%s", Conf.Server.Domain, employeeService.Employee.ProvImage),
 			employeeService.Employee.ProvName, strconv.FormatInt(int64(employeeService.PSPrice), 10), slotTime)
 		slotTime = ""
 		count = 0
@@ -295,11 +314,23 @@ func ThankyouTemplate(c *Context) (linebot.SendingMessage, error) {
 	var timeSlot model.TimeSlot
 	var tran model.Transaction
 	var book model.Booking
+	var service model.Service
+	var MSPlace model.MasterPlace
 	tx := c.DB.Begin()
+	dateTime := c.Massage.Text[9:19]
+	start, err := time.Parse("2006-01-02 15:04", dateTime+" 15:00")
 
 	if err := tx.Preload("EmployeeService").Find(&timeSlot, c.Massage.Text[32:]).Error; err != nil {
 		return nil, err
 	}
+
+	tx.Preload("Booking", func(db *gorm.DB) *gorm.DB {
+		return db.Preload("Bookings", "booked_date = ?", start).Preload("Place", "m_pla_status = ?", model.MPlaStatusOpen)
+	}).Where("account_id = ? and time_day = ?", c.Account.ID, start.Weekday()).Find(&service, timeSlot.EmployeeService.ServiceID)
+	if len(service.Places) == 0 {
+		return nil, errors.New("Not found place")
+	}
+	book.PlaceID = service.Places[0].ID
 	book.ChatChannelID = c.ChatChannel.ID
 	book.CustomerID = c.Customer.ID
 	book.BooLineID = c.Massage.ID
@@ -328,6 +359,23 @@ func ThankyouTemplate(c *Context) (linebot.SendingMessage, error) {
 		return nil, err
 	}
 	err = tx.Model(&tran).Association("Bookings").Append(&book).Error
+	if err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+	MSPlace.PlaceID = book.PlaceID
+	MSPlace.MPlaDay = start
+	MSPlace.AccountID = c.Account.ID
+	form, err := time.Parse("2006-01-02 15:04", "2006-01-02 "+timeSlot.TimeStart)
+	to, err := time.Parse("2006-01-02 15:04", "2006-01-02 "+timeSlot.TimeEnd)
+	MSPlace.MPlaFrom = form
+	MSPlace.MPlaTo = to
+	err = tx.FirstOrCreate(&MSPlace).Error
+	MSPlace.MPlaAmount = MSPlace.MPlaAmount + 1
+	if MSPlace.MPlaAmount == service.Places[0].PlacAmount {
+		MSPlace.MPlaStatus = model.MPlaStatusBusy
+	}
+	tx.Save(&MSPlace)
 	if err != nil {
 		tx.Rollback()
 		return nil, err

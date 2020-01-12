@@ -84,6 +84,7 @@ func Initialize() {
 	newDb.AutoMigrate(&VoucherCustomer{})
 	newDb.AutoMigrate(&CouponCustomer{})
 	newDb.AutoMigrate(&BroadcastMessage{})
+	newDb.AutoMigrate(&MasterPlace{})
 }
 
 // CacheStore use cache MEMCACHED or REDIS.

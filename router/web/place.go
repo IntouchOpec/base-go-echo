@@ -194,9 +194,11 @@ func PlaceAddSerciveViewHandler(c *Context) error {
 	place := model.Place{}
 	accID := auth.Default(c).GetAccountID()
 	services := []model.Service{}
+	id := c.Param("id")
+
 	db := model.DB()
 	db.Where("account_id = ?", accID).Find(&services)
-	db.Where("account_id = ?", accID).Find(&place)
+	db.Where("account_id = ?", accID).Find(&place, id)
 	return c.Render(http.StatusOK, "place-service-form", echo.Map{
 		"method":   "POST",
 		"services": services,
