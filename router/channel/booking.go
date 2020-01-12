@@ -248,11 +248,11 @@ func ServiceListLineHandler(c *Context) (linebot.SendingMessage, error) {
 		return nil, err
 	}
 
-	var placeIDs []uint
+	// var placeIDs []uint
 
-	for _, place := range service.Places {
-		placeIDs = append(placeIDs, place.ID)
-	}
+	// for _, place := range service.Places {
+	// 	placeIDs = append(placeIDs, place.ID)
+	// }
 
 	if err := c.DB.Preload("Employee").Preload("TimeSlots", func(db *gorm.DB) *gorm.DB {
 		return db.Where("time_day = ?", day.Weekday()).Preload("Bookings", "booked_date = ?", day)
@@ -316,6 +316,9 @@ func ThankyouTemplate(c *Context) (linebot.SendingMessage, error) {
 	var book model.Booking
 	var service model.Service
 	var MSPlace model.MasterPlace
+	var MSPlaces []*model.MasterPlace
+	c.DB.Where("account_id =? and place_id = ? and m_pla_day = ? and m_pla_to BETWEEN ? and ? and m_pla_from BETWEEN ? and ?").Find(&MSPlaces)
+
 	tx := c.DB.Begin()
 	dateTime := c.Massage.Text[9:19]
 	start, err := time.Parse("2006-01-02 15:04", dateTime+" 15:00")
@@ -323,10 +326,12 @@ func ThankyouTemplate(c *Context) (linebot.SendingMessage, error) {
 	if err := tx.Preload("EmployeeService").Find(&timeSlot, c.Massage.Text[32:]).Error; err != nil {
 		return nil, err
 	}
-
-	tx.Preload("Booking", func(db *gorm.DB) *gorm.DB {
-		return db.Preload("Bookings", "booked_date = ?", start).Preload("Place", "m_pla_status = ?", model.MPlaStatusOpen)
-	}).Where("account_id = ? and time_day = ?", c.Account.ID, start.Weekday()).Find(&service, timeSlot.EmployeeService.ServiceID)
+	//  and time_day = ? , start.Weekday()
+	// .Preload("Booking", func(db *gorm.DB) *gorm.DB {
+	// 	return db.Preload("Bookings", "booked_date = ?", start).Preload("Place")
+	// })
+	fmt.Println(timeSlot.EmployeeService.ServiceID)
+	tx.Preload("Places").Where("account_id = ?", c.Account.ID).Find(&service, timeSlot.EmployeeService.ServiceID)
 	if len(service.Places) == 0 {
 		return nil, errors.New("Not found place")
 	}
@@ -339,6 +344,7 @@ func ThankyouTemplate(c *Context) (linebot.SendingMessage, error) {
 	layout := "2006-01-02 15:00"
 	updatedAt, err := time.Parse(layout, c.Massage.Text[9:19]+" 15:00")
 	if err != nil {
+		tx.Rollback()
 		return nil, err
 	}
 	book.BookedDate = updatedAt
@@ -363,19 +369,33 @@ func ThankyouTemplate(c *Context) (linebot.SendingMessage, error) {
 		tx.Rollback()
 		return nil, err
 	}
-	MSPlace.PlaceID = book.PlaceID
-	MSPlace.MPlaDay = start
-	MSPlace.AccountID = c.Account.ID
-	form, err := time.Parse("2006-01-02 15:04", "2006-01-02 "+timeSlot.TimeStart)
-	to, err := time.Parse("2006-01-02 15:04", "2006-01-02 "+timeSlot.TimeEnd)
-	MSPlace.MPlaFrom = form
-	MSPlace.MPlaTo = to
-	err = tx.FirstOrCreate(&MSPlace).Error
-	MSPlace.MPlaAmount = MSPlace.MPlaAmount + 1
-	if MSPlace.MPlaAmount == service.Places[0].PlacAmount {
-		MSPlace.MPlaStatus = model.MPlaStatusBusy
+
+	if len(MSPlaces) == 0 {
+		MSPlace.PlaceID = book.PlaceID
+		MSPlace.MPlaDay = start
+		MSPlace.AccountID = c.Account.ID
+		form, err := time.Parse("15:04", timeSlot.TimeStart)
+		if err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+		to, err := time.Parse("15:04", timeSlot.TimeEnd)
+		if err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+		MSPlace.MPlaFrom = form
+		MSPlace.MPlaTo = to
+		MSPlace.MPlaAmount = MSPlace.MPlaAmount + 1
+		if MSPlace.MPlaAmount == service.Places[0].PlacAmount {
+			MSPlace.MPlaStatus = model.MPlaStatusBusy
+		}
+		if err := tx.Create(&MSPlace).Error; err != nil {
+			tx.Rollback()
+			return nil, err
+		}
 	}
-	tx.Save(&MSPlace)
+
 	if err != nil {
 		tx.Rollback()
 		return nil, err
