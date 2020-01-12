@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "lineconnect",
+  "private_key_id": "99ca66b2bd16868bfa6842b7b76b6dc23ef4edd3",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCwnj1Dx/qc4Vi1\n9sJOEV37LZ08Wew7U7+ZXAL9CdVdbmlHRvGKWGkTLgo0gygwzLq6Sa6CPDfFfU3w\nTAIldpekLGDNUBMNX7eeXPQEShlSlIdWNEtqj4GH5g7fHc2MODiyUMBtBAWyjNOJ\n4rMn3cg5vuNDrrrybV8KaaHUF5+FIZ8+aOqiqBwV3qjxp0ghdUmHQm7sqF4WP0ht\nohbuIv9wfC76MGnpKmgY/mvz1cZOXfnKmAZsgsZH29kK6yA15HbSRPW4J9rY6n8K\npM7vlXPP6fjdNRUXm/C4u3fY8TTwaTl+0cpTW0pHpBgKbBuYzwgn7tR2oZu43n8a\n2Isco0Z7AgMBAAECggEAQ9If2H1cYQ2vkQBWkL/ehOt5K4mkSwvX0T4h76TtB9m0\nF6jIa8WTY8gUJyIONt8G/S36Ewyope9+FD47vMMTa/mWmoCbMFGHIwqysUr6+lkK\ntzGRnDPLG7JeF5NMMQIN03tqyPH4dh3ZxWMGRNLHZlVE0+Ku6xTQoCD8AYOov+gK\nCtGDLl+WAhAWWk0/tud4RjaKz10GMR4DVVxdNg6gq97M7cPh8Gb/6sOEAmTmQahL\ncDsecZLehbqTNcIqPxXIrvWvqjUxGZpXuz0q5uI0zlpB0qZLOkcUCG9zGkHuFBUv\nHt9oNkoJidijD6rHoCaF5uEKV0DdbXercYBdkrdPIQKBgQD4IpmOUl9uNLGoaWIT\nmm9LFbjaa2JPvQ+0hWgPxNMoAZ3oxdVq0IeVSDITzXmF5qL1zpbpLGK0ahiGacpj\nJh+D5/VZgxNG4NFPZQjltdGODlHKyL8qJenSiUPR5z+7OlgaDIFcx3nn6e6rBZac\nQqAdJbzLQ1zAXY7KEepictyaOQKBgQC2N1dYkkEwO6YM0RGHaTn2ksCaSK0BfSyF\nfSzB3MFwqnbATxSV82pnYGX7MeL9QuaQGC0ndOL5GbVQ4FiLaET2H0kNglyqxIea\nzsxfBavFhjJkg4B/lAZShHlCmleRX0hy4WRa2j8YOvpn/ZfB/1mFC8SwosmZuHrZ\ndfC2HD92UwKBgCI4M1ELTxnVroJ5NgtaCush7cJBeOdiPV4536X9ENm9j1dgoRP/\n+hK+SBmvBolOyz525Rz3AA29a/Btenm98i6wuIdFqkzmCDeYyWdUcbfThbgfgy1+\n2QYt4+p4p7NcUnYVL2nqIIe5HS78sE6QaaBbafPmME5fGKgJXHeDO6URAoGAa33I\nHCrjI9X8RdFLmusbU3cNAbbfwGIcUn8eWRqmTpVwyk+cYD0hRuyaHI44TpkZtGVe\ntckBYFunF5fRBCQ1kk+wY7TEf8TCDjPyYhfRVgutTJg6xIgJFsKpWf38rHheH88Q\nyXu3/s5EC/aQgNPm9lKT7HOLpBAtAH3Py05srZsCgYEA7BUqc3PdDze1kwo9CJFI\ntwVaqyaH/XxvWnfHtan168pU962sZh9G+10AjepNYINnWfPGkACIxO9FGSPx01hE\nGE1Mf1+fQGkAZ7LzgmNAimYrgOVf+LHdjwSginPjKmp7BUQV121lvwuVuxiyIyAK\nbnwyXslAlWVxJa5lU2omRKI=\n-----END PRIVATE KEY-----\n",
+  "client_email": "intouch@lineconnect.iam.gserviceaccount.com",
+  "client_id": "104829017199383831505",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/intouch%40lineconnect.iam.gserviceaccount.com"
+}

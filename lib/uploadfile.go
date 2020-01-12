@@ -105,7 +105,7 @@ func isError(err error) bool {
 }
 
 func UploadGoolgeStorage(ctx context.Context, code, imagePath string) (string, error) {
-	client, err := storage.NewClient(ctx, option.WithCredentialsFile("/Users/intouchteeramartwanit/Downloads/lineconnect-99ca66b2bd16.json"))
+	client, err := storage.NewClient(ctx, option.WithCredentialsFile("/lineconnect-99ca66b2bd16.json"))
 	if err != nil {
 		return "", err
 	}
@@ -133,7 +133,7 @@ func UploadGoolgeStorage(ctx context.Context, code, imagePath string) (string, e
 }
 
 func GetGoolgeStorage(ctx context.Context, bucket, folder string) ([]byte, string, error) {
-	client, err := storage.NewClient(ctx, option.WithCredentialsFile("/Users/intouchteeramartwanit/Downloads/lineconnect-99ca66b2bd16.json"))
+	client, err := storage.NewClient(ctx, option.WithCredentialsFile("/lineconnect-99ca66b2bd16.json"))
 	if err != nil {
 		return nil, "", err
 	}
