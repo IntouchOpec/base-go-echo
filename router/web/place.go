@@ -165,7 +165,8 @@ func PlaceAddChatChannelViewHandler(c *Context) error {
 	db := model.DB()
 	db.Where("account_id = ?", accID).Find(&chatChannels)
 	db.Where("account_id = ?", accID).Find(&place)
-	return c.Render(http.StatusOK, "place-chat-channel-form", echo.Map{"method": "PUT",
+	return c.Render(http.StatusOK, "place-chat-channel-form", echo.Map{
+		"method":       "POST",
 		"chatChannels": chatChannels,
 		"title":        "place",
 	})
