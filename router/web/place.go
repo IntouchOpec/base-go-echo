@@ -171,6 +171,45 @@ func PlaceAddChatChannelViewHandler(c *Context) error {
 		"title":        "place",
 	})
 }
+
+func PlaceDeleteChatChannelHandler(c *Context) error {
+	place := model.Place{}
+	accID := auth.Default(c).GetAccountID()
+	id := c.Param("id")
+	chatChannel := model.ChatChannel{}
+	place_chatchannel_id := c.Param("place_chatchannel_id")
+	db := model.DB()
+	if err := db.Preload("ChatChannels").Where("account_id = ?", accID).Find(&place, id).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	if err := db.Where("account_id = ?", accID).Find(&chatChannel, place_chatchannel_id).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	if err := db.Model(place).Association("ChatChannels").Delete(chatChannel).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	return c.JSON(http.StatusOK, echo.Map{})
+}
+
+func PlaceDeleteServiceHandler(c *Context) error {
+	place := model.Place{}
+	service := model.Service{}
+	place_service_id := c.Param("place_service_id")
+	accID := auth.Default(c).GetAccountID()
+	db := model.DB()
+	id := c.Param("id")
+	if err := db.Where("account_id = ?", accID).Find(&place, id).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	if err := db.Where("account_id = ?", accID).Find(&service, place_service_id).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	if err := db.Model(&place).Association("Services").Delete(service).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	return c.JSON(http.StatusOK, echo.Map{})
+}
+
 func PlaceAddSercivePostHandler(c *Context) error {
 	place := model.Place{}
 	id := c.Param("id")

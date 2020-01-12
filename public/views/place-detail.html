@@ -1,9 +1,7 @@
 {{define "place-detail"}}
 <!DOCTYPE html>
 <html lang="en">
-
 {{ template "header" .title }}
-
 <body class="">
   <div class="wrapper ">
    {{ template "sidebar" .base }}
@@ -50,13 +48,19 @@
                                         <thead>
                                             <th>Name</th>
                                             <th>Type</th>
+                                            <th></th>
                                         </thead>
                                         <tbody>
                                             {{ with .detail.ChatChannels }}
                                             {{ range . }}
-                                                <tr name="row_{{ .ID }}">
+                                                <tr id="row_chat_channel_{{.ID}}" name="row_{{ .ID }}">
                                                     <td>{{ .ChaName }}</td>
                                                     <td>{{ .ChaType }}</td>
+                                                    <td class="td-actions text-right">
+                                                        <button name="chat_channel" value="{{ .ID }}" name="remove"  type="button" rel="tooltip" class="btn btn-danger">
+                                                          <i class="material-icons">close</i>
+                                                        </button>
+                                                    </td>
                                                 </tr>
                                             {{ end }}
                                             {{ end }}
@@ -82,12 +86,18 @@
                                     <table class="table">
                                         <thead>
                                             <th>Name</th>
+                                            <th></th>
                                         </thead>
                                         <tbody>
                                             {{ with .detail.Services }}
                                             {{ range . }}
-                                                <tr name="row_{{ .ID }}">
+                                                <tr id="row_service_{{.ID}}" name="row_{{ .ID }}">
                                                     <td>{{ .SerName }}</td>
+                                                    <td class="td-actions text-right">
+                                                        <button name="service" value="{{ .ID }}" name="remove"  type="button" rel="tooltip" class="btn btn-danger">
+                                                          <i class="material-icons">close</i>
+                                                        </button>
+                                                    </td>
                                                 </tr>
                                             {{ end }}
                                             {{ end }}
@@ -104,31 +114,62 @@
       {{ template "footer" }}
     </div>
     <input id="_csrf" name="_csrf" value="{{._csrf}}" type="hidden" >
+    <input id="id" name="id" value="{{.detail.ID}}" type="hidden" >
   </div>
   {{ template "script" }}
 
   <script>
         (function ($) {
-            $("input[type='checkbox']").change(function() {
-                let id = $(this).val()
-
-                let _csrf = $("#_csrf").val()
-                let data = new URLSearchParams()
-
-                data.append("_csrf", _csrf)
-                data.append("plac_acive", this.checked)
-                        
-                fetch(`/admin/place_chatchannel/${id}`, {
-                    body: data,
-                    method: "PACTH"
-                }).then(res => {
-                    return res.json()
-                }).then(json => {
-                    Swal.fire("success", "", "success")
-                }).catch(err => {
-                    Swal.fire("fial", "", "fial")          
+            $("button[name='chat_channel']").each(function () {
+                $(this).click(function() {
+                    let _csrf = $("#_csrf").val()
+                    let chat_channel_id = $(this).val()
+                    let id = $("#id").val()
+                    let data = new FormData()
+                    data.append("_csrf", _csrf)
+                    fetch(`/admin/place/${id}/place_chatchannel/${chat_channel_id}`, {
+                        body: data,
+                        method: "DELETE"
+                    }).then(res => {
+                        if (res.status !== 200) {
+                            throw ""
+                        }
+                        return res.json()
+                    }).then(json => {
+                        Swal.fire("success", "", "success").then(result => {
+                            $(`#row_chat_channel_${chat_channel_id}`).remove()
+                        })
+                    }).catch(err => {
+                        Swal.fire("fial", "", "fial")          
+                    })
                 })
-        })
+            })
+
+            $("button[name='service']").each(function () {
+                $(this).click(function() {
+                    let _csrf = $("#_csrf").val()
+                    let service_id = $(this).val()
+                    let data = new FormData()
+                    let id = $("#id").val()
+                    data.append("_csrf", _csrf)
+                    fetch(`/admin/place/${id}/place_service/${service_id}`, {
+                        body: data,
+                        method: "DELETE"
+                    }).then(res => {
+                        if (res.status !== 200) {
+                            throw ""
+                        }
+                        return res.json()
+                    }).then(json => {
+                        Swal.fire("success", "", "success").then(result => {
+                            $(`#row_service_${service_id}`).remove()
+                        })
+                    }).catch(err => {
+                        Swal.fire("fial", "", "fial")          
+                    })
+                })
+            })
+            
       })(jQuery)
   </script>
 </body>

@@ -178,8 +178,10 @@ func Routers() *echo.Echo {
 		managent.DELETE("/place/:id/delete_image", handler(PlaceDeleteImageHandler))
 		managent.POST("/place/:id/place_chatchannel/create", handler(PlaceAddChatChannelPostHandler))
 		managent.GET("/place/:id/place_chatchannel/create", handler(PlaceAddChatChannelViewHandler))
+		managent.DELETE("/place/:id/place_chatchannel/:place_chatchannel_id", handler(PlaceDeleteChatChannelHandler))
 		managent.POST("/place/:id/place_service/create", handler(PlaceAddSercivePostHandler))
 		managent.GET("/place/:id/place_service/create", handler(PlaceAddSerciveViewHandler))
+		managent.DELETE("/place/:id/place_service/:place_service_id", handler(PlaceDeleteServiceHandler))
 
 		managent.GET("/employee", handler(EmployeeListHandler))
 		managent.GET("/employee/create", handler(EmployeeCreateHandler))

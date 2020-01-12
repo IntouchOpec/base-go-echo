@@ -248,12 +248,6 @@ func ServiceListLineHandler(c *Context) (linebot.SendingMessage, error) {
 		return nil, err
 	}
 
-	// var placeIDs []uint
-
-	// for _, place := range service.Places {
-	// 	placeIDs = append(placeIDs, place.ID)
-	// }
-
 	if err := c.DB.Preload("Employee").Preload("TimeSlots", func(db *gorm.DB) *gorm.DB {
 		return db.Where("time_day = ?", day.Weekday()).Preload("Bookings", "booked_date = ?", day)
 	}).Where("service_id = ? and account_id = ?",
@@ -317,7 +311,7 @@ func ThankyouTemplate(c *Context) (linebot.SendingMessage, error) {
 	var service model.Service
 	var MSPlace model.MasterPlace
 	var MSPlaces []*model.MasterPlace
-	c.DB.Where("account_id =? and place_id = ? and m_pla_day = ? and m_pla_to BETWEEN ? and ? and m_pla_from BETWEEN ? and ?").Find(&MSPlaces)
+	c.DB.Where("account_id =? and place_id = ? and m_pla_day = ? and m_pla_to BETWEEN ? and ? or m_pla_from BETWEEN ? and ?").Find(&MSPlaces)
 
 	tx := c.DB.Begin()
 	dateTime := c.Massage.Text[9:19]
