@@ -97,10 +97,11 @@ func Routers() *echo.Echo {
 		managent.GET("/chat_channel", handler(ChatChannelListHandler))
 		managent.POST("/chat_channel/create", handler(CustomerTypePostHandler))
 		managent.GET("/chat_channel/create", handler(ChatChannelCreateViewHandler))
+		managent.PATCH("/chat_channel/:id/voucher_register", handler(ChatChannelVoucherRegisterHandler))
 		managent.PATCH("/chat_channel/:id/channel_access_token", handler(ChatChannelGetChannelAccessTokenHandler))
 		managent.PATCH("/chat_channel/:id/add_liff_register", handler(ChatChannelAddRegisterLIFF))
 		managent.DELETE("/chat_channel/:id", handler(ChatChannelDeleteHandler))
-
+		// chat_channel/${chat_channel_id}/voucher_register
 		managent.GET("/chat_channel/:id", handler(ChatChannelDetailHandler))
 		managent.GET("/chat_channel/:id/broadcast", handler(ChatChannelBroadcastMessageViewHandler))
 		managent.POST("/chat_channel/:id/broadcast", handler(ChatChannelBroadcastMessageHandler))

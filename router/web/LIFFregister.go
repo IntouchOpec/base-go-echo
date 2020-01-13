@@ -112,13 +112,17 @@ func LIIFRegisterSaveCustomer(c echo.Context) error {
 		flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(voucherTemplate(chatChannel.Voucher.Promotion, chatChannel.Voucher)))
 		flexMessage := linebot.NewFlexMessage(chatChannel.Voucher.Promotion.PromName, flexContainer)
 		// flexMessage := linebot.NewTextMessage(chatChannel.ChaWelcomeMessage)
-		if _, err = bot.ReplyMessage(req.AccessToken, flexMessage).Do(); err != nil {
+		if _, err = bot.PushMessage(req.UserID, flexMessage).Do(); err != nil {
+			fmt.Println(err)
 			return c.JSON(http.StatusBadRequest, err)
 		}
+		return c.JSON(http.StatusOK, custo)
 	}
 	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(welcomeTemplate()))
 	flexMessage := linebot.NewFlexMessage("welcome", flexContainer)
 	if _, err = bot.PushMessage(req.UserID, flexMessage).Do(); err != nil {
+		fmt.Println(err)
+
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	return c.JSON(http.StatusOK, custo)
@@ -156,6 +160,9 @@ func welcomeTemplate() string {
 func voucherTemplate(promotion *model.Promotion, voucher *model.Voucher) string {
 	StartDateStr := voucher.PromStartDate.Format("02-12-2006")
 	EndDateStr := voucher.PromEndDate.Format("02-12-2006")
+	if voucher.PromCondition == "" {
+		voucher.PromCondition = "-"
+	}
 	temp := fmt.Sprintf(`{
 		"type": "bubble",
 		"hero": { "type": "image", "url": "%s", "size": "full", "aspectRatio": "20:13", "aspectMode": "cover" },
@@ -183,6 +190,6 @@ func voucherTemplate(promotion *model.Promotion, voucher *model.Voucher) string 
 		  ],
 		  "flex": 0
 		}
-	  }`, fmt.Sprintf("https://web.%s/file?path=%s", Conf.Server.DomainWeb, promotion.PromImage), promotion.PromTitle, StartDateStr, EndDateStr, voucher.PromCondition, promotion.PromCode)
+	  }`, fmt.Sprintf("https://web.%s/file?path=%s", Conf.Server.Domain, promotion.PromImage), promotion.PromTitle, StartDateStr, EndDateStr, voucher.PromCondition, promotion.PromCode)
 	return temp
 }

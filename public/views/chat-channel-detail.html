@@ -108,10 +108,32 @@
                     <div class="col-md-12">
                         <div style="height: 84%;" class="card">
                             <div class="card-header card-header-primary">
-                                <h4 class="card-title ">Promotion Register</h4>
+                                <h4 class="card-title ">Voucher Register</h4>
                             </div>
                             <div class="card-body">
-                               
+                                <form name="form-voucher" method="PATCH">
+                                    <div class="col-md-12 mt-2">
+                                        <div class="form-group">
+                                            <label class="bmd-label-floating" >Type</label>
+                                            <select name="voucher" class="form-control" data-style="btn btn-link" id="voucher">
+                                                {{ if .detail.Voucher }}
+                                                {{.detail.Voucher}}
+                                                    <option value="{{.detail.Voucher.ID}}">
+                                                        {{.detail.Voucher.Promotion.PromCode}} {{.detail.Voucher.PromStartDate.Format "Mon Jan 2 2006"}} - {{.detail.Voucher.PromEndDate.Format "Mon Jan 2 2006"}}
+                                                    </option>
+                                                {{ else }}
+                                                    <option value="">Choose Voucher</option>
+                                                {{ end }}
+                                                {{ with .vouchers }}
+                                                {{ range . }}
+                                                    <option value="{{.ID}}">{{.Promotion.PromCode}} {{.PromStartDate.Format "Mon Jan 2 2006"}} - {{.PromEndDate.Format "Mon Jan 2 2006"}}</option>
+                                                {{ end }}
+                                                {{ end }}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <input type="submit" rel="tooltip" value="Submit" class="btn btn-success">
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -368,6 +390,28 @@
             let chat_channel_id = $("#add_LIIF_register").val()
             let actContainer = $("#action_logs")
             let eveContainer = $("#event_logs")
+
+            $("form[name='form-voucher']").validate({
+                rules: {voucher: { required: true } },
+                messages: { voucher: {messages: "Please enter a valid voucher"}},
+                submitHandler: function(form) {
+                    let data = new FormData()
+                    let voucher_id = $("#voucher").val()
+                    data.append("_csrf", _csrf);
+                    data.append("voucher_id", voucher_id)
+                    fetch(`/admin/chat_channel/${chat_channel_id}/voucher_register`, {
+                        method: "PATCH",
+                        body: data
+                    }).then(res => {
+                        Swal.fire("success", "", "success").then(result => {
+                        }).then(json => {
+                            
+                        })
+                    }).catch(err => {
+                        Swal.fire("fial", "", "warning")
+                    })
+                }
+            })
 
             function templateActionLogs (records) {
                 let elm = ""

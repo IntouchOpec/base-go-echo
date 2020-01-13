@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/jinzhu/gorm"
+
 	. "github.com/IntouchOpec/base-go-echo/conf"
 	"github.com/IntouchOpec/base-go-echo/lib"
 
@@ -165,6 +167,7 @@ func ChatChannelDetailHandler(c *Context) error {
 	var richMenu string
 	var paginationEventLogs Pagination
 	var paginationActionLogs Pagination
+	var vouchers []*model.Voucher
 	var deplayDetailChatChannels []DeplayDetailChatChannel
 	setting := model.Setting{}
 	actionLogs := []model.ActionLog{}
@@ -179,11 +182,16 @@ func ChatChannelDetailHandler(c *Context) error {
 	paginationActionLogs = MakePagination(totalAction, 0, 10)
 	filteractionLogs.Preload("Customer").Find(&actionLogs).Limit(10).Offset(0).Order("id")
 
-	db.Preload("Settings").Preload("Account").Where("account_id = ?", a.GetAccountID()).Find(&chatChannel, id)
+	db.Preload("Settings").Preload("Voucher", func(db *gorm.DB) *gorm.DB {
+		return db.Preload("Promotion")
+	}).Preload("Account").Where("account_id = ?", a.GetAccountID()).Find(&chatChannel, id)
+
+	db.Preload("Promotion").Where("account_id = ? and is_active = ? and chat_channel_id = ?", a.GetAccountID(), true, chatChannel.ID).Find(&vouchers)
 
 	insightFollowers, err := lib.InsightFollowers(chatChannel.ChaChannelAccessToken)
 	if err != nil {
 		return c.Render(http.StatusOK, "chat-channel-detail", echo.Map{
+			"vouchers":                 vouchers,
 			"title":                    "chat_channel",
 			"detail":                   chatChannel,
 			"actionLogs":               actionLogs,
@@ -215,6 +223,7 @@ func ChatChannelDetailHandler(c *Context) error {
 
 	if err != nil {
 		return c.Render(http.StatusOK, "chat-channel-detail", echo.Map{
+			"vouchers":                 vouchers,
 			"title":                    "chat_channel",
 			"detail":                   chatChannel,
 			"actionLogs":               actionLogs,
@@ -258,6 +267,7 @@ func ChatChannelDetailHandler(c *Context) error {
 	}
 
 	return c.Render(http.StatusOK, "chat-channel-detail", echo.Map{
+		"vouchers":                 vouchers,
 		"title":                    "chat_channel",
 		"detail":                   chatChannel,
 		"actionLogs":               actionLogs,
@@ -544,5 +554,24 @@ func ChatChannelDeleteHandler(c *Context) error {
 	id := c.Param("id")
 
 	chatChannel := model.DeleteChatChannel(id)
+	return c.JSON(http.StatusOK, chatChannel)
+}
+
+func ChatChannelVoucherRegisterHandler(c *Context) error {
+	id := c.Param("id")
+	db := model.DB()
+	accID := auth.Default(c).GetAccountID()
+	chatChannel := model.ChatChannel{}
+	voucher := model.Voucher{}
+	voucherID := c.FormValue("voucher_id")
+	if err := db.Where("account_id = ?", accID).Find(&chatChannel, id).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	if err := db.Where("account_id = ?", accID).Find(&voucher, voucherID).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	if err := db.Model(&chatChannel).Association("Voucher").Append(&voucher).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
 	return c.JSON(http.StatusOK, chatChannel)
 }

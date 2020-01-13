@@ -103,8 +103,10 @@ func PromotionPostHandler(c *Context) error {
 		PromImage:    imagePath,
 		AccountID:    accID,
 	}
-
-	promotionModel.SavePromotion()
+	if err := model.DB().Create(&promotionModel).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	// promotionModel.SavePromotion()
 	return c.JSON(http.StatusCreated, echo.Map{
 		"data":     promotionModel,
 		"redirect": fmt.Sprintf("/admin/promotion/%d", promotionModel.ID),
@@ -131,6 +133,7 @@ func PromotionCreateDetailHandler(c *Context) error {
 	var promotion model.Promotion
 	var chatChannel model.ChatChannel
 	var req reqSubPromotion
+	accID := auth.Default(c).GetAccountID()
 	db := model.DB()
 	if err := db.Find(&promotion, id).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
@@ -159,6 +162,7 @@ func PromotionCreateDetailHandler(c *Context) error {
 			PromAmount:    amount,
 			PromCondition: req.Condition,
 			ChatChannelID: uint(chatChannelID),
+			AccountID:     accID,
 		})
 	case "Voucher":
 		db.Model(&promotion).Association("Vouchers").Append(&model.Voucher{
@@ -167,6 +171,7 @@ func PromotionCreateDetailHandler(c *Context) error {
 			PromAmount:    amount,
 			PromCondition: req.Condition,
 			ChatChannelID: uint(chatChannelID),
+			AccountID:     accID,
 		})
 	}
 

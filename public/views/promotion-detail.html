@@ -101,7 +101,7 @@
                                                 {{ range . }}
                                                 <tr name="row_{{ .ID }}">
                                                     <td>{{.ChatChannel.ChaName}}</td>
-                                                    <td><input type="checkbox" data-toggle="toggle" checked="{{.IsActive}}"></td>
+                                                    <td><input type="checkbox" checked="{{.IsActive}}" data-toggle="toggle"></td>
                                                     <td>{{.PromStartDate.Format "Mon Jan 2 2006"}}</td>
                                                     <td>{{.PromEndDate.Format "Mon Jan 2 2006"}}</td>
                                                     <td>{{.PromAmount}}</td>
@@ -253,7 +253,6 @@
           $("input[type='checkbox']").change(function () {
               let chacked = $(this).attr("checked")
               let id = $(this).val()
-
               let _csrf = $("#_csrf").val()
               let proID = $("#promotion_id").val()
               if (chacked === undefined) {
@@ -262,12 +261,12 @@
               let data = new FormData()
               data.append("_csrf", _csrf)
               data.append("chacked", chacked)
-              data.append("chat_channel_id", id)
-              fetch(`/admin/promotion/${proID}/register`, {
-                  method,
+
+              fetch(`/admin/promotion/${proID}/`, {
+                  method: "PATCH",
                   body: data
               }).then(res => {
-                  if (res.status !== 201) {
+                  if (res.status !== 200) {
                     throw ""
                   }
                   return res.json()
