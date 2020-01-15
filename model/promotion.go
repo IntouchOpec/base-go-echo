@@ -51,14 +51,13 @@ type Voucher struct {
 	AccountID     uint         `json:"account_id"`
 	Account       Account      `gorm:"ForeignKey:AccountID"`
 }
-
 type VoucherCustomer struct {
 	orm.ModelBase
 	VoucherID  uint      `json:"voucher_id"`
 	Voucher    *Voucher  `gorm:"ForeignKey:VoucherID" json:"voucher"`
 	CustomerID uint      `json:"customer_id"`
 	Customer   *Customer `gorm:"ForeignKey:CustomerID" json:"customer"`
-	VCStatus   int       `json:"v_c_status" gorm:"default:0"`
+	VCUsed     bool      `json:"v_c_used" sql:"default:false"`
 	AccountID  uint      `json:"account_id"`
 	Account    Account   `gorm:"ForeignKey:AccountID"`
 }
