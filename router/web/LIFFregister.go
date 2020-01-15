@@ -158,8 +158,8 @@ func welcomeTemplate() string {
 }
 
 func voucherTemplate(promotion *model.Promotion, voucher *model.Voucher) string {
-	StartDateStr := voucher.PromStartDate.Format("02-12-2006")
-	EndDateStr := voucher.PromEndDate.Format("02-12-2006")
+	StartDateStr := voucher.PromStartDate.Format("2006-01-02")
+	EndDateStr := voucher.PromEndDate.Format("2006-01-02")
 	if voucher.PromCondition == "" {
 		voucher.PromCondition = "-"
 	}
@@ -190,6 +190,6 @@ func voucherTemplate(promotion *model.Promotion, voucher *model.Voucher) string 
 		  ],
 		  "flex": 0
 		}
-	  }`, fmt.Sprintf("https://web.%s/file?path=%s", Conf.Server.Domain, promotion.PromImage), promotion.PromTitle, StartDateStr, EndDateStr, voucher.PromCondition, promotion.PromCode)
+	  }`, fmt.Sprintf("https://web.%s/files?path=%s", Conf.Server.Domain, promotion.PromImage), promotion.PromTitle, StartDateStr, EndDateStr, voucher.PromCondition, promotion.PromCode)
 	return temp
 }

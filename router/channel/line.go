@@ -93,7 +93,7 @@ func HandleWebHookLineAPI(c echo.Context) error {
 				case "location":
 					messageReply, err = LocationHandler(&con)
 				case "check":
-
+					messageReply, err = CheckStatusOpen(&con)
 				case "my voucher":
 
 				case "comment":

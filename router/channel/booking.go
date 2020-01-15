@@ -45,10 +45,7 @@ var nextPageTemplate string = `{ "type": "bubble", "body": { "type": "box", "lay
 var thankyouTemplate string = `{
 	"type": "bubble",
 	"hero": { "type": "image", "url": "%s", "size": "full", "aspectRatio": "20:13", "aspectMode": "cover" },
-	"body": {
-	  "type": "box",
-	  "layout": "vertical",
-	  "contents": [
+	"body": { "type": "box", "layout": "vertical", "contents": [
 		{ "type": "text", "text": "จองสำเร็จ", "weight": "bold", "size": "xl" },
 		{ "type": "box", "layout": "vertical", "margin": "lg", "spacing": "sm", "contents": [
 			{ "type": "box", "layout": "baseline", "spacing": "sm", "contents": [
@@ -68,6 +65,37 @@ var thankyouTemplate string = `{
 		{ "type": "spacer", "size": "sm" }
 	],
 	"flex": 0
+	}
+}`
+
+var StatusOpecCardTemplate string = `
+{
+	"type": "bubble",
+	"header": { "type": "box", "layout": "vertical", "flex": 0, "contents": [
+		{ "type": "box", "layout": "vertical", "contents": [
+			{ "type": "box", "layout": "horizontal", "contents": [
+				{ "type": "image", "url": "%s", "flex": 8, "align": "end", "size": "xxs", "aspectRatio": "1.91:1" },
+				{ "type": "text", "text": "%s", "flex": 2, "margin": "xs", "align": "end", "gravity": "top","size": "xxs", "wrap": true }
+			  ]
+			}
+		  ]
+		},
+		{ "type": "box", "layout": "vertical", "contents": [
+			{ "type": "image", "url": "https://developers.line.biz/assets/images/services/bot-designer-icon.png", "flex": 2 }
+		  ]
+		}
+	  ]
+	},
+	"body": { "type": "box", "layout": "vertical", "spacing": "md", "action": { "type": "uri", "label": "Action", "uri": "https://linecorp.com" },
+	  "contents": [
+		{ "type": "text", "contents": [], "size": "xl", "wrap": true, "text": "%s", "weight": "bold" },
+		{ "type": "text", "text": "Date, %s", "color": "#000000", "size": "sm" }
+	  ]
+	},
+	"footer": { "type": "box", "layout": "vertical", "contents": [
+		{ "type": "spacer", "size": "xxl" },
+		{ "type": "button", "style": "primary", "margin": "sm", "action": { "type": "message", "label": "booking", "text": "service auto" } }
+	  ]
 	}
 }`
 
@@ -303,6 +331,11 @@ func ServiceListLineHandler(c *Context) (linebot.SendingMessage, error) {
 	return linebot.NewFlexMessage("ตาราง", flexContainer), err
 }
 
+type placeSum struct {
+	Amount  int
+	PlaceID uint
+}
+
 // ThankyouTemplate
 func ThankyouTemplate(c *Context) (linebot.SendingMessage, error) {
 	var timeSlot model.TimeSlot
@@ -311,24 +344,50 @@ func ThankyouTemplate(c *Context) (linebot.SendingMessage, error) {
 	var service model.Service
 	var MSPlace model.MasterPlace
 	var MSPlaces []*model.MasterPlace
-	c.DB.Where("account_id =? and place_id = ? and m_pla_day = ? and m_pla_to BETWEEN ? and ? or m_pla_from BETWEEN ? and ?").Find(&MSPlaces)
 
-	tx := c.DB.Begin()
 	dateTime := c.Massage.Text[9:19]
 	start, err := time.Parse("2006-01-02 15:04", dateTime+" 15:00")
 
-	if err := tx.Preload("EmployeeService").Find(&timeSlot, c.Massage.Text[32:]).Error; err != nil {
+	if err := c.DB.Preload("EmployeeService").Find(&timeSlot, c.Massage.Text[32:]).Error; err != nil {
 		return nil, err
 	}
-	//  and time_day = ? , start.Weekday()
-	// .Preload("Booking", func(db *gorm.DB) *gorm.DB {
-	// 	return db.Preload("Bookings", "booked_date = ?", start).Preload("Place")
-	// })
-	fmt.Println(timeSlot.EmployeeService.ServiceID)
-	tx.Preload("Places").Where("account_id = ?", c.Account.ID).Find(&service, timeSlot.EmployeeService.ServiceID)
+	c.DB.Preload("Places").Where("account_id = ?", c.Account.ID).Find(&service, timeSlot.EmployeeService.ServiceID)
 	if len(service.Places) == 0 {
+
 		return nil, errors.New("Not found place")
 	}
+	var placeIDs []uint
+
+	for _, place := range service.Places {
+		placeIDs = append(placeIDs, place.ID)
+	}
+
+	c.DB.Order("m_pla_status desc, place_id").Where("account_id =? and m_pla_day = ? and m_pla_to BETWEEN ? and ? or m_pla_from BETWEEN ? and ? and place_id in (?) ",
+		c.Account.ID, timeSlot.TimeDay, timeSlot.TimeStart, timeSlot.TimeEnd, timeSlot.TimeStart, timeSlot.TimeEnd, placeIDs).Find(&MSPlaces)
+	if len(MSPlaces) > 0 {
+		return nil, errors.New("")
+	}
+	var placeSums []placeSum
+	for index, MSPlace := range MSPlaces {
+		if MSPlace.MPlaStatus == model.MPlaStatusBusy {
+			return nil, errors.New("")
+		}
+
+		for i, placeSum := range placeSums {
+			if placeSum.PlaceID != MSPlace.PlaceID {
+				continue
+			} else {
+				placeSums[i].Amount += MSPlace.MPlaAmount
+				break
+			}
+
+		}
+		if index == 0 {
+			placeSums = append(placeSums, placeSum{Amount: MSPlace.MPlaAmount, PlaceID: MSPlace.PlaceID})
+		}
+	}
+	tx := c.DB.Begin()
+
 	book.PlaceID = service.Places[0].ID
 	book.ChatChannelID = c.ChatChannel.ID
 	book.CustomerID = c.Customer.ID
@@ -405,4 +464,42 @@ func ThankyouTemplate(c *Context) (linebot.SendingMessage, error) {
 
 func inTimeSpan(start, end, check time.Time) bool {
 	return check.After(start) && check.Before(end)
+}
+
+func CheckStatusOpen(c *Context) (linebot.SendingMessage, error) {
+	var MSPlaces []*model.MasterPlace
+	var flexMessage string
+	var status string = "Ready"
+	var text string = "ว่าง"
+	var icon string = "https://png.pngitem.com/pimgs/s/234-2341004_glossy-red-icon-button-clip-art-at-clker.png"
+	now := time.Now()
+	c.DB.Order("m_pla_status desc").Where("account_id =? and m_pla_day = ? and m_pla_to < ? and m_pla_from > ? or m_pla_status = ?",
+		c.Account.ID, now, now, now, model.MPlaStatusBusy).Find(&MSPlaces)
+	var placeSums []placeSum
+	for index, MSPlace := range MSPlaces {
+		if MSPlace.MPlaStatus == model.MPlaStatusBusy {
+			status = "Busy"
+			text = "ขณะนี้ไม่ว่าง"
+			icon = "https://developers.line.biz/assets/images/services/bot-designer-icon.png"
+			break
+		}
+
+		for i, placeSum := range placeSums {
+			if placeSum.PlaceID != MSPlace.PlaceID {
+				continue
+			} else {
+				placeSums[i].Amount += MSPlace.MPlaAmount
+				break
+			}
+		}
+		if index == 0 {
+			placeSums = append(placeSums, placeSum{Amount: MSPlace.MPlaAmount, PlaceID: MSPlace.PlaceID})
+		}
+	}
+	flexMessage = fmt.Sprintf(StatusOpecCardTemplate, icon, status, text, now.Format("Mon Jan _2 15:04:05"))
+	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(flexMessage))
+	if err != nil {
+		return nil, err
+	}
+	return linebot.NewFlexMessage(status, flexContainer), nil
 }
