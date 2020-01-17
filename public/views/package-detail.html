@@ -1,0 +1,178 @@
+{{define "package-detail"}}
+<!DOCTYPE html>
+<html lang="en">
+{{ template "header" .title }}
+<body class="">
+  <div class="wrapper ">
+   {{ template "sidebar" .base }}
+    <div class="main-panel">
+      {{ template "navbar" .title }}
+      <div class="content">
+         <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card card-profile">
+                        <div class="card-avatar">
+                            <a href="#pablo">
+                                <img class="img" src="/files?path={{ .detail.PlacImage }}" />
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            <h6 class="card-category text-gray">{{ .detail.PlacName }}</h6>
+                            <h6 class="card-category text-gray">{{ .detail.PlacDetail }}</h6>
+                            <h6 class="card-category text-gray">{{ .detail.PlacAmount }}</h6>
+                            <h6 class="card-category text-gray">{{ .detail.PlacType }}</h6>
+                            <h6 class="card-category text-gray"><input value="{{ .ID }}" type="checkbox" data-toggle="toggle" checked="{{.PlacActive}}"></h6>
+                            <div class="d-flex justify-content-center">
+                                <button type="button" class="btn btn-warning"><i class="material-icons">edit</i>edit</button>
+                                <button type="button" class="btn btn-danger"><i class="material-icons">delete</i>delete</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header card-header-primary d-flex justify-content-between">
+                                <h4 class="card-title ">channel</h4>
+                                <a href="/admin/package/{{.detail.ID}}/package_chatchannel/create">
+                                    <button class="btn btn-info">
+                                    <i class="material-icons">add</i>
+                                    Create
+                                    </button>
+                                </a>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <thead>
+                                            <th>Name</th>
+                                            <th>Type</th>
+                                            <th></th>
+                                        </thead>
+                                        <tbody>
+                                            {{ with .detail.ChatChannels }}
+                                            {{ range . }}
+                                                <tr id="row_chat_channel_{{.ID}}" name="row_{{ .ID }}">
+                                                    <td>{{ .ChaName }}</td>
+                                                    <td>{{ .ChaType }}</td>
+                                                    <td class="td-actions text-right">
+                                                        <button name="chat_channel" value="{{ .ID }}" name="remove"  type="button" rel="tooltip" class="btn btn-danger">
+                                                          <i class="material-icons">close</i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            {{ end }}
+                                            {{ end }}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header card-header-primary d-flex justify-content-between">
+                                <h4 class="card-title ">service</h4>
+                                <a href="/admin/package/{{.detail.ID}}/package_service/create">
+                                    <button class="btn btn-info">
+                                    <i class="material-icons">add</i>
+                                    Create
+                                    </button>
+                                </a>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <thead>
+                                            <th>Name</th>
+                                            <th></th>
+                                        </thead>
+                                        <tbody>
+                                            {{ with .detail.Services }}
+                                            {{ range . }}
+                                                <tr id="row_service_{{.ID}}" name="row_{{ .ID }}">
+                                                    <td>{{ .SerName }}</td>
+                                                    <td class="td-actions text-right">
+                                                        <button name="service" value="{{ .ID }}" name="remove"  type="button" rel="tooltip" class="btn btn-danger">
+                                                          <i class="material-icons">close</i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            {{ end }}
+                                            {{ end }}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+         </div>
+       </div>
+      {{ template "footer" }}
+    </div>
+    <input id="_csrf" name="_csrf" value="{{._csrf}}" type="hidden" >
+    <input id="id" name="id" value="{{.detail.ID}}" type="hidden" >
+  </div>
+  {{ template "script" }}
+
+  <script>
+        (function ($) {
+            $("button[name='chat_channel']").each(function () {
+                $(this).click(function() {
+                    let _csrf = $("#_csrf").val()
+                    let chat_channel_id = $(this).val()
+                    let id = $("#id").val()
+                    let data = new FormData()
+                    data.append("_csrf", _csrf)
+                    fetch(`/admin/package/${id}/package_chatchannel/${chat_channel_id}`, {
+                        body: data,
+                        method: "DELETE"
+                    }).then(res => {
+                        if (res.status !== 200) {
+                            throw ""
+                        }
+                        return res.json()
+                    }).then(json => {
+                        Swal.fire("success", "", "success").then(result => {
+                            $(`#row_chat_channel_${chat_channel_id}`).remove()
+                        })
+                    }).catch(err => {
+                        Swal.fire("fial", "", "fial")          
+                    })
+                })
+            })
+
+            $("button[name='service']").each(function () {
+                $(this).click(function() {
+                    let _csrf = $("#_csrf").val()
+                    let service_id = $(this).val()
+                    let data = new FormData()
+                    let id = $("#id").val()
+                    data.append("_csrf", _csrf)
+                    fetch(`/admin/package/${id}/package_service/${service_id}`, {
+                        body: data,
+                        method: "DELETE"
+                    }).then(res => {
+                        if (res.status !== 200) {
+                            throw ""
+                        }
+                        return res.json()
+                    }).then(json => {
+                        Swal.fire("success", "", "success").then(result => {
+                            $(`#row_service_${service_id}`).remove()
+                        })
+                    }).catch(err => {
+                        Swal.fire("fial", "", "fial")          
+                    })
+                })
+            })
+            
+      })(jQuery)
+  </script>
+</body>
+
+</html>
+{{end}}

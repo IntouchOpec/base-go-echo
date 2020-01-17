@@ -25,7 +25,7 @@ type Promotion struct {
 	PromName           string       `form:"name" json:"prom_name" gorm:"type:varchar(25)"`
 	PromImage          string       `form:"image" json:"prom_image" gorm:"type:varchar(255)"`
 	PromAmount         int          `form:"amount" json:"prom_amount"`
-	ProUsed            int          `json:"pro_used" gorm:"default:0"`
+	ProUsed            int          `json:"pro_used" sql:"default:0" gorm:"default:0"`
 	AccountID          uint         `json:"account_id"`
 	RegisterPromotions []*Promotion `json:"register_promotions"`
 	Account            Account      `gorm:"ForeignKey:AccountID"`

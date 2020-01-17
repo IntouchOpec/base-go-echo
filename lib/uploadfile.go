@@ -150,3 +150,17 @@ func GetGoolgeStorage(ctx context.Context, bucket, folder string) ([]byte, strin
 
 	return data, sz, nil
 }
+
+func RemoveFileGoolgeStorage(ctx context.Context, bucket, folder string) (string, error) {
+	client, err := storage.NewClient(ctx, option.WithCredentialsFile("lineconnect-99ca66b2bd16.json"))
+	if err != nil {
+		return "", err
+	}
+	o := client.Bucket(bucket).Object(folder)
+
+	if err := o.Delete(ctx); err != nil {
+		return "", err
+	}
+
+	return folder, nil
+}

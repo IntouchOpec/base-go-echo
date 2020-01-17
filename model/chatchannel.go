@@ -1,6 +1,8 @@
 package model
 
 import (
+	"time"
+
 	"github.com/IntouchOpec/base-go-echo/model/orm"
 )
 
@@ -22,6 +24,8 @@ type ChatChannel struct {
 	ChaWebSite            string       `json:"cha_website" form:"cha_website" binding:"required" gorm:"type:varchar(255)"`
 	ChaWelcomeMessage     string       `json:"cha_welcome_message" form:"cha_welcome_message" binding:"required" gorm:"type:varchar(100)"`
 	ChaAddress            string       `json:"cha_address" form:"cha_address" binding:"required" gorm:"type:varchar(100)"`
+	ChaOpenDate           time.Time    `json:"cha_open_date"`
+	ChaCloseDate          time.Time    `json:"cha_close_date"`
 	AccountID             uint         `form:"account_id" json:"account_id" gorm:"not null;"`
 	VoucherID             uint         `json:"voucher_id"`
 	Voucher               *Voucher     `json:"voucher" gorm:"ForeignKey:VoucherID"`

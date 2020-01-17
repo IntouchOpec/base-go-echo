@@ -85,6 +85,12 @@
                     <p>employee</p>
                 </a>
             </li> 
+            <li class="nav-item {{ if (eq .title "package") }}active{{ end }}">
+                <a class="nav-link" href="/admin/package">
+                    <i class="material-icons">insert_drive_file</i>
+                    <p>package</p>
+                </a>
+            </li> 
             <li class="nav-item {{ if (eq .title "upload_file") }}active{{ end }}">
                 <a class="nav-link" href="/admin/upload_file">
                     <i class="material-icons">insert_drive_file</i>

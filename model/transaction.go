@@ -28,6 +28,13 @@ type Transaction struct {
 	ChatChannel   ChatChannel    `json:"chat_channel" gorm:"ForeignKey:ChatChannelID"`
 }
 
+type Report struct {
+	orm.ModelBase
+	TransactionID uint        `json:"transaction_id"`
+	Transaction   Transaction `json:"transaction" gorm:"ForeingKey:TransactionID"`
+	Detail        string      `json:"detail"`
+}
+
 func (tran *Transaction) Create() error {
 	if err := DB().Create(&tran).Error; err != nil {
 		return err

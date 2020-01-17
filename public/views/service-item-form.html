@@ -1,0 +1,105 @@
+
+{{define "service-item-form"}}
+<!DOCTYPE html>
+<html lang="en">
+
+{{ template "header" .title }}
+
+<body class="">
+    <div class="wrapper ">
+    {{ template "sidebar" .base }}
+        <div class="main-panel">
+            {{ template "navbar" .title }}
+            <div class="content">
+                <div class="container-fluid">
+                    <div class="row">
+                            <div class="col-md-8">
+                                <div class="card">
+                                    <div class="card-header card-header-primary">
+                                        <h4 class="card-title">{{.mode}} Chat Channel</h4>
+                                        <p class="card-category">Complete your Chat Channel</p>
+                                    </div>
+                                    <div class="card-body">
+                                       <form method="{{.method}}" name="service-item-form" >
+                                            <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden" >
+                                            <div class="row">
+                                                <div class="col-md-12 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="bmd-label-floating" >Name</label>
+                                                        <input value="{{.detail.SSName}}" name="name" id="name" type="text" class="form-control" >
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="bmd-label-floating" >Price</label>
+                                                        <input value="{{.detail.SSPrice}}" name="Price" id="Price" type="number" class="form-control" >
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="bmd-label-floating" >Time</label>
+                                                        <input value="{{.detail.SSTime}}" name="Time" id="Time" type="time" class="form-control" >
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <input type="submit" rel="tooltip" value="Submit" class="btn btn-success">
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {{ template "footer" }}
+            </div>
+        </div>
+    </div>
+  {{ template "script" }}
+  <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+  <script>
+    (function ($) {
+        $("form[name='form-chat-channel']").validate({
+            rules: {
+                name: { required: true },
+                Price: { required: true },
+                Time: { required: true },
+            },
+            messages: {
+                name: "Please enter a valid name",
+                Price: {messages: "Please enter a valid Price" },
+                Time: {messages: "Please enter a valid Time" },
+            },
+            submitHandler: function(form) {
+                let _csrf = $("#_csrf").val()
+                let name = $("#name").val()
+                let Price = $("#Price").val()
+                let Time = $("#Time").val()
+                let data = new FormData();
+                data.append("_csrf", _csrf)
+                data.append("s_s_name", name)
+                data.append("s_s_price", Price)
+                data.append("s_s_time", Time)
+                let method = $("form[name='service-item-form']").attr("method")
+                
+                fetch(window.location.href, { method, body: data })
+                .then(res => {
+                    if (res.status !== 201) {
+                        throw ""
+                    }
+                    return res.json()
+                })
+                .then(json => {
+                    Swal.fire("success", "", "success").then(result => {
+                        window.location.href = json.redirect
+                    })
+                })
+                .catch(err => Swal.fire("fial", "", "warning"))
+            }
+        })
+    })(jQuery)
+  </script>
+</body>
+
+</html>
+
+{{end}}

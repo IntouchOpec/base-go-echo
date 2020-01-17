@@ -14,7 +14,7 @@ type TimeSlot struct {
 	TimeEnd           string          `json:"time_end" gorm:"type:varchar(10)"`
 	TimeDay           int             `json:"time_day"`
 	TimeAmount        int             `json:"time_amount"`
-	TimeActive        bool            `json:"time_active" gorm:"default:true"`
+	TimeActive        bool            `json:"time_active" sql:"default:true" gorm:"default:true"`
 	EmployeeServiceID uint            `json:"employee_service_id"`
 	AccountID         uint            `json:"account_id"`
 	Bookings          []*Booking      `json:"bookings"`

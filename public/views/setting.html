@@ -48,8 +48,32 @@
                             </div>
                             <div class="col-md-12 mt-2">
                                 <div class="form-group">
-                                    <label class="bmd-label-floating" >AccType</label>
-                                    <input name="AccType" value="{{.detail.AccType}}" id="AccType" class="form-control">
+                                    <label class="bmd-label-floating" >AccTransactionType</label>
+                                    <select name="PlacTypes" class="form-control" data-style="btn btn-link" id="AccType">
+                                        {{ if .detail.AccTransactionType }}
+                                            <option value="{{.detail.AccTransactionType}}">{{.detail.AccTransactionType}}</option>
+                                        {{ else }}
+                                            <option value="">choose AccTransactionType</option>
+                                        {{ end }}
+                                        {{ with .accTypeTransactions }}
+                                        {{ range . }}
+                                            <option value='{{ . }}'>{{.}}</option>
+                                        {{ end }}
+                                        {{ end }}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-12 mt-2">
+                                <div class="form-group">
+                                    <label class="bmd-label-floating" >AccBookingType</label>
+                                    <select name="PlacTypes" class="form-control" data-style="btn btn-link" id="AccType">
+                                        <option value="{{.detail.AccBookingType}}">{{.bookingType}}</option>
+                                        {{ with .accBookingTypes }}
+                                        {{ range . }}
+                                            <option value='{{ .ID }}'>{{.Text}}</option>
+                                        {{ end }}
+                                        {{ end }}
+                                    </select>
                                 </div>
                             </div>
                             <div class="col-md-12 mt-2">
@@ -159,7 +183,8 @@
               AccLang: {required: true },
               AccTimeZone: {required: true },
               AccName: {required: true },
-              AccType: {required: true },
+              AccTransactionType: {required: true },
+              AccBookingType: {required: true },
             },
             messages: {
               AccProjectID: {messages:"Please enter a valid AccProjectID"},
@@ -167,17 +192,19 @@
               AccLang: {messages:"Please enter a valid AccLang"},
               AccTimeZone: {messages:"Please enter a valid AccTimeZone"},
               AccName: {messages:"Please enter a valid AccName"},
-              AccType: {messages:"Please enter a valid AccType"},
+              AccTransactionType: {messages:"Please enter a valid AccTransactionType"},
+              AccBookingType: {messages:"Please enter a valid AccBookingType"},
             },
             submitHandler: function(form) {
                 let _csrf = $("#_csrf").val()
                 let data = []
-                let AccProjectID = $(".AccProjectID").val()
-                let AccAuthJSONFilePath = $(".AccAuthJSONFilePath")
-                let AccLang = $(".AccLang").val()
-                let AccTimeZone = $(".AccTimeZone").val()
-                let AccName = $(".AccName").val()
-                let AccType = $(".AccType").val() 
+                let AccProjectID = $("#AccProjectID").val()
+                let AccAuthJSONFilePath = $("#AccAuthJSONFilePath")
+                let AccLang = $("#AccLang").val()
+                let AccTimeZone = $("#AccTimeZone").val()
+                let AccName = $("#AccName").val()
+                let AccTransactionType = $("#AccTransactionType").val()
+                let AccBookingType = $("#AccBookingType").val()
 
                 let encodedKey = encodeURIComponent("_csrf");
                 let encodedValue = encodeURIComponent(_csrf);
@@ -188,16 +215,20 @@
                 let AccTimeZoneEncodeKey = encodeURIComponent("AccTimeZone")
                 let AccTimeZoneEncodeValue = encodeURIComponent(AccTimeZone)  
                 let AccNameEncodeKey = encodeURIComponent("AccName")
-                let AccNameEncodeValue = encodeURIComponent(AccName)  
-                let AccTypeEncodeKey = encodeURIComponent("AccType")
-                let AccTypeEncodeValue = encodeURIComponent(AccType) 
+                let AccNameEncodeValue = encodeURIComponent(AccName)
+                let AccTransactionTypeEncodeValue = encodeURIComponent(AccTransactionType)
+                let AccTransactionTypeEncodeKey = encodeURIComponent("AccTransactionType")
+                let AccBookingTypeEncodeValue = encodeURIComponent(AccBookingType)
+                let AccBookingTypeEncodeKey = encodeURIComponent("AccBookingType")
+                
                 data.push(encodedKey + "=" + encodedValue)
                 data.push(encodedKey+ "="+ encodedValue)
                 data.push(AccProjectIDEncodeKey+ "="+ AccProjectIDEncodeValue)
                 data.push(AccLangEncodeKey+ "="+ AccLangEncodeValue)
                 data.push(AccTimeZoneEncodeKey+ "="+ AccTimeZoneEncodeValue)
                 data.push(AccNameEncodeKey+ "="+ AccNameEncodeValue)
-                data.push(AccTypeEncodeKey+ "="+ AccTypeEncodeValue)
+                data.push(AccTransactionTypeEncodeKey+ "="+ AccTransactionTypeEncodeValue)
+                data.push(AccBookingTypeEncodeKey+ "="+ AccBookingTypeEncodeValue)
                 
                 if (AccAuthJSONFilePath[0].files.length !== 0) {    
                     toBase64(Image[0].files[0]).then(base64Image => {

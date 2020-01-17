@@ -2,6 +2,7 @@ package web
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/IntouchOpec/base-go-echo/lib"
@@ -11,21 +12,32 @@ import (
 	"github.com/labstack/echo"
 )
 
+type AccBooking struct {
+	ID   model.AccBookingType
+	Text string
+}
+
 func SettingHandler(c *Context) error {
-	promotions := []*model.Promotion{}
 	var acc model.Account
 	accID := auth.Default(c).GetAccountID()
 	db := model.DB()
+
 	if err := db.Preload("Settings").Find(&acc, accID).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	if err := model.DB().Find(&promotions).Error; err != nil {
-		return c.NoContent(http.StatusBadRequest)
+	accTypeTransactions := []model.AccTransactionType{model.AccTransactionMan, model.AccTransactionAuto}
+	accBookingTypes := []AccBooking{
+		AccBooking{ID: model.AccBookingByTimeSlot, Text: "Time Slot"},
+		AccBooking{ID: model.AccBookingByItem, Text: "item"},
 	}
+	fmt.Println(accBookingTypes[acc.AccBookingType].Text)
 	err := c.Render(http.StatusOK, "setting", echo.Map{
-		"detail": acc,
-		"title":  "setting",
-		"method": "PUT",
+		"detail":              acc,
+		"bookingType":         accBookingTypes[acc.AccBookingType].Text,
+		"title":               "setting",
+		"method":              "PUT",
+		"accTypeTransactions": accTypeTransactions,
+		"accBookingTypes":     accBookingTypes,
 	})
 	return err
 }
@@ -53,9 +65,9 @@ func SettingPostHandler(c *Context) error {
 		acc.AccAuthJSONFilePath = jsonPath
 	}
 
-	if err := db.Save(&acc).Error; err != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
+	// if err := db.Save(&acc).Error; err != nil {
+	// 	return c.JSON(http.StatusBadRequest, err)
+	// }
 	return c.JSON(http.StatusOK, acc)
 }
 

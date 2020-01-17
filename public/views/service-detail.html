@@ -31,6 +31,57 @@
                         </div>
                     </div>
                 </div>
+                {{ if (eq .base.account.AccBookingType 1) }}
+                    <div class="col-md-6">
+                       <div class="card">
+                           <div class="card-header card-header-primary d-flex justify-content-between">
+                                <h4 class="card-title"></h4>
+                                <p class="card-category"></p>
+                                <a href="/admin/service/{{.detail.ID}}/service-item/create">
+                                    <button class="btn btn-info"><i class="material-icons">add</i>
+                                        Create
+                                    </button>
+                                </a>
+                           </div>
+                           <div class="card-body">
+                                <div class="table-resposive">
+                                    <table class="table">
+                                        <thead class="text-primary">
+                                            <th>Name</th>
+                                            <th>Date</th>
+                                            <th>Price</th>
+                                            <th></th>
+                                        </thead>
+                                        <tbody>
+                                            {{ with .detail.ServiceItems }}
+                                            {{ range . }}
+                                               <td>{{.SSName}}</td>
+                                               <td>{{.SSDate}}</td>
+                                               <td>{{.SSPrice}}</td>
+                                               <td class="td-actions text-right">
+                                                    <a href="/admin/service/{{.detail.ID}}/service-item/{{.ID}}" >
+                                                      <button type="button" rel="tooltip" class="btn btn-warning">
+                                                          <i class="material-icons">edit</i>
+                                                      </button>
+                                                    </a>
+                                                    <button value="{{ .ID }}" name="remove" type="button" rel="tooltip" class="btn btn-danger">
+                                                        <i class="material-icons">close</i>
+                                                    </button>
+                                                </td>
+                                            {{ end }}
+                                            {{ end }}
+                                        </tbody>
+                                    </table>
+                                    <div class="row p-0 m-0">
+                                        <div class="ml-auto" name="panination">
+                                            {{ template "pagination" .pagination }}
+                                        </div>
+                                    </div>
+                                </div>
+                           </div>
+                       </div> 
+                    </div>
+                {{ end }}
             </div>
          </div>
        </div>
@@ -38,10 +89,50 @@
     </div>
   </div>
   <input id="_csrf" name="_csrf" value="{{._csrf}}" type="hidden" >
+  <input id="ID" name="ID" value="{{.detail.ID}}" type="hidden" >
   {{ template "script" }}
   <script>
         (function ($) {
-              $("input[type='checkbox']").change(function() {
+            const removeServiceItem = serviceItemID => {
+                let _csrf = $("#_csrf").val()
+                let date = new FormData()
+                let id = $("#ID").val()
+                data.append("_csrf", _csrf)
+                fetch(`/admin/service/${id}/service-item/${serviceItemID}`, {
+                    method:"DELETE",
+                    body: data,
+                }).then(res => {
+                    if (res.status !== 200) {
+                        throw ""
+                    }
+                    return res.json()
+                }).then(json => {
+                    Swal.fire("success", "", "success")
+                }).catch(err => {
+                    Swal.fire("fial", "", "warning")
+                })
+            }
+
+            $("button[name='remove']").each(function () {
+                $(this).click(function () {
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: "You won't be able to revert this!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Yes, delete it!'
+                    }).then(result => {
+                        if (result.value) {
+                            let serviceItemId = $(this).val()
+                            removeServiceItem(serviceItemId)
+                        }
+                    })
+                })
+            })
+            
+            $("input[type='checkbox']").change(function() {
               let id = $(this).val()
   
               let _csrf = $("#_csrf").val()
@@ -58,9 +149,9 @@
                   }).then(json => {
                   Swal.fire("success", "", "success")
                   }).catch(err => {
-                  Swal.fire("success", "", "success")          
-              })
-          })
+                    Swal.fire("fial", "", "warning")       
+                })
+            })
         })(jQuery)
     </script>
 </body>

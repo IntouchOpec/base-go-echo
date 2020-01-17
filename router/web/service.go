@@ -293,3 +293,102 @@ func ServiceChatChannelPostHandler(c *Context) error {
 
 	return c.JSON(http.StatusCreated, service)
 }
+
+func ServiceItemCreateViewHandlder(c *Context) error {
+	var service model.Service
+	var serviceItem model.ServiceItem
+	return c.Render(http.StatusOK, "service-item-form", echo.Map{
+		"service": service,
+		"detail":  serviceItem,
+		"title":   "service",
+		"method":  "POST",
+	})
+}
+
+func ServiceItemCreatePostHanlder(c *Context) error {
+	id := c.Param("id")
+	accID := auth.Default(c).GetAccountID()
+	db := model.DB()
+	var service model.Service
+	var serviceItem model.ServiceItem
+	if err := db.Where("account_id = ?", accID).Find(service, id).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	if err := c.Bind(&serviceItem); err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	if err := db.Model(&service).Association("ServiceItems").Append(&serviceItem).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	return c.JSON(http.StatusCreated, echo.Map{
+		"redirect": fmt.Sprintf("/admin/service/%s", service.ID),
+		"data":     serviceItem,
+	})
+}
+
+func ServiceItemEditViewHanlder(c *Context) error {
+	id := c.Param("id")
+	seriveItemID := c.Param("seriveItemID")
+	accID := auth.Default(c)
+	db := model.DB()
+	var service model.Service
+	var serviceItem model.ServiceItem
+	if err := db.Where("account_id = ?", accID).Find(&service, id).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	if err := db.Where("account_id = ?", accID).Find(&serviceItem, seriveItemID).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	return c.Render(http.StatusCreated, "service-item-form", echo.Map{
+		"service": service,
+		"detail":  serviceItem,
+		"title":   "service",
+		"method":  "PUT",
+	})
+}
+
+func ServiceItemEditPutHanlder(c *Context) error {
+	id := c.Param("id")
+	seriveItemID := c.Param("seriveItemID")
+	accID := auth.Default(c)
+	db := model.DB()
+	var service model.Service
+	var serviceItem model.ServiceItem
+	if err := db.Where("account_id = ?", accID).Find(&service, id).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	if err := db.Where("account_id = ?", accID).Find(&serviceItem, seriveItemID).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	if err := c.Bind(&serviceItem); err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	if err := db.Save(&serviceItem).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	return c.JSON(http.StatusCreated, echo.Map{
+		"redirect": fmt.Sprintf("/admin/service/%d", service.ID),
+		"data":     serviceItem,
+	})
+}
+
+func ServiceItemRemoveHandler(c *Context) error {
+	id := c.Param("id")
+	seriveItemID := c.Param("seriveItemID")
+	accID := auth.Default(c)
+	db := model.DB()
+	var service model.Service
+	var serviceItem model.ServiceItem
+	if err := db.Where("account_id = ?", accID).Find(&service, id).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	if err := db.Where("account_id = ?", accID).Find(&serviceItem, seriveItemID).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	if err := db.Delete(&serviceItem).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	return c.JSON(http.StatusOK, echo.Map{
+		"data": serviceItem,
+	})
+}

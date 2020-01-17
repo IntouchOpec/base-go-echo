@@ -50,10 +50,6 @@ services:
       - db:db
     restart: unless-stopped
 
-volumes:
-  certbot-etc:
-  certbot-var:
-
 networks:
   backend:
     driver: bridge 

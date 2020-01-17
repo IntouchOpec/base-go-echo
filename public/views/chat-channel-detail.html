@@ -218,6 +218,14 @@
                         </div>
                         <div class="row">
                             <div class="col-3">
+                                Open:
+                            </div>
+                            <div id="" class="col-7">
+                                {{ .detail.ChaOpenDate.Format "15:00" }} - {{ .detail.ChaCloseDate.Format "15:00" }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-3">
                             WEB Hook:
                             </div>
                             <div id="access_token" class="col-7">

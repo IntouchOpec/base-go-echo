@@ -1,8 +1,10 @@
 package channel
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/IntouchOpec/base-go-echo/lib"
 	"github.com/IntouchOpec/base-go-echo/model"
@@ -10,6 +12,11 @@ import (
 
 	"github.com/labstack/echo"
 )
+
+type PostbackAction struct {
+	Action  string `json:"action"`
+	DateStr string `json:"date"`
+}
 
 // var dp lib.DialogFlowProcessor
 // dp.Init(account.AccProjectID, account.AccAuthJSONFilePath, account.AccLang, account.AccTimeZone)
@@ -62,8 +69,37 @@ func HandleWebHookLineAPI(c echo.Context) error {
 		eventType := event.Type
 		chatAnswer.AnsInputType = string(eventType)
 		var messageReply linebot.SendingMessage
-
+		fmt.Println(eventType, "eventType")
 		switch eventType {
+		case linebot.EventTypePostback:
+			u, _ := url.Parse(fmt.Sprintf("?%s", event.Postback.Data))
+			var postBackActionStr string
+			q, _ := url.ParseQuery(u.RawQuery)
+			for key, value := range q {
+				postBackActionStr += fmt.Sprintf(`"%s": "%s",`, key, value[0])
+			}
+			postBackActionStr = fmt.Sprintf(fmt.Sprintf("{%s}", postBackActionStr[:len(postBackActionStr)-1]))
+			postBackAction := PostbackAction{}
+			if err := json.Unmarshal([]byte(postBackActionStr), &postBackAction); err != nil {
+				return c.JSON(http.StatusBadRequest, err)
+			}
+			con.PostbackAction = &postBackAction
+			switch postBackAction.Action {
+			case "booking_now":
+				fmt.Println("booking_now")
+				messageReply, err = ServiceListHanlder(&con)
+			case "choive_man":
+				fmt.Println("choive_man")
+				messageReply, err = CalandarHandler(&con, postBackAction.DateStr)
+			case "choive_auto":
+				fmt.Println("choive_auto")
+				messageReply, err = ServiceListHanlder(&con)
+				fmt.Println(err)
+			}
+			_, err = bot.ReplyMessage(event.ReplyToken, messageReply).Do()
+			if err != nil {
+				fmt.Println(err)
+			}
 		case linebot.EventTypeMessage:
 			switch message := event.Message.(type) {
 			case *linebot.TextMessage:
@@ -81,7 +117,7 @@ func HandleWebHookLineAPI(c echo.Context) error {
 						messageReply, err = ChooseService(&con)
 					}
 				case "calendar", "booking":
-					messageReply, err = CalandarHandler(&con)
+					// messageReply, err = CalandarHandler(&con)
 				case "Service ":
 					messageReply, err = SaveServiceHandler(&con)
 				case "booking ":

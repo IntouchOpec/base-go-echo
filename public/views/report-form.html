@@ -1,0 +1,80 @@
+
+{{define "rich-menu-form"}}
+<!DOCTYPE html>
+<html lang="en">
+    {{ template "header" .title }}
+    <body class="">
+        <div class="wrapper ">
+            <div class="main-panel">
+                <div class="content">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header card-header-primary">
+                                        <h4>Report</h4>
+                                    </div>
+                                    <div class="card-body">
+                                        <form method="{{.method}}" name="report-form">
+                                            <input type="hidden" name="_csrf" value="{{._csrf}}">
+                                            <div class="col-md-12 mt-2">
+                                                <div class="form-group">
+                                                    <label class="bmd-label-floating" >Title</label>
+                                                    <input name="Title" value="{{.detail.PromTitle}}" id="Title" type="text" class="form-control" >
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{ template "script" }}
+        <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+        <script>
+            (function ($) {
+                function onSubmit(data) {
+                    liff.getProfile()
+				        .then(profile => {
+                            const accessToken = liff.getAccessToken()
+                            data.append("userId", profile.userId)
+                            data.append("displayName", profile.displayName)
+                            data.append("pictureUrl", profile.pictureUrl)
+                            data.append("accessToken", accessToken)
+                            fetch(window.location.href, {
+                                    method, 
+                                    body: data
+                            }).catch(res => {
+                                if (res.status === 201) {
+                                    throw ""
+                                }
+                                return res.json()
+                            }).then(json => {
+                                Swal.fire("success", "", "success").then(result => {
+						            liff.closeWindow()
+                                })
+                            }).catch(err => {
+                                Swal.fire("fial", "", "warning")
+                            })
+                        }).catch(err => {
+                            liff.closeWindow()
+                        })
+                }
+                $("form[name='report-form']").validate({
+                    rules: {},
+                    messages: {},
+                    submitHandler: function(form) {
+					    let data = new FormData()
+
+                    }
+                })
+            })(jQuery)
+        </script>
+    </body>
+
+</html>
+
+{{end}}

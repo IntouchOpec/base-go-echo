@@ -32,7 +32,7 @@
                                 <div class="col-8">{{ if not .detail.Customer.CustomerTypeID }} - {{ else }} {{ .detail.Customer.CustomerType.Name }} {{end}} </div>
                             </div>
                             <div class="d-flex w-100">
-                                {{ if (eq .detail.Account.AccType "man") }}
+                                {{ if (eq .detail.Account.AccTransactionType "man") }}
                                     {{if (eq .detail.TranStatus 0) }}
                                     <button id="OK" class="btn btn-success">OK</button>
                                     <button id="Cancel" class="btn btn-danger">Cancel</button>

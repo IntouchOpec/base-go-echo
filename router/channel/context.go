@@ -11,13 +11,14 @@ import (
 
 type Context struct {
 	echo.Context
-	DB          *gorm.DB
-	Massage     *linebot.TextMessage
-	Account     model.Account
-	ChatChannel model.ChatChannel
-	Customer    model.Customer
-	ClientLine  *lib.ClientLine
-	Event       *linebot.EventSource
+	DB             *gorm.DB
+	Massage        *linebot.TextMessage
+	Account        model.Account
+	ChatChannel    model.ChatChannel
+	Customer       model.Customer
+	ClientLine     *lib.ClientLine
+	Event          *linebot.EventSource
+	PostbackAction *PostbackAction
 }
 
 type (

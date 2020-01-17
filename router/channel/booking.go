@@ -14,20 +14,19 @@ import (
 )
 
 var serviceMassage string = `
-{
-	"type": "carousel",
-	"contents": [
-	  { "type": "bubble",
-		"hero": { "type": "image", "size": "full", "aspectRatio": "20:13", "aspectMode": "cover", "url": "%s" },
-		"body": { "type": "box", "layout": "vertical", "spacing": "sm",
-		  "contents": [
-			{ "type": "button", "style": "primary", "action": { "type": "message", "label": "ทำนัดอัตโนมัติ", "text": "service auto" } },	
-			{ "type": "button", "style": "primary", "action": { "type": "message", "label": "ทำนัดเอง", "text": "service choose" } }
-		  ]
-		}
-	  }
-	]
+{ "type": "bubble",
+"hero": { "type": "image", "size": "full", "aspectRatio": "20:13", "aspectMode": "cover", "url": "%s" },
+"body": { "type": "box", "layout": "vertical", "spacing": "sm",
+  "contents": [
+	{ "type": "button", "style": "primary", "action": {
+		"type": "postback", "label": "จองเดี๋ยวนี้", "data": "action=booking_now" } },
+	{ "type": "button", "style": "primary", "action": 
+		{ "type": "datetimepicker", "label": "จองล่วงหน้า", "data": "action=choive_auto", "mode": "datetime", "initial": "%s", "max": "%s", "min": "%s" } },	
+	{ "type": "button", "style": "primary", "action": {
+		"type": "postback", "label": "ทำนัดเอง", "data": "action=choive_man" } }
+	]}
 }`
+
 var buttonTimeSecondaryTemplate string = `{"type": "button", "style": "secondary", "margin": "sm", "action": { "type": "message", "label": "%s", "text": "%s" }},`
 var buttonTimePrimaryTemplate string = `{"type": "button","style": "primary", "margin": "sm", "action": { "type": "message", "label": "%s", "text": "%s" }},`
 var buttonTimePrimaryLastTemplate string = `{"type": "button","style": "primary", "margin": "sm", "action": { "type": "message", "label": "%s", "text": "%s" }},`
@@ -186,13 +185,15 @@ func CalendarTemplate(firstKeyWordAction, lastKeyWordAction, date string) string
 	"body": { "type": "box", "layout": "vertical", "contents": [
 		{ "type": "box", "layout": "horizontal", "contents": [
 				{ "type": "text", "text": "%s", "size": "sm", "weight": "bold", "color": "#1db446", "flex": 0 },
-				{ "type": "text", "text": "ถัดไป", "size": "sm", "color": "#111111", "align": "end", "action": { "type": "message", "label": " ", "text": "%s"} }]
+				{ "type": "text", "text": "ถัดไป", "size": "sm", "color": "#111111", "align": "end", "action": { "type": "postback", "label": " ", "data": "action=choive_man&date=%s"} }]
 		}, %s]}}`, HeaderCalendat, actionNextMonth, weekdaysStr+`{"type": "separator"},`+calendar[:len(calendar)-1])
 	return m
 }
 
 func ChooseService(c *Context) (linebot.SendingMessage, error) {
-	m := fmt.Sprintf(serviceMassage, c.ChatChannel.ChaImage)
+	now := time.Now()
+	format := "2006-01-02T15:04"
+	m := fmt.Sprintf(serviceMassage, c.ChatChannel.ChaImage, now.Format(format), now.AddDate(0, 3, 0).Format(format), now.Format(format))
 	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(m))
 	if err != nil {
 		return nil, err
@@ -221,14 +222,8 @@ func ServiceList(c *Context) (linebot.SendingMessage, error) {
 	return linebot.NewFlexMessage("service", flexContainer), err
 }
 
-func CalandarHandler(c *Context) (linebot.SendingMessage, error) {
-	var m string
-	text := c.Massage.Text
-	if len(text) > 8 {
-		m = CalendarTemplate("", "", text[9:19])
-	} else {
-		m = CalendarTemplate("", "", "")
-	}
+func CalandarHandler(c *Context, date string) (linebot.SendingMessage, error) {
+	m := CalendarTemplate("", "", date)
 	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(m))
 	if err != nil {
 		return nil, err
@@ -259,30 +254,30 @@ func ServiceListLineHandler(c *Context) (linebot.SendingMessage, error) {
 	var count int
 	var service model.Service
 	var MSPlaces []*model.MasterPlace
+	var placeIDs []uint
 	count = 0
 	dateTime := c.Massage.Text[9:19]
 
 	var employeeServices []model.EmployeeService
 
 	day, err := time.Parse("2006-01-02 15:04", dateTime+" 15:00")
-	var start time.Time
-	var end time.Time
 
 	if err != nil {
 		return nil, err
 	}
 
-	if err := c.DB.Preload("Places").Where("ser_name = ? and account_id = ?", c.Massage.Text[20:], c.Account.ID).Find(&service).Error; err != nil {
+	if err := c.DB.Where("ser_name = ? and account_id = ?", c.Massage.Text[20:], c.Account.ID).Find(&service).Error; err != nil {
 		return nil, err
 	}
-
 	if err := c.DB.Preload("Employee").Preload("TimeSlots", func(db *gorm.DB) *gorm.DB {
 		return db.Where("time_day = ?", day.Weekday()).Preload("Bookings", "booked_date = ?", day)
 	}).Where("service_id = ? and account_id = ?",
 		service.ID, c.Account.ID).Find(&employeeServices).Error; err != nil {
 		return nil, err
 	}
-	c.DB.Where("m_pla_day = ?", day).Find(&MSPlaces)
+
+	c.DB.Order("m_pla_status").Where("m_pla_day = ? and place_id in (?)", day, placeIDs).Find(&MSPlaces)
+
 	for index, employeeService := range employeeServices {
 		if employeeService.Employee.ChatChannelID != c.ChatChannel.ID {
 			continue
@@ -296,15 +291,8 @@ func ServiceListLineHandler(c *Context) (linebot.SendingMessage, error) {
 			if len(timeSlot.Bookings) > 0 {
 				buttonTime = buttonTime + fmt.Sprintf(buttonTimeSecondaryTemplate, fmt.Sprintf("%s-%s", timeSlot.TimeStart, timeSlot.TimeEnd), "เต็มแล้ว")
 			} else {
-				start, err = time.Parse("15:04", timeSlot.TimeStart)
-				end, err = time.Parse("15:04", timeSlot.TimeEnd)
-				fmt.Println(start, end)
-				if len(MSPlaces) != 0 {
-
-				} else {
-					actionMessge = "timeslot" + " " + dateTime + " " + timeSlot.TimeStart + "-" + timeSlot.TimeEnd + " " + fmt.Sprint(timeSlot.ID)
-					buttonTime = buttonTime + fmt.Sprintf(buttonTimePrimaryTemplate, fmt.Sprintf("%s-%s", timeSlot.TimeStart, timeSlot.TimeEnd), actionMessge)
-				}
+				actionMessge = "timeslot" + " " + dateTime + " " + timeSlot.TimeStart + "-" + timeSlot.TimeEnd + " " + fmt.Sprint(timeSlot.ID)
+				buttonTime = buttonTime + fmt.Sprintf(buttonTimePrimaryTemplate, fmt.Sprintf("%s-%s", timeSlot.TimeStart, timeSlot.TimeEnd), actionMessge)
 			}
 			count = count + 1
 		}

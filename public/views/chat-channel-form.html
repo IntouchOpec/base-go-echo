@@ -107,17 +107,16 @@
                                                         <input name="image" id="image" type="text" class="form-control" >
                                                     </div>
                                                 </div>
-                                                <div class="col-md-12 mt-2">
+                                                <div class="col-md-6 mt-2">
                                                     <div class="form-group">
-                                                        <label for="Longitude" class="bmd-label-floating">System Confirmation</label>
-                                                        <select name="systemConfirmation" class="form-control" data-style="btn btn-link" id="systemConfirmation">
-                                                            <option value="">choose System Confirmation</option>
-                                                            {{ with .systemConfirmation }}
-                                                            {{ range . }}
-                                                                <option value='{{ . }}'>{{.}}</option>
-                                                            {{ end }}
-                                                            {{ end }}
-                                                        </select>
+                                                        <label class="bmd-label-floating" >ChaOpenDate</label>
+                                                        <input type="time" name="ChaOpenDate" value="{{.detail.ChaOpenDate}}" id="ChaOpenDate" class="form-control">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="bmd-label-floating" >ChaCloseDate</label>
+                                                        <input type="time" name="ChaCloseDate" value="{{.detail.ChaCloseDate}}" id="ChaCloseDate" class="form-control">
                                                     </div>
                                                 </div>
                                             </div>
@@ -151,7 +150,8 @@
                 type: { required: true },
                 Latitude: { required: true },
                 Longitude: { required: true },
-                systemConfirmation: { required: true }
+                ChaOpenDate: {required: true },
+                ChaCloseDate: {required: true },
             },
             messages: {
                 name: "Please enter a valid name",
@@ -166,7 +166,8 @@
                 type: "Please enter a valid type",
                 Latitude: "Please enter a valid Latitude",
                 Longitude: "Please enter a valid Longitude",
-                systemConfirmation: {messages: "systemConfirmation"}
+                ChaOpenDate: { messages: "Please enter a valid ChaOpenDate"},
+                ChaCloseDate: { messages: "Please enter a valid ChaCloseDate"},
             },
             submitHandler: function(form) {
                 let _csrf = $("#_csrf").val()
@@ -183,7 +184,9 @@
                 let Latitude = $("#Latitude").val()
                 let Longitude = $("#Longitude").val()
                 let image = $("#image").val()
-                let systemConfirmation = $("#systemConfirmation").val()
+                let ChaOpenDate = $("#ChaOpenDate").val()
+                let ChaCloseDate = $("#ChaCloseDate").val()
+
                 let data = new FormData();
                 data.append("_csrf", _csrf)
                 data.append("name", name)
@@ -197,12 +200,14 @@
                 data.append("channel_access_token", channel_access_token)
                 data.append("type", type)
                 data.append("image", image)
+                data.append("cha_open_date", ChaOpenDate)
+                data.append("cha_close_date", ChaCloseDate)
                 data.append("settings", JSON.stringify([
-                    {detail: "", name: "Latitude", value: Latitude},
-                    {detail: "", name: "Longitude", value: Latitude,}, 
-                    {detail: "", name: "system_confirmation", value: systemConfirmation}]))
+                    {detail: "Latitude เพื่อตอบ location message", name: "Latitude", value: Latitude},
+                    {detail: "Longitude เพื่อตอบ location message", name: "Longitude", value: Latitude,}, 
+                    ]))
                 let method = $("form[name='form-chat-channel']").attr("method")
-                // console.log(data,method)
+                
                 fetch(window.location.href, { method, body: data })
                 .then(res => {
                     if (res.status !== 201) {
