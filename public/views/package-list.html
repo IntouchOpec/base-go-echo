@@ -46,7 +46,7 @@
                                 <td>{{.PacOrder}}</td>
                                 <td>{{.PacType}}</td>
                                 <td><img height="80px" width="80px" src="/files?path={{ .PacImage }}" class="img-fluid mb-2 ml-2 img-thumbnail" /></td>
-                                <td><input type="checkbox" data-toggle="toggle" checked="{{.PacIsActive}}"></td>
+                                <td><input type="checkbox" data-toggle="toggle" {{ if .PacIsActive }} checked {{end}} value={{.ID}}></td>
                                 <td>{{ .CreatedAt.Format "Mon Jan 2 2006" }}</td>
                                 <td class="td-actions text-right">
                                     <a href="/admin/package/{{ .ID }}">
@@ -129,22 +129,28 @@
         return 
       })
 
-      $("input[type='checkbox']").change(function() {
-        let _csrf = $("#_csrf").val()
-        let data = new URLSearchParams()
-        let id = $(this).val()
-        data.append("_csrf", _csrf)
-        data.append("ans_acive", this.checked)
-                  
-        fetch(`/admin/package/${id}`, {
-          body: data,
-          method: "PACTH"
-        }).then(res => {
-          return res.json()
-        }).then(json => {
-          Swal.fire("success", "", "success")
-        }).catch(err => {
-          Swal.fire("fial", "", "warning")      
+      $("input[type='checkbox']").each(function() {
+        $(this).change(() => {
+          let _csrf = $("#_csrf").val()
+          let data = new URLSearchParams()
+          let id = $(this).val()
+          console.log(id, this.checked)
+          data.append("_csrf", _csrf)
+          data.append("pac_is_acive", this.checked)
+                    
+          fetch(`/admin/package/${id}`, {
+            body: data,
+            method: "PATCH"
+          }).then(res => {
+            if (res.status !== 200) {
+              throw ""
+            }
+            return res.json()
+          }).then(json => {
+            Swal.fire("success", "", "success")
+          }).catch(err => {
+            Swal.fire("fial", "", "warning")      
+          })
         })
       })
 

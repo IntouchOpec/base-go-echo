@@ -180,6 +180,7 @@ func Routers() *echo.Echo {
 		managent.GET("/package/create", handler(PackageCreateHandler))
 		managent.POST("/package/create", handler(PackagePostHandler))
 		managent.GET("/package/:id", handler(PackageDetailHandler))
+		managent.PATCH("/package/:id", handler(PackageIsactiveHandler))
 		managent.GET("/package/:id/edit", handler(PackageEditViewHandler))
 		managent.PUT("/package/:id/edit", handler(PackagePutHandler))
 		managent.DELETE("/package/:id", handler(PackageDeleteHandler))

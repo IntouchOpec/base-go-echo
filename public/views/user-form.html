@@ -71,7 +71,7 @@
                             <div class="col-md-6 mt-2">
                                 <div class="form-group">
                                     <label class="bmd-label-floating" >Tester</label>
-                                    <input type="checkbox" data-toggle="toggle" checked="{{.detail.Tester}}" name="Tester" value="{{.detail.Tester}}" id="Tester" >
+                                    <input type="checkbox" data-toggle="toggle" {{if .detail.Tester}} checked {{end}} name="Tester" value="{{.detail.ID}}" id="Tester" >
                                 </div>
                             </div>
                         </div>

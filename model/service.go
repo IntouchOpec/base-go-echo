@@ -18,20 +18,21 @@ type Service struct {
 	AccountID        uint               `form:"account_id" json:"account_id" gorm:"not null;"`
 	ServiceItems     []*ServiceItem     `json:"service_item"`
 	Places           []*Place           `json:"places" gorm:"many2many:place_service"`
-	Account          Account            `json:"account" gorm:"ForeignKey:AccountID"`
+	Account          *Account           `json:"account" gorm:"ForeignKey:AccountID"`
 	ChatChannels     []*ChatChannel     `json:"chat_channels" gorm:"many2many:service_chat_channel"`
 	EmployeeServices []*EmployeeService `json:"employee_services" gorm:"many2many:EmployeeService"`
 }
 
 type ServiceItem struct {
 	orm.ModelBase
-	SSTime    time.Time `form:"s_s_time" json:"s_s_time"`
-	SSPrice   float32   `form:"s_s_price" json:"s_s_price"`
-	SSName    string    `form:"s_s_name" json:"s_s_name" gorm:"type:varchar(10)"`
-	ServiceID uint      `json:"service_id"`
-	Service   Service   `json:"service" gorm:"ForeignKey:ServiceID"`
-	AccountID uint      `json:"account_id" gorm:"not null;"`
-	Account   Account   `json:"account" gorm:"ForeignKey:AccountID"`
+	SSTime    time.Time  `form:"s_s_time" json:"s_s_time"`
+	SSPrice   float32    `form:"s_s_price" json:"s_s_price"`
+	SSName    string     `form:"s_s_name" json:"s_s_name" gorm:"type:varchar(10)"`
+	ServiceID uint       `json:"service_id"`
+	Packages  []*Package `json:"packages" gorm:"many2many:package_service_item"`
+	Service   Service    `json:"service" gorm:"ForeignKey:ServiceID"`
+	AccountID uint       `json:"account_id" gorm:"not null;"`
+	Account   Account    `json:"account" gorm:"ForeignKey:AccountID"`
 }
 
 // Saveservice is function create service.

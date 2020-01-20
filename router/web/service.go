@@ -404,7 +404,6 @@ func ServiceItemRemoveHandler(c *Context) error {
 		fmt.Println(err)
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	fmt.Println(service, serviceItem)
 	if err := db.Delete(&serviceItem).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}

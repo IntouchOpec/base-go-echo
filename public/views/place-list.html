@@ -45,7 +45,7 @@
                                 <td>{{ .PlacType }}</td>
                                 <td>{{ .PlacAmount }}</td>
                                 <td>{{ .CreatedAt.Format "Mon Jan 2 2006" }}</td>
-                                <td><input type="checkbox" data-toggle="toggle" checked="{{ .PlacActive }}"></td>
+                                <td><input type="checkbox" data-toggle="toggle" {{if .PlacActive }}checked {{end}}></td>
                                 <td class="td-actions text-right">
                                     <a href="/admin/place/{{ .ID }}">
                                       <button type="button" rel="tooltip" class="btn btn-success">

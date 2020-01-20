@@ -4,6 +4,9 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strconv"
+
+	"github.com/jinzhu/gorm"
 
 	"github.com/IntouchOpec/base-go-echo/lib"
 	"github.com/IntouchOpec/base-go-echo/model"
@@ -29,12 +32,35 @@ func PackageListHandler(c *Context) error {
 	})
 }
 
+func PackageIsactiveHandler(c *Context) error {
+	packageModel := model.Package{}
+	id := c.Param("id")
+	accID := auth.Default(c).GetAccountID()
+	db := model.DB()
+	b, err := strconv.ParseBool(c.FormValue("pac_is_acive"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	if err := db.Where("account_id = ?", accID).Find(&packageModel, id).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	packageModel.PacIsActive = b
+	if err := db.Save(&packageModel).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	return c.JSON(http.StatusOK, echo.Map{
+		"data": packageModel,
+	})
+}
+
 func PackageDetailHandler(c *Context) error {
 	id := c.Param("id")
 	accID := auth.Default(c).GetAccountID()
 	packageModel := model.Package{}
 	db := model.DB()
-	if err := db.Where("account_id = ?", accID).Find(&packageModel, id).Error; err != nil {
+	if err := db.Preload("ServiceItems", func(db *gorm.DB) *gorm.DB {
+		return db.Preload("Service")
+	}).Where("account_id = ?", accID).Find(&packageModel, id).Error; err != nil {
 		return c.Render(http.StatusNotFound, "404-page", echo.Map{})
 	}
 	return c.Render(http.StatusOK, "package-detail", echo.Map{
@@ -175,8 +201,10 @@ func PackageServiceCreateHandler(c *Context) error {
 		return c.Render(http.StatusNotFound, "404-page", echo.Map{})
 	}
 	return c.Render(http.StatusOK, "package-service-form", echo.Map{
+		"method":       "POST",
 		"data":         packageModel,
 		"serviceItems": serviceItems,
+		"title":        "package",
 	})
 }
 func PackageServiceCreatePostHandler(c *Context) error {
@@ -192,12 +220,12 @@ func PackageServiceCreatePostHandler(c *Context) error {
 	if err := db.Where("account_id = ?", accID).Find(&packageModel, packageID).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	if err := db.Model(&packageModel).Association("Services").Append(&serviceItem).Error; err != nil {
+	if err := db.Model(&packageModel).Association("ServiceItems").Append(&serviceItem).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	redirect := fmt.Sprintf("/admin/package/%d", packageModel.ID)
 
-	return c.JSON(http.StatusOK, echo.Map{
+	return c.JSON(http.StatusCreated, echo.Map{
 		"data":     packageModel,
 		"redirect": redirect,
 	})
@@ -215,7 +243,7 @@ func PackageServiceDeleteHandler(c *Context) error {
 	if err := db.Where("account_id = ?", accID).Find(&packageModel, id).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	if err := db.Model(&packageModel).Association("Services").Delete(&serviceItem).Error; err != nil {
+	if err := db.Model(&packageModel).Association("ServiceItems").Delete(&serviceItem).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	return c.JSON(http.StatusOK, echo.Map{

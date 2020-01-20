@@ -67,7 +67,7 @@
                                                         {{ end }}
                                                     </td>
                                                     <td>{{ .TimeAmount }}</td>
-                                                    <td><input type="checkbox" data-toggle="toggle" checked="{{ .TimeActive }}"></td>
+                                                    <td><input type="checkbox" data-toggle="toggle" {{if .TimeActive }}checked{{end}}></td>
                                                     <td>
                                                         <button type="button" rel="tooltip" class="btn btn-warning">
                                                             <i class="material-icons">edit</i>
