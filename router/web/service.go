@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/IntouchOpec/base-go-echo/lib"
 	"github.com/IntouchOpec/base-go-echo/model"
@@ -92,7 +93,7 @@ func ServiceDetailHandler(c *Context) error {
 	service := model.Service{}
 	id := c.Param("id")
 	a := auth.Default(c)
-	model.DB().Where("account_id = ? ", a.User.GetAccountID()).Find(&service, id)
+	model.DB().Preload("ServiceItems").Where("account_id = ? ", a.User.GetAccountID()).Find(&service, id)
 	err := c.Render(http.StatusOK, "service-detail", echo.Map{
 		"detail": service,
 		"title":  "service",
@@ -305,23 +306,38 @@ func ServiceItemCreateViewHandlder(c *Context) error {
 	})
 }
 
+type ServiceItemReq struct {
+	Time  string  `form:"time"`
+	Price float32 `form:"price"`
+	Name  string  `form:"name"`
+}
+
 func ServiceItemCreatePostHandler(c *Context) error {
 	id := c.Param("id")
 	accID := auth.Default(c).GetAccountID()
 	db := model.DB()
 	var service model.Service
 	var serviceItem model.ServiceItem
-	if err := db.Where("account_id = ?", accID).Find(service, id).Error; err != nil {
+	var req ServiceItemReq
+	if err := db.Where("account_id = ?", accID).Find(&service, id).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	if err := c.Bind(&serviceItem); err != nil {
+	if err := c.Bind(&req); err != nil {
+		fmt.Println(err)
 		return c.JSON(http.StatusBadRequest, err)
 	}
+	SSTime, _ := time.Parse("06:01", req.Time)
+	serviceItem.SSTime = SSTime
+	serviceItem.SSPrice = req.Price
+	serviceItem.SSName = req.Name
+	serviceItem.AccountID = accID
+	fmt.Println(req)
 	if err := db.Model(&service).Association("ServiceItems").Append(&serviceItem).Error; err != nil {
+		fmt.Println(err)
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	return c.JSON(http.StatusCreated, echo.Map{
-		"redirect": fmt.Sprintf("/admin/service/%s", service.ID),
+		"redirect": fmt.Sprintf("/admin/service/%d", service.ID),
 		"data":     serviceItem,
 	})
 }
@@ -375,16 +391,20 @@ func ServiceItemEditPutHandler(c *Context) error {
 func ServiceItemRemoveHandler(c *Context) error {
 	id := c.Param("id")
 	seriveItemID := c.Param("seriveItemID")
-	accID := auth.Default(c)
+	accID := auth.Default(c).GetAccountID()
 	db := model.DB()
 	var service model.Service
 	var serviceItem model.ServiceItem
+	fmt.Println(id, seriveItemID)
 	if err := db.Where("account_id = ?", accID).Find(&service, id).Error; err != nil {
+		fmt.Println(err)
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	if err := db.Where("account_id = ?", accID).Find(&serviceItem, seriveItemID).Error; err != nil {
+		fmt.Println(err)
 		return c.JSON(http.StatusBadRequest, err)
 	}
+	fmt.Println(service, serviceItem)
 	if err := db.Delete(&serviceItem).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}

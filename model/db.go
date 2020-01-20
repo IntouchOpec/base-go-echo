@@ -86,6 +86,7 @@ func Initialize() {
 	newDb.AutoMigrate(&BroadcastMessage{})
 	newDb.AutoMigrate(&MasterPlace{})
 	newDb.AutoMigrate(&Package{})
+	newDb.AutoMigrate(&ServiceItem{})
 }
 
 // CacheStore use cache MEMCACHED or REDIS.

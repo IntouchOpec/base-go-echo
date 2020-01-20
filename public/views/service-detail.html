@@ -31,13 +31,13 @@
                         </div>
                     </div>
                 </div>
-                {{ if (eq .base.account.AccBookingType 1) }}
+                {{ if (eq .base.account.Account.AccBookingType 0) }}
                     <div class="col-md-6">
                        <div class="card">
                            <div class="card-header card-header-primary d-flex justify-content-between">
                                 <h4 class="card-title"></h4>
                                 <p class="card-category"></p>
-                                <a href="/admin/service/{{.detail.ID}}/service-item/create">
+                                <a href="/admin/service/{{.detail.ID}}/service_item/create">
                                     <button class="btn btn-info"><i class="material-icons">add</i>
                                         Create
                                     </button>
@@ -48,18 +48,20 @@
                                     <table class="table">
                                         <thead class="text-primary">
                                             <th>Name</th>
-                                            <th>Date</th>
+                                            <th>Time</th>
                                             <th>Price</th>
                                             <th></th>
                                         </thead>
                                         <tbody>
+                                            {{ $ID := .detail.ID }}
                                             {{ with .detail.ServiceItems }}
                                             {{ range . }}
+                                            <tr name="row_{{ .ID }}">
                                                <td>{{.SSName}}</td>
-                                               <td>{{.SSDate}}</td>
+                                               <td>{{.SSTime.Format "01:00"}}</td>
                                                <td>{{.SSPrice}}</td>
                                                <td class="td-actions text-right">
-                                                    <a href="/admin/service/{{.detail.ID}}/service-item/{{.ID}}" >
+                                                    <a href="/admin/service/{{$ID}}/service_item/{{.ID}}" >
                                                       <button type="button" rel="tooltip" class="btn btn-warning">
                                                           <i class="material-icons">edit</i>
                                                       </button>
@@ -68,6 +70,7 @@
                                                         <i class="material-icons">close</i>
                                                     </button>
                                                 </td>
+                                            </tr>
                                             {{ end }}
                                             {{ end }}
                                         </tbody>
@@ -95,10 +98,10 @@
         (function ($) {
             const removeServiceItem = serviceItemID => {
                 let _csrf = $("#_csrf").val()
-                let date = new FormData()
+                let data = new FormData()
                 let id = $("#ID").val()
                 data.append("_csrf", _csrf)
-                fetch(`/admin/service/${id}/service-item/${serviceItemID}`, {
+                fetch(`/admin/service/${id}/service_item/${serviceItemID}`, {
                     method:"DELETE",
                     body: data,
                 }).then(res => {
@@ -107,7 +110,9 @@
                     }
                     return res.json()
                 }).then(json => {
-                    Swal.fire("success", "", "success")
+                    Swal.fire("success", "", "success").then(result => {
+                        $(`tr[name=row_${serviceItemID}]`).remove()
+                    })
                 }).catch(err => {
                     Swal.fire("fial", "", "warning")
                 })
@@ -126,6 +131,7 @@
                     }).then(result => {
                         if (result.value) {
                             let serviceItemId = $(this).val()
+                            console.log(serviceItemId)
                             removeServiceItem(serviceItemId)
                         }
                     })

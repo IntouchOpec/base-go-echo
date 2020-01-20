@@ -26,9 +26,10 @@ type BaseTempleRespone struct {
 func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
 	a := auth.Default(c)
 	if viewContext, isMap := data.(echo.Map); isMap {
-		acc := a.User.GetAccount()
+		// acc := a.User.GetAccount()
+		// acc := a.User.()
 		csrfValue := c.Get("_csrf")
-		viewContext["base"] = echo.Map{"title": fmt.Sprintf("%s", viewContext["title"]), "account": acc}
+		viewContext["base"] = echo.Map{"title": fmt.Sprintf("%s", viewContext["title"]), "account": a.User}
 		viewContext["_csrf"] = csrfValue
 	}
 	return t.templates.ExecuteTemplate(w, name, data)

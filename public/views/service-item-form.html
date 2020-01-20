@@ -16,7 +16,7 @@
                             <div class="col-md-8">
                                 <div class="card">
                                     <div class="card-header card-header-primary">
-                                        <h4 class="card-title">{{.mode}} Chat Channel</h4>
+                                        <h4 class="card-title">service item</h4>
                                         <p class="card-category">Complete your Chat Channel</p>
                                     </div>
                                     <div class="card-body">
@@ -58,7 +58,7 @@
   <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
   <script>
     (function ($) {
-        $("form[name='form-chat-channel']").validate({
+        $("form[name='service-item-form']").validate({
             rules: {
                 name: { required: true },
                 Price: { required: true },
@@ -76,9 +76,9 @@
                 let Time = $("#Time").val()
                 let data = new FormData();
                 data.append("_csrf", _csrf)
-                data.append("s_s_name", name)
-                data.append("s_s_price", Price)
-                data.append("s_s_time", Time)
+                data.append("name", name)
+                data.append("price", Price)
+                data.append("time", Time)
                 let method = $("form[name='service-item-form']").attr("method")
                 
                 fetch(window.location.href, { method, body: data })
