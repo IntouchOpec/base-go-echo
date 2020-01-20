@@ -87,6 +87,7 @@ func HandleWebHookLineAPI(c echo.Context) error {
 			switch postBackAction.Action {
 			case "booking_now":
 				fmt.Println("booking_now")
+				fmt.Println(postBackActionStr)
 				messageReply, err = ServiceListHandler(&con)
 			case "choive_man":
 				fmt.Println("choive_man")

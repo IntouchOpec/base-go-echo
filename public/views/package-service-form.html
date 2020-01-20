@@ -24,11 +24,11 @@
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating" >service</label>
-                                                        <select name="employee-serviceType" class="form-control" data-style="btn btn-link" id="service_id">
+                                                        <select name="service_id" class="form-control" data-style="btn btn-link" id="service_id">
                                                             <option value="">choose service </option>
                                                             {{ with .serviceItems }}
                                                             {{ range . }}
-                                                                <option value="{{.ID}}">{{.Service.SerName}} {{.SSName}} {{.SSTime.Format "01:00"}} {{.SSPrice}}</option>
+                                                                <option value="{{.ID}}">{{.Service.SerName}} {{.SSName}} {{.SSTime.Format "15:04"}} {{.SSPrice}}</option>
                                                             {{ end }}
                                                             {{ end }}
                                                         </select>
@@ -56,18 +56,12 @@
             rules: {
                 service_id: {
                     required: true
-                },
-                price: {
-                    required: true
-                },
+                }
             },
             messages: {
                 service_id: {
                     required: "Please enter a valid service"
-                },
-                price: {
-                    required: "Please enter a valid price"
-                },
+                }
             },
             submitHandler: function(form) {
                 let _csrf = $("#_csrf").val()
@@ -76,6 +70,7 @@
                 data.append("_csrf", _csrf)
                 data.append("service_id", service_id)
                 let method = $("form[name='create-package-service']").attr("method")
+                console.log(method)
                 fetch(window.location.href, {
                     method, 
                     body: data

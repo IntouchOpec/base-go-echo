@@ -2,39 +2,38 @@ package channel
 
 import (
 	"fmt"
+	"time"
 
+	. "github.com/IntouchOpec/base-go-echo/conf"
 	"github.com/IntouchOpec/base-go-echo/model"
 
 	"github.com/line/line-bot-sdk-go/linebot"
 )
 
-var cardTemplate string = `{
-	"type": "bubble",
-	"header": { "type": "box", "layout": "horizontal", "contents": [
-		{ "type": "box", "layout": "vertical",
-		  "contents": [
-			{ "type": "text", "text": "VOUCHERS", "size": "sm", "weight": "bold", "color": "#AAAAAA" },
-			{ "type": "box", "layout": "horizontal", "flex": 1, "contents": [
-				{ "type": "image", "url": "https://scdn.line-apps.com/n/channel_devcenter/img/flexsnapshot/clip/clip7.jpg", "size": "5xl", "aspectMode": "cover", "aspectRatio": "150:196", "gravity": "center", "flex": 1 },
-				{ "type": "box", "layout": "vertical", "contents": [
-					{ "type": "image", "url": "https://scdn.line-apps.com/n/channel_devcenter/img/flexsnapshot/clip/clip8.jpg", "size": "full", "aspectMode": "cover", "aspectRatio": "150:98", "gravity": "center" },
-					{ "type": "image", "url": "https://scdn.line-apps.com/n/channel_devcenter/img/flexsnapshot/clip/clip9.jpg", "size": "full", "aspectMode": "cover", "aspectRatio": "150:98", "gravity": "center" }]}]}]}]},
-	"body": { "type": "box", "layout": "vertical", "spacing": "sm", "contents": [
-		{ "type": "button", "style": "primary", "action": { "type": "datetimepicker", "label": "ทำนัดอัตโนมัติ", "data": "choive auto", "mode": "datetime", "initial": "2020-01-17T14:48", "max": "2021-01-17T14:48", "min": "2019-01-17T14:48" },	  },
-		{ "type": "button", "style": "primary", "action": { "type": "postback", "label": "ทำนัดเอง", "text": "man", "data": "abc=abc" }}]}}`
-
 func ServiceListHandler(c *Context) (linebot.SendingMessage, error) {
 	var flexContainerStr string
 	var packageModels []*model.Package
+	now := time.Now()
+	var timeStart time.Time
+	var timeEnd time.Time
+	var timeStartStr string
+	var timeEndStr string
+	var timemillisecon time.Duration
+	timeStart = now.Add(30 * time.Hour)
 	db := c.DB
-	if err := db.Where("account_id = ?", c.Account.ID).Find(&packageModels).Error; err != nil {
+	if err := db.Order("pac_order").Where("account_id = ? and pac_is_active = ?", c.Account.ID, true).Find(&packageModels).Error; err != nil {
 		return nil, err
 	}
 
 	for _, packageModel := range packageModels {
-		flexContainerStr += fmt.Sprintf(cardTemplate, packageModel) + ","
+		timemillisecon = time.Duration(packageModel.PacTime.Unix()) * time.Millisecond
+		timeEnd = timeStart.Add(timemillisecon)
+		timeStartStr = timeStart.Format("01:02")
+		timeEndStr = timeEnd.Format("01:02")
+		flexContainerStr += fmt.Sprintf(cardTemplate, packageModel.PacName, fmt.Sprintf("https://web.%s/files?path=%s", Conf.Server.Domain, packageModel.PacImage), timeStartStr, timeEndStr, timeStartStr, timeEndStr) + ","
 	}
-	flexContainerStr = fmt.Sprintf(carouselTemplate, flexContainerStr)
+
+	flexContainerStr = fmt.Sprintf(carouselTemplate, flexContainerStr[:len(flexContainerStr)-1])
 
 	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(flexContainerStr))
 	if err != nil {
@@ -42,3 +41,69 @@ func ServiceListHandler(c *Context) (linebot.SendingMessage, error) {
 	}
 	return linebot.NewFlexMessage("service", flexContainer), err
 }
+
+var cardTemplate string = `
+{
+	"type": "bubble",
+	"header": {
+	  "type": "box",
+	  "layout": "horizontal",
+	  "contents": [
+		{
+		  "type": "box",
+		  "layout": "vertical",
+		  "contents": [
+			{
+			  "type": "text",
+			  "text": "%s",
+			  "size": "sm",
+			  "weight": "bold",
+			  "color": "#AAAAAA"
+			},
+			{
+			  "type": "box",
+			  "layout": "horizontal",
+			  "flex": 1,
+			  "contents": [
+				{
+				  "type": "image",
+				  "url": "%s",
+				  "size": "5xl",
+				  "gravity": "center",
+				  "flex": 1
+				}
+			  ]
+			}
+		  ]
+		}
+	  ]
+	},
+	"body": {
+	  "type": "box",
+	  "layout": "vertical",
+	  "spacing": "sm",
+	  "contents": [
+		{
+		  "type": "box",
+		  "layout": "vertical",
+		  "contents": [
+			{
+			  "type": "text",
+			  "text": "เวลา %s - %s น.",
+			  "align": "center"
+			}
+		  ]
+		},
+		{
+		  "type": "button",
+		  "style": "primary",
+		  "action": {
+			"type": "postback",
+			"label": "จอง",
+			"text": "man",
+			"data": "action=booking&start=%s&end=%s"
+		  }
+		}
+	  ]
+	}
+  }`

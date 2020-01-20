@@ -35,7 +35,7 @@
                     <div class="col-md-6">
                        <div class="card">
                            <div class="card-header card-header-primary d-flex justify-content-between">
-                                <h4 class="card-title"></h4>
+                                <h4 class="card-title">item</h4>
                                 <p class="card-category"></p>
                                 <a href="/admin/service/{{.detail.ID}}/service_item/create">
                                     <button class="btn btn-info"><i class="material-icons">add</i>
@@ -58,7 +58,7 @@
                                             {{ range . }}
                                             <tr name="row_{{ .ID }}">
                                                <td>{{.SSName}}</td>
-                                               <td>{{.SSTime.Format "01:00"}}</td>
+                                               <td>{{.SSTime.Format "15:04"}}</td>
                                                <td>{{.SSPrice}}</td>
                                                <td class="td-actions text-right">
                                                     <a href="/admin/service/{{$ID}}/service_item/{{.ID}}" >

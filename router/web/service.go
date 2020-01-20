@@ -326,7 +326,7 @@ func ServiceItemCreatePostHandler(c *Context) error {
 		fmt.Println(err)
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	SSTime, _ := time.Parse("06:01", req.Time)
+	SSTime, _ := time.Parse("15:04", req.Time)
 	serviceItem.SSTime = SSTime
 	serviceItem.SSPrice = req.Price
 	serviceItem.SSName = req.Name

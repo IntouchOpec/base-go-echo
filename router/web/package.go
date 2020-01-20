@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/jinzhu/gorm"
 
@@ -196,8 +197,17 @@ func PackageServiceCreateHandler(c *Context) error {
 	accID := auth.Default(c).GetAccountID()
 	var serviceItems []*model.ServiceItem
 	var packageModel model.Package
+	id := c.Param("id")
 	db := model.DB()
-	if err := db.Preload("Service").Where("account_id = ?", accID).Find(&serviceItems).Error; err != nil {
+	var serviceItemIDs []uint
+	if err := db.Preload("ServiceItems").Where("account_id = ?", accID).Find(&packageModel, id).Error; err != nil {
+		return c.Render(http.StatusNotFound, "404-page", echo.Map{})
+	}
+	for _, ServiceItem := range packageModel.ServiceItems {
+		serviceItemIDs = append(serviceItemIDs, ServiceItem.ID)
+	}
+
+	if err := db.Preload("Service").Where("account_id = ? and id not in (?)", accID, serviceItemIDs).Find(&serviceItems).Error; err != nil {
 		return c.Render(http.StatusNotFound, "404-page", echo.Map{})
 	}
 	return c.Render(http.StatusOK, "package-service-form", echo.Map{
@@ -221,6 +231,31 @@ func PackageServiceCreatePostHandler(c *Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	if err := db.Model(&packageModel).Association("ServiceItems").Append(&serviceItem).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	if err := db.Preload("ServiceItems").Where("account_id = ?", accID).Find(&packageModel, packageID).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	var sumTimeUsed time.Time
+	var timemillisecon time.Duration
+	var Minute int
+	fmt.Println(len(packageModel.ServiceItems), packageModel.ServiceItems[0].SSTime)
+	if len(packageModel.ServiceItems) != 0 {
+		for _, service := range packageModel.ServiceItems {
+			Minute = service.SSTime.Minute() * int(time.Minute)
+			timemillisecon = time.Duration(Minute)
+			sumTimeUsed = sumTimeUsed.Add(timemillisecon)
+			Minute = service.SSTime.Hour() * int(time.Hour)
+			timemillisecon = time.Duration(Minute)
+			sumTimeUsed = sumTimeUsed.Add(timemillisecon)
+			fmt.Println(sumTimeUsed)
+		}
+	}
+	fmt.Println(sumTimeUsed)
+
+	packageModel.PacTime = sumTimeUsed
+
+	if err := db.Save(&packageModel).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	redirect := fmt.Sprintf("/admin/package/%d", packageModel.ID)
