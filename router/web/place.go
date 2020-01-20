@@ -275,8 +275,8 @@ func PlaceDeleteImageHandler(c *Context) error {
 	if err := db.Where("account_id = ? ", accID).Find(&place, id).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-
-	if err := lib.DeleteFile(place.PlacImage); err != nil {
+	ctx := context.Background()
+	if _, err := lib.RemoveFileGoolgeStorage(ctx, "triple-t", place.PlacImage); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 

@@ -87,13 +87,13 @@ func HandleWebHookLineAPI(c echo.Context) error {
 			switch postBackAction.Action {
 			case "booking_now":
 				fmt.Println("booking_now")
-				messageReply, err = ServiceListHanlder(&con)
+				messageReply, err = ServiceListHandler(&con)
 			case "choive_man":
 				fmt.Println("choive_man")
 				messageReply, err = CalandarHandler(&con, postBackAction.DateStr)
 			case "choive_auto":
 				fmt.Println("choive_auto")
-				messageReply, err = ServiceListHanlder(&con)
+				messageReply, err = ServiceListHandler(&con)
 				fmt.Println(err)
 			}
 			_, err = bot.ReplyMessage(event.ReplyToken, messageReply).Do()

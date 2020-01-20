@@ -130,8 +130,8 @@ func ServiceDeleteImageHandler(c *Context) error {
 	if err := model.DB().Where("account_id = ? ", accID).Find(&service, id).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-
-	if err := lib.DeleteFile(service.SerImage); err != nil {
+	ctx := context.Background()
+	if _, err := lib.RemoveFileGoolgeStorage(ctx, "triple-t", service.SerImage); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
@@ -305,7 +305,7 @@ func ServiceItemCreateViewHandlder(c *Context) error {
 	})
 }
 
-func ServiceItemCreatePostHanlder(c *Context) error {
+func ServiceItemCreatePostHandler(c *Context) error {
 	id := c.Param("id")
 	accID := auth.Default(c).GetAccountID()
 	db := model.DB()
@@ -326,7 +326,7 @@ func ServiceItemCreatePostHanlder(c *Context) error {
 	})
 }
 
-func ServiceItemEditViewHanlder(c *Context) error {
+func ServiceItemEditViewHandler(c *Context) error {
 	id := c.Param("id")
 	seriveItemID := c.Param("seriveItemID")
 	accID := auth.Default(c)
@@ -347,7 +347,7 @@ func ServiceItemEditViewHanlder(c *Context) error {
 	})
 }
 
-func ServiceItemEditPutHanlder(c *Context) error {
+func ServiceItemEditPutHandler(c *Context) error {
 	id := c.Param("id")
 	seriveItemID := c.Param("seriveItemID")
 	accID := auth.Default(c)

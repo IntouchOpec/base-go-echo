@@ -79,8 +79,10 @@ func RemoaveAuthJSONFile(c *Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	err := lib.DeleteFile(acc.AccAuthJSONFilePath)
-	if err != nil {
+	ctx := context.Background()
+	if _, err := lib.RemoveFileGoolgeStorage(ctx, "triple-t", acc.AccAuthJSONFilePath); err != nil {
+		// err := lib.DeleteFile(acc.AccAuthJSONFilePath)
+		// if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 

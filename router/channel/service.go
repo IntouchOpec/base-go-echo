@@ -23,7 +23,7 @@ var cardTemplate string = `{
 		{ "type": "button", "style": "primary", "action": { "type": "datetimepicker", "label": "ทำนัดอัตโนมัติ", "data": "choive auto", "mode": "datetime", "initial": "2020-01-17T14:48", "max": "2021-01-17T14:48", "min": "2019-01-17T14:48" },	  },
 		{ "type": "button", "style": "primary", "action": { "type": "postback", "label": "ทำนัดเอง", "text": "man", "data": "abc=abc" }}]}}`
 
-func ServiceListHanlder(c *Context) (linebot.SendingMessage, error) {
+func ServiceListHandler(c *Context) (linebot.SendingMessage, error) {
 	var flexContainerStr string
 	var packageModels []*model.Package
 	db := c.DB

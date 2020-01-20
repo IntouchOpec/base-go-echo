@@ -124,9 +124,9 @@ func Routers() *echo.Echo {
 		managent.DELETE("/service/:id", handler(ServiceDeleteHandler))
 		managent.DELETE("/service/:id/delete_image", handler(ServiceDeleteImageHandler))
 		managent.GET("/service/:id/service_item/create", handler(ServiceItemCreateViewHandlder))
-		managent.POST("/service/:id/service_item/create", handler(ServiceItemCreatePostHanlder))
-		managent.GET("/service/:id/service_item/:seriveItemID", handler(ServiceItemEditViewHanlder))
-		managent.PUT("/service/:id/service_item/:seriveItemID", handler(ServiceItemEditPutHanlder))
+		managent.POST("/service/:id/service_item/create", handler(ServiceItemCreatePostHandler))
+		managent.GET("/service/:id/service_item/:seriveItemID", handler(ServiceItemEditViewHandler))
+		managent.PUT("/service/:id/service_item/:seriveItemID", handler(ServiceItemEditPutHandler))
 		managent.DELETE("/service/:id/service_item/:seriveItemID", handler(ServiceItemRemoveHandler))
 
 		managent.GET("/promotion", handler(PromotionListHandler))
@@ -183,6 +183,9 @@ func Routers() *echo.Echo {
 		managent.PUT("/package/:id/edit", handler(PackagePutHandler))
 		managent.DELETE("/package/:id", handler(PackageDeleteHandler))
 		managent.DELETE("/package/:id/delete_image", handler(PackageDeleteImageHandler))
+		managent.GET("/package/:id/package_service/create", handler(PackageServiceCreateHandler))
+		managent.POST("/package/:id/package_service/create", handler(PackageServiceCreatePostHandler))
+		managent.DELETE("/package/:id/package_service/:service_id", handler(PackageServiceDeleteHandler))
 
 		managent.GET("/place", handler(PlaceListHandler))
 		managent.POST("/place/create", handler(PlacePostHandler))

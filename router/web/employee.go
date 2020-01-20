@@ -269,8 +269,8 @@ func EmployeeDeleteImageHandler(c *Context) error {
 	if err := model.DB().Where("account_id = ?", a.GetAccountID()).Find(&employee, id).Error; err != nil {
 		return c.JSON(http.StatusNotFound, err)
 	}
-
-	if err := lib.DeleteFile(employee.ProvImage); err != nil {
+	ctx := context.Background()
+	if _, err := lib.RemoveFileGoolgeStorage(ctx, "triple-t", employee.ProvImage); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 

@@ -154,7 +154,7 @@ func PackageDeleteImageHandler(c *Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	ctx := context.Background()
-	if _, err := lib.RemoveFileGoolgeStorage(ctx, "triple-t", fmt.Sprintf("images/package/%s", packageModel.PacImage)); err != nil {
+	if _, err := lib.RemoveFileGoolgeStorage(ctx, "triple-t", packageModel.PacImage); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	packageModel.PacImage = ""
@@ -163,5 +163,62 @@ func PackageDeleteImageHandler(c *Context) error {
 	}
 	return c.JSON(http.StatusOK, echo.Map{
 		"detail": packageModel,
+	})
+}
+
+func PackageServiceCreateHandler(c *Context) error {
+	accID := auth.Default(c).GetAccountID()
+	var serviceItems []*model.ServiceItem
+	var packageModel model.Package
+	db := model.DB()
+	if err := db.Preload("Service").Where("account_id = ?", accID).Find(&serviceItems).Error; err != nil {
+		return c.Render(http.StatusNotFound, "404-page", echo.Map{})
+	}
+	return c.Render(http.StatusOK, "package-service-form", echo.Map{
+		"data":         packageModel,
+		"serviceItems": serviceItems,
+	})
+}
+func PackageServiceCreatePostHandler(c *Context) error {
+	serviceID := c.FormValue("service_id")
+	packageID := c.Param("id")
+	accID := auth.Default(c).GetAccountID()
+	var serviceItem model.ServiceItem
+	var packageModel model.Package
+	db := model.DB()
+	if err := db.Where("account_id = ?", accID).Find(&serviceItem, serviceID).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	if err := db.Where("account_id = ?", accID).Find(&packageModel, packageID).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	if err := db.Model(&packageModel).Association("Services").Append(&serviceItem).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	redirect := fmt.Sprintf("/admin/package/%d", packageModel.ID)
+
+	return c.JSON(http.StatusOK, echo.Map{
+		"data":     packageModel,
+		"redirect": redirect,
+	})
+}
+func PackageServiceDeleteHandler(c *Context) error {
+	id := c.Param("id")
+	accID := auth.Default(c).GetAccountID()
+	serviceID := c.Param("service_id")
+	var serviceItem model.ServiceItem
+	var packageModel model.Package
+	db := model.DB()
+	if err := db.Where("account_id = ?", accID).Find(&serviceItem, serviceID).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	if err := db.Where("account_id = ?", accID).Find(&packageModel, id).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	if err := db.Model(&packageModel).Association("Services").Delete(&serviceItem).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	return c.JSON(http.StatusOK, echo.Map{
+		"data": packageModel,
 	})
 }

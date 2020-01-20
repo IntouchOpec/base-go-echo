@@ -12,10 +12,10 @@ type Service struct {
 	SerName          string             `form:"name" json:"ser_name" gorm:"type:varchar(25)"`
 	SerDetail        string             `form:"detail" json:"ser_detail" gorm:"type:varchar(25)"`
 	SerPrice         float32            `form:"price" json:"ser_price"`
-	SerActive        bool               `form:"active" json:"ser_active"`
-	AccountID        uint               `form:"account_id" json:"account_id" gorm:"not null;"`
 	SerTime          string             `form:"time" json:"ser_time" gorm:"type:varchar(10)"`
+	SerActive        bool               `form:"active" json:"ser_active"`
 	SerImage         string             `form:"image" json:"ser_image" gorm:"type:varchar(255)"`
+	AccountID        uint               `form:"account_id" json:"account_id" gorm:"not null;"`
 	ServiceItems     []*ServiceItem     `json:"service_item"`
 	Places           []*Place           `json:"places" gorm:"many2many:place_service"`
 	Account          Account            `json:"account" gorm:"ForeignKey:AccountID"`

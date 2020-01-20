@@ -319,7 +319,8 @@ func PromotionDeleteImageHandler(c *Context) error {
 	if err := db.Where("account_id = ? ", accID).Find(&promotion, id).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	if err := lib.DeleteFile(promotion.PromImage); err != nil {
+	ctx := context.Background()
+	if _, err := lib.RemoveFileGoolgeStorage(ctx, "triple-t", promotion.PromImage); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
