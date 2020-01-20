@@ -21,7 +21,7 @@ var serviceMassage string = `
 	{ "type": "button", "style": "primary", "action": {
 		"type": "postback", "label": "จองเดี๋ยวนี้", "data": "action=booking_now" } },
 	{ "type": "button", "style": "primary", "action": 
-		{ "type": "datetimepicker", "label": "จองล่วงหน้า", "data": "action=choive_auto", "mode": "datetime", "initial": "%s", "max": "%s", "min": "%s" } },	
+		{ "type": "datetimepicker", "label": "จองล่วงหน้า", "data": "action=booking_appointment", "mode": "datetime", "initial": "%s", "max": "%s", "min": "%s" } },	
 	{ "type": "button", "style": "primary", "action": {
 		"type": "postback", "label": "ทำนัดเอง", "data": "action=choive_man" } }
 	]}

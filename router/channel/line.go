@@ -84,18 +84,21 @@ func HandleWebHookLineAPI(c echo.Context) error {
 				return c.JSON(http.StatusBadRequest, err)
 			}
 			con.PostbackAction = &postBackAction
+
 			switch postBackAction.Action {
-			case "booking_now":
-				fmt.Println("booking_now")
-				fmt.Println(postBackActionStr)
-				messageReply, err = ServiceListHandler(&con)
 			case "choive_man":
 				fmt.Println("choive_man")
 				messageReply, err = CalandarHandler(&con, postBackAction.DateStr)
-			case "choive_auto":
-				fmt.Println("choive_auto")
-				messageReply, err = ServiceListHandler(&con)
-				fmt.Println(err)
+			// case "choive_auto":
+			// 	fmt.Println("choive_auto")
+			// 	messageReply, err = ServiceNowListHandler(&con)
+			// 	fmt.Println(err)
+			case "booking_now":
+				fmt.Println("booking_now")
+				messageReply, err = ServiceNowListHandler(&con)
+			case "booking_appointment":
+				fmt.Println("booking_appointment")
+				messageReply, err = ServiceDateListHandler(&con, event.Postback.Params.Datetime)
 			}
 			_, err = bot.ReplyMessage(event.ReplyToken, messageReply).Do()
 			if err != nil {

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/IntouchOpec/base-go-echo/lib"
@@ -397,11 +398,9 @@ func ServiceItemRemoveHandler(c *Context) error {
 	var serviceItem model.ServiceItem
 	fmt.Println(id, seriveItemID)
 	if err := db.Where("account_id = ?", accID).Find(&service, id).Error; err != nil {
-		fmt.Println(err)
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	if err := db.Where("account_id = ?", accID).Find(&serviceItem, seriveItemID).Error; err != nil {
-		fmt.Println(err)
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	if err := db.Delete(&serviceItem).Error; err != nil {
@@ -410,4 +409,28 @@ func ServiceItemRemoveHandler(c *Context) error {
 	return c.JSON(http.StatusOK, echo.Map{
 		"data": serviceItem,
 	})
+}
+
+func ServiceItemIsActiveHandler(c *Context) error {
+	id := c.Param("id")
+	seriveItemID := c.Param("seriveItemID")
+	accID := auth.Default(c).GetAccountID()
+	db := model.DB()
+	var service model.Service
+	var serviceItem model.ServiceItem
+	isActive, err := strconv.ParseBool(c.FormValue("s_s_is_active"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	if err := db.Where("account_id = ?", accID).Find(&service, id).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	if err := db.Where("account_id = ?", accID).Find(&serviceItem, seriveItemID).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	serviceItem.SSIsActive = isActive
+	if err := db.Save(&serviceItem).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	return c.JSON(http.StatusOK, serviceItem)
 }

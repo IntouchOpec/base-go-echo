@@ -203,6 +203,7 @@ func PackageServiceCreateHandler(c *Context) error {
 	if err := db.Preload("ServiceItems").Where("account_id = ?", accID).Find(&packageModel, id).Error; err != nil {
 		return c.Render(http.StatusNotFound, "404-page", echo.Map{})
 	}
+	serviceItemIDs = append(serviceItemIDs, 0)
 	for _, ServiceItem := range packageModel.ServiceItems {
 		serviceItemIDs = append(serviceItemIDs, ServiceItem.ID)
 	}

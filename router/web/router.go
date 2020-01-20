@@ -128,6 +128,7 @@ func Routers() *echo.Echo {
 		managent.POST("/service/:id/service_item/create", handler(ServiceItemCreatePostHandler))
 		managent.GET("/service/:id/service_item/:seriveItemID", handler(ServiceItemEditViewHandler))
 		managent.PUT("/service/:id/service_item/:seriveItemID", handler(ServiceItemEditPutHandler))
+		managent.PATCH("/service/:id/service_item/:seriveItemID", handler(ServiceItemIsActiveHandler))
 		managent.DELETE("/service/:id/service_item/:seriveItemID", handler(ServiceItemRemoveHandler))
 
 		managent.GET("/promotion", handler(PromotionListHandler))

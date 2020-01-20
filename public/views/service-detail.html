@@ -50,6 +50,7 @@
                                             <th>Name</th>
                                             <th>Time</th>
                                             <th>Price</th>
+                                            <th>Active</th>
                                             <th></th>
                                         </thead>
                                         <tbody>
@@ -60,6 +61,9 @@
                                                <td>{{.SSName}}</td>
                                                <td>{{.SSTime.Format "15:04"}}</td>
                                                <td>{{.SSPrice}}</td>
+                                               <td>
+                                                    <input type="checkbox" value="{{ .ID }}" data-toggle="toggle" {{if .SSIsActive}}checked{{end}}>
+                                               </td>
                                                <td class="td-actions text-right">
                                                     <a href="/admin/service/{{$ID}}/service_item/{{.ID}}" >
                                                       <button type="button" rel="tooltip" class="btn btn-warning">
@@ -136,15 +140,38 @@
                     })
                 })
             })
-            
-            $("input[type='checkbox']").change(function() {
+            $("td input[type='checkbox']").each(function (){
+                $(this).change(function () {
+                    let serviceItemId = $(this).val()
+                    let id = $("#ID").val()
+                    let _csrf = $("#_csrf").val()
+                    let data = new URLSearchParams()
+        
+                    data.append("_csrf", _csrf)
+                    data.append("s_s_is_active", this.checked)
+                    fetch(`/admin/service/${id}/service_item/${serviceItemId}`, {
+                        body: data,
+                        method: "PATCH"
+                    }).then(res => {
+                        if (res.status !== 200) {
+                            throw ""
+                        }
+                        return res.json()
+                    }).then(json => {
+                        Swal.fire("success", "", "success")
+                    }).catch(err => {
+                        Swal.fire("fial", "", "warning")       
+                    })
+                })
+            })
+            $("h6 input[type='checkbox']").change(function() {
               let id = $(this).val()
   
               let _csrf = $("#_csrf").val()
               let data = new URLSearchParams()
   
               data.append("_csrf", _csrf)
-              data.append("plac_acive", this.checked)
+              data.append("ser_active", this.checked)
                       
               fetch(`/admin/place_chatchannel/${id}`, {
                   body: data,
