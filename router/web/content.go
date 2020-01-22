@@ -9,7 +9,7 @@ import (
 	"github.com/labstack/echo"
 )
 
-func GetContentHandler(c *Context) error {
+func GetContentHandler(c echo.Context) error {
 	contentID := c.QueryParam("contentID")
 	var content model.Content
 	db := model.DB()

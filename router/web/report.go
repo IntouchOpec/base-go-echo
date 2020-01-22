@@ -8,7 +8,7 @@ import (
 	"github.com/labstack/echo"
 )
 
-func GetReportViewsHandler(c *Context) error {
+func GetReportViewsHandler(c echo.Context) error {
 	var transaction model.Transaction
 	transactionID := c.QueryParam("transactionID")
 	chatChannelID := c.Param("ChatChannelID")
@@ -23,7 +23,7 @@ func GetReportViewsHandler(c *Context) error {
 	})
 }
 
-func CreateReportHandler(c *Context) error {
+func CreateReportHandler(c echo.Context) error {
 	transactionID := c.QueryParam("transactionID")
 	ChatChannelID := c.Param("ChatChannelID")
 	var transaction model.Transaction
