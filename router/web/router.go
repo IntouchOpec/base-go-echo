@@ -71,6 +71,7 @@ func Routers() *echo.Echo {
 
 	e.GET("/register/:lineID", LIFFRegisterHandler)
 	e.POST("/register/:lineID", LIIFRegisterSaveCustomer)
+	e.POST("/content", LIIFRegisterSaveCustomer)
 
 	e.Use(auth.New())
 	e.GET("/", handler(indexHandler))
@@ -209,7 +210,7 @@ func Routers() *echo.Echo {
 		managent.POST("/employee/create", handler(EmployeePostHandler))
 		managent.GET("/employee/:id", handler(EmployeeDetailHandler))
 		managent.GET("/employee/:id/edit", handler(EmployeeEditHandler))
-		managent.PUT("/employee/:id/edit", handler(EmployeeEditHandler))
+		managent.PUT("/employee/:id/edit", handler(EmployeePutHandler))
 		managent.DELETE("/employee/:id", handler(EmployeeDeleteHandler))
 		managent.DELETE("/employee/:id/delete_image", handler(EmployeeDeleteImageHandler))
 
@@ -236,6 +237,14 @@ func Routers() *echo.Echo {
 		managent.GET("/upload_file", handler(FileListHandler))
 		managent.POST("/upload_file", handler(FileCreateHandler))
 		managent.DELETE("/upload_file/:id", handler(FileRemoveHandler))
+
+		managent.GET("/content", handler(ContentListHandler))
+		managent.GET("/content/create", handler(ContentCreateHandler))
+		managent.POST("/content/create", handler(ContentPostHandler))
+		managent.GET("/content/:id", handler(ContentDetailHandler))
+		managent.GET("/content/:id/edit", handler(ContentEditHandler))
+		managent.PUT("/content/:id/edit", handler(ContentPutHandler))
+		managent.DELETE("/content/:id", handler(ContentDeleteHandler))
 	}
 
 	files := e.Group("/files")

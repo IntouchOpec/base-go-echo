@@ -1,0 +1,129 @@
+
+{{define "chat-channel-list"}}
+<!DOCTYPE html>
+<html lang="en">
+
+{{ template "header" .title }}
+
+<body class="">
+  <div class="wrapper ">
+   {{ template "sidebar" .base }}
+    <div class="main-panel">
+      {{ template "navbar" .title }}
+      <div class="content">
+         <div class="container-fluid">
+           <div class="row">
+             <div class="col-md-12">
+               <div class="card">
+                 <div class="card-header card-header-primary d-flex justify-content-between">
+                  <h4 class="card-title ">content list</h4>
+                  <a href="/admin/content/create">
+                    <button class="btn btn-info">
+                      <i class="material-icons">add</i>
+                      Create
+                    </button>
+                  </a>
+                 </div>
+                 <div class="card-body">
+                   <div class="table-responsive">
+                     <table class="table">
+                       <thead class=" text-primary">
+                          <th>Title</th>
+                          <th>Detail</th>
+                          <th></th>
+                       </thead>
+                       <tbody>
+                        {{if not .list}}<tr><td colspan="8" class="text-center">No content</td></tr> {{end}}
+                         {{ with .list }}
+                           {{ range . }}
+                             <tr name="row_{{ .ID }}">
+                              <td>{{ .ConTitle }}</td>
+                              <td>{{ .ConDetail }}</td>
+                              <td>{{ .CreatedAt.Format "Mon Jan 2 2006" }}</td>
+                              <td class="td-actions text-right">
+                                <a href="/admin/content/{{ .ID }}">
+                                  <button type="button" rel="tooltip" class="btn btn-success">
+                                    <i class="material-icons">settings_applications</i>
+                                  </button>
+                                </a>
+                                <a href="/admin/content/{{ .ID }}/edit">
+                                  <button type="button" rel="tooltip" class="btn btn-warning">
+                                      <i class="material-icons">edit</i>
+                                  </button>
+                                </a>
+                                  <button value="{{ .ID }}" type="button" name="remove" rel="tooltip" class="btn btn-danger">
+                                      <i class="material-icons">close</i>
+                                  </button>
+                              </td>
+                             </tr>
+                           {{ end }} 
+                         {{ end }}
+                       </tbody>
+                     </table>
+                     <div class="row p-0 m-0">
+                      <div class="ml-auto" name="panination">
+                        {{ template "pagination" .pagination }}
+                      </div>
+                     </div>
+                   </div>
+                 </div>
+               </div>
+             </div>
+           </div>
+         </div>
+       </div>
+      {{ template "footer" }}
+    </div>
+    <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden">
+  </div>
+  {{ template "script" }}
+  <script>
+    (function ($) {
+      $("div[name='panination'] nav ul.pagination li").each(function () {
+        $(this).click(() => {
+          window.location.href = `/admin/content?page=${$(this).val()- 1}&limit=10`
+        })
+      })
+
+      $("button[name='remove']").click(function () {
+        let _csrf = $("#_csrf").val()
+
+        let id = $(this).val()
+        let data = new FormData()
+        data.append("_csrf", _csrf)
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+          }).then(result => {
+          if (result.value) {
+            fetch(`/admin/content/${id}`, {
+              method: "DELETE",
+              body: data
+            }).then(res => {
+              if (res.status === 200) {
+              return res.json()
+              }
+            }).then(json => {
+              Swal.fire("success", "", "success").then(result => {
+                $(`tr[name='row_${id}']`).remove()
+              })
+            }).catch(err => {
+              Swal.fire("fial", "", "warning")
+            })
+          }
+        })
+        return 
+      })
+    })(jQuery)
+  </script>
+</body>
+
+</html>
+
+{{end}}

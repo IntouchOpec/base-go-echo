@@ -65,23 +65,6 @@ func EmployeeCreateHandler(c *Context) error {
 	})
 }
 
-func EmployeePUTHandler(c *Context) error {
-	employee := model.Employee{}
-
-	if err := c.Bind(&employee); err != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
-
-	if err := employee.UpdateEmployee(); err != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
-
-	return c.JSON(http.StatusOK, echo.Map{
-		"detail":   employee,
-		"redirect": fmt.Sprintf("/admin/employee/%d", employee.ID),
-	})
-}
-
 func EmployeePostHandler(c *Context) error {
 	employee := model.Employee{}
 	a := auth.Default(c)

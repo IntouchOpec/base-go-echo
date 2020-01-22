@@ -1,0 +1,148 @@
+
+{{define "content-form"}}
+<!DOCTYPE html>
+<html lang="en">
+
+{{ template "header" .title }}
+
+<body class="">
+    <div class="wrapper ">
+    {{ template "sidebar" .base }}
+        <div class="main-panel">
+            {{ template "navbar" .title }}
+            <div class="content">
+                <div class="container-fluid">
+                    <div class="row">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header card-header-primary">
+                                        <h4 class="card-title">{{.mode}} content</h4>
+                                    </div>
+                                    <div class="card-body">
+                                       <form name="create-content" method="{{.method}}" >
+                                            <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden" >
+                                            <div class="row">
+                                               
+                                            </div>
+                                            <input type="submit" rel="tooltip" value="Submit" class="btn btn-success">
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {{ template "footer" }}
+            </div>
+        </div>
+    </div>
+  {{ template "script" }}
+  <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+  <script>
+    (function ($) {
+
+        const toBase64 = file => new Promise((resolve, reject) => {
+            const reader = new FileReader()
+            reader.readAsDataURL(file)
+            reader.onload = () => resolve(reader.result)
+            reader.onerror = error => reject(error)
+        })
+        
+        const onSubmit = (data) => {
+            let method = $("form[name='create-content']").attr("method")
+            data = data.join("&")
+            fetch(window.location.href, {
+                method, 
+                headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                body: data
+            })
+            .then(res => {
+                if (res.status !== 201){  
+                    throw ""
+                }
+                return res.json()
+            })
+            .then(json => {
+                Swal.fire("success", "", "success").then(result => {
+                    window.location.href = json.redirect
+                })
+            })
+            .catch(err => Swal.fire("fial", "", "warning"))
+        }
+
+        $("form[name='create-content']").validate({
+            rules: {
+                name: {
+                    required: true
+                },
+                line_id: {
+                    required: true
+                },
+                detail: {
+                    required: true
+                },
+                Image: {
+                    required: true
+                },
+            },
+            messages: {
+                name:  {
+                    required: "Please enter a valid name"
+                },
+                line_id:  {
+                    required: "Please enter a valid line_id"
+                },
+                detail:  {
+                    required: "Please enter a valid detail"
+                },
+                Image:  {
+                    required: "Please enter a valid Image"
+                },
+            },
+            submitHandler: function(form) {
+                let _csrf = $("#_csrf").val()
+                let name = $("#name").val()
+                let line_id = $("#line_id").val()
+                let detail = $("#detail").val()
+                let Image =  $("#Image")
+
+
+                let encodedKey = encodeURIComponent("_csrf");
+                let encodedValue = encodeURIComponent(_csrf);
+
+                let encodenameKey = encodeURIComponent("prov_name")
+                let nameEncodeCalue = encodeURIComponent(name)
+                let encodeline_idKey = encodeURIComponent("prov_line_id")
+                let line_idEncodeCalue = encodeURIComponent(line_id)
+                let encodedetailKey = encodeURIComponent("prov_detail")
+                let detailEncodeCalue = encodeURIComponent(detail)
+                let data = []
+                
+                data.push(encodedKey + "=" + encodedValue)
+                data.push(encodenameKey + "=" + nameEncodeCalue)
+                data.push(encodeline_idKey + "=" + line_idEncodeCalue)
+                data.push(encodedetailKey + "=" + detailEncodeCalue)
+                let imageEncodedValue = ""
+
+                if (Image[0].files.length !== 0) {    
+                    toBase64(Image[0].files[0]).then(base64Image => {
+                        imageEncodedValue = encodeURIComponent(base64Image)
+                        let imageEncodedKey = encodeURIComponent("file") 
+                        data.push(imageEncodedKey + "=" + imageEncodedValue) 
+                        onSubmit(data)
+                    })
+                } else {
+                    imageEncodedValue = $("#ProvImage").val()
+                    let imageEncodedKey = encodeURIComponent("prov_image") 
+                    data.push(imageEncodedKey + "=" + imageEncodedValue) 
+                    onSubmit(data)
+                }
+            }
+        })
+    })(jQuery)
+  </script>
+</body>
+
+</html>
+
+{{end}}

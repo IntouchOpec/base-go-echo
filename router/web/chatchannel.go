@@ -333,17 +333,29 @@ func ChatChannelCreatePostHandler(c *Context) error {
 			return c.NoContent(http.StatusBadRequest)
 		}
 		URLRegister := fmt.Sprintf("https://web.%s/register/%s", Conf.Server.Domain, chatChannel.LineID)
-		view := linebot.View{Type: "full", URL: URLRegister}
+		URLContent := fmt.Sprintf("https://web.%s/conten", Conf.Server.Domain)
+		URLReport := fmt.Sprintf("https://web.%s/report", Conf.Server.Domain)
+		viewURLRegister := linebot.View{Type: "full", URL: URLRegister}
+		viewURLContent := linebot.View{Type: "full", URL: URLContent}
+		viewURLReport := linebot.View{Type: "full", URL: URLReport}
 		var status string = "success"
-		var LIFFID string = ""
-		res, err := bot.AddLIFF(view).Do()
+		var LIFFIDRegister string = ""
+		var LIFFIDContent string = ""
+		var LIFFIDReport string = ""
+		res, err := bot.AddLIFF(viewURLRegister).Do()
 		if err != nil {
 			status = "error"
 		} else {
-			LIFFID = res.LIFFID
+			LIFFIDRegister = res.LIFFID
+			res, err = bot.AddLIFF(viewURLContent).Do()
+			LIFFIDContent = res.LIFFID
+			res, err = bot.AddLIFF(viewURLReport).Do()
+			LIFFIDReport = res.LIFFID
 		}
 		if err := model.DB().Model(&chatChannelModel).Association("Settings").Append(
-			&model.Setting{Detail: "", Name: "LIFFregister", Value: LIFFID},
+			&model.Setting{Detail: "", Name: "LIFFregister", Value: LIFFIDRegister},
+			&model.Setting{Detail: "", Name: "LIFFIDContent", Value: LIFFIDContent},
+			&model.Setting{Detail: "", Name: "LIFFIDReport", Value: LIFFIDReport},
 			&model.Setting{Detail: "", Name: "statusLIFFregister", Value: status},
 			&model.Setting{Detail: "", Name: "statusAccessToken", Value: status},
 			&model.Setting{Detail: "", Name: "dateStatusToken", Value: time.Now().Format("Mon Jan 2 2006")},

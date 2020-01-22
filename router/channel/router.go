@@ -5,7 +5,6 @@ import (
 
 	. "github.com/IntouchOpec/base-go-echo/conf"
 	"github.com/IntouchOpec/base-go-echo/module/cache"
-	"github.com/IntouchOpec/base-go-echo/router/web"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -47,8 +46,9 @@ func Routers() *echo.Echo {
 
 	e.GET("/", indexHandler)
 
-	e.GET("/register/:lineID", web.LIFFRegisterHandler)
-	e.POST("/register/:lineID", web.LIIFRegisterSaveCustomer)
+	// e.GET("/register/:lineID", web.LIFFRegisterHandler)
+	// e.POST("/register/:lineID", web.LIIFRegisterSaveCustomer)
+	e.POST("/scb", HandlerSBCWebHook)
 	e.POST("/callback/:account/:ChannelID", HandleWebHookLineAPI)
 	e.GET("/webhook-facebook", HandleWebHookFacebookAPI)
 	e.POST("/webhook-facebook", HandleWebHookFacebookAPI)

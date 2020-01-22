@@ -86,6 +86,14 @@ func HandleWebHookLineAPI(c echo.Context) error {
 			con.PostbackAction = &postBackAction
 
 			switch postBackAction.Action {
+			case "location":
+				messageReply, err = LocationHandler(&con)
+			case "promotiom":
+				messageReply, err = PromotionHandler(&con)
+			case "my_voucher":
+				messageReply, err = VoucherListHandler(&con)
+			case "comment":
+
 			case "choive_man":
 				fmt.Println("choive_man")
 				messageReply, err = CalandarHandler(&con, postBackAction.DateStr)
@@ -97,6 +105,9 @@ func HandleWebHookLineAPI(c echo.Context) error {
 				fmt.Println("booking_now")
 				messageReply, err = ServiceNowListHandler(&con)
 			case "booking_appointment":
+				fmt.Println("booking_appointment")
+				messageReply, err = ServiceDateListHandler(&con, event.Postback.Params.Datetime)
+			case "booking":
 				fmt.Println("booking_appointment")
 				messageReply, err = ServiceDateListHandler(&con, event.Postback.Params.Datetime)
 			}
@@ -128,15 +139,8 @@ func HandleWebHookLineAPI(c echo.Context) error {
 					messageReply, err = ServiceListLineHandler(&con)
 				case "timeslot":
 					messageReply, err = ThankyouTemplate(&con)
-				case "promotio":
-					messageReply, err = PromotionHandler(&con)
-				case "location":
-					messageReply, err = LocationHandler(&con)
 				case "check":
 					messageReply, err = CheckStatusOpen(&con)
-				case "voucher":
-					messageReply, err = VoucherListHandler(&con)
-				case "comment":
 
 				default:
 					// if err := db.Find(&chatAnswer).Error; err != nil {
