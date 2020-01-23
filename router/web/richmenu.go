@@ -137,25 +137,28 @@ func RichMenuImageHandler(c *Context) error {
 	chatChannelID := c.QueryParam("chat_channel_id")
 	file := c.FormValue("file")
 
-	fileURL, _, err := lib.UploadteImage(file)
+	_, fileURL, err := lib.UploadteImage(file)
 	ctx := context.Background()
-	image, err := lib.UploadGoolgeStorage(ctx, file, "images/RichMenu/")
+	image, err := lib.UploadGoolgeStorage(ctx, file, "images/richMenu/")
 
 	if err != nil {
+		fmt.Println("err1", err)
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	db.Where("account_id = ?", a.GetAccountID()).Find(&chatChannel, chatChannelID)
 
 	bot, err := lib.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
 	if err != nil {
+		fmt.Println("err2", err)
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	_, err = bot.UploadRichMenuImage(id, image).Do()
+	_, err = bot.UploadRichMenuImage(id, fileURL).Do()
 	if err != nil {
+		fmt.Println("err3", err)
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	setting := model.Setting{Name: id, Value: fileURL}
+	setting := model.Setting{Name: id, Value: image}
 	db.Create(&setting)
 	return c.JSON(http.StatusCreated, setting)
 }

@@ -28,6 +28,14 @@
                                                         <input name="tilte" id="Input" value="{{.detail.ConTitle}}" type="text" class="form-control" >
                                                     </div>
                                                 </div>
+                                                <div class="col-md-12">
+                                                    <textarea name="editor1" id="editor1" rows="10" cols="80">
+                                                        {{.detail.ConDetail}}
+                                                    </textarea>
+                                                    <script>
+                                                        CKEDITOR.replace( 'editor1' );
+                                                    </script>
+                                                </div>
                                             </div>
                                             <div id="trumbowyg-demo"></div>
                                             <input type="submit" rel="tooltip" value="Submit" class="btn btn-success">
