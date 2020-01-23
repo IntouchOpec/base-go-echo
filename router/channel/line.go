@@ -87,16 +87,16 @@ func HandleWebHookLineAPI(c echo.Context) error {
 				return c.JSON(http.StatusBadRequest, err)
 			}
 			con.PostbackAction = &postBackAction
-
+			fmt.Println(postBackAction.Action)
 			switch postBackAction.Action {
 			case "location":
 				messageReply, err = LocationHandler(&con)
 			case "promotiom":
 				messageReply, err = PromotionHandler(&con)
-			case "my_voucher":
+			case "voucher":
 				messageReply, err = VoucherListHandler(&con)
-			case "Service ":
-				messageReply, err = SaveServiceHandler(&con)
+			case "service":
+				messageReply, err = ChooseService(&con)
 			case "report":
 
 			case "content":
