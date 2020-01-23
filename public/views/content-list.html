@@ -1,5 +1,5 @@
 
-{{define "chat-channel-list"}}
+{{define "content-list"}}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -33,7 +33,7 @@
                           <th></th>
                        </thead>
                        <tbody>
-                        {{if not .list}}<tr><td colspan="8" class="text-center">No content</td></tr> {{end}}
+                        {{if not .list}}<tr><td colspan="4" class="text-center">No content</td></tr> {{end}}
                          {{ with .list }}
                            {{ range . }}
                              <tr name="row_{{ .ID }}">

@@ -14,8 +14,12 @@ import (
 )
 
 type PostbackAction struct {
-	Action  string `json:"action"`
-	DateStr string `json:"date"`
+	Action    string `json:"action"`
+	DateStr   string `json:"date"`
+	ServiceID string `json:"service_id"`
+	Start     string `json:"start"`
+	End       string `json:"end"`
+	Day       string `json:"day"`
 }
 
 // var dp lib.DialogFlowProcessor
@@ -61,7 +65,6 @@ func HandleWebHookLineAPI(c echo.Context) error {
 	}
 
 	for _, event := range events {
-		var keyWord string
 		con.Event = event.Source
 		db.Where("cus_line_id = ? and chat_channel_id = ?", event.Source.UserID, chatChannel.ID).Find(&customer)
 		con.Customer = customer
@@ -92,15 +95,20 @@ func HandleWebHookLineAPI(c echo.Context) error {
 				messageReply, err = PromotionHandler(&con)
 			case "my_voucher":
 				messageReply, err = VoucherListHandler(&con)
-			case "comment":
+			case "Service ":
+				messageReply, err = SaveServiceHandler(&con)
+			case "report":
+
+			case "content":
 
 			case "choive_man":
 				fmt.Println("choive_man")
 				messageReply, err = CalandarHandler(&con, postBackAction.DateStr)
-			// case "choive_auto":
-			// 	fmt.Println("choive_auto")
-			// 	messageReply, err = ServiceNowListHandler(&con)
-			// 	fmt.Println(err)
+			case "calendar":
+				messageReply, err = CalandarHandler(&con, postBackAction.DateStr)
+			case "choose_timeslot":
+			case "booking_timeslot":
+
 			case "booking_now":
 				fmt.Println("booking_now")
 				messageReply, err = ServiceNowListHandler(&con)
@@ -109,7 +117,8 @@ func HandleWebHookLineAPI(c echo.Context) error {
 				messageReply, err = ServiceDateListHandler(&con, event.Postback.Params.Datetime)
 			case "booking":
 				fmt.Println("booking_appointment")
-				messageReply, err = ServiceDateListHandler(&con, event.Postback.Params.Datetime)
+				fmt.Println(postBackAction)
+				// messageReply, err = ServiceDateListHandler(&con, event.Postback.Params.Datetime)
 			}
 			_, err = bot.ReplyMessage(event.ReplyToken, messageReply).Do()
 			if err != nil {
@@ -118,37 +127,14 @@ func HandleWebHookLineAPI(c echo.Context) error {
 		case linebot.EventTypeMessage:
 			switch message := event.Message.(type) {
 			case *linebot.TextMessage:
-				messageText := message.Text
-				keyWord = message.Text
-				con.Massage = message
-				if len(messageText) >= 8 {
-					keyWord = messageText[0:8]
+				if err := db.Where("account_id = ? and chat_input = ?", account.ID, message.Text).Find(&chatAnswer).Error; err != nil {
+					db.Where("account_id = ? and chat_input = 'error'", account.ID).Find(&chatAnswer)
 				}
-				switch keyWord {
-				case "service", "service ":
-					if len(messageText) > 8 {
-						messageReply, err = ServiceList(&con)
-					} else {
-						messageReply, err = ChooseService(&con)
-					}
-				case "calendar", "booking":
-					// messageReply, err = CalandarHandler(&con)
-				case "Service ":
-					messageReply, err = SaveServiceHandler(&con)
-				case "booking ":
-					messageReply, err = ServiceListLineHandler(&con)
-				case "timeslot":
-					messageReply, err = ThankyouTemplate(&con)
-				case "check":
-					messageReply, err = CheckStatusOpen(&con)
-
-				default:
-					// if err := db.Find(&chatAnswer).Error; err != nil {
-					// 	db.Find(&chatAnswer)
-					// }
-					// messageReply = linebot.NewTextMessage(chatAnswer.AnsReply)
-					// eventLog.EvenType = string(event.Type)
+				messageReply, err := bot.ReplyLineMessage(chatAnswer)
+				if err != nil {
+					messageReply = linebot.NewTextMessage("error")
 				}
+				_, err = bot.ReplyMessage(event.ReplyToken, messageReply).Do()
 			case *linebot.ImageMessage:
 			case *linebot.VideoMessage:
 			case *linebot.AudioMessage:

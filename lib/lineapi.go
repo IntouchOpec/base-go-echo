@@ -83,45 +83,45 @@ func InsightFollowers(channelAccsssToken string) (*ResponseInsightFollowrs, erro
 }
 
 // ReplyLineMessage send message type other.
-func (client *ClientLine) ReplyLineMessage(chatAws model.ChatAnswer, replyToken string) {
-	// chatAws.
-	// message := ""
+func (client *ClientLine) ReplyLineMessage(chatAws model.ChatAnswer) (linebot.SendingMessage, error) {
+	var message linebot.SendingMessage
 	switch replyType := chatAws.AnsReplyType; replyType {
 	case linebot.MessageTypeText:
-		textMessage := linebot.NewTextMessage("My name is John Wick")
-		client.ReplyMessage(replyToken, textMessage).Do()
+		message = linebot.NewTextMessage(chatAws.AnsReply)
 	case linebot.MessageTypeImage:
-		// if actions == nil {
-		// 	linebot.NewImagemapMessage(lineURL, textAction, linebot.ImagemapBaseSize{Width: Width, Height: Height})
-		// }
-		// linebot.NewImagemapMessage(lineURL, textAction, linebot.ImagemapBaseSize{Width: Width, Height: Height}, *actions...)
+		message = linebot.NewTextMessage(chatAws.AnsReply)
 	case linebot.MessageTypeVideo:
-		// message := FlexMessage(chatAws.Source)
+		videoMessage := linebot.VideoMessage{}
+		if err := json.Unmarshal([]byte(chatAws.AnsSource), videoMessage); err != nil {
+			return nil, err
+		}
+		message = &videoMessage
 	case linebot.MessageTypeAudio:
-		// message := FlexMessage(chatAws.Source)
+		audieoMessage := linebot.AudioMessage{}
+		if err := json.Unmarshal([]byte(chatAws.AnsSource), audieoMessage); err != nil {
+			return nil, err
+		}
+		message = &audieoMessage
 	case linebot.MessageTypeFile:
-		// message := FlexMessage(chatAws.Source)
 	case linebot.MessageTypeLocation:
-		// message := FlexMessage(chatAws.Source)
+		locationMessage := linebot.LocationMessage{}
+		if err := json.Unmarshal([]byte(chatAws.AnsSource), locationMessage); err != nil {
+			return nil, err
+		}
+		message = &locationMessage
 	case linebot.MessageTypeSticker:
-		// message := FlexMessage(chatAws.Source)
 	case linebot.MessageTypeTemplate:
-		// message := FlexMessage(chatAws.Source)
 	case linebot.MessageTypeImagemap:
-		// message := FlexMessage(chatAws.Source)
 	case linebot.MessageTypeFlex:
 		flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(chatAws.AnsSource))
 		if err != nil {
-			log.Println(err)
+			return nil, err
 		}
-		flexMessage := linebot.NewFlexMessage("FlexWithJSON", flexContainer)
-		client.ReplyMessage(replyToken, flexMessage).Do()
+		message = linebot.NewFlexMessage(chatAws.AnsInput, flexContainer)
 	default:
-		// message := ""
+
 	}
-
-	// client.ReplyMessage(replyToken, linebot.NewTextMessage(message)).Do()
-
+	return message, nil
 }
 
 // FlexMessage

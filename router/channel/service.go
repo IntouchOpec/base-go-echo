@@ -31,7 +31,7 @@ func ServiceNowListHandler(c *Context) (linebot.SendingMessage, error) {
 		duration = time.Duration(packageModel.PacTime.Hour() * int(time.Hour))
 		timeEnd = timeStart.Add(duration)
 		duration = time.Duration(packageModel.PacTime.Minute() * int(time.Minute))
-		timeEnd = timeStart.Add(duration)
+		timeEnd = timeEnd.Add(duration)
 		timeStartStr = timeStart.Format("15:04")
 		timeEndStr = timeEnd.Format("15:04")
 		flexContainerStr += fmt.Sprintf(cardPackageTemplate, packageModel.PacName, fmt.Sprintf("https://web.%s/files?path=%s", Conf.Server.Domain, packageModel.PacImage), timeStartStr, timeEndStr, timeStartStr, timeEndStr) + ","
@@ -66,18 +66,16 @@ func ServiceDateListHandler(c *Context, date string) (linebot.SendingMessage, er
 	var flexContainerStr string
 	var packageModels []*model.Package
 	var services []*model.Service
-	now, err := time.Parse("2006-01-02T15:04", date)
+	timeStart, err := time.Parse("2006-01-02T15:04", date)
 	if err != nil {
 		fmt.Println("err", err)
 		return nil, err
 	}
-	var timeStart time.Time
 	var timeEnd time.Time
 	var timeStartStr string
 	var timeEndStr string
 	var duration time.Duration
 	var button string
-	timeStart = now.Add(30 * time.Minute)
 	db := c.DB
 	if err := db.Limit(9).Order("pac_order").Where("account_id = ? and pac_is_active = ?", c.Account.ID, true).Find(&packageModels).Error; err != nil {
 		return nil, err
@@ -87,10 +85,11 @@ func ServiceDateListHandler(c *Context, date string) (linebot.SendingMessage, er
 		duration = time.Duration(packageModel.PacTime.Hour() * int(time.Hour))
 		timeEnd = timeStart.Add(duration)
 		duration = time.Duration(packageModel.PacTime.Minute() * int(time.Minute))
-		timeEnd = timeStart.Add(duration)
+		timeEnd = timeEnd.Add(duration)
 		timeStartStr = timeStart.Format("15:04")
 		timeEndStr = timeEnd.Format("15:04")
-		flexContainerStr += fmt.Sprintf(cardPackageTemplate, packageModel.PacName, fmt.Sprintf("https://web.%s/files?path=%s", Conf.Server.Domain, packageModel.PacImage), timeStartStr, timeEndStr, timeStartStr, timeEndStr) + ","
+		flexContainerStr += fmt.Sprintf(cardPackageTemplate,
+			packageModel.PacName, fmt.Sprintf("https://web.%s/files?path=%s", Conf.Server.Domain, packageModel.PacImage), timeStartStr, timeEndStr, timeStartStr, timeEndStr, packageModel.ID) + ","
 	}
 	if len(packageModels) < 9 {
 		if err := db.Preload("ServiceItems", "ss_is_active = ?", true).Where("account_id = ?", c.Account.ID).Find(&services).Error; err != nil {
@@ -103,7 +102,13 @@ func ServiceDateListHandler(c *Context, date string) (linebot.SendingMessage, er
 				continue
 			}
 			for _, item := range service.ServiceItems {
-				button += fmt.Sprintf(buttonTemplate, item.SSName, fmt.Sprintf("action=booking&service_item_id=%d", item.ID))
+				duration = time.Duration(item.SSTime.Hour() * int(time.Hour))
+				timeEnd = timeStart.Add(duration)
+				duration = time.Duration(item.SSTime.Minute() * int(time.Minute))
+				timeEnd = timeEnd.Add(duration)
+				timeStartStr = timeStart.Format("15:04")
+				timeEndStr = timeEnd.Format("15:04")
+				button += fmt.Sprintf(buttonTemplate, item.SSName, fmt.Sprintf("action=booking&service_item_id=%d&start=%s&end=%s", item.ID, timeStartStr, timeEndStr))
 			}
 			flexContainerStr += fmt.Sprintf(cardServiceTemplate, service.SerName, fmt.Sprintf("https://web.%s/files?path=%s", Conf.Server.Domain, service.SerImage), service.SerDetail, button[:len(button)-1]) + ","
 		}
@@ -234,7 +239,7 @@ var cardPackageTemplate string = `
 		  "action": {
 			"type": "postback",
 			"label": "จอง",
-			"data": "action=booking&start=%s&end=%s"
+			"data": "action=booking&start=%s&end=%s&package_id=%s"
 		  }
 		}
 	  ]

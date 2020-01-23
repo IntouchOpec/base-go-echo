@@ -319,13 +319,22 @@ func ServiceListLineHandler(c *Context) (linebot.SendingMessage, error) {
 	return linebot.NewFlexMessage("ตาราง", flexContainer), err
 }
 
+func BookingServiceItemHandler(c *Context) (linebot.SendingMessage, error) {
+	serviceTamplate := fmt.Sprintf(`{ "type": "carousel", "contents": [%s, %s]}`, "serviceList", "nextPage")
+	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(serviceTamplate))
+	if err != nil {
+		return nil, err
+	}
+	return linebot.NewFlexMessage("ตาราง", flexContainer), err
+}
+
 type placeSum struct {
 	Amount  int
 	PlaceID uint
 }
 
 // ThankyouTemplate
-func ThankyouTemplate(c *Context) (linebot.SendingMessage, error) {
+func BookingTimeSlotTemplate(c *Context) (linebot.SendingMessage, error) {
 	var timeSlot model.TimeSlot
 	var tran model.Transaction
 	var book model.Booking

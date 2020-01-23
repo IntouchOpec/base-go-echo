@@ -90,6 +90,12 @@
                     <i class="material-icons">insert_drive_file</i>
                     <p>package</p>
                 </a>
+            </li>
+            <li class="nav-item {{ if (eq .title "content") }}active{{ end }}">
+                <a class="nav-link" href="/admin/content">
+                    <i class="material-icons">import_contacts</i>
+                    <p>content</p>
+                </a>
             </li> 
             <li class="nav-item {{ if (eq .title "upload_file") }}active{{ end }}">
                 <a class="nav-link" href="/admin/upload_file">
