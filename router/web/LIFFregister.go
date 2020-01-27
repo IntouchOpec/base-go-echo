@@ -20,7 +20,9 @@ func LIFFRegisterHandler(c echo.Context) error {
 	chatChannel := model.ChatChannel{}
 	customerTypes := []model.CustomerType{}
 	db := model.DB()
-	if err := db.Where("cha_line_id = ?", lineID).Find(&chatChannel).Error; err != nil {
+	if err := db.Preload("Settings", func(db *gorm.DB) *gorm.DB {
+		return db.Where("name = ?", "LIFFregister")
+	}).Where("cha_line_id = ?", lineID).Find(&chatChannel).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
@@ -35,6 +37,7 @@ func LIFFRegisterHandler(c echo.Context) error {
 	return c.Render(http.StatusOK, "register", echo.Map{
 		"web":           APIRegister,
 		"customerTypes": customerTypes,
+		"LIFFregister":  chatChannel.Settings[0].Value,
 	})
 }
 

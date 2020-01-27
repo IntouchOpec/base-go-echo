@@ -75,12 +75,14 @@
 	<script src="/vendor/daterangepicker/moment.min.js"></script>
 	<script src="/vendor/daterangepicker/daterangepicker.js"></script>
 	<script src="/vendor/countdowntime/countdowntime.js"></script>
-	<script src="https://d.line-scdn.net/liff/1.0/sdk.js"></script>
     <script src="/js/plugins/sweetalert2.js"></script>
-
+	<script src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
+		
 	<script>
 	(function ($) {
 		"use strict";
+		liff.init({ liffId: "{{.LIFFregister}}" }, () => {
+		}, err => console.error(err.code, error.message));
 		$(".input100").each(function(){
 			$(this).on("blur", function(){
 				if($(this).val().trim() != "") {
@@ -91,15 +93,18 @@
 				}
 			})    
 		})
-		var input = $(".validate-input .input100");
+		let input = $(".validate-input .input100");
 
 		$(".validate-form").on("submit",function(){
-			var check = true;
-			var email = document.getElementsByName("email");
-			var phone = document.getElementsByName("phone");
-			var type = document.getElementsByName("type");
-			var fullName = document.getElementsByName("fullName");
-			for(var i=0; i<input.length; i++) {
+			let check = true;
+			let email = document.getElementsByName("email");
+			let phone = document.getElementsByName("phone");
+			let type = document.getElementsByName("type");
+			let os = liff.getOS()
+			let language = liff.getLanguage()
+			let version = liff.getVersion()
+			let fullName = document.getElementsByName("fullName");
+			for(let i=0; i<input.length; i++) {
 				if(validate(input[i]) == false){
 					showValidate(input[i]);
 					check=false;
@@ -120,6 +125,9 @@
 					data.append("displayName", profile.displayName)
 					data.append("pictureUrl", profile.pictureUrl)
 					data.append("accessToken", accessToken)
+					data.append("os", os)
+					data.append("language", language)
+					data.append("version", version)
 					fetch(window.location.href, {
 						method: "POST",
 						body: data
@@ -165,17 +173,17 @@
 		}
 
 		function showValidate(input) {
-			var thisAlert = $(input).parent();
+			let thisAlert = $(input).parent();
 
 			$(thisAlert).addClass("alert-validate");
 		}
 
 		function hideValidate(input) {
-			var thisAlert = $(input).parent();
+			let thisAlert = $(input).parent();
 
 			$(thisAlert).removeClass("alert-validate");
 		}
-		var showPass = 0;
+		let showPass = 0;
 		$(".btn-show-pass").on("click", function(){
 			
 			if(showPass == 0) {
