@@ -79,8 +79,11 @@ func HandlerOmiseWebHook(c echo.Context) error {
 func (c *omiseContext) dataInstanceFromType(typ string, body []byte) error {
 	switch typ {
 	case "charge":
-		charge := eventUnmarshal(body, &omise.Charge{})
-		fmt.Println(charge)
+		charge := &omise.Charge{}
+		if err := json.Unmarshal(body, charge); err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println(string(body))
 	case "customer":
 		customer := eventUnmarshal(body, &omise.Customer{})
 		fmt.Println("contomer", customer)

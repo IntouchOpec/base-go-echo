@@ -41,7 +41,7 @@ var serviceListTemplate string = `{"type": "bubble", "hero": { "type": "image", 
 }}`
 var nextPageTemplate string = `{ "type": "bubble", "body": { "type": "box", "layout": "vertical", "spacing": "sm", "contents": [
 	{ "type": "button", "flex": 1, "gravity": "center", "action": { "type": "uri", "label": "See more", "uri": "line://app/1615136604-5wld9ZdL" } }] }}`
-var thankyouTemplate string = `{
+var checkoutTemplate string = `{
 	"type": "bubble",
 	"hero": { "type": "image", "url": "%s", "size": "full", "aspectRatio": "20:13", "aspectMode": "cover" },
 	"body": { "type": "box", "layout": "vertical", "contents": [
@@ -59,7 +59,7 @@ var thankyouTemplate string = `{
 		  ]
 	},
 	"footer": { "type": "box", "layout": "vertical", "spacing": "sm", "contents": [
-		{ "type": "button", "style": "link", "height": "sm", "action": { "type": "uri", "label": "ชำระเงิน", "uri": "line://app/1615136604-5wld9ZdL" }
+		{ "type": "button", "style": "link", "height": "sm", "action": { "type": "uri", "label": "ชำระเงิน", "uri": "line://app/1615136604-5wld9ZdL?account_name=%s&doc_code_transaction=%s" }
 		},
 		{ "type": "spacer", "size": "sm" }
 	],
@@ -333,7 +333,7 @@ type placeSum struct {
 	PlaceID uint
 }
 
-// ThankyouTemplate
+// checkoutTemplate
 func BookingTimeSlotHandler(c *Context) (linebot.SendingMessage, error) {
 	var timeSlot model.TimeSlot
 	var tran model.Transaction
@@ -456,7 +456,7 @@ func BookingTimeSlotHandler(c *Context) (linebot.SendingMessage, error) {
 		return nil, err
 	}
 	tx.Commit()
-	thankyou := fmt.Sprintf(thankyouTemplate, c.ChatChannel.ChaImage, c.ChatChannel.ChaAddress, timeSlot.TimeStart, timeSlot.TimeEnd)
+	thankyou := fmt.Sprintf(checkoutTemplate, c.ChatChannel.ChaImage, c.ChatChannel.ChaAddress, timeSlot.TimeStart, timeSlot.TimeEnd, c.Account.AccName, tran.TranDocumentCode)
 	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(thankyou))
 	if err != nil {
 		return nil, err
@@ -604,14 +604,11 @@ func BookingServiceHandler(c *Context) (linebot.SendingMessage, error) {
 		}
 		tx.Commit()
 	} else {
-		fmt.Println(c.PostbackAction.ServiceItemID)
 		err := c.DB.Preload("Service", func(db *gorm.DB) *gorm.DB {
 			return db.Preload("Places")
 		}).Where("account_id = ?", c.Account.ID).Find(&serviceItem, c.PostbackAction.ServiceItemID).Error
-		fmt.Println(err)
 
 		if len(serviceItem.Service.Places) == 0 {
-			fmt.Println("err", "Not found place")
 			return nil, errors.New("Not found place")
 		}
 		var placeIDs []uint
@@ -621,7 +618,6 @@ func BookingServiceHandler(c *Context) (linebot.SendingMessage, error) {
 		c.DB.Order("m_pla_status desc, place_id").Where("account_id =? and m_pla_day = ? and m_pla_to BETWEEN ? and ? or m_pla_from BETWEEN ? and ? and place_id in (?) ",
 			c.Account.ID, c.PostbackAction.Day, c.PostbackAction.Start, c.PostbackAction.End, c.PostbackAction.Start, c.PostbackAction.End, placeIDs).Find(&MSPlaces)
 		if len(MSPlaces) > 0 {
-			fmt.Println("err", "Test")
 			return nil, errors.New("")
 		}
 		var placeSums []placeSum
@@ -641,7 +637,6 @@ func BookingServiceHandler(c *Context) (linebot.SendingMessage, error) {
 				placeSums = append(placeSums, placeSum{Amount: MSPlace.MPlaAmount, PlaceID: MSPlace.PlaceID})
 			}
 		}
-		fmt.Println("serviceItem.Service.Places", serviceItem.Service.Places[0].ID)
 		var bookingServiceItem model.BookingServiceItem
 		tx := c.DB.Begin()
 		book.BookingType = model.BookingTypeServiceItem
@@ -653,7 +648,6 @@ func BookingServiceHandler(c *Context) (linebot.SendingMessage, error) {
 		// updatedAt, err := time.Parse(layout, c.PostbackAction.Day+" 15:00")
 		if err != nil {
 			tx.Rollback()
-			fmt.Println(err)
 			return nil, err
 		}
 		// book.BookedDate = updatedAt
@@ -667,7 +661,7 @@ func BookingServiceHandler(c *Context) (linebot.SendingMessage, error) {
 		err = tx.Create(&bookingServiceItem).Error
 		if err != nil {
 			tx.Rollback()
-			fmt.Println(err)
+
 			return nil, err
 		}
 		tran.ChatChannelID = c.ChatChannel.ID
@@ -677,13 +671,12 @@ func BookingServiceHandler(c *Context) (linebot.SendingMessage, error) {
 		tran.TranLineID = c.Event.UserID
 		tran.TranStatus = model.TranStatusPanding
 		if err := tx.Create(&tran).Error; err != nil {
-			fmt.Println("err,", err)
 			tx.Rollback()
 			return nil, err
 		}
 		err = tx.Model(&tran).Association("Bookings").Append(&book).Error
 		if err != nil {
-			fmt.Println(err)
+
 			tx.Rollback()
 			return nil, err
 		}
@@ -692,7 +685,7 @@ func BookingServiceHandler(c *Context) (linebot.SendingMessage, error) {
 			day, err := time.Parse("2006-01-02", c.PostbackAction.Day)
 			if err != nil {
 				tx.Rollback()
-				fmt.Println(err)
+
 				return nil, err
 			}
 			MSPlace.PlaceID = book.PlaceID
@@ -701,12 +694,12 @@ func BookingServiceHandler(c *Context) (linebot.SendingMessage, error) {
 			form, err := time.Parse("15:04", c.PostbackAction.Start)
 			if err != nil {
 				tx.Rollback()
-				fmt.Println(err)
+
 				return nil, err
 			}
 			to, err := time.Parse("15:04", c.PostbackAction.End)
 			if err != nil {
-				fmt.Println(err)
+
 				tx.Rollback()
 				return nil, err
 			}
@@ -718,21 +711,19 @@ func BookingServiceHandler(c *Context) (linebot.SendingMessage, error) {
 			}
 			if err := tx.Create(&MSPlace).Error; err != nil {
 				tx.Rollback()
-				fmt.Println(err)
+
 				return nil, err
 			}
 		}
 
 		if err != nil {
-			fmt.Println(err)
 
 			tx.Rollback()
 			return nil, err
 		}
 		tx.Commit()
 	}
-	fmt.Println("c.PostbackAction.Start, c.PostbackAction.End")
-	thankyou := fmt.Sprintf(thankyouTemplate, c.ChatChannel.ChaImage, c.ChatChannel.ChaAddress, c.PostbackAction.Start, c.PostbackAction.End)
+	thankyou := fmt.Sprintf(checkoutTemplate, c.ChatChannel.ChaImage, c.ChatChannel.ChaAddress, c.PostbackAction.Start, c.PostbackAction.End, c.Account.AccName, tran.TranDocumentCode)
 	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(thankyou))
 	if err != nil {
 		return nil, err
