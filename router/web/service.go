@@ -167,7 +167,7 @@ func ServiceDeleteHandler(c *Context) error {
 type serviceForm struct {
 	Name   string  `form:"name"`
 	Detail string  `form:"detail"`
-	Price  float32 `form:"price"`
+	Price  float64 `form:"price"`
 	Time   string  `form:"time"`
 }
 
@@ -309,7 +309,7 @@ func ServiceItemCreateViewHandlder(c *Context) error {
 
 type ServiceItemReq struct {
 	Time  string  `form:"time"`
-	Price float32 `form:"price"`
+	Price float64 `form:"price"`
 	Name  string  `form:"name"`
 }
 

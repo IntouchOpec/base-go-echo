@@ -1,7 +1,6 @@
 package model
 
 import (
-	"errors"
 	"time"
 
 	"github.com/IntouchOpec/base-go-echo/model/orm"
@@ -15,28 +14,56 @@ const (
 	BookingStatusApprove  BookStatus = 2
 )
 
+type BookingType int
+
+const (
+	BookingTypeSlotTime    BookingType = 1
+	BookingTypeServiceItem BookingType = 2
+	BookingTypePackage     BookingType = 3
+)
+
 // Booking struct save date time
 type Booking struct {
 	orm.ModelBase
 
+	BookingType   BookingType  `json:"booking_type"`
 	BooQueue      int          `json:"boo_queue" `
 	BooLineID     string       `json:"boo_line_id" gorm:"type:varchar(50)"`
-	EmployeeID    uint         `json:"employee_id"`
 	CustomerID    uint         `json:"customer_id"`
 	ChatChannelID uint         `json:"chat_chaneel_id"`
-	TimeSlotID    uint         `json:"time_slot_id"`
 	TransactionID uint         `json:"transaction_id"`
 	PlaceID       uint         `json:"place_id"`
 	Place         *Place       `json:"place" gorm:"ForeignKey:PlaceID"`
-	Employee      *Employee    `json:"employee" gorm:"ForeignKey:EmployeeID"`
 	Transaction   *Transaction `json:"transaction"  gorm:"ForeignKey:TransactionID"`
 	Customer      *Customer    `json:"customer" gorm:"ForeignKey:CustomerID"`
 	ChatChannel   *ChatChannel `json:"chat_channel" gorm:"ForeignKey:ChatChannelID"`
 	BooStatus     *BookStatus  `json:"boo_status"`
 	BookedDate    time.Time    `gorm:"column:booked_date" json:"booked_date"`
-	TimeSlot      *TimeSlot    `json:"time_slot" gorm:"ForeignKey:TimeSlotID"`
 	AccountID     uint         `json:"account_id"`
 	Account       Account      `json:"account" gorm:"ForeignKey:AccountID"`
+}
+
+type BookingTimeSlot struct {
+	BookingID  uint      `json:"booking_id"`
+	Booking    Booking   `json:"booking" gorm:"ForeignKey:BookingID"`
+	TimeSlotID uint      `json:"time_slot_id"`
+	TimeSlot   *TimeSlot `json:"time_slot" gorm:"ForeignKey:TimeSlotID"`
+	EmployeeID uint      `json:"employee_id"`
+	Employee   *Employee `json:"employee" gorm:"ForeignKey:EmployeeID"`
+}
+
+type BookingServiceItem struct {
+	BookingID     uint        `json:"booking_id"`
+	Booking       Booking     `json:"booking" gorm:"ForeignKey:BookingID"`
+	ServiceItemID uint        `json:"serice_item_id"`
+	ServiceItem   ServiceItem `json:"service_item" gorm:"ForeignKey:ServiceItemID"`
+}
+
+type BookingPackage struct {
+	BookingID uint    `json:"booking_id"`
+	Booking   Booking `json:"booking" gorm:"ForeignKey:BookingID"`
+	PackageID uint    `json:"package_id"`
+	Package   Package `json:"package" gorm:"ForeignKey:PackageID"`
 }
 
 // BookingStatus is status of booking.
@@ -61,23 +88,23 @@ type BookingState struct {
 }
 
 // SaveBooking is function create chat answer.
-func (booking *Booking) SaveBooking() (*Booking, error) {
-	db := DB()
-	booked := Booking{}
-	db.Preload("ServiceSlot").Where("Booked_Date = ? and Sub_service_ID = ?", booking.BookedDate, booking.TimeSlotID).Last(&booked)
-	if booked.TimeSlot.TimeAmount == 0 {
-		booking.BooQueue = 1
-	} else if booked.TimeSlot.TimeAmount > booked.BooQueue {
-		booking.BooQueue = booked.BooQueue + 1
-	} else {
-		return nil, errors.New("can't insert booking case queue full")
-	}
+// func (booking *Booking) SaveBooking() (*Booking, error) {
+// db := DB()
+// booked := Booking{}
+// db.Preload("ServiceSlot").Where("Booked_Date = ? and Sub_service_ID = ?", booking.BookedDate, booking.TimeSlotID).Last(&booked)
+// if booked.TimeSlot.TimeAmount == 0 {
+// 	booking.BooQueue = 1
+// } else if booked.TimeSlot.TimeAmount > booked.BooQueue {
+// 	booking.BooQueue = booked.BooQueue + 1
+// } else {
+// 	return nil, errors.New("can't insert booking case queue full")
+// }
 
-	if err := db.Create(&booking).Error; err != nil {
-		return nil, err
-	}
-	return booking, nil
-}
+// if err := db.Create(&booking).Error; err != nil {
+// 	return nil, err
+// }
+// return booking, nil
+// }
 
 func (booking *Booking) UpdateBooking(id string) *Booking {
 	db := DB()

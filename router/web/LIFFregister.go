@@ -30,7 +30,7 @@ func LIFFRegisterHandler(c echo.Context) error {
 	}
 	db.Where("account_id = ?", chatChannel.AccountID).Find(&customerTypes)
 	APIRegister := fmt.Sprintf("https://web.%s/register/%s", Conf.Server.Domain, lineID)
-	// APIRegister := fmt.Sprintf("https://%s/register/%s", "586f1140.ngrok.io", lineID)
+	// APIRegister := fmt.Sprintf("https://%s/register/%s", "afeb70eb.ngrok.io", lineID)
 
 	return c.Render(http.StatusOK, "register", echo.Map{
 		"web":           APIRegister,

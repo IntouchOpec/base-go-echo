@@ -47,12 +47,12 @@ func ServiceNowListHandler(c *Context) (linebot.SendingMessage, error) {
 				continue
 			}
 			for _, item := range service.ServiceItems {
-				button += fmt.Sprintf(buttonTemplate, item.SSName, fmt.Sprintf("action=booking&service_item_id=%d", item.ID))
+				button += fmt.Sprintf(buttonTemplate, item.SSName, fmt.Sprintf("action=booking&service_item_id=%d&start=%s&end=%s&day=%s", item.ID, timeStartStr, timeEndStr, timeStart.Format("2006-01-02")))
 			}
 			flexContainerStr += fmt.Sprintf(cardServiceTemplate, service.SerName, fmt.Sprintf("https://web.%s/files?path=%s", Conf.Server.Domain, service.SerImage), service.SerDetail, button[:len(button)-1]) + ","
 		}
 	}
-
+	fmt.Println(flexContainerStr)
 	flexContainerStr = fmt.Sprintf(carouselTemplate, flexContainerStr[:len(flexContainerStr)-1])
 	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(flexContainerStr))
 	if err != nil {
@@ -108,7 +108,7 @@ func ServiceDateListHandler(c *Context, date string) (linebot.SendingMessage, er
 				timeEnd = timeEnd.Add(duration)
 				timeStartStr = timeStart.Format("15:04")
 				timeEndStr = timeEnd.Format("15:04")
-				button += fmt.Sprintf(buttonTemplate, item.SSName, fmt.Sprintf("action=booking&service_item_id=%d&start=%s&end=%s", item.ID, timeStartStr, timeEndStr))
+				button += fmt.Sprintf(buttonTemplate, item.SSName, fmt.Sprintf("action=booking&service_item_id=%d&start=%s&end=%s&day=%s", item.ID, timeStartStr, timeEndStr, timeStart.Format("2006-01-02")))
 			}
 			flexContainerStr += fmt.Sprintf(cardServiceTemplate, service.SerName, fmt.Sprintf("https://web.%s/files?path=%s", Conf.Server.Domain, service.SerImage), service.SerDetail, button[:len(button)-1]) + ","
 		}

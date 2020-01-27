@@ -99,20 +99,20 @@ func (tran *Transaction) GetLastTransaction() (string, error) {
 func genTranDocumentCode(lastTranDocumentCode string) (string, error) {
 	now := time.Now()
 	day := fmt.Sprintf("%d", now.Day())
-	mouth := fmt.Sprintf("%d", now.Month())
+	month := fmt.Sprintf("%d", now.Month())
 	var code string
 	if len(day) == 1 {
 		day = fmt.Sprintf("0%s", day)
 	}
-	if len(mouth) == 1 {
-		mouth = fmt.Sprintf("0%s", mouth)
+	if len(month) == 1 {
+		month = fmt.Sprintf("0%s", month)
 	}
-	dayCode := fmt.Sprintf(dayFormatDoc, now.Year(), mouth, day)
+	dayCode := fmt.Sprintf(dayFormatDoc, now.Year(), month, day)
 	if lastTranDocumentCode == "" {
 		return fmt.Sprintf(formatDocumentCode, dayCode+fmt.Sprintf(codeFormatDoc, 1)), errors.New("")
 	}
 	if lastTranDocumentCode[1:7] == dayCode[0:6] {
-		i, err := strconv.Atoi(lastTranDocumentCode[8:])
+		i, err := strconv.Atoi(lastTranDocumentCode[9:])
 		if err != nil {
 			return "", err
 		}
@@ -126,9 +126,10 @@ func genTranDocumentCode(lastTranDocumentCode string) (string, error) {
 
 func (tran *Transaction) BeforeSave() (err error) {
 	lastID, err := tran.GetLastTransaction()
+	fmt.Println("err , ", err)
 	if err != nil {
 		return errors.New("")
 	}
 	tran.TranDocumentCode, err = genTranDocumentCode(lastID)
-	return
+	return nil
 }

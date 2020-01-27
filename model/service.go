@@ -11,7 +11,7 @@ type Service struct {
 	orm.ModelBase
 	SerName          string             `form:"name" json:"ser_name" gorm:"type:varchar(25)"`
 	SerDetail        string             `form:"detail" json:"ser_detail" gorm:"type:varchar(25)"`
-	SerPrice         float32            `form:"price" json:"ser_price"`
+	SerPrice         float64            `form:"price" json:"ser_price"`
 	SerTime          string             `form:"time" json:"ser_time" gorm:"type:varchar(10)"`
 	SerActive        bool               `form:"active" json:"ser_active"`
 	SerImage         string             `form:"image" json:"ser_image" gorm:"type:varchar(255)"`
@@ -26,7 +26,7 @@ type Service struct {
 type ServiceItem struct {
 	orm.ModelBase
 	SSTime     time.Time  `form:"s_s_time" json:"s_s_time"`
-	SSPrice    float32    `form:"s_s_price" json:"s_s_price"`
+	SSPrice    float64    `form:"s_s_price" json:"s_s_price"`
 	SSName     string     `form:"s_s_name" json:"s_s_name" gorm:"type:varchar(10)"`
 	SSIsActive bool       `json:"s_s_is_active" form:"s_s_is_active" sql:"default:false"`
 	ServiceID  uint       `json:"service_id"`

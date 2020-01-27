@@ -12,6 +12,7 @@ import (
 type Context struct {
 	echo.Context
 	DB             *gorm.DB
+	Source         *linebot.EventSource
 	Massage        *linebot.TextMessage
 	Account        model.Account
 	ChatChannel    model.ChatChannel

@@ -14,12 +14,13 @@ import (
 )
 
 type PostbackAction struct {
-	Action    string `json:"action"`
-	DateStr   string `json:"date"`
-	ServiceID string `json:"service_id"`
-	Start     string `json:"start"`
-	End       string `json:"end"`
-	Day       string `json:"day"`
+	Action        string `json:"action"`
+	DateStr       string `json:"date"`
+	ServiceItemID string `json:"service_item_id"`
+	PackageID     uint   `json:"package_id"`
+	Start         string `json:"start"`
+	End           string `json:"end"`
+	Day           string `json:"day"`
 }
 
 // var dp lib.DialogFlowProcessor
@@ -81,13 +82,22 @@ func HandleWebHookLineAPI(c echo.Context) error {
 			for key, value := range q {
 				postBackActionStr += fmt.Sprintf(`"%s": "%s",`, key, value[0])
 			}
+			fmt.Println(event.Source.UserID)
+			out, err := json.Marshal(event)
+			if err != nil {
+				panic(err)
+			}
+
+			fmt.Println(string(out))
 			postBackActionStr = fmt.Sprintf(fmt.Sprintf("{%s}", postBackActionStr[:len(postBackActionStr)-1]))
+			fmt.Println("postBackActionStr", postBackActionStr)
 			postBackAction := PostbackAction{}
 			if err := json.Unmarshal([]byte(postBackActionStr), &postBackAction); err != nil {
+				fmt.Println("err", err)
 				return c.JSON(http.StatusBadRequest, err)
 			}
 			con.PostbackAction = &postBackAction
-			fmt.Println(postBackAction.Action)
+			fmt.Println("test")
 			switch postBackAction.Action {
 			case "location":
 				messageReply, err = LocationHandler(&con)
@@ -98,17 +108,19 @@ func HandleWebHookLineAPI(c echo.Context) error {
 			case "service":
 				messageReply, err = ChooseService(&con)
 			case "report":
-
+				fmt.Println("report")
 			case "content":
-
+				fmt.Println("content")
 			case "choive_man":
 				fmt.Println("choive_man")
 				messageReply, err = CalandarHandler(&con, postBackAction.DateStr)
 			case "calendar":
+				fmt.Println("calendar")
 				messageReply, err = CalandarHandler(&con, postBackAction.DateStr)
 			case "choose_timeslot":
+				fmt.Println("choose_timeslot")
 			case "booking_timeslot":
-
+				fmt.Println("booking_timeslot")
 			case "booking_now":
 				fmt.Println("booking_now")
 				messageReply, err = ServiceNowListHandler(&con)
@@ -116,9 +128,9 @@ func HandleWebHookLineAPI(c echo.Context) error {
 				fmt.Println("booking_appointment")
 				messageReply, err = ServiceDateListHandler(&con, event.Postback.Params.Datetime)
 			case "booking":
-				fmt.Println("booking_appointment")
+				fmt.Println("booking")
 				fmt.Println(postBackAction)
-				// messageReply, err = ServiceDateListHandler(&con, event.Postback.Params.Datetime)
+				messageReply, err = BookingServiceHandler(&con)
 			}
 			_, err = bot.ReplyMessage(event.ReplyToken, messageReply).Do()
 			if err != nil {
@@ -140,25 +152,26 @@ func HandleWebHookLineAPI(c echo.Context) error {
 			case *linebot.AudioMessage:
 			case *linebot.FileMessage:
 			case *linebot.LocationMessage:
-				textMessage := linebot.NewTextMessage(fmt.Sprintf("%v", message))
-				_, err := bot.ReplyMessage(event.ReplyToken, textMessage).Do()
-				if err != nil {
-					act := model.ActionLog{
-						ActName:       "LocationMessage",
-						ActStatus:     model.StatusFail,
-						ChatChannelID: chatChannel.ID,
-						CustomerID:    customer.ID}
-					act.CreateAction()
-					return err
-				}
-				act := model.ActionLog{
-					ActName:       "LocationMessage",
-					ActStatus:     model.StatusSuccess,
-					ChatChannelID: chatChannel.ID,
-					CustomerID:    customer.ID}
-				if err := model.DB().Create(&act).Error; err != nil {
-					// return c.JSON(http.StatusBadRequest, err)
-				}
+				messageReply := linebot.NewTextMessage(fmt.Sprintf("%v", message))
+				_, err = bot.ReplyMessage(event.ReplyToken, messageReply).Do()
+				// _, err := bot.ReplyMessage(event.ReplyToken, textMessage).Do()
+				// if err != nil {
+				// 	act := model.ActionLog{
+				// 		ActName:       "LocationMessage",
+				// 		ActStatus:     model.StatusFail,
+				// 		ChatChannelID: chatChannel.ID,
+				// 		CustomerID:    customer.ID}
+				// 	act.CreateAction()
+				// 	return err
+				// }
+				// act := model.ActionLog{
+				// 	ActName:       "LocationMessage",
+				// 	ActStatus:     model.StatusSuccess,
+				// 	ChatChannelID: chatChannel.ID,
+				// 	CustomerID:    customer.ID}
+				// if err := model.DB().Create(&act).Error; err != nil {
+				// 	// return c.JSON(http.StatusBadRequest, err)
+				// }
 			case *linebot.StickerMessage:
 			case *linebot.TemplateMessage:
 			case *linebot.ImagemapMessage:

@@ -40,7 +40,7 @@ var serviceListTemplate string = `{"type": "bubble", "hero": { "type": "image", 
 	%s]
 }}`
 var nextPageTemplate string = `{ "type": "bubble", "body": { "type": "box", "layout": "vertical", "spacing": "sm", "contents": [
-	{ "type": "button", "flex": 1, "gravity": "center", "action": { "type": "uri", "label": "See more", "uri": "https://linecorp.com" } }] }}`
+	{ "type": "button", "flex": 1, "gravity": "center", "action": { "type": "uri", "label": "See more", "uri": "line://app/1615136604-5wld9ZdL" } }] }}`
 var thankyouTemplate string = `{
 	"type": "bubble",
 	"hero": { "type": "image", "url": "%s", "size": "full", "aspectRatio": "20:13", "aspectMode": "cover" },
@@ -59,7 +59,7 @@ var thankyouTemplate string = `{
 		  ]
 	},
 	"footer": { "type": "box", "layout": "vertical", "spacing": "sm", "contents": [
-		{ "type": "button", "style": "link", "height": "sm", "action": { "type": "uri", "label": "CALL", "uri": "https://linecorp.com" }
+		{ "type": "button", "style": "link", "height": "sm", "action": { "type": "uri", "label": "ชำระเงิน", "uri": "line://app/1615136604-5wld9ZdL" }
 		},
 		{ "type": "spacer", "size": "sm" }
 	],
@@ -85,7 +85,7 @@ var StatusOpecCardTemplate string = `
 		}
 	  ]
 	},
-	"body": { "type": "box", "layout": "vertical", "spacing": "md", "action": { "type": "uri", "label": "Action", "uri": "https://linecorp.com" },
+	"body": { "type": "box", "layout": "vertical", "spacing": "md", "action": { "type": "uri", "label": "Action", "uri": "line://app/1615136604-5wld9ZdL" },
 	  "contents": [
 		{ "type": "text", "contents": [], "size": "xl", "wrap": true, "text": "%s", "weight": "bold" },
 		{ "type": "text", "text": "Date, %s", "color": "#000000", "size": "sm" }
@@ -334,13 +334,14 @@ type placeSum struct {
 }
 
 // ThankyouTemplate
-func BookingTimeSlotTemplate(c *Context) (linebot.SendingMessage, error) {
+func BookingTimeSlotHandler(c *Context) (linebot.SendingMessage, error) {
 	var timeSlot model.TimeSlot
 	var tran model.Transaction
 	var book model.Booking
 	var service model.Service
 	var MSPlace model.MasterPlace
 	var MSPlaces []*model.MasterPlace
+	var bookingTimeSlot model.BookingTimeSlot
 
 	dateTime := c.Massage.Text[9:19]
 	start, err := time.Parse("2006-01-02 15:04", dateTime+" 15:00")
@@ -350,7 +351,6 @@ func BookingTimeSlotTemplate(c *Context) (linebot.SendingMessage, error) {
 	}
 	c.DB.Preload("Places").Where("account_id = ?", c.Account.ID).Find(&service, timeSlot.EmployeeService.ServiceID)
 	if len(service.Places) == 0 {
-
 		return nil, errors.New("Not found place")
 	}
 	var placeIDs []uint
@@ -369,7 +369,6 @@ func BookingTimeSlotTemplate(c *Context) (linebot.SendingMessage, error) {
 		if MSPlace.MPlaStatus == model.MPlaStatusBusy {
 			return nil, errors.New("")
 		}
-
 		for i, placeSum := range placeSums {
 			if placeSum.PlaceID != MSPlace.PlaceID {
 				continue
@@ -377,7 +376,6 @@ func BookingTimeSlotTemplate(c *Context) (linebot.SendingMessage, error) {
 				placeSums[i].Amount += MSPlace.MPlaAmount
 				break
 			}
-
 		}
 		if index == 0 {
 			placeSums = append(placeSums, placeSum{Amount: MSPlace.MPlaAmount, PlaceID: MSPlace.PlaceID})
@@ -389,8 +387,7 @@ func BookingTimeSlotTemplate(c *Context) (linebot.SendingMessage, error) {
 	book.ChatChannelID = c.ChatChannel.ID
 	book.CustomerID = c.Customer.ID
 	book.BooLineID = c.Massage.ID
-	book.TimeSlotID = timeSlot.ID
-	book.EmployeeID = timeSlot.EmployeeService.EmployeeID
+
 	layout := "2006-01-02 15:00"
 	updatedAt, err := time.Parse(layout, c.Massage.Text[9:19]+" 15:00")
 	if err != nil {
@@ -399,6 +396,14 @@ func BookingTimeSlotTemplate(c *Context) (linebot.SendingMessage, error) {
 	}
 	book.BookedDate = updatedAt
 	err = tx.Create(&book).Error
+	if err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+	bookingTimeSlot.BookingID = book.ID
+	bookingTimeSlot.TimeSlotID = timeSlot.ID
+	bookingTimeSlot.EmployeeID = timeSlot.EmployeeService.EmployeeID
+	err = tx.Create(&bookingTimeSlot).Error
 	if err != nil {
 		tx.Rollback()
 		return nil, err
@@ -456,7 +461,7 @@ func BookingTimeSlotTemplate(c *Context) (linebot.SendingMessage, error) {
 	if err != nil {
 		return nil, err
 	}
-	return linebot.NewFlexMessage("ตาราง", flexContainer), nil
+	return linebot.NewFlexMessage("จองสำเร็จ", flexContainer), nil
 }
 
 func inTimeSpan(start, end, check time.Time) bool {
@@ -499,4 +504,238 @@ func CheckStatusOpen(c *Context) (linebot.SendingMessage, error) {
 		return nil, err
 	}
 	return linebot.NewFlexMessage(status, flexContainer), nil
+}
+
+func BookingServiceHandler(c *Context) (linebot.SendingMessage, error) {
+	var tran model.Transaction
+	var book model.Booking
+	var serviceItem model.ServiceItem
+	var MSPlace model.MasterPlace
+	var MSPlaces []*model.MasterPlace
+
+	if c.PostbackAction.PackageID != 0 {
+		var packageModel model.Package
+		err := c.DB.Preload("ServiceItems", func(db *gorm.DB) *gorm.DB {
+			return db.Preload("Service", func(*gorm.DB) *gorm.DB {
+				return db.Preload("places")
+			})
+		}).Where("account_id = ?", c.Account.ID).Find(&packageModel, c.PostbackAction.PackageID).Error
+
+		// for _, ServiceItem := range packageModel.ServiceItems {
+
+		// }
+		tx := c.DB.Begin()
+		var bookingPakage model.BookingPackage
+		book.PlaceID = serviceItem.Service.Places[0].ID
+		book.ChatChannelID = c.ChatChannel.ID
+		book.CustomerID = c.Customer.ID
+		book.BooLineID = c.Massage.ID
+		layout := "2006-01-02 15:00"
+		book.BookingType = model.BookingTypePackage
+		updatedAt, err := time.Parse(layout, c.PostbackAction.Day+" 15:00")
+		if err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+		book.BookedDate = updatedAt
+		err = tx.Create(&book).Error
+		if err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+		bookingPakage.BookingID = book.ID
+		bookingPakage.PackageID = packageModel.ID
+		err = tx.Create(&bookingPakage).Error
+		if err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+		tran.ChatChannelID = c.ChatChannel.ID
+		tran.TranTotal = serviceItem.SSPrice
+		tran.AccountID = c.ChatChannel.AccountID
+		tran.CustomerID = c.Customer.ID
+		tran.TranLineID = c.Event.UserID
+		tran.TranStatus = model.TranStatusPanding
+		err = tx.Create(&tran).Error
+		if err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+		err = tx.Model(&tran).Association("Bookings").Append(&book).Error
+		if err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+
+		if len(MSPlaces) == 0 {
+			day, err := time.Parse("2006-01-02", c.PostbackAction.Day)
+			if err != nil {
+				tx.Rollback()
+				return nil, err
+			}
+			MSPlace.PlaceID = book.PlaceID
+			MSPlace.MPlaDay = day
+			MSPlace.AccountID = c.Account.ID
+			form, err := time.Parse("15:04", c.PostbackAction.Start)
+			if err != nil {
+				tx.Rollback()
+				return nil, err
+			}
+			to, err := time.Parse("15:04", c.PostbackAction.End)
+			if err != nil {
+				tx.Rollback()
+				return nil, err
+			}
+			MSPlace.MPlaFrom = form
+			MSPlace.MPlaTo = to
+			MSPlace.MPlaAmount = MSPlace.MPlaAmount + 1
+			if MSPlace.MPlaAmount == serviceItem.Service.Places[0].PlacAmount {
+				MSPlace.MPlaStatus = model.MPlaStatusBusy
+			}
+			if err := tx.Create(&MSPlace).Error; err != nil {
+				tx.Rollback()
+				return nil, err
+			}
+		}
+
+		if err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+		tx.Commit()
+	} else {
+		fmt.Println(c.PostbackAction.ServiceItemID)
+		err := c.DB.Preload("Service", func(db *gorm.DB) *gorm.DB {
+			return db.Preload("Places")
+		}).Where("account_id = ?", c.Account.ID).Find(&serviceItem, c.PostbackAction.ServiceItemID).Error
+		fmt.Println(err)
+
+		if len(serviceItem.Service.Places) == 0 {
+			fmt.Println("err", "Not found place")
+			return nil, errors.New("Not found place")
+		}
+		var placeIDs []uint
+		for _, place := range serviceItem.Service.Places {
+			placeIDs = append(placeIDs, place.ID)
+		}
+		c.DB.Order("m_pla_status desc, place_id").Where("account_id =? and m_pla_day = ? and m_pla_to BETWEEN ? and ? or m_pla_from BETWEEN ? and ? and place_id in (?) ",
+			c.Account.ID, c.PostbackAction.Day, c.PostbackAction.Start, c.PostbackAction.End, c.PostbackAction.Start, c.PostbackAction.End, placeIDs).Find(&MSPlaces)
+		if len(MSPlaces) > 0 {
+			fmt.Println("err", "Test")
+			return nil, errors.New("")
+		}
+		var placeSums []placeSum
+		for index, MSPlace := range MSPlaces {
+			if MSPlace.MPlaStatus == model.MPlaStatusBusy {
+				return nil, errors.New("")
+			}
+			for i, placeSum := range placeSums {
+				if placeSum.PlaceID != MSPlace.PlaceID {
+					continue
+				} else {
+					placeSums[i].Amount += MSPlace.MPlaAmount
+					break
+				}
+			}
+			if index == 0 {
+				placeSums = append(placeSums, placeSum{Amount: MSPlace.MPlaAmount, PlaceID: MSPlace.PlaceID})
+			}
+		}
+		fmt.Println("serviceItem.Service.Places", serviceItem.Service.Places[0].ID)
+		var bookingServiceItem model.BookingServiceItem
+		tx := c.DB.Begin()
+		book.BookingType = model.BookingTypeServiceItem
+		book.PlaceID = serviceItem.Service.Places[0].ID
+		book.ChatChannelID = c.ChatChannel.ID
+		book.CustomerID = c.Customer.ID
+		book.BooLineID = c.Event.UserID
+		// layout := "2006-01-02 15:00"
+		// updatedAt, err := time.Parse(layout, c.PostbackAction.Day+" 15:00")
+		if err != nil {
+			tx.Rollback()
+			fmt.Println(err)
+			return nil, err
+		}
+		// book.BookedDate = updatedAt
+		err = tx.Create(&book).Error
+		if err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+		bookingServiceItem.BookingID = book.ID
+		bookingServiceItem.ServiceItemID = serviceItem.ID
+		err = tx.Create(&bookingServiceItem).Error
+		if err != nil {
+			tx.Rollback()
+			fmt.Println(err)
+			return nil, err
+		}
+		tran.ChatChannelID = c.ChatChannel.ID
+		tran.TranTotal = serviceItem.SSPrice
+		tran.AccountID = c.ChatChannel.AccountID
+		tran.CustomerID = c.Customer.ID
+		tran.TranLineID = c.Event.UserID
+		tran.TranStatus = model.TranStatusPanding
+		if err := tx.Create(&tran).Error; err != nil {
+			fmt.Println("err,", err)
+			tx.Rollback()
+			return nil, err
+		}
+		err = tx.Model(&tran).Association("Bookings").Append(&book).Error
+		if err != nil {
+			fmt.Println(err)
+			tx.Rollback()
+			return nil, err
+		}
+
+		if len(MSPlaces) == 0 {
+			day, err := time.Parse("2006-01-02", c.PostbackAction.Day)
+			if err != nil {
+				tx.Rollback()
+				fmt.Println(err)
+				return nil, err
+			}
+			MSPlace.PlaceID = book.PlaceID
+			MSPlace.MPlaDay = day
+			MSPlace.AccountID = c.Account.ID
+			form, err := time.Parse("15:04", c.PostbackAction.Start)
+			if err != nil {
+				tx.Rollback()
+				fmt.Println(err)
+				return nil, err
+			}
+			to, err := time.Parse("15:04", c.PostbackAction.End)
+			if err != nil {
+				fmt.Println(err)
+				tx.Rollback()
+				return nil, err
+			}
+			MSPlace.MPlaFrom = form
+			MSPlace.MPlaTo = to
+			MSPlace.MPlaAmount = MSPlace.MPlaAmount + 1
+			if MSPlace.MPlaAmount == serviceItem.Service.Places[0].PlacAmount {
+				MSPlace.MPlaStatus = model.MPlaStatusBusy
+			}
+			if err := tx.Create(&MSPlace).Error; err != nil {
+				tx.Rollback()
+				fmt.Println(err)
+				return nil, err
+			}
+		}
+
+		if err != nil {
+			fmt.Println(err)
+
+			tx.Rollback()
+			return nil, err
+		}
+		tx.Commit()
+	}
+	fmt.Println("c.PostbackAction.Start, c.PostbackAction.End")
+	thankyou := fmt.Sprintf(thankyouTemplate, c.ChatChannel.ChaImage, c.ChatChannel.ChaAddress, c.PostbackAction.Start, c.PostbackAction.End)
+	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(thankyou))
+	if err != nil {
+		return nil, err
+	}
+	return linebot.NewFlexMessage("จองสำเร็จ", flexContainer), nil
 }

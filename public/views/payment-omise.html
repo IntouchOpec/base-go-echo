@@ -1,0 +1,116 @@
+{{ define "payment-omise" }}
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Page Title</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.omise.co/omise.js"></script>
+</head>
+
+<body>
+  <h1>Checkout form by OmiseCard.open()</h1>
+  <form id="checkout-form"  action="/omise_charge" method="POST">
+    <input type="hidden" name="omiseSource">
+    <div>
+      <input type="text" name="amount" value="99500">
+    </div>
+    <input type="hidden" name="omiseToken">
+    <button id="pay-button-thb">
+      Pay in THB
+    </button>
+    <button id="pay-button-usd">
+      Pay in USD
+    </button>
+  </form>
+
+  <script src="https://d.line-scdn.net/liff/1.0/sdk.js"></script>
+
+  <script>
+
+
+    OmiseCard.configure({
+      publicKey: 'pkey_test_5ip8fflleizk5mzvnut',
+      amount: 99500,
+      submitLabel: 'Pay',
+      submitFormTarget: '#checkout-form',
+    });
+
+    const buttonTHB = document.querySelector('#pay-button-thb')
+    const buttonUSD = document.querySelector('#pay-button-usd')
+    const amount = document.querySelector('input[name="amount"]')
+    const form = document.querySelector('#checkout-form')
+    const omiseToken = document.querySelector('input[name="omiseToken"]')
+
+    function formClosedhandler() {
+        alert('Form is closed.')
+    }
+
+    function createTokenSuccessHandler(token) {
+        alert('[Omise.js Testing page]: Payment success ! TOKEN' + token)
+        omiseToken.value = token
+        if (token.startsWith("tokn_")) {
+              form.omiseToken.value = token;
+          } else {
+              form.omiseSource.value = token;
+          };
+        console.log(token,form)
+        let body = new FormData()
+
+        body.append("amount", amount.value)
+        body.append("currency", "THB")
+        body.append("token", token)
+        fetch("/omise_charge", {
+            method: "POST",
+            body
+        })
+        // form.submit();
+    }
+
+    buttonTHB.addEventListener('click', function(event) {
+      event.preventDefault()
+      OmiseCard.open({
+        frameLabel: 'Esimo',
+        frameDescription: 'Invoice #3847 in THB',
+        currency: 'THB',
+        amount: amount.value,
+        onCreateTokenSuccess: createTokenSuccessHandler,
+        onFormClosed: formClosedhandler,
+      })
+    })
+
+    buttonUSD.addEventListener('click', function(event) {
+      event.preventDefault()
+      OmiseCard.open({
+        frameLabel: 'Esimo',
+        frameDescription: 'Invoice #3847 in USD',
+        currency: 'USD',
+        amount: amount.value,
+        onCreateTokenSuccess: createTokenSuccessHandler,
+        onFormClosed: formClosedhandler,
+      })
+    })
+    
+    window.onload = function(){
+        document.getElementById('pay-button-thb').click();
+        
+        var scriptTag = document.createElement("script");
+        scriptTag.src = "https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js";
+        document.getElementsByTagName("head")[0].appendChild(scriptTag);
+    }
+    setTimeout(function(){ 
+        liff.getProfile()
+        .then(profile => {
+            // const accessToken = liff.getAccessToken();
+            alert(JSON.stringify(profile))
+        }).catch((err) => {alert("err")})
+     }, 3000);
+
+    
+  </script>
+</body>
+
+</html>
+{{ end }}
