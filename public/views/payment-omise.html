@@ -5,12 +5,13 @@
 <head>
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>pament {{.detail.TranTotal}}</title>
+  <title>payment {{.detail.TranDocumentCode}}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://cdn.omise.co/omise.js"></script>
 </head>
 
 <body>
+    {{.detail.TranTotal}}
   <form id="checkout-form"  action="/omise_charge" method="POST">
     <input type="hidden" name="omiseSource">
     <div>
@@ -33,7 +34,7 @@
     });
 
     const buttonTHB = document.querySelector('#pay-button-thb')
-    const buttonUSD = document.querySelector('#pay-button-usd')
+    // const buttonUSD = document.querySelector('#pay-button-usd')
     const amount = document.querySelector('input[name="amount"]')
     const form = document.querySelector('#checkout-form')
     const omiseToken = document.querySelector('input[name="omiseToken"]')
@@ -53,7 +54,7 @@
       body.append("amount", amount.value)
       body.append("currency", "THB")
       body.append("token", token)
-      fetch("/omise_charge", {
+      fetch("/omise_charge?account_name={{.accountName}}&doc_code_transaction={{.DocCodeTransaction}}", {
           method: "POST",
           body
       }).then(res => {
@@ -78,17 +79,17 @@
       })
     })
 
-    buttonUSD.addEventListener('click', function(event) {
-      event.preventDefault()
-      OmiseCard.open({
-        frameLabel: 'Esimo',
-        frameDescription: 'Invoice #{{.DocCodeTransaction}}',
-        currency: 'USD',
-        amount: amount.value,
-        onCreateTokenSuccess: createTokenSuccessHandler,
-        onFormClosed: formClosedhandler,
-      })
-    })
+    // buttonUSD.addEventListener('click', function(event) {
+    //   event.preventDefault()
+    //   OmiseCard.open({
+    //     frameLabel: 'Esimo',
+    //     frameDescription: 'Invoice #{{.DocCodeTransaction}}',
+    //     currency: 'USD',
+    //     amount: amount.value,
+    //     onCreateTokenSuccess: createTokenSuccessHandler,
+    //     onFormClosed: formClosedhandler,
+    //   })
+    // })
     
     window.onload = function(){
         document.getElementById('pay-button-thb').click();

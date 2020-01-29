@@ -123,54 +123,20 @@ var buttonTemplate string = `
 var cardServiceTemplate string = `
 {
 	"type": "bubble",
-	"header": {
-	  "type": "box",
-	  "layout": "horizontal",
-	  "contents": [
-		{
-		  "type": "box",
-		  "layout": "vertical",
-		  "contents": [
-			{
-			  "type": "text",
-			  "text": "%s",
-			  "size": "sm",
-			  "weight": "bold",
-			  "color": "#AAAAAA"
-			},
-			{
-			  "type": "box",
-			  "layout": "horizontal",
-			  "flex": 1,
-			  "contents": [
-				{
-				  "type": "image",
-				  "url": "%s",
-				  "size": "5xl",
-				  "gravity": "center",
-				  "flex": 1
-				}
+	"header": { "type": "box", "layout": "horizontal", "contents": [
+		{ "type": "box", "layout": "vertical", "contents": [
+			{ "type": "text", "text": "%s", "size": "sm", "weight": "bold", "color": "#AAAAAA" },
+			{ "type": "box", "layout": "horizontal", "flex": 1, "contents": [
+				{ "type": "image", "url": "%s", "size": "5xl", "gravity": "center", "flex": 1 }
 			  ]
 			}
 		  ]
 		}
 	  ]
 	},
-	"body": {
-	  "type": "box",
-	  "layout": "vertical",
-	  "spacing": "sm",
-	  "contents": [
-		{
-		  "type": "box",
-		  "layout": "vertical",
-		  "contents": [
-			{
-			  "type": "text",
-			  "text": "%s",
-			  "align": "center"
-			}
-		  ]
+	"body": { "type": "box", "layout": "vertical", "spacing": "sm", "contents": [
+		{ "type": "box", "layout": "vertical", "contents": [
+			{ "type": "text", "text": "%s", "align": "center" } ]
 		},
 		%s
 	  ]
@@ -180,62 +146,17 @@ var cardServiceTemplate string = `
 var cardPackageTemplate string = `
 {
 	"type": "bubble",
-	"header": {
-	  "type": "box",
-	  "layout": "horizontal",
-	  "contents": [
-		{
-		  "type": "box",
-		  "layout": "vertical",
-		  "contents": [
-			{
-			  "type": "text",
-			  "text": "%s",
-			  "size": "sm",
-			  "weight": "bold",
-			  "color": "#AAAAAA"
-			},
-			{
-			  "type": "box",
-			  "layout": "horizontal",
-			  "flex": 1,
-			  "contents": [
-				{
-				  "type": "image",
-				  "url": "%s",
-				  "size": "5xl",
-				  "gravity": "center",
-				  "flex": 1
-				}
-			  ]
-			}
-		  ]
-		}
-	  ]
-	},
-	"body": {
-	  "type": "box",
-	  "layout": "vertical",
-	  "spacing": "sm",
-	  "contents": [
-		{
-		  "type": "box",
-		  "layout": "vertical",
-		  "contents": [
-			{
-			  "type": "text",
-			  "text": "เวลา %s - %s น.",
-			  "align": "center"
-			}
-		  ]
-		},
-		{
-		  "type": "button",
-		  "style": "primary",
-		  "action": {
-			"type": "postback",
-			"label": "จอง",
-			"data": "action=booking&start=%s&end=%s&package_id=%s"
+	"header": { "type": "box", "layout": "horizontal", "contents": [
+		{ "type": "box", "layout": "vertical", "contents": [
+			{ "type": "text", "text": "%s", "size": "sm", "weight": "bold", "color": "#AAAAAA" },
+			{ "type": "box", "layout": "horizontal", "flex": 1, "contents": [
+				{ "type": "image", "url": "%s", "size": "5xl", "gravity": "center", "flex": 1 }
+			  ] } ] } ] },
+	"body": { "type": "box", "layout": "vertical", "spacing": "sm", "contents": [
+		{ "type": "box", "layout": "vertical", "contents": [
+			{ "type": "text", "text": "เวลา %s - %s น.", "align": "center" } ] },
+		{ "type": "button", "style": "primary", "action": {
+			"type": "postback", "label": "จอง", "data": "action=booking&start=%s&end=%s&package_id=%s"
 		  }
 		}
 	  ]

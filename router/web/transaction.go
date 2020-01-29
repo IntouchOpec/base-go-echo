@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/jinzhu/gorm"
 	"github.com/line/line-bot-sdk-go/linebot"
 
 	"github.com/IntouchOpec/base-go-echo/module/auth"
@@ -109,24 +110,49 @@ func TransactionPatchHandler(c *Context) error {
 	})
 }
 
+type Booking struct {
+	Start string
+	End   string
+	Name  string
+}
+
 func TransactionDetailHandler(c *Context) error {
 	id := c.Param("id")
 	Transaction := model.Transaction{}
 	a := auth.Default(c).GetAccountID()
-	// , func(db *gorm.DB) *gorm.DB {
-	// return db.Preload("TimeSlot", func(db *gorm.DB) *gorm.DB {
-	// 	return db.Preload("EmployeeService", func(db *gorm.DB) *gorm.DB {
-	// 		return db.Preload("Employee").Preload("Service")
-	// 	})
-	// })
-	// }
-	if err := model.DB().Where("account_id = ?", a).Preload("Bookings").Preload("ChatChannel").Find(&Transaction, id).Error; err != nil {
-		fmt.Println(err)
-		return c.Render(http.StatusBadRequest, "404-page", echo.Map{})
+	db := model.DB()
+
+	var bookingTimeSlot model.BookingTimeSlot
+	var bookingServiceItem model.BookingServiceItem
+	var bookingPackage model.BookingPackage
+	var bookings []Booking
+	err := db.Preload("Payments").Preload("ChatChannel").Preload("Bookings").Where("account_id = ?", a).Find(&Transaction, id).Error
+	fmt.Println(err, "====")
+	fmt.Println(Transaction.Bookings)
+	for _, booking := range Transaction.Bookings {
+		switch booking.BookingType {
+		case model.BookingTypeSlotTime:
+			db.Preload("TimeSlot", func(db *gorm.DB) *gorm.DB {
+				return db.Preload("EmployeeService", func(db *gorm.DB) *gorm.DB {
+					return db.Preload("Employee").Preload("Service")
+				})
+			}).Find(&bookingTimeSlot)
+			bookings = append(bookings, Booking{Start: bookingTimeSlot.TimeSlot.TimeStart, End: bookingTimeSlot.TimeSlot.TimeEnd, Name: bookingTimeSlot.TimeSlot.EmployeeService.Service.SerName})
+		case model.BookingTypeServiceItem:
+			db.Preload("ServiceItem", func(db *gorm.DB) *gorm.DB {
+				return db.Preload("Service")
+			}).Find(&bookingServiceItem)
+			bookings = append(bookings, Booking{Start: booking.BookedDate.Format("15:01"), End: booking.BookedDate.Format("15:01"), Name: bookingServiceItem.ServiceItem.Service.SerName})
+
+		case model.BookingTypePackage:
+			db.Preload("Package").Find(&bookingPackage)
+			bookings = append(bookings, Booking{Start: booking.BookedDate.Format("15:01"), End: booking.BookedDate.Format("15:01"), Name: bookingPackage.Package.PacName})
+		}
 	}
 	return c.Render(http.StatusOK, "transaction-detail", echo.Map{
-		"title":  "transaction",
-		"detail": Transaction,
+		"title":    "transaction",
+		"detail":   Transaction,
+		"bookings": bookings,
 	})
 }
 

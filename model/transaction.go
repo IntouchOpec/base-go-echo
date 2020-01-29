@@ -35,10 +35,10 @@ type Transaction struct {
 	ChatChannelID    uint           `json:"channel_id"`
 	CustomerID       uint           `json:"customer_id"`
 	TranLineID       string         `json:"tran_line_id" gorm:"type:varchar(50)"`
-	Bookings         []Booking      `json:"bookings"`
+	Bookings         []*Booking     `json:"bookings"`
 	Customer         Customer       `json:"customer" gorm:"ForeignKey:CustomerID"`
 	Account          Account        `json:"account" gorm:"ForeignKey:AccountID"`
-	Payments         []Payment      `json:"payments"`
+	Payments         []*Payment     `json:"payments"`
 	ChatChannel      ChatChannel    `json:"chat_channel" gorm:"ForeignKey:ChatChannelID"`
 }
 

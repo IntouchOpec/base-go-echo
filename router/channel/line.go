@@ -97,7 +97,6 @@ func HandleWebHookLineAPI(c echo.Context) error {
 				return c.JSON(http.StatusBadRequest, err)
 			}
 			con.PostbackAction = &postBackAction
-			fmt.Println("test")
 			switch postBackAction.Action {
 			case "location":
 				messageReply, err = LocationHandler(&con)

@@ -25,7 +25,6 @@ const (
 // Booking struct save date time
 type Booking struct {
 	orm.ModelBase
-
 	BookingType   BookingType  `json:"booking_type"`
 	BooQueue      int          `json:"boo_queue" `
 	BooLineID     string       `json:"boo_line_id" gorm:"type:varchar(50)"`
@@ -40,7 +39,7 @@ type Booking struct {
 	BooStatus     *BookStatus  `json:"boo_status"`
 	BookedDate    time.Time    `gorm:"column:booked_date" json:"booked_date"`
 	AccountID     uint         `json:"account_id"`
-	Account       Account      `json:"account" gorm:"ForeignKey:AccountID"`
+	Account       *Account     `json:"account" gorm:"ForeignKey:AccountID"`
 }
 
 type BookingTimeSlot struct {

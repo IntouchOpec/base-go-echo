@@ -42,7 +42,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-5">
                     <div class="card">
                         <div class="card-header card-header-primary d-flex">
                             <h4 class="card-title ">PayMent</h4>
@@ -53,13 +53,22 @@
                                     <thead class=" text-primary">
                                         <th>Date</th>
                                         <th>Amount</th>
-                                        <th>PayType</th>
+                                        <th>Type</th>
                                         <th>PayAt</th>
                                         <th>CreatedAt</th>
                                         <th></th>
                                     </thead>
                                     <tbody>
-                                        
+                                        {{ with .detail.Payments }}
+                                        {{ range . }}
+                                            <tr name="row_{{ .ID }}">
+                                                <td>{{ .PayAt.Format "Mon Jan 2 2006" }}</td>
+                                                <td>{{.PayAmount}}</td>
+                                                <td>{{.PayType}}</td>
+                                                <td>{{ .CreatedAt.Format "Mon Jan 2 2006" }}</td>
+                                            </tr>
+                                        {{ end }}
+                                        {{ end }}
                                     </tbody>
                                 </table>
                             </div>
@@ -69,21 +78,27 @@
                 <div class="col-md-12">
                     <div class="card">
                         <div class="card-header card-header-primary d-flex justify-content-between">
-                            <h4 class="card-title ">Service</h4>
+                            <h4 class="card-title ">List</h4>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
                                 <table class="table">
                                     <thead class=" text-primary">
                                         <th>Day</th>
-                                        <th>Start</th>
-                                        <th>To</th>
-                                        <th>Employee</th>
+                                        <th>Place</th>
                                         <th>Price</th>
                                         <th></th>
                                     </thead>
                                     <tbody>
-                                    
+                                        {{ with .bookings}}
+                                        {{ range . }}
+                                            <tr name="row_{{ .}}">
+                                                <td>{{.Start}}</td>
+                                                <td>{{.End}}</td>
+                                                <td>{{.Name}}</td>
+                                            </tr>
+                                        {{ end }}
+                                        {{ end }}
                                     </tbody>
                                 </table>
                             </div>
