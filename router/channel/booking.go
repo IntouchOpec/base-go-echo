@@ -551,6 +551,7 @@ func BookingServiceHandler(c *Context) (linebot.SendingMessage, error) {
 			return nil, err
 		}
 		tran.ChatChannelID = c.ChatChannel.ID
+		fmt.Println(serviceItem.SSPrice)
 		tran.TranTotal = serviceItem.SSPrice
 		tran.AccountID = c.ChatChannel.AccountID
 		tran.CustomerID = c.Customer.ID

@@ -2,7 +2,6 @@ package web
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/IntouchOpec/base-go-echo/model"
@@ -30,7 +29,6 @@ func PaymentOmiseHandler(c echo.Context) error {
 }
 
 const (
-	// Read these from environment variables or configuration files!
 	OmisePublicKey = "pkey_test_5ip8fflleizk5mzvnut"
 	OmiseSecretKey = "skey_test_5ip8nm6pyp7ziztxlh9"
 )
@@ -47,26 +45,40 @@ func ChargeOmiseHandler(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
+
 	token := c.FormValue("token")
 	charge, createCharge := &omise.Charge{}, &operations.CreateCharge{
-		Amount:   100000,
+		Amount:   int64(transaction.TranTotal) + 00,
 		Currency: "thb",
 		Card:     token,
 	}
 	if err := client.Do(charge, createCharge); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	var omise model.OmiseLog
+	var omiseLog model.OmiseLog
 	ev, err := json.Marshal(charge)
-	omise.Json = ev
-	omise.AccountID = account.ID
-	if err := db.Save(&omise).Error; err != nil {
+	omiseLog.Json = ev
+	omiseLog.AccountID = account.ID
+	if charge.Status == omise.ChargeSuccessful {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	if err := db.Save(&omiseLog).Error; err != nil {
 
 	}
+	var payment model.Payment
+	payment.PayAt = charge.Created
+	payment.TransactionID = transaction.ID
+	payment.PayStatus = model.PayStatusSuccess
 	transaction.TranStatus = model.TranStatusPaid
+	payment.PayAmount = transaction.TranTotal
+	payment.PayType = model.PayTypeOmise
+	if err := db.Model(&transaction).Association("Payments").Append(&payment).Error; err != nil {
+
+	}
 	if err := db.Save(&transaction).Error; err != nil {
 	}
-	fmt.Printf("%+v\n", charge)
+	// fmt.Printf("%+v\n", charge)
 
 	return c.JSON(http.StatusOK, echo.Map{})
 }

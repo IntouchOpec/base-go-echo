@@ -93,6 +93,7 @@ func Initialize() {
 	newDb.AutoMigrate(&BookingServiceItem{})
 	newDb.AutoMigrate(&BookingPackage{})
 	newDb.AutoMigrate(&BookingTimeSlot{})
+	newDb.AutoMigrate(&Payment{})
 }
 
 // CacheStore use cache MEMCACHED or REDIS.

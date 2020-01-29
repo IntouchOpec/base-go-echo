@@ -38,7 +38,6 @@ func ServiceNowListHandler(c *Context) (linebot.SendingMessage, error) {
 	}
 	if len(packageModels) < 9 {
 		if err := db.Preload("ServiceItems", "ss_is_active = ?", true).Where("account_id = ?", c.Account.ID).Find(&services).Error; err != nil {
-			fmt.Println(err)
 			return nil, err
 		}
 		for _, service := range services {
@@ -52,7 +51,6 @@ func ServiceNowListHandler(c *Context) (linebot.SendingMessage, error) {
 			flexContainerStr += fmt.Sprintf(cardServiceTemplate, service.SerName, fmt.Sprintf("https://web.%s/files?path=%s", Conf.Server.Domain, service.SerImage), service.SerDetail, button[:len(button)-1]) + ","
 		}
 	}
-	fmt.Println(flexContainerStr)
 	flexContainerStr = fmt.Sprintf(carouselTemplate, flexContainerStr[:len(flexContainerStr)-1])
 	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(flexContainerStr))
 	if err != nil {
@@ -68,7 +66,6 @@ func ServiceDateListHandler(c *Context, date string) (linebot.SendingMessage, er
 	var services []*model.Service
 	timeStart, err := time.Parse("2006-01-02T15:04", date)
 	if err != nil {
-		fmt.Println("err", err)
 		return nil, err
 	}
 	var timeEnd time.Time
@@ -93,7 +90,6 @@ func ServiceDateListHandler(c *Context, date string) (linebot.SendingMessage, er
 	}
 	if len(packageModels) < 9 {
 		if err := db.Preload("ServiceItems", "ss_is_active = ?", true).Where("account_id = ?", c.Account.ID).Find(&services).Error; err != nil {
-			fmt.Println(err)
 			return nil, err
 		}
 		for _, service := range services {

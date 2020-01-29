@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/jinzhu/gorm"
 	"github.com/line/line-bot-sdk-go/linebot"
 
 	"github.com/IntouchOpec/base-go-echo/module/auth"
@@ -114,15 +113,16 @@ func TransactionDetailHandler(c *Context) error {
 	id := c.Param("id")
 	Transaction := model.Transaction{}
 	a := auth.Default(c).GetAccountID()
-
-	if err := model.DB().Preload("Account").Where("account_id = ?", a).Preload("Bookings", func(db *gorm.DB) *gorm.DB {
-		return db.Preload("TimeSlot", func(db *gorm.DB) *gorm.DB {
-			return db.Preload("EmployeeService", func(db *gorm.DB) *gorm.DB {
-				return db.Preload("Employee").Preload("Service")
-			})
-		})
-	}).Preload("ChatChannel").Find(&Transaction, id).Error; err != nil {
-		return c.Render(http.StatusBadRequest, "404-not-fond", echo.Map{})
+	// , func(db *gorm.DB) *gorm.DB {
+	// return db.Preload("TimeSlot", func(db *gorm.DB) *gorm.DB {
+	// 	return db.Preload("EmployeeService", func(db *gorm.DB) *gorm.DB {
+	// 		return db.Preload("Employee").Preload("Service")
+	// 	})
+	// })
+	// }
+	if err := model.DB().Where("account_id = ?", a).Preload("Bookings").Preload("ChatChannel").Find(&Transaction, id).Error; err != nil {
+		fmt.Println(err)
+		return c.Render(http.StatusBadRequest, "404-page", echo.Map{})
 	}
 	return c.Render(http.StatusOK, "transaction-detail", echo.Map{
 		"title":  "transaction",

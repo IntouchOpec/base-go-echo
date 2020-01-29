@@ -8,9 +8,11 @@ import (
 
 type PaymentChannelType string
 
-type PayType int
+type PayType string
 
-const ()
+const (
+	PayTypeOmise PayType = "omise"
+)
 
 type PayStatus int
 
@@ -27,7 +29,7 @@ type Payment struct {
 	PaymentChannel PaymentChannelType `json:"payment_channel" gorm:"type:varchar(25)"`
 	PayAmount      float64            `json:"pay_amount"`
 	PayImage       string             `json:"pay_image" gorm:"type:varchar(50)"`
-	PayType        int                `json:"pay_type" gorm:"type:varchar(25)"`
+	PayType        PayType            `json:"pay_type" gorm:"type:varchar(25)"`
 	PayAt          time.Time          `json:"pay_at"`
 	PayTracking    string             `json:"pay_tracking" gorm:"type:varchar(50)"`
 	TransactionID  uint               `json:"transaction_id" gorm:"ForeignKey:ChatChannelID"`

@@ -50,6 +50,9 @@ type LineReqRegister struct {
 	Phone       string `json:"phone"`
 	Type        string `json:"type"`
 	AccessToken string `json:"accessToken"`
+	Os          string `json:"os"`
+	Language    string `json:"language"`
+	Version     string `json:"version"`
 }
 
 func LIIFRegisterSaveCustomer(c echo.Context) error {
@@ -85,6 +88,9 @@ func LIIFRegisterSaveCustomer(c echo.Context) error {
 	custo.CusEmail = req.Email
 	custo.CusFullName = req.FullName
 	custo.CusPhoneNumber = req.Phone
+	custo.Os = req.Os
+	custo.Language = req.Language
+	custo.Version = req.Version
 	u64, _ := strconv.ParseUint(req.Type, 10, 32)
 	custo.CustomerTypeID = uint(u64)
 	if err := db.Save(&custo).Error; err != nil {

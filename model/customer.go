@@ -16,6 +16,9 @@ type Customer struct {
 	CusLineID        string             `json:"cus_line_id" gorm:"type:varchar(255)"`
 	CusEmail         string             `json:"cus_email" gorm:"type:varchar(25)"`
 	CusPhoneNumber   string             `json:"cus_phone_number" gorm:"type:varchar(25)"`
+	Os               string             `json:"os" gorm:"type:varchar(25)"`
+	Language         string             `json:"language" gorm:"type:varchar(25)"`
+	Version          string             `json:"version" gorm:"type:varchar(25)"`
 	AccountID        uint               `json:"account_id" gorm:"not null;"`
 	CustomerTypeID   uint               `json:"customer_type_id"`
 	Account          Account            `json:"account" gorm:"ForeignKey:AccountID"`

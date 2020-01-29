@@ -59,21 +59,7 @@
                                         <th></th>
                                     </thead>
                                     <tbody>
-                                        {{ with .detail.Payments }}
-                                        {{ range . }}
-                                        <tr name="row_{{ .ID }}">
-                                            <td>{{.PayAt.Format "Mon Jan 2 2006"}}</td>
-                                            <td>{{.PayAmount}}</td>
-                                            <td>{{.PayType}}</td>
-                                            <td>{{.CreatedAt.Format "Mon Jan 2 2006"}}</td>
-                                            <td>
-                                                <button value="{{ .ID }}" name="search"  type="button" rel="tooltip" class="btn btn-success">
-                                                    <i class="material-icons">search</i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        {{ end }}
-                                        {{ end }}
+                                        
                                     </tbody>
                                 </table>
                             </div>
@@ -97,27 +83,7 @@
                                         <th></th>
                                     </thead>
                                     <tbody>
-                                        {{ with .detail.Bookings }}
-                                        {{ range . }}
-                                        <tr name="row_{{ .ID }}">
-                                            <td>{{.BookedDate.Format "Mon Jan 2 2006"}}</td>
-                                            <td>{{.TimeSlot.TimeStart}}</td>
-                                            <td>{{.TimeSlot.TimeEnd}}</td>
-                                            <td>{{.TimeSlot.EmployeeService.Employee.ProvName}}</td>
-                                            <td>{{.TimeSlot.EmployeeService.PSPrice}}</td>
-                                            <td>
-                                                <button value="{{ .ID }}" name="remove"  type="button" rel="tooltip" class="btn btn-danger">
-                                                    <i class="material-icons">close</i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        {{ end }}
-                                        {{ end }}
-                                        <tr name="row_{{ .ID }}">
-                                            <td colspan="4">toltal</td>
-                                            <td>{{ .detail.TranTotal }}</td>
-                                            <td></td>
-                                        </tr>
+                                    
                                     </tbody>
                                 </table>
                             </div>
