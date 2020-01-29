@@ -48,13 +48,15 @@ func ChargeOmiseHandler(c echo.Context) error {
 	var transaction model.Transaction
 	var account model.Account
 	db := model.DB()
-
 	db.Where("acc_name = ?", accountName).Find(&account)
 	db.Where("account_id = ? and tran_document_code = ?", account.ID, DocCodeTransaction).Find(&transaction)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	token := c.FormValue("token")
+	if token != "" {
+		return c.JSON(http.StatusBadRequest, echo.Map{})
+	}
 	charge, createCharge := &omise.Charge{}, &operations.CreateCharge{
 		Amount:   int64(transaction.TranTotal * 100),
 		Currency: "thb",
@@ -83,7 +85,6 @@ func ChargeOmiseHandler(c echo.Context) error {
 	transaction.TranStatus = model.TranStatusPaid
 	payment.PayAmount = transaction.TranTotal
 	payment.PayType = model.PayTypeOmise
-	fmt.Println(transaction)
 	if err := db.Model(&transaction).Updates(transaction).Error; err != nil {
 		fmt.Print(err)
 	}

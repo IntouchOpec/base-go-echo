@@ -1,9 +1,11 @@
 package web
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
+	"github.com/IntouchOpec/base-go-echo/lib"
 	"github.com/IntouchOpec/base-go-echo/model"
 	"github.com/IntouchOpec/base-go-echo/module/auth"
 	"github.com/labstack/echo"
@@ -63,9 +65,15 @@ func ContentPostHandler(c *Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	a := auth.Default(c)
-
+	file := c.FormValue("file")
+	ctx := context.Background()
+	imagePath, err := lib.UploadGoolgeStorage(ctx, file, "images/content/")
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	content.ConImage = imagePath
 	content.AccountID = a.GetAccountID()
-	err := content.SaveContent()
+	err = content.SaveContent()
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}

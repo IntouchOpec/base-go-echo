@@ -4,7 +4,7 @@
 <html lang="en">
 
 {{ template "header" .title }}
-
+<script src="//cdn.ckeditor.com/4.13.1/full/ckeditor.js"></script>
 <body class="">
     <div class="wrapper ">
     {{ template "sidebar" .base }}
@@ -25,16 +25,26 @@
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating">tilte</label>
-                                                        <input name="tilte" id="Input" value="{{.detail.ConTitle}}" type="text" class="form-control" >
+                                                        <input name="title" id="title" value="{{.detail.ConTitle}}" type="text" class="form-control" >
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12">
                                                     <textarea name="editor1" id="editor1" rows="10" cols="80">
-                                                        {{.detail.ConDetail}}
+                                                        {{.detail.ConDetail}} 
                                                     </textarea>
-                                                    <script>
-                                                        CKEDITOR.replace( 'editor1' );
-                                                    </script>
+                                                </div>
+                                                <div class="col-md-12 mt-2">
+                                                    {{ if .detail.ConImage }}
+                                                        <div className="image-wrapper" >
+                                                            <input id="image" name="image" value="{{.detail.ID}}" type="hidden" >
+                                                            <input id="ConImage" name="ConImage" value="{{.detail.ConImage}}" type="hidden" >
+                                                            <img src="/files?path={{ .detail.ConImage }}" class="img-fluid mb-2 ml-2 img-thumbnail" />
+                                                            <button id="btn-delete-image" type="button" rel="tooltip" class="btn btn-danger button-wrapper">delete</button>
+                                                        </div>                                                 
+                                                    {{ else }}
+                                                        <input id="Image" name="Image" type="file">
+                                                        <p><strong>Note:</strong> Choose any file on your computer and its name will be displayed in an alert dialog box.</p>
+                                                    {{ end }}
                                                 </div>
                                             </div>
                                             <div id="trumbowyg-demo"></div>
@@ -51,11 +61,11 @@
         </div>
     </div>
   {{ template "script" }}
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="//cdn.ckeditor.com/4.13.1/standard/ckeditor.js"></script>
+  <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+
   <script>
+      CKEDITOR.replace( 'editor1' );
     (function ($) {
-        $('#trumbowyg-demo').trumbowyg();
         const toBase64 = file => new Promise((resolve, reject) => {
             const reader = new FileReader()
             reader.readAsDataURL(file)
@@ -87,13 +97,10 @@
 
         $("form[name='create-content']").validate({
             rules: {
-                name: {
+                title: {
                     required: true
                 },
-                line_id: {
-                    required: true
-                },
-                detail: {
+                editor1: {
                     required: true
                 },
                 Image: {
@@ -104,10 +111,7 @@
                 name:  {
                     required: "Please enter a valid name"
                 },
-                line_id:  {
-                    required: "Please enter a valid line_id"
-                },
-                detail:  {
+                editor1:  {
                     required: "Please enter a valid detail"
                 },
                 Image:  {
@@ -117,26 +121,20 @@
             submitHandler: function(form) {
                 let _csrf = $("#_csrf").val()
                 let name = $("#name").val()
-                let line_id = $("#line_id").val()
-                let detail = $("#detail").val()
+                let detail = $("#editor1").val()
                 let Image =  $("#Image")
 
-
-                let encodedKey = encodeURIComponent("_csrf");
-                let encodedValue = encodeURIComponent(_csrf);
-
-                let encodenameKey = encodeURIComponent("prov_name")
-                let nameEncodeCalue = encodeURIComponent(name)
-                let encodeline_idKey = encodeURIComponent("prov_line_id")
-                let line_idEncodeCalue = encodeURIComponent(line_id)
-                let encodedetailKey = encodeURIComponent("prov_detail")
-                let detailEncodeCalue = encodeURIComponent(detail)
+                let encodedKey = encodeURIComponent("_csrf")
+                let encodedValue = encodeURIComponent(_csrf)
+                let encodeTitleKey = encodeURIComponent("con_title")
+                let EncodeTitleValue = encodeURIComponent(name)
+                let encodeDetailKey = encodeURIComponent("con_detail")
+                let DetailEncodeCalue = encodeURIComponent(detail)
                 let data = []
                 
                 data.push(encodedKey + "=" + encodedValue)
-                data.push(encodenameKey + "=" + nameEncodeCalue)
-                data.push(encodeline_idKey + "=" + line_idEncodeCalue)
-                data.push(encodedetailKey + "=" + detailEncodeCalue)
+                data.push(encodeTitleKey + "=" + EncodeTitleValue)
+                data.push(encodeDetailKey + "=" + DetailEncodeCalue)
                 let imageEncodedValue = ""
 
                 if (Image[0].files.length !== 0) {    
@@ -147,8 +145,8 @@
                         onSubmit(data)
                     })
                 } else {
-                    imageEncodedValue = $("#ProvImage").val()
-                    let imageEncodedKey = encodeURIComponent("prov_image") 
+                    imageEncodedValue = $("#ConImage").val()
+                    let imageEncodedKey = encodeURIComponent("con_image") 
                     data.push(imageEncodedKey + "=" + imageEncodedValue) 
                     onSubmit(data)
                 }
