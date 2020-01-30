@@ -32,7 +32,7 @@ func GetChatAnswerDetail(c echo.Context) error {
 func UpdateChatAnswers(c echo.Context) error {
 	id := c.Param("id")
 	chatAnswer := model.ChatAnswer{}
-	if err := c.Bind(&chatAnswer).Error; err != nil {
+	if err := c.Bind(&chatAnswer); err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}
 	chatAnswer.UpdateChatAnswer(id)

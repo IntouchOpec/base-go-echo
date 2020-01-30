@@ -38,7 +38,7 @@ func UpdatePromotion(c echo.Context) error {
 	idInt, _ := strconv.Atoi(id)
 
 	promotion := model.Promotion{}
-	if err := c.Bind(&promotion).Error; err != nil {
+	if err := c.Bind(&promotion); err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}
 	promotion.UpdatePromotion(idInt)

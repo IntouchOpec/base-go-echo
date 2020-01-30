@@ -22,7 +22,7 @@ func GetBookingDetail(c echo.Context) error {
 func UpdateBooking(c echo.Context) error {
 	id := c.Param("id")
 	booking := model.Booking{}
-	if err := c.Bind(&booking).Error; err != nil {
+	if err := c.Bind(&booking); err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}
 	booking.UpdateBooking(id)

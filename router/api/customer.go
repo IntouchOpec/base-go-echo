@@ -79,7 +79,7 @@ func UpdateCustomer(c echo.Context) error {
 	id := c.Param("id")
 	idInt, _ := strconv.Atoi(id)
 	customer := model.Customer{}
-	if err := c.Bind(&customer).Error; err != nil {
+	if err := c.Bind(&customer); err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}
 	customer.UpdateCustomer(idInt)

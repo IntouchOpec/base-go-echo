@@ -97,7 +97,7 @@ func TimeSlotUpdateHandler(c *Context) error {
 		return c.Render(http.StatusNotFound, "404-page", echo.Map{})
 	}
 
-	if err := c.Bind(&timeSlot).Error; err != nil {
+	if err := c.Bind(&timeSlot); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	if err := timeSlot.UpdateTimeSlot(id); err != nil {

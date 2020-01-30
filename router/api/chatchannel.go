@@ -145,7 +145,7 @@ func UpdateChatChannel(c echo.Context) error {
 
 	idInt, _ := strconv.Atoi(id)
 	chatChannel := model.ChatChannel{}
-	if err := c.Bind(&chatChannel).Error; err != nil {
+	if err := c.Bind(&chatChannel); err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}
 	chatChannel.EditChatChannel(idInt)
