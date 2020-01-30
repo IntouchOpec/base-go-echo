@@ -71,9 +71,11 @@ func Routers() *echo.Echo {
 
 	e.GET("/register/:lineID", LIFFRegisterHandler)
 	e.POST("/register/:lineID", LIIFRegisterSaveCustomer)
-	e.GET("/content", GetContentHandler)
-	e.GET("/report", GetReportViewsHandler)
-	e.POST("/report", CreateReportHandler)
+	e.GET("/content/:lineID", GetContentHandler)
+	e.GET("/report/:lineID", GetReportViewsHandler)
+	e.POST("/report/:lineID", CreateReportHandler)
+	e.GET("/omise", PaymentOmiseHandler)
+	e.POST("/omise_charge", ChargeOmiseHandler)
 
 	e.Use(auth.New())
 	e.GET("/", handler(indexHandler))

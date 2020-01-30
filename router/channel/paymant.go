@@ -7,7 +7,7 @@ func PaymentHandler(c *Context) (linebot.SendingMessage, error) {
 	if err != nil {
 		return nil, err
 	}
-	return linebot.NewFlexMessage("ตาราง", flexContainer), nil
+	return linebot.NewFlexMessage("", flexContainer), nil
 }
 
 var cardPatmentTemplate string = `

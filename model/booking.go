@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/IntouchOpec/base-go-echo/model/orm"
+	"github.com/jinzhu/gorm"
 )
 
 type BookStatus int
@@ -149,4 +150,11 @@ func (booking *Booking) DeleteBooking(id string) *Booking {
 func (book *Booking) BookingAcjectStatus(status string) (*Booking, error) {
 
 	return book, nil
+}
+
+func (booking *Booking) CrateBookingOnTran(tx *gorm.DB) error {
+	if err := tx.Create(&booking).Error; err != nil {
+		return err
+	}
+	return nil
 }

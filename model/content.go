@@ -4,8 +4,8 @@ import "github.com/IntouchOpec/base-go-echo/model/orm"
 
 type Content struct {
 	orm.ModelBase
-	ConTitle  string  `json:"con_title" gorm:"varchar(50)"`
-	ConDetail string  `json:"con_detail"`
+	ConTitle  string  `form:"con_title" json:"con_title" gorm:"varchar(50)"`
+	ConDetail string  `form:"con_detail" json:"con_detail"`
 	ConImage  string  `json:"con_image" gorm:"varchar(50)"`
 	UserID    uint    `json:"user_id"`
 	User      *User   `json:"user" gorm:"ForeignKey:UserID"`

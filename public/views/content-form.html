@@ -64,8 +64,12 @@
   <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
 
   <script>
-      CKEDITOR.replace( 'editor1' );
     (function ($) {
+        let editor = CKEDITOR.replace( 'editor1' )
+        let detail = ""
+        editor.on( 'change', function( evt ) {
+            detail = evt.editor.getData()
+        })
         const toBase64 = file => new Promise((resolve, reject) => {
             const reader = new FileReader()
             reader.readAsDataURL(file)
@@ -75,10 +79,8 @@
         
         const onSubmit = (data) => {
             let method = $("form[name='create-content']").attr("method")
-            data = data.join("&")
             fetch(window.location.href, {
                 method, 
-                headers: {"Content-Type": "application/x-www-form-urlencoded"},
                 body: data
             })
             .then(res => {
@@ -108,8 +110,8 @@
                 },
             },
             messages: {
-                name:  {
-                    required: "Please enter a valid name"
+                title:  {
+                    required: "Please enter a valid title"
                 },
                 editor1:  {
                     required: "Please enter a valid detail"
@@ -120,34 +122,26 @@
             },
             submitHandler: function(form) {
                 let _csrf = $("#_csrf").val()
-                let name = $("#name").val()
-                let detail = $("#editor1").val()
+                let title = $("#title").val()
+                let data = new FormData()
+                console.log(detail)
                 let Image =  $("#Image")
-
-                let encodedKey = encodeURIComponent("_csrf")
-                let encodedValue = encodeURIComponent(_csrf)
-                let encodeTitleKey = encodeURIComponent("con_title")
-                let EncodeTitleValue = encodeURIComponent(name)
-                let encodeDetailKey = encodeURIComponent("con_detail")
-                let DetailEncodeCalue = encodeURIComponent(detail)
-                let data = []
+                data.append("_csrf",_csrf)
+                data.append("con_title",title)
+                data.append("con_detail",detail)
                 
-                data.push(encodedKey + "=" + encodedValue)
-                data.push(encodeTitleKey + "=" + EncodeTitleValue)
-                data.push(encodeDetailKey + "=" + DetailEncodeCalue)
                 let imageEncodedValue = ""
 
                 if (Image[0].files.length !== 0) {    
                     toBase64(Image[0].files[0]).then(base64Image => {
-                        imageEncodedValue = encodeURIComponent(base64Image)
-                        let imageEncodedKey = encodeURIComponent("file") 
-                        data.push(imageEncodedKey + "=" + imageEncodedValue) 
+                        data.append("file",base64Image)
                         onSubmit(data)
+                        console.log(data)
                     })
                 } else {
                     imageEncodedValue = $("#ConImage").val()
-                    let imageEncodedKey = encodeURIComponent("con_image") 
-                    data.push(imageEncodedKey + "=" + imageEncodedValue) 
+                    data.append("con_image",imageEncodedValue)
+                    console.log(data)
                     onSubmit(data)
                 }
             }
