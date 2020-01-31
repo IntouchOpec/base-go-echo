@@ -13,7 +13,7 @@ type Service struct {
 	SerDetail        string             `form:"detail" json:"ser_detail" gorm:"type:varchar(25)"`
 	SerPrice         float64            `form:"price" json:"ser_price"`
 	SerTime          string             `form:"time" json:"ser_time" gorm:"type:varchar(10)"`
-	SerActive        bool               `form:"active" json:"ser_active"`
+	SerActive        bool               `form:"active" json:"ser_active" sql:"default:true" gorm:"default:true"`
 	SerImage         string             `form:"image" json:"ser_image" gorm:"type:varchar(255)"`
 	AccountID        uint               `form:"account_id" json:"account_id" gorm:"not null;"`
 	ServiceItems     []*ServiceItem     `json:"service_items"`

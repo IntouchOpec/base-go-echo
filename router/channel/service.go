@@ -13,7 +13,6 @@ import (
 func ServiceNowListHandler(c *Context) (linebot.SendingMessage, error) {
 	var flexContainerStr string
 	var packageModels []*model.Package
-	var services []*model.Service
 	now := time.Now()
 	var timeStart time.Time
 	var timeEnd time.Time
@@ -21,12 +20,15 @@ func ServiceNowListHandler(c *Context) (linebot.SendingMessage, error) {
 	var timeEndStr string
 	var duration time.Duration
 	var button string
+	var pagination Pagination
+	var total int
+	pagination.ParseQueryUnmarshal(c.Event.Postback.Data)
+	pagination.SetPagination()
 	timeStart = now.Add(30 * time.Minute)
 	db := c.DB
-	if err := db.Limit(9).Order("pac_order").Where("account_id = ? and pac_is_active = ?", c.Account.ID, true).Find(&packageModels).Error; err != nil {
-		return nil, err
-	}
-
+	filter := db.Model(&packageModels).Where("account_id = ? and pac_is_active = ?", c.Account.ID, true).Count(&total)
+	pagination.MakePagination(total, 9)
+	filter.Order("pac_order").Limit(pagination.Record).Offset(pagination.Offset).Find(&packageModels)
 	for _, packageModel := range packageModels {
 		duration = time.Duration(packageModel.PacTime.Hour() * int(time.Hour))
 		timeEnd = timeStart.Add(duration)
@@ -37,9 +39,13 @@ func ServiceNowListHandler(c *Context) (linebot.SendingMessage, error) {
 		flexContainerStr += fmt.Sprintf(cardPackageTemplate, packageModel.PacName, fmt.Sprintf("https://web.%s/files?path=%s", Conf.Server.Domain, packageModel.PacImage), timeStartStr, timeEndStr, timeStartStr, timeEndStr) + ","
 	}
 	if len(packageModels) < 9 {
-		if err := db.Preload("ServiceItems", "ss_is_active = ?", true).Where("account_id = ?", c.Account.ID).Find(&services).Error; err != nil {
-			return nil, err
-		}
+		var services []*model.Service
+		filter = db.Model(&services).Where("account_id = ? and ser_active = ?", c.Account.ID, true).Count(&total)
+		pagination.SetPagination()
+		pagination.MakePagination(total, 9-len(packageModels))
+		filter.Limit(pagination.Record).Offset(pagination.Offset).Preload("ServiceItems", "ss_is_active = ?", true).Find(&services)
+		fmt.Println(total, pagination.Record, pagination.Offset, services)
+
 		for _, service := range services {
 			button = ""
 			if len(service.ServiceItems) == 0 {
@@ -60,7 +66,6 @@ func ServiceNowListHandler(c *Context) (linebot.SendingMessage, error) {
 }
 
 func ServiceDateListHandler(c *Context, date string) (linebot.SendingMessage, error) {
-	fmt.Println(date)
 	var flexContainerStr string
 	var packageModels []*model.Package
 	var services []*model.Service
@@ -161,4 +166,27 @@ var cardPackageTemplate string = `
 		}
 	  ]
 	}
-  }`
+}`
+
+// booking_now
+// booking_appointment
+func (pagi *Pagination) makePaginationTemplate(action string) string {
+	var button string
+	if pagi.Next == true {
+		button = fmt.Sprintf(buttonTamplate, "ถัดไป", fmt.Sprintf("action=%s&page=%d", action, pagi.Page+1))
+	}
+	if pagi.Previous == true {
+		if pagi.Next == true {
+			button += ","
+		}
+		button += fmt.Sprintf(buttonTamplate, "ย้อนกลับ", fmt.Sprintf("action=%s&page=%d", action, pagi.Page-1))
+	}
+
+	return fmt.Sprintf(paginationTemplate, button)
+}
+
+var buttonTamplate string = `
+	{ "type": "button", "margin": "xs", "style": "primary", "action": 
+		{ "type": "postback", "label": "%s", "data": "%s" } }`
+
+var paginationTemplate string = `{ "type": "bubble", "direction": "ltr", "body": { "type": "box", "layout": "vertical", "contents": [ %s ] } }`

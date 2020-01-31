@@ -13,16 +13,6 @@ import (
 	"github.com/labstack/echo"
 )
 
-type PostbackAction struct {
-	Action        string `json:"action"`
-	DateStr       string `json:"date"`
-	ServiceItemID string `json:"service_item_id"`
-	PackageID     uint   `json:"package_id"`
-	Start         string `json:"start"`
-	End           string `json:"end"`
-	Day           string `json:"day"`
-}
-
 // var dp lib.DialogFlowProcessor
 // dp.Init(account.AccProjectID, account.AccAuthJSONFilePath, account.AccLang, account.AccTimeZone)
 // replyDialogflow := dp.ProcessNLP(messageText, customer.CusDisplayName)
@@ -66,7 +56,7 @@ func HandleWebHookLineAPI(c echo.Context) error {
 	}
 
 	for _, event := range events {
-		con.Event = event.Source
+		con.Event = event
 		db.Where("cus_line_id = ? and chat_channel_id = ?", event.Source.UserID, chatChannel.ID).Find(&customer)
 		con.Customer = customer
 		chatAnswer := model.ChatAnswer{}
@@ -82,15 +72,7 @@ func HandleWebHookLineAPI(c echo.Context) error {
 			for key, value := range q {
 				postBackActionStr += fmt.Sprintf(`"%s": "%s",`, key, value[0])
 			}
-			fmt.Println(event.Source.UserID)
-			out, err := json.Marshal(event)
-			if err != nil {
-				panic(err)
-			}
-
-			fmt.Println(string(out))
 			postBackActionStr = fmt.Sprintf(fmt.Sprintf("{%s}", postBackActionStr[:len(postBackActionStr)-1]))
-			fmt.Println("postBackActionStr", postBackActionStr)
 			postBackAction := PostbackAction{}
 			if err := json.Unmarshal([]byte(postBackActionStr), &postBackAction); err != nil {
 				fmt.Println("err", err)

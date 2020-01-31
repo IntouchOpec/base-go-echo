@@ -38,8 +38,26 @@ type ChatChannel struct {
 	Promotions            []*Promotion `json:"promotions" gorm:"many2many:chat_channel_promotion"`
 }
 
+const (
+	NameLIFFregister         string = "LIFFregister"
+	NameLIFFIDContent        string = "LIFFIDContent"
+	NameLIFFIDReport         string = "LIFFIDReport"
+	NameLIFFIDPayment        string = "LIFFIDPayment"
+	NameStatusLIFFregister   string = "statusLIFFregister"
+	NameStatusAccessToken    string = "statusAccessToken"
+	NameDateStatusToken      string = "dateStatusToken"
+	DetailLIFFIDRegister     string = "LIFFregister เก็บ id liff line ใช้เป็น url ใน line ใน register"
+	DetailLIFFIDContent      string = "LIFFIDContent เก็บ id liff line ใช้เป็น url ใน line ใน Content"
+	DetailLIFFIDReport       string = "LIFFIDReport เก็บ id liff line ใช้เป็น url ใน line ใน Report"
+	DetailLIFFIDPayment      string = "LIFFIDPayment เก็บ id liff line ใช้เป็น url ใน line ใน Payment"
+	DetailStatusLIFFregister string = "status ของ LIFF"
+	DetailStatusAccessToken  string = "status ของ AccessToken ใช้เพื่อติดต่อกับ line webhook"
+	DetailDateStatusToken    string = "เวลาที่ทำ action ไปขอ token จาก line"
+)
+
 // SaveChatChannel router create chatchannel.
 func (cha *ChatChannel) SaveChatChannel() error {
+
 	if err := DB().Create(&cha).Error; err != nil {
 		return err
 	}

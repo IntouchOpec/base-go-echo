@@ -192,7 +192,7 @@ func CalendarTemplate(firstKeyWordAction, lastKeyWordAction, date string) string
 }
 
 func ChooseService(c *Context) (linebot.SendingMessage, error) {
-	now := time.Now()
+	now := time.Now().Add(30 * time.Minute)
 	format := "2006-01-02T15:04"
 	m := fmt.Sprintf(serviceMassage, c.ChatChannel.ChaImage, now.Format(format), now.AddDate(0, 3, 0).Format(format), now.Format(format))
 	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(m))
@@ -413,7 +413,7 @@ func BookingTimeSlotHandler(c *Context) (linebot.SendingMessage, error) {
 	tran.TranTotal = timeSlot.EmployeeService.PSPrice
 	tran.AccountID = c.ChatChannel.AccountID
 	tran.CustomerID = c.Customer.ID
-	tran.TranLineID = c.Event.UserID
+	tran.TranLineID = c.Source.UserID
 	tran.TranStatus = model.TranStatusPanding
 	err = tx.Create(&tran).Error
 	if err != nil {
@@ -557,7 +557,7 @@ func BookingServiceHandler(c *Context) (linebot.SendingMessage, error) {
 		tran.TranTotal = serviceItem.SSPrice
 		tran.AccountID = c.ChatChannel.AccountID
 		tran.CustomerID = c.Customer.ID
-		tran.TranLineID = c.Event.UserID
+		tran.TranLineID = c.Source.UserID
 		tran.TranStatus = model.TranStatusPanding
 		err = tx.Create(&tran).Error
 		if err != nil {
@@ -646,7 +646,7 @@ func BookingServiceHandler(c *Context) (linebot.SendingMessage, error) {
 		book.PlaceID = serviceItem.Service.Places[0].ID
 		book.ChatChannelID = c.ChatChannel.ID
 		book.CustomerID = c.Customer.ID
-		book.BooLineID = c.Event.UserID
+		book.BooLineID = c.Source.UserID
 		// layout := "2006-01-02 15:00"
 		// updatedAt, err := time.Parse(layout, c.PostbackAction.Day+" 15:00")
 		if err != nil {
@@ -671,7 +671,7 @@ func BookingServiceHandler(c *Context) (linebot.SendingMessage, error) {
 		tran.TranTotal = serviceItem.SSPrice
 		tran.AccountID = c.ChatChannel.AccountID
 		tran.CustomerID = c.Customer.ID
-		tran.TranLineID = c.Event.UserID
+		tran.TranLineID = c.Source.UserID
 		tran.TranStatus = model.TranStatusPanding
 		if err := tx.Create(&tran).Error; err != nil {
 			tx.Rollback()
@@ -755,7 +755,7 @@ func bindTransaction(c *Context, Total float64) (*model.Transaction, error) {
 	tran.TranTotal = Total
 	tran.AccountID = c.ChatChannel.AccountID
 	tran.CustomerID = c.Customer.ID
-	tran.TranLineID = c.Event.UserID
+	tran.TranLineID = c.Source.UserID
 	tran.TranStatus = model.TranStatusPanding
 	return &tran, nil
 }

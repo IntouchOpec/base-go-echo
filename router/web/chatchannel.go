@@ -73,8 +73,8 @@ func ChatChannelGetChannelAccessTokenHandler(c *Context) error {
 	if err := db.Save(&chatChannel).Error; err != nil {
 		return c.NoContent(http.StatusInternalServerError)
 	}
-	dateStatusToken := model.Setting{Detail: "", Name: "dateStatusToken", Value: "success"}
-	statusAccessToken := model.Setting{Detail: "", Name: "statusAccessToken", Value: time.Now().Format("Mon Jan 2 2006")}
+	dateStatusToken := model.Setting{Detail: model.DetailDateStatusToken, Name: model.NameDateStatusToken, Value: "success"}
+	statusAccessToken := model.Setting{Detail: model.DetailStatusAccessToken, Name: model.NameStatusAccessToken, Value: time.Now().Format("Mon Jan 2 2006")}
 	if len(chatChannel.Settings) == 0 {
 		db.Save(&statusAccessToken)
 		db.Save(&dateStatusToken)
@@ -117,8 +117,8 @@ func ChatChannelAddRegisterLIFF(c *Context) error {
 	view := linebot.View{Type: "full", URL: URLRegister}
 	res, err := bot.AddLIFF(view).Do()
 
-	LIFFregister := model.Setting{Detail: "", Name: "LIFFregister", Value: res.LIFFID}
-	statusLIFFregister := model.Setting{Detail: "", Name: "statusLIFFregister", Value: "success"}
+	LIFFregister := model.Setting{Detail: model.DetailLIFFIDRegister, Name: model.NameLIFFregister, Value: res.LIFFID}
+	statusLIFFregister := model.Setting{Detail: model.DetailStatusLIFFregister, Name: model.NameStatusLIFFregister, Value: "success"}
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
@@ -358,13 +358,13 @@ func ChatChannelCreatePostHandler(c *Context) error {
 			LIFFIDPayment = res.LIFFID
 		}
 		if err := model.DB().Model(&chatChannelModel).Association("Settings").Append(
-			&model.Setting{Detail: "", Name: "LIFFregister", Value: LIFFIDRegister},
-			&model.Setting{Detail: "", Name: "LIFFIDContent", Value: LIFFIDContent},
-			&model.Setting{Detail: "", Name: "LIFFIDReport", Value: LIFFIDReport},
-			&model.Setting{Detail: "", Name: "LIFFIDPayment", Value: LIFFIDPayment},
-			&model.Setting{Detail: "", Name: "statusLIFFregister", Value: status},
-			&model.Setting{Detail: "", Name: "statusAccessToken", Value: status},
-			&model.Setting{Detail: "", Name: "dateStatusToken", Value: time.Now().Format("Mon Jan 2 2006")},
+			&model.Setting{Detail: model.DetailLIFFIDRegister, Name: model.NameLIFFregister, Value: LIFFIDRegister},
+			&model.Setting{Detail: model.DetailLIFFIDContent, Name: model.NameLIFFIDContent, Value: LIFFIDContent},
+			&model.Setting{Detail: model.DetailLIFFIDReport, Name: model.NameLIFFIDReport, Value: LIFFIDReport},
+			&model.Setting{Detail: model.DetailLIFFIDPayment, Name: model.NameLIFFIDPayment, Value: LIFFIDPayment},
+			&model.Setting{Detail: model.DetailStatusLIFFregister, Name: model.NameStatusLIFFregister, Value: status},
+			&model.Setting{Detail: model.DetailStatusAccessToken, Name: model.NameStatusAccessToken, Value: status},
+			&model.Setting{Detail: model.DetailDateStatusToken, Name: model.NameDateStatusToken, Value: time.Now().Format("Mon Jan 2 2006")},
 		).Error; err != nil {
 			return c.JSON(http.StatusBadRequest, chatChannelModel)
 		}
