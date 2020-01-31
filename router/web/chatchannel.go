@@ -107,7 +107,9 @@ func ChatChannelAddRegisterLIFF(c *Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	db.Preload("Settings", "name in (?)", []string{"LIFFregister", "statusLIFFregister"}).Where("account_id = ?", a.User.GetAccountID()).Find(&chatChannel, id)
+	db.Preload("Settings", "name in (?)",
+		[]string{"LIFFregister", "statusLIFFregister", model.NameLIFFIDContent, model.NameLIFFIDReport, model.NameLIFFIDPayment}).Where("account_id = ?",
+		a.User.GetAccountID()).Find(&chatChannel, id)
 
 	bot, err := linebot.New(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
 	if err != nil {
@@ -115,12 +117,29 @@ func ChatChannelAddRegisterLIFF(c *Context) error {
 	}
 
 	URLRegister := fmt.Sprintf("https://web.%s/register/%s", Conf.Server.Domain, chatChannel.ChaLineID)
+	URLContent := fmt.Sprintf("https://web.%s/content/%s", Conf.Server.Domain, chatChannel.ChaLineID)
+	URLPayment := fmt.Sprintf("https://web.%s/omise", Conf.Server.Domain)
+	URLReport := fmt.Sprintf("https://web.%s/report/%s", Conf.Server.Domain, chatChannel.ChaLineID)
+	var LIFFIDContent string
+	var LIFFIDReport string
+	var LIFFIDPayment string
 	// URLRegister := fmt.Sprintf("https://%s/register/%s", "586f1140.ngrok.io", chatChannel.ChaLineID)
 	view := linebot.View{Type: "full", URL: URLRegister}
+	viewURLContent := linebot.View{Type: "full", URL: URLContent}
+	viewURLReport := linebot.View{Type: "full", URL: URLReport}
+	viewURLPayment := linebot.View{Type: "full", URL: URLPayment}
 	res, err := bot.AddLIFF(view).Do()
-
+	res, err = bot.AddLIFF(viewURLContent).Do()
+	LIFFIDContent = res.LIFFID
+	res, err = bot.AddLIFF(viewURLReport).Do()
+	LIFFIDReport = res.LIFFID
+	res, err = bot.AddLIFF(viewURLPayment).Do()
+	LIFFIDPayment = res.LIFFID
 	LIFFregister := model.Setting{Detail: model.DetailLIFFIDRegister, Name: model.NameLIFFregister, Value: res.LIFFID}
 	statusLIFFregister := model.Setting{Detail: model.DetailStatusLIFFregister, Name: model.NameStatusLIFFregister, Value: "success"}
+	LIFFIDContentSetting := model.Setting{Detail: model.DetailLIFFIDContent, Name: model.NameLIFFIDContent, Value: LIFFIDContent}
+	LIFFIDReportSetting := model.Setting{Detail: model.DetailLIFFIDReport, Name: model.NameLIFFIDReport, Value: LIFFIDReport}
+	LIFFIDPaymentSetting := model.Setting{Detail: model.DetailLIFFIDPayment, Name: model.NameLIFFIDPayment, Value: LIFFIDPayment}
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
@@ -128,7 +147,7 @@ func ChatChannelAddRegisterLIFF(c *Context) error {
 		db.Save(&LIFFregister)
 		db.Save(&statusLIFFregister)
 		db.Model(&chatChannel).Association("Settings").Append(&LIFFregister)
-		db.Model(&chatChannel).Association("Settings").Append(&statusLIFFregister)
+		db.Model(&chatChannel).Association("Settings").Append(&statusLIFFregister, &LIFFIDContentSetting, &LIFFIDReportSetting, &LIFFIDPaymentSetting)
 	} else {
 		for _, setting := range chatChannel.Settings {
 			if setting.Name == LIFFregister.Name {
@@ -136,6 +155,15 @@ func ChatChannelAddRegisterLIFF(c *Context) error {
 			}
 			if statusLIFFregister.Name == setting.Name {
 				setting.Value = statusLIFFregister.Value
+			}
+			if LIFFIDContentSetting.Name == setting.Name {
+				setting.Value = LIFFIDContentSetting.Value
+			}
+			if LIFFIDReportSetting.Name == setting.Name {
+				setting.Value = LIFFIDReportSetting.Value
+			}
+			if LIFFIDPaymentSetting.Name == setting.Name {
+				setting.Value = LIFFIDPaymentSetting.Value
 			}
 			db.Save(&setting)
 		}
