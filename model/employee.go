@@ -12,6 +12,7 @@ type Employee struct {
 	ProvDetail       string             `form:"prov_detail" json:"prov_detail"`
 	ProvLineID       string             `form:"prov_line_id" json:"prov_line_id" gorm:"type:varchar(50)"`
 	ProvImage        string             `form:"image" json:"prov_image" gorm:"type:varchar(255)"`
+	ProvIsActive     bool               `json:"prov_is_active" sql:"default:true"`
 	AccountID        uint               `form:"account_id" json:"account_id"`
 	ChatChannelID    uint               `json:"chat_channel_id"`
 	EmployeeServices []*EmployeeService `json:"employee_services" `

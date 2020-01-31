@@ -66,7 +66,7 @@ type Coupon struct {
 	orm.ModelBase
 	PromotionID   uint         `json:"promotion_id"`
 	Promotion     Promotion    `json:"promotion" gorm:"ForeignKey:PromotionID"`
-	IsActive      bool         `json:"is_active" gorm:"default:true"`
+	IsActive      bool         `json:"is_active" gorm:"default:true" sql:"default:true"`
 	ChatChannelID uint         `json:"chat_channel_id"`
 	ChatChannel   *ChatChannel `json:"chat_channel" gorm:"ForeignKey:ChatChannelID"`
 	PromStartDate time.Time    `from:"start_time" gorm:"column:start_time" json:"prom_start_time"`

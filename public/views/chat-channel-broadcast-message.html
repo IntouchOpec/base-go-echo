@@ -287,7 +287,7 @@
                 let sand_date = $("input[name='sand_date']:checked").val();
                 let customer_state = $("input[name='customer_state']:checked").val();
 
-                let data =[];
+                let data = new FormData()
 
                 let _csrf_key = encodeURIComponent("_csrf")
                 let sand_date_key = encodeURIComponent("sand_date")
@@ -295,54 +295,52 @@
                 let _csrf_value = encodeURIComponent(_csrf)
                 let sand_date_value = encodeURIComponent(sand_date)
                 let customer_state_value = encodeURIComponent(customer_state)
-                data.push(_csrf_key + "=" + _csrf_value)
-                data.push(sand_date_key + "=" + sand_date_value)
-                data.push(customer_state_key + "=" + customer_state_value)
+                data.append("_csrf", _csrf_value)
+                data.append("sand_date", sand_date_value)
+                data.append("customer_state", customer_state_value)
 
                 let state = $("div.tab-pane.active").attr('id')
-                data.push(encodeURIComponent("state") + "=" + encodeURIComponent(state))            
+                data.append("state", state)            
                 switch(state) {
                     case"Massage":
-                        data.push(encodeURIComponent("text") + "=" + encodeURIComponent($("#text").val()))
+                        data.append("text", $("#text").val())
                         break;
                     case"Image":
-                        data.push(encodeURIComponent("image") + "=" + encodeURIComponent(JSON.stringify(imageBase64)))
+                        data.append("image",imageBase64)
                         break;
                     case"Video":
-                        data.push(encodeURIComponent("video") + "=" + encodeURIComponent(JSON.stringify(videoBase64)))
+                        data.append("video",videoBase64)
                         break;
                     case"Audio":
-                        data.push(encodeURIComponent("audio")+ "=" + encodeURIComponent(JSON.stringify(audioBase64)))
-                        data.push(encodeURIComponent("duration")+ "=" + encodeURIComponent(parseInt(document.getElementById("audio-src").duration)))
+                        data.append("audio",audioBase64)
+                        data.append("duration", parseInt(document.getElementById("audio-src").duration))
                         break;
                     case"Line_Bot_Designer":
                         let line_bot_designer = $("#line-bot-designer").val()
-                        data.push(encodeURIComponent("line_bot_designer")+ "=" + encodeURIComponent(line_bot_designer))
+                        data.append("line_bot_designer", line_bot_designer)
                         break;
                 }
                 if (sand_date === "2") {
                     let time = $("#time").val()  
                     let date = $("#date").val()
-                    data.push(encodeURIComponent("date") + "=" + encodeURIComponent(date))
-                    data.push(encodeURIComponent("time") + "=" + encodeURIComponent(time))
+                    data.append("date", date)
+                    data.append("time", time)
                 }
 
                 switch(customer_state) {
                 case "1":
                     let line_name = $("#line_name").val()
-                    data.push(encodeURIComponent("line_name") + "=" + encodeURIComponent(line_name))
+                    data.append("line_name", line_name)
                     break;
                 case "2":
                     let time = $("#type").val()  
-                    data.push(encodeURIComponent("customer_type_id") + "=" + encodeURIComponent(type))
+                    data.append("customer_type_id", type)
                     break;
                 }
-
-                data = data.join("&")
                 let method = $("form[name='form-broadcast']").attr("method")
                 fetch(window.location.href, {
                     method, 
-                    headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                    // headers: {"Content-Type": "application/x-www-form-urlencoded"},
                     body: data
                 })
                 .then(res =>  {

@@ -13,7 +13,7 @@ type ChatAnswer struct {
 	AnsInputType string              `form:"input_type" json:"ans_input_type"`
 	AnsReply     string              `form:"reply" json:"ans_reply"`
 	AnsReplyType linebot.MessageType `form:"reply_type" json:"ans_reply_type"`
-	AnsActive    bool                `form:"active" json:"ans_active"`
+	AnsActive    bool                `form:"active" json:"ans_active" sql:"default:true"`
 	AnsSource    string              `form:"source" json:"ans_source"`
 	AccountID    uint                `form:"account_id" json:"account_id" gorm:"not null;"`
 	ChatChannels []*ChatChannel      `json:"chat_channels" gorm:"many2many:chat_answer_chat_channel"`
