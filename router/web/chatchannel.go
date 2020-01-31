@@ -34,6 +34,8 @@ type ChatChannelForm struct {
 	Address            string `form:"address"`
 	Settings           string `form:"settings"`
 	Image              string `form:"Image"`
+	ChaOpenDate        string `form:"cha_open_date" json:"cha_open_date"`
+	ChaCloseDate       string `form:"cha_close_date" json:"cha_close_date"`
 }
 
 func ChatChannelListHandler(c *Context) error {
@@ -308,6 +310,14 @@ func ChatChannelCreatePostHandler(c *Context) error {
 	}
 
 	a := auth.Default(c)
+	openDate, err := time.Parse("15:04", chatChannel.ChaOpenDate)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	closeDate, err := time.Parse("15:04", chatChannel.ChaCloseDate)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
 	chatChannelModel := model.ChatChannel{
 		ChaChannelID:          chatChannel.ChannelID,
 		ChaName:               chatChannel.Name,
@@ -321,6 +331,8 @@ func ChatChannelCreatePostHandler(c *Context) error {
 		ChaWebSite:            chatChannel.WebSite,
 		ChaWelcomeMessage:     chatChannel.WelcomeMessage,
 		ChaAddress:            chatChannel.Address,
+		ChaOpenDate:           openDate,
+		ChaCloseDate:          closeDate,
 		Settings:              *settingsModel,
 	}
 	if err := model.DB().Create(&chatChannelModel).Error; err != nil {

@@ -101,7 +101,7 @@ func Routers() *echo.Echo {
 		managent.DELETE("/customer_type/:id", handler(CustomerTypeDeleteHandler))
 
 		managent.GET("/chat_channel", handler(ChatChannelListHandler))
-		managent.POST("/chat_channel/create", handler(CustomerTypePostHandler))
+		managent.POST("/chat_channel/create", handler(ChatChannelCreatePostHandler))
 		managent.GET("/chat_channel/create", handler(ChatChannelCreateViewHandler))
 		managent.PATCH("/chat_channel/:id/voucher_register", handler(ChatChannelVoucherRegisterHandler))
 		managent.PATCH("/chat_channel/:id/channel_access_token", handler(ChatChannelGetChannelAccessTokenHandler))
