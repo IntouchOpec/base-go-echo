@@ -44,8 +44,6 @@ func ServiceNowListHandler(c *Context) (linebot.SendingMessage, error) {
 		pagination.SetPagination()
 		pagination.MakePagination(total, 9-len(packageModels))
 		filter.Limit(pagination.Record).Offset(pagination.Offset).Preload("ServiceItems", "ss_is_active = ?", true).Find(&services)
-		fmt.Println(total, pagination.Record, pagination.Offset, services)
-
 		for _, service := range services {
 			button = ""
 			if len(service.ServiceItems) == 0 {
@@ -167,26 +165,3 @@ var cardPackageTemplate string = `
 	  ]
 	}
 }`
-
-// booking_now
-// booking_appointment
-func (pagi *Pagination) makePaginationTemplate(action string) string {
-	var button string
-	if pagi.Next == true {
-		button = fmt.Sprintf(buttonTamplate, "ถัดไป", fmt.Sprintf("action=%s&page=%d", action, pagi.Page+1))
-	}
-	if pagi.Previous == true {
-		if pagi.Next == true {
-			button += ","
-		}
-		button += fmt.Sprintf(buttonTamplate, "ย้อนกลับ", fmt.Sprintf("action=%s&page=%d", action, pagi.Page-1))
-	}
-
-	return fmt.Sprintf(paginationTemplate, button)
-}
-
-var buttonTamplate string = `
-	{ "type": "button", "margin": "xs", "style": "primary", "action": 
-		{ "type": "postback", "label": "%s", "data": "%s" } }`
-
-var paginationTemplate string = `{ "type": "bubble", "direction": "ltr", "body": { "type": "box", "layout": "vertical", "contents": [ %s ] } }`

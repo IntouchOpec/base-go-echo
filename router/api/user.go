@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -84,6 +85,7 @@ func getJWTToken(u *model.User) (t string, e error) {
 
 func GetUserList(c echo.Context) error {
 	users := model.GetUserList()
+	fmt.Printf("%+v\n", users)
 	return c.JSON(200, users)
 
 }

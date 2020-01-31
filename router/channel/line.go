@@ -79,6 +79,7 @@ func HandleWebHookLineAPI(c echo.Context) error {
 				return c.JSON(http.StatusBadRequest, err)
 			}
 			con.PostbackAction = &postBackAction
+			fmt.Println(postBackAction.Action)
 			switch postBackAction.Action {
 			case "location":
 				messageReply, err = LocationHandler(&con)
@@ -95,11 +96,14 @@ func HandleWebHookLineAPI(c echo.Context) error {
 			case "choive_man":
 				fmt.Println("choive_man")
 				messageReply, err = CalandarHandler(&con, postBackAction.DateStr)
+			case "calendar_next":
+				messageReply, err = CalandarHandler(&con, postBackAction.DateStr)
 			case "calendar":
 				fmt.Println("calendar")
-				messageReply, err = CalandarHandler(&con, postBackAction.DateStr)
+				messageReply, err = ServiceList(&con)
 			case "choose_timeslot":
 				fmt.Println("choose_timeslot")
+				messageReply, err = ServiceListLineHandler(&con)
 			case "booking_timeslot":
 				fmt.Println("booking_timeslot")
 			case "booking_now":

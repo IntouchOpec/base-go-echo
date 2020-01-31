@@ -503,7 +503,8 @@ func ChatChannelBroadcastMessageHandler(c *Context) error {
 		image := c.FormValue("image")
 		ctx := context.Background()
 		imagePath, err := lib.UploadGoolgeStorage(ctx, image, "images/broadcast/")
-		urlFile := fmt.Sprintf("https://web.%s/file?path=%s", Conf.Server.Domain, imagePath)
+		urlFile := fmt.Sprintf("https://web.%s/files?path=%s", Conf.Server.Domain, imagePath)
+		fmt.Println("urlFile", urlFile)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, err)
 		}
@@ -512,7 +513,7 @@ func ChatChannelBroadcastMessageHandler(c *Context) error {
 		video := c.FormValue("video")
 		ctx := context.Background()
 		videoPath, err := lib.UploadGoolgeStorage(ctx, video, "video/broadcast/")
-		urlFile := fmt.Sprintf("https://web.%s/file?path=%s", Conf.Server.Domain, videoPath)
+		urlFile := fmt.Sprintf("https://web.%s/files?path=%s", Conf.Server.Domain, videoPath)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, err)
 		}
@@ -528,7 +529,7 @@ func ChatChannelBroadcastMessageHandler(c *Context) error {
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, err)
 		}
-		urlFile := fmt.Sprintf("https://web.%s/file?path=%s", Conf.Server.Domain, audioPath)
+		urlFile := fmt.Sprintf("https://web.%s/files?path=%s", Conf.Server.Domain, audioPath)
 		message = linebot.NewAudioMessage(urlFile, i)
 	case "Line_Bot_Designer":
 		flex := c.FormValue("line_bot_designer")

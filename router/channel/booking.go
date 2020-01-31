@@ -27,9 +27,9 @@ var serviceMassage string = `
 	]}
 }`
 
-var buttonTimeSecondaryTemplate string = `{"type": "button", "style": "secondary", "margin": "sm", "action": { "type": "message", "label": "%s", "text": "%s" }},`
-var buttonTimePrimaryTemplate string = `{"type": "button","style": "primary", "margin": "sm", "action": { "type": "message", "label": "%s", "text": "%s" }},`
-var buttonTimePrimaryLastTemplate string = `{"type": "button","style": "primary", "margin": "sm", "action": { "type": "message", "label": "%s", "text": "%s" }},`
+var buttonTimeSecondaryTemplate string = `{"type": "button", "style": "secondary", "margin": "sm", "action": { "type": "postback", "label": "%s", "data": "%s" }},`
+var buttonTimePrimaryTemplate string = `{"type": "button","style": "primary", "margin": "sm", "action": { "type": "postback", "label": "%s", "data": "%s" }},`
+var buttonTimePrimaryLastTemplate string = `{"type": "button","style": "primary", "margin": "sm", "action": { "type": "postback", "label": "%s", "data": "%s" }},`
 var slotTimeTemplate string = `,{"type": "box", "layout": "horizontal", "margin": "md", "contents":[%s]}`
 var serviceListTemplate string = `{"type": "bubble", "hero": { "type": "image", "size": "full", "aspectRatio": "20:13", "aspectMode": "cover", "url": "%s"},
 "body": { "type": "box", "layout": "vertical", "spacing": "sm", "contents": [
@@ -142,7 +142,8 @@ func CalendarTemplate(firstKeyWordAction, lastKeyWordAction, date string) string
 			monthStr = fmt.Sprintf("0%s", monthStr)
 		}
 		contents = contents + fmt.Sprintf(`{ "type": "text", "text": "%s", "size": "sm", "color": "%s", "align": "center", "gravity": "center",
-					"action": { "type": "message", "label": "%s", "text": "%s-%s-%s"}},`, dayStr, color, day, fmt.Sprintf("%s %d", firstKeyWordAction, year), monthStr, dayStr+" "+lastKeyWordAction)
+					"action": { "type": "postback", "label": "%d", "data": "action=%s&day=%s-%s-%s"}},`, dayStr, color, day, "calendar", fmt.Sprintf("%s%d", firstKeyWordAction, year), monthStr, dayStr+" "+lastKeyWordAction)
+		fmt.Println(contents, "contents")
 		contents = contents + `{"type": "separator"},`
 		Weekday = int(time.Date(year, month, day, 0, 0, 0, -1, time.UTC).Weekday())
 		if endOfMonth.Day() == day {
@@ -207,15 +208,24 @@ func ServiceList(c *Context) (linebot.SendingMessage, error) {
 	var template string
 	var image string
 	var button string
-	if err := c.DB.Where("account_id = ?", c.ChatChannel.AccountID).Limit(10).Find(&services).Error; err != nil {
+	var pagination Pagination
+	pagination.ParseQueryUnmarshal(c.Event.Postback.Data)
+	pagination.SetPagination()
+	var total int
+	filter := c.DB.Model(&services).Where("account_id = ? and ser_active = ?", c.ChatChannel.AccountID, true).Count(&total)
+	if err := filter.Error; err != nil {
 		return nil, err
 	}
+	pagination.MakePagination(total, 9)
+	filter.Limit(pagination.Record).Offset(pagination.Offset).Find(&services)
 	for _, service := range services {
-		button = fmt.Sprintf(buttonTimePrimaryTemplate, service.SerName, "Service "+service.SerName)
+		button = fmt.Sprintf(buttonTimePrimaryTemplate, service.SerName, fmt.Sprintf("action=%s&service_id=%d", "choose_timeslot", service.ID))
 		image = "https://" + Conf.Server.Domain + service.SerImage
 		template += fmt.Sprintf(serviceListTemplate, image, service.SerName, strconv.FormatInt(int64(service.SerPrice), 10), ","+button[:len(button)-1]) + ","
 	}
-	template = fmt.Sprintf(`{ "type": "carousel", "contents": [%s]}`, template[:len(template)-1])
+	cardPagination := pagination.MakePaginationTemplate("calendar")
+	fmt.Println(cardPagination)
+	template = fmt.Sprintf(`{ "type": "carousel", "contents": [%s,%s]}`, template[:len(template)-1], cardPagination)
 	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(template))
 	if err != nil {
 		return nil, err
@@ -257,19 +267,23 @@ func ServiceListLineHandler(c *Context) (linebot.SendingMessage, error) {
 	var MSPlaces []*model.MasterPlace
 	var placeIDs []uint
 	count = 0
-	dateTime := c.Massage.Text[9:19]
+	fmt.Println(c.Event.Postback.Data)
+	dateTime := c.PostbackAction.Day
 
 	var employeeServices []model.EmployeeService
 
 	day, err := time.Parse("2006-01-02 15:04", dateTime+" 15:00")
-
+	fmt.Println("dateTime", dateTime)
 	if err != nil {
+		fmt.Println("err", err)
 		return nil, err
 	}
 
-	if err := c.DB.Where("ser_name = ? and account_id = ?", c.Massage.Text[20:], c.Account.ID).Find(&service).Error; err != nil {
+	if err := c.DB.Where("account_id = ?", c.Account.ID).Find(&service, c.PostbackAction.ServiceID).Error; err != nil {
+		fmt.Println(err, "Err")
 		return nil, err
 	}
+	fmt.Println(service, "service")
 	if err := c.DB.Preload("Employee").Preload("TimeSlots", func(db *gorm.DB) *gorm.DB {
 		return db.Where("time_day = ?", day.Weekday()).Preload("Bookings", "booked_date = ?", day)
 	}).Where("service_id = ? and account_id = ?",

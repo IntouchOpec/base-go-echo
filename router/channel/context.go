@@ -29,6 +29,7 @@ type Context struct {
 type PostbackAction struct {
 	Action        string `json:"action"`
 	DateStr       string `json:"date"`
+	ServiceID     string `json:"service_id"`
 	ServiceItemID string `json:"service_item_id"`
 	PackageID     uint   `json:"package_id"`
 	Start         string `json:"start"`
@@ -62,7 +63,9 @@ func (pagi *Pagination) MakePagination(total, limit int) {
 	pagi.Previous = false
 	pagi.Next = false
 	countPage := total / limit
+
 	pagi.StartPage = 1
+	fmt.Println(pagi.Page, "pagi.Page")
 	if pagi.Page > 1 {
 		pagi.Previous = true
 	}
@@ -118,3 +121,24 @@ func convertParamToJsonString(param string) (string, error) {
 	str = fmt.Sprintf(fmt.Sprintf("{%s}", str[:len(str)-1]))
 	return str, nil
 }
+
+func (pagi *Pagination) MakePaginationTemplate(action string) string {
+	var button string
+	if pagi.Next == true {
+		button = fmt.Sprintf(buttonTamplate, "ถัดไป", fmt.Sprintf("action=%s&page=%d", action, pagi.Page+1))
+	}
+	if pagi.Previous == true {
+		if pagi.Next == true {
+			button += ","
+		}
+		button += fmt.Sprintf(buttonTamplate, "ย้อนกลับ", fmt.Sprintf("action=%s&page=%d", action, pagi.Page-1))
+	}
+
+	return fmt.Sprintf(paginationTemplate, button)
+}
+
+var buttonTamplate string = `
+	{ "type": "button", "margin": "xs", "style": "primary", "action": 
+		{ "type": "postback", "label": "%s", "data": "%s" } }`
+
+var paginationTemplate string = `{ "type": "bubble", "direction": "ltr", "body": { "type": "box", "layout": "vertical", "contents": [ %s ] } }`
