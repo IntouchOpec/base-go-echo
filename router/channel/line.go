@@ -106,6 +106,7 @@ func HandleWebHookLineAPI(c echo.Context) error {
 				messageReply, err = ServiceListLineHandler(&con)
 			case "booking_timeslot":
 				fmt.Println("booking_timeslot")
+				messageReply, err = BookingTimeSlotHandler(&con)
 			case "booking_now":
 				fmt.Println("booking_now")
 				messageReply, err = ServiceNowListHandler(&con)

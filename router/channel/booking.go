@@ -142,7 +142,7 @@ func CalendarTemplate(firstKeyWordAction, lastKeyWordAction, date string) string
 			monthStr = fmt.Sprintf("0%s", monthStr)
 		}
 		contents = contents + fmt.Sprintf(`{ "type": "text", "text": "%s", "size": "sm", "color": "%s", "align": "center", "gravity": "center",
-					"action": { "type": "postback", "label": "%d", "data": "action=%s&day=%s-%s-%s"}},`, dayStr, color, day, "calendar", fmt.Sprintf("%s%d", firstKeyWordAction, year), monthStr, dayStr+" "+lastKeyWordAction)
+					"action": { "type": "postback", "label": "%d", "data": "action=%s&day=%s-%s-%s"}},`, dayStr, color, day, "calendar", fmt.Sprintf("%s%d", firstKeyWordAction, year), monthStr, dayStr)
 		fmt.Println(contents, "contents")
 		contents = contents + `{"type": "separator"},`
 		Weekday = int(time.Date(year, month, day, 0, 0, 0, -1, time.UTC).Weekday())
@@ -217,15 +217,16 @@ func ServiceList(c *Context) (linebot.SendingMessage, error) {
 		return nil, err
 	}
 	pagination.MakePagination(total, 9)
+	fmt.Println(c.Event.Postback.Data)
 	filter.Limit(pagination.Record).Offset(pagination.Offset).Find(&services)
 	for _, service := range services {
-		button = fmt.Sprintf(buttonTimePrimaryTemplate, service.SerName, fmt.Sprintf("action=%s&service_id=%d", "choose_timeslot", service.ID))
+		button = fmt.Sprintf(buttonTimePrimaryTemplate, service.SerName, fmt.Sprintf("action=%s&service_id=%d&day=%s", "choose_timeslot", service.ID, c.PostbackAction.Day))
 		image = "https://" + Conf.Server.Domain + service.SerImage
 		template += fmt.Sprintf(serviceListTemplate, image, service.SerName, strconv.FormatInt(int64(service.SerPrice), 10), ","+button[:len(button)-1]) + ","
 	}
-	cardPagination := pagination.MakePaginationTemplate("calendar")
-	fmt.Println(cardPagination)
-	template = fmt.Sprintf(`{ "type": "carousel", "contents": [%s,%s]}`, template[:len(template)-1], cardPagination)
+	// cardPagination := pagination.MakePaginationTemplate("calendar")
+	// fmt.Println(cardPagination)
+	template = fmt.Sprintf(`{ "type": "carousel", "contents": [%s]}`, template[:len(template)-1])
 	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(template))
 	if err != nil {
 		return nil, err
@@ -271,9 +272,7 @@ func ServiceListLineHandler(c *Context) (linebot.SendingMessage, error) {
 	dateTime := c.PostbackAction.Day
 
 	var employeeServices []model.EmployeeService
-
-	day, err := time.Parse("2006-01-02 15:04", dateTime+" 15:00")
-	fmt.Println("dateTime", dateTime)
+	day, err := time.Parse("2006-01-02", dateTime)
 	if err != nil {
 		fmt.Println("err", err)
 		return nil, err
@@ -285,14 +284,14 @@ func ServiceListLineHandler(c *Context) (linebot.SendingMessage, error) {
 	}
 	fmt.Println(service, "service")
 	if err := c.DB.Preload("Employee").Preload("TimeSlots", func(db *gorm.DB) *gorm.DB {
-		return db.Where("time_day = ?", day.Weekday()).Preload("Bookings", "booked_date = ?", day)
+		return db.Where("time_day = ?", day.Weekday())
 	}).Where("service_id = ? and account_id = ?",
 		service.ID, c.Account.ID).Find(&employeeServices).Error; err != nil {
+		fmt.Println("err", err)
 		return nil, err
 	}
 
 	c.DB.Order("m_pla_status").Where("m_pla_day = ? and place_id in (?)", day, placeIDs).Find(&MSPlaces)
-
 	for index, employeeService := range employeeServices {
 		if employeeService.Employee.ChatChannelID != c.ChatChannel.ID {
 			continue
@@ -306,7 +305,8 @@ func ServiceListLineHandler(c *Context) (linebot.SendingMessage, error) {
 			if len(timeSlot.Bookings) > 0 {
 				buttonTime = buttonTime + fmt.Sprintf(buttonTimeSecondaryTemplate, fmt.Sprintf("%s-%s", timeSlot.TimeStart, timeSlot.TimeEnd), "เต็มแล้ว")
 			} else {
-				actionMessge = "timeslot" + " " + dateTime + " " + timeSlot.TimeStart + "-" + timeSlot.TimeEnd + " " + fmt.Sprint(timeSlot.ID)
+				actionMessge = fmt.Sprintf("action=booking_timeslot&day=%s&time_slot_id=%d", dateTime, timeSlot.ID)
+				// + " " + dateTime + " " + timeSlot.TimeStart + "-" + timeSlot.TimeEnd + " " + fmt.Sprint(timeSlot.ID)
 				buttonTime = buttonTime + fmt.Sprintf(buttonTimePrimaryTemplate, fmt.Sprintf("%s-%s", timeSlot.TimeStart, timeSlot.TimeEnd), actionMessge)
 			}
 			count = count + 1
@@ -358,10 +358,10 @@ func BookingTimeSlotHandler(c *Context) (linebot.SendingMessage, error) {
 	var MSPlaces []*model.MasterPlace
 	var bookingTimeSlot model.BookingTimeSlot
 
-	dateTime := c.Massage.Text[9:19]
-	start, err := time.Parse("2006-01-02 15:04", dateTime+" 15:00")
+	dateTime := c.PostbackAction.Day
+	start, err := time.Parse("2006-01-02", dateTime)
 
-	if err := c.DB.Preload("EmployeeService").Find(&timeSlot, c.Massage.Text[32:]).Error; err != nil {
+	if err := c.DB.Preload("EmployeeService").Find(&timeSlot, c.PostbackAction.TimeSlotID).Error; err != nil {
 		return nil, err
 	}
 	c.DB.Preload("Places").Where("account_id = ?", c.Account.ID).Find(&service, timeSlot.EmployeeService.ServiceID)
@@ -397,8 +397,8 @@ func BookingTimeSlotHandler(c *Context) (linebot.SendingMessage, error) {
 		}
 	}
 	tx := c.DB.Begin()
-
-	book.PlaceID = service.Places[0].ID
+	fmt.Println("-asdokjo[")
+	book.PlaceID = 1
 	book.ChatChannelID = c.ChatChannel.ID
 	book.CustomerID = c.Customer.ID
 	book.BooLineID = c.Massage.ID
@@ -457,7 +457,7 @@ func BookingTimeSlotHandler(c *Context) (linebot.SendingMessage, error) {
 		MSPlace.MPlaFrom = form
 		MSPlace.MPlaTo = to
 		MSPlace.MPlaAmount = MSPlace.MPlaAmount + 1
-		if MSPlace.MPlaAmount == service.Places[0].PlacAmount {
+		if MSPlace.MPlaAmount == 10 {
 			MSPlace.MPlaStatus = model.MPlaStatusBusy
 		}
 		if err := tx.Create(&MSPlace).Error; err != nil {

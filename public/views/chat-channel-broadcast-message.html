@@ -340,7 +340,6 @@
                 let method = $("form[name='form-broadcast']").attr("method")
                 fetch(window.location.href, {
                     method, 
-                    // headers: {"Content-Type": "application/x-www-form-urlencoded"},
                     body: data
                 })
                 .then(res =>  {

@@ -35,6 +35,7 @@ type PostbackAction struct {
 	Start         string `json:"start"`
 	End           string `json:"end"`
 	Day           string `json:"day"`
+	TimeSlotID    string `json:"time_slot_id"`
 }
 
 type Pagination struct {

@@ -236,21 +236,13 @@ func ChatChannelDetailHandler(c *Context) error {
 		})
 	}
 	bot, _ := linebot.New(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
-	timeNow := time.Now()
-	day := fmt.Sprintf("%d", timeNow.Day()-1)
-	month := fmt.Sprintf("%d", timeNow.Month())
+	timeNow := time.Now().AddDate(0, 0, -1)
 
-	if len(day) == 1 {
-		day = "0" + day
-	}
-	if len(month) == 1 {
-		month = "0" + month
-	}
-
-	dateLineFormat := fmt.Sprintf("%d%s%s", timeNow.Year(), month, day)
+	dateLineFormat := timeNow.Format("20060102")
+	fmt.Println("dateLineFormat", "===")
+	fmt.Println("dateLineFormat", dateLineFormat)
 	MessageQuota, _ := bot.GetMessageQuota().Do()
 	MessageQuotaConsumption, err := bot.GetMessageQuotaConsumption().Do()
-
 	if err != nil {
 		return c.Render(http.StatusOK, "chat-channel-detail", echo.Map{
 			"vouchers":                 vouchers,
@@ -267,7 +259,6 @@ func ChatChannelDetailHandler(c *Context) error {
 			"list":                     chatChannel.Settings,
 		})
 	}
-
 	MessageConsumption, _ := bot.GetMessageConsumption().Do()
 	NumberReplyMessages, _ := bot.GetNumberReplyMessages(dateLineFormat).Do()
 	NumberPushMessages, _ := bot.GetNumberPushMessages(dateLineFormat).Do()
