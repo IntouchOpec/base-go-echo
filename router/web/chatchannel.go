@@ -77,7 +77,7 @@ func ChatChannelGetChannelAccessTokenHandler(c *Context) error {
 	}
 	dateStatusToken := model.Setting{Detail: model.DetailDateStatusToken, Name: model.NameDateStatusToken, Value: "success"}
 	statusAccessToken := model.Setting{Detail: model.DetailStatusAccessToken, Name: model.NameStatusAccessToken, Value: time.Now().Format("Mon Jan 2 2006")}
-	if len(chatChannel.Settings) == 0 {
+	if chatChannel.Settings == nil {
 		db.Save(&statusAccessToken)
 		db.Save(&dateStatusToken)
 		db.Model(&chatChannel).Association("Settings").Append(&statusAccessToken)
@@ -143,7 +143,7 @@ func ChatChannelAddRegisterLIFF(c *Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	if len(chatChannel.Settings) == 0 {
+	if chatChannel.Settings == nil {
 		db.Save(&LIFFregister)
 		db.Save(&statusLIFFregister)
 		db.Model(&chatChannel).Association("Settings").Append(&LIFFregister)

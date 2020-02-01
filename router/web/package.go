@@ -241,7 +241,7 @@ func PackageServiceCreatePostHandler(c *Context) error {
 	var timemillisecon time.Duration
 	var Minute int
 	fmt.Println(len(packageModel.ServiceItems), packageModel.ServiceItems[0].SSTime)
-	if len(packageModel.ServiceItems) != 0 {
+	if packageModel.ServiceItems != nil {
 		for _, service := range packageModel.ServiceItems {
 			Minute = service.SSTime.Minute() * int(time.Minute)
 			timemillisecon = time.Duration(Minute)

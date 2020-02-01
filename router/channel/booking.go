@@ -357,6 +357,7 @@ func BookingTimeSlotHandler(c *Context) (linebot.SendingMessage, error) {
 	var MSPlace model.MasterPlace
 	var MSPlaces []*model.MasterPlace
 	var bookingTimeSlot model.BookingTimeSlot
+	var place *model.Place
 
 	dateTime := c.PostbackAction.Day
 	start, err := time.Parse("2006-01-02", dateTime)
@@ -376,7 +377,7 @@ func BookingTimeSlotHandler(c *Context) (linebot.SendingMessage, error) {
 
 	c.DB.Order("m_pla_status desc, place_id").Where("account_id =? and m_pla_day = ? and m_pla_to BETWEEN ? and ? or m_pla_from BETWEEN ? and ? and place_id in (?) ",
 		c.Account.ID, timeSlot.TimeDay, timeSlot.TimeStart, timeSlot.TimeEnd, timeSlot.TimeStart, timeSlot.TimeEnd, placeIDs).Find(&MSPlaces)
-	if len(MSPlaces) > 0 {
+	if MSPlaces == nil {
 		return nil, errors.New("")
 	}
 	var placeSums []placeSum
@@ -397,14 +398,19 @@ func BookingTimeSlotHandler(c *Context) (linebot.SendingMessage, error) {
 		}
 	}
 	tx := c.DB.Begin()
-	fmt.Println("-asdokjo[")
-	book.PlaceID = 1
+
+	if len(service.Places) > 1 {
+		place = service.Places[0]
+	}
+	fmt.Println("service", c.Event.Source.UserID)
+
+	book.PlaceID = place.ID
 	book.ChatChannelID = c.ChatChannel.ID
 	book.CustomerID = c.Customer.ID
-	book.BooLineID = c.Massage.ID
+	book.BooLineID = c.Event.Source.UserID
 
 	layout := "2006-01-02 15:00"
-	updatedAt, err := time.Parse(layout, c.Massage.Text[9:19]+" 15:00")
+	updatedAt, err := time.Parse(layout, dateTime+" 15:00")
 	if err != nil {
 		tx.Rollback()
 		return nil, err
@@ -415,6 +421,7 @@ func BookingTimeSlotHandler(c *Context) (linebot.SendingMessage, error) {
 		tx.Rollback()
 		return nil, err
 	}
+
 	bookingTimeSlot.BookingID = book.ID
 	bookingTimeSlot.TimeSlotID = timeSlot.ID
 	bookingTimeSlot.EmployeeID = timeSlot.EmployeeService.EmployeeID
@@ -427,7 +434,7 @@ func BookingTimeSlotHandler(c *Context) (linebot.SendingMessage, error) {
 	tran.TranTotal = timeSlot.EmployeeService.PSPrice
 	tran.AccountID = c.ChatChannel.AccountID
 	tran.CustomerID = c.Customer.ID
-	tran.TranLineID = c.Source.UserID
+	tran.TranLineID = c.Event.Source.UserID
 	tran.TranStatus = model.TranStatusPanding
 	err = tx.Create(&tran).Error
 	if err != nil {
@@ -457,7 +464,7 @@ func BookingTimeSlotHandler(c *Context) (linebot.SendingMessage, error) {
 		MSPlace.MPlaFrom = form
 		MSPlace.MPlaTo = to
 		MSPlace.MPlaAmount = MSPlace.MPlaAmount + 1
-		if MSPlace.MPlaAmount == 10 {
+		if MSPlace.MPlaAmount == place.PlacAmount {
 			MSPlace.MPlaStatus = model.MPlaStatusBusy
 		}
 		if err := tx.Create(&MSPlace).Error; err != nil {
@@ -473,8 +480,8 @@ func BookingTimeSlotHandler(c *Context) (linebot.SendingMessage, error) {
 	tx.Commit()
 	setting := model.Setting{Value: "LIFFIDPayment"}
 	c.DB.Model(&c.ChatChannel).Association("Settings").Find(&setting)
-	thankyou := fmt.Sprintf(checkoutTemplate, c.ChatChannel.ChaImage, c.ChatChannel.ChaAddress, timeSlot.TimeStart, timeSlot.TimeEnd, setting.Value, c.Account.AccName, tran.TranDocumentCode)
-	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(thankyou))
+	checkout := fmt.Sprintf(checkoutTemplate, c.ChatChannel.ChaImage, c.ChatChannel.ChaAddress, timeSlot.TimeStart, timeSlot.TimeEnd, setting.Value, c.Account.AccName, tran.TranDocumentCode)
+	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(checkout))
 	if err != nil {
 		return nil, err
 	}
@@ -739,8 +746,8 @@ func BookingServiceHandler(c *Context) (linebot.SendingMessage, error) {
 		}
 		tx.Commit()
 	}
-	thankyou := fmt.Sprintf(checkoutTemplate, c.ChatChannel.ChaImage, c.ChatChannel.ChaAddress, c.PostbackAction.Start, c.PostbackAction.End, c.Account.AccName, tran.TranDocumentCode)
-	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(thankyou))
+	checkout := fmt.Sprintf(checkoutTemplate, c.ChatChannel.ChaImage, c.ChatChannel.ChaAddress, c.PostbackAction.Start, c.PostbackAction.End, c.Account.AccName, tran.TranDocumentCode)
+	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(checkout))
 	if err != nil {
 		return nil, err
 	}

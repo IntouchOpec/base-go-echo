@@ -24,7 +24,7 @@ func HandleWebHookLineAPI(c echo.Context) error {
 	ChannelID := c.Param("ChannelID")
 	var account model.Account
 	var chatChannel model.ChatChannel
-	var customer model.Customer
+	// var customer model.Customer
 	// var eventLog model.EventLog
 	var con Context
 	con.DB = db
@@ -57,8 +57,8 @@ func HandleWebHookLineAPI(c echo.Context) error {
 
 	for _, event := range events {
 		con.Event = event
-		db.Where("cus_line_id = ? and chat_channel_id = ?", event.Source.UserID, chatChannel.ID).Find(&customer)
-		con.Customer = customer
+		db.Where("cus_line_id = ? and account_id = ?", event.Source.UserID, account.ID).Find(&con.Customer)
+		// con.Customer = customer
 		chatAnswer := model.ChatAnswer{}
 		eventType := event.Type
 		chatAnswer.AnsInputType = string(eventType)
