@@ -128,14 +128,16 @@
                   method: "DELETE",
                   body: data
                 }).then(res => {
-                  if (res.status === 200) {
-                    return res.json()
+                  if (res.status !== 200) {
+                    throw ""
                   }
+                    return res.json()
                 }).then(json => {
                   Swal.fire("success", "", "success").then(result => {
                     $(`tr[name='row_${id}']`).remove()
                   })
                 }).catch(err => {
+                  console.log("error")
                   Swal.fire("fial", "", "warning")    
                 })
               }

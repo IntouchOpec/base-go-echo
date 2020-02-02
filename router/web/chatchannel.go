@@ -120,15 +120,21 @@ func ChatChannelAddRegisterLIFF(c *Context) error {
 	URLContent := fmt.Sprintf("https://web.%s/content/%s", Conf.Server.Domain, chatChannel.ChaLineID)
 	URLPayment := fmt.Sprintf("https://web.%s/omise", Conf.Server.Domain)
 	URLReport := fmt.Sprintf("https://web.%s/report/%s", Conf.Server.Domain, chatChannel.ChaLineID)
+	// URLRegister := fmt.Sprintf("https://%s/register/%s", "afeb70eb.ngrok.io", chatChannel.ChaLineID)
+	// URLContent := fmt.Sprintf("https://%s/content/%s", "afeb70eb.ngrok.io", chatChannel.ChaLineID)
+	// URLPayment := fmt.Sprintf("https://%s/omise", "afeb70eb.ngrok.io")
+	// URLReport := fmt.Sprintf("https://%s/report/%s", "afeb70eb.ngrok.io", chatChannel.ChaLineID)
 	var LIFFIDContent string
 	var LIFFIDReport string
 	var LIFFIDPayment string
-	// URLRegister := fmt.Sprintf("https://%s/register/%s", "586f1140.ngrok.io", chatChannel.ChaLineID)
 	view := linebot.View{Type: "full", URL: URLRegister}
 	viewURLContent := linebot.View{Type: "full", URL: URLContent}
 	viewURLReport := linebot.View{Type: "full", URL: URLReport}
 	viewURLPayment := linebot.View{Type: "full", URL: URLPayment}
 	res, err := bot.AddLIFF(view).Do()
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
 	res, err = bot.AddLIFF(viewURLContent).Do()
 	LIFFIDContent = res.LIFFID
 	res, err = bot.AddLIFF(viewURLReport).Do()
@@ -143,11 +149,8 @@ func ChatChannelAddRegisterLIFF(c *Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	if chatChannel.Settings == nil {
-		db.Save(&LIFFregister)
-		db.Save(&statusLIFFregister)
-		db.Model(&chatChannel).Association("Settings").Append(&LIFFregister)
-		db.Model(&chatChannel).Association("Settings").Append(&statusLIFFregister, &LIFFIDContentSetting, &LIFFIDReportSetting, &LIFFIDPaymentSetting)
+	if len(chatChannel.Settings) == 0 {
+		db.Model(&chatChannel).Association("Settings").Append(&LIFFregister, &statusLIFFregister, &LIFFIDContentSetting, &LIFFIDReportSetting, &LIFFIDPaymentSetting)
 	} else {
 		for _, setting := range chatChannel.Settings {
 			if setting.Name == LIFFregister.Name {
@@ -169,7 +172,13 @@ func ChatChannelAddRegisterLIFF(c *Context) error {
 		}
 	}
 
-	return c.JSON(http.StatusOK, res)
+	return c.JSON(http.StatusOK, echo.Map{
+		"LIFFregister":         LIFFregister,
+		"statusLIFFregister":   statusLIFFregister,
+		"LIFFIDContentSetting": LIFFIDContentSetting,
+		"LIFFIDReportSetting":  LIFFIDReportSetting,
+		"LIFFIDPaymentSetting": LIFFIDPaymentSetting,
+	})
 }
 
 type SettingResponse struct {
@@ -237,10 +246,7 @@ func ChatChannelDetailHandler(c *Context) error {
 	}
 	bot, _ := linebot.New(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
 	timeNow := time.Now().AddDate(0, 0, -1)
-
 	dateLineFormat := timeNow.Format("20060102")
-	fmt.Println("dateLineFormat", "===")
-	fmt.Println("dateLineFormat", dateLineFormat)
 	MessageQuota, _ := bot.GetMessageQuota().Do()
 	MessageQuotaConsumption, err := bot.GetMessageQuotaConsumption().Do()
 	if err != nil {
@@ -266,21 +272,21 @@ func ChatChannelDetailHandler(c *Context) error {
 	NumberMulticastMessages, _ := bot.GetNumberMulticastMessages(dateLineFormat).Do()
 	richMenuDefault, _ := bot.GetDefaultRichMenu().Do()
 
-	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Quota Total Usage", Value: fmt.Sprintf("%d", MessageQuota.TotalUsage)})
-	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Quota Type", Value: MessageQuota.Type})
-	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Quota Value", Value: fmt.Sprintf("%d", MessageQuota.Value)})
-	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Quota Consumption Type", Value: MessageQuotaConsumption.Type})
-	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Quota Consumption TotalUsage", Value: fmt.Sprintf("%d", MessageQuotaConsumption.TotalUsage)})
-	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Quota Consumption Value", Value: fmt.Sprintf("%d", MessageQuotaConsumption.Value)})
-	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Consumption TotalUsage", Value: fmt.Sprintf("%d", MessageConsumption.TotalUsage)})
-	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Reply Messages Status", Value: NumberReplyMessages.Status})
-	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Reply Messages Success", Value: strconv.FormatInt(NumberReplyMessages.Success, 16)})
-	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Push Messages Status", Value: NumberPushMessages.Status})
-	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Push Messages Success", Value: strconv.FormatInt(NumberPushMessages.Success, 16)})
-	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Broadcast Messages Status", Value: NumberBroadcastMessages.Status})
-	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Broadcast Messages Success", Value: strconv.FormatInt(NumberBroadcastMessages.Success, 16)})
-	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Multicast Messages Status", Value: NumberMulticastMessages.Status})
-	deplayDetailChatChannels = append(deplayDetailChatChannels, DeplayDetailChatChannel{Name: "Multicast Messages Success", Value: strconv.FormatInt(NumberMulticastMessages.Success, 16)})
+	deplayDetailChatChannels = append(deplayDetailChatChannels,
+		DeplayDetailChatChannel{Name: "Quota Total Usage", Value: fmt.Sprintf("%d", MessageQuota.TotalUsage)}, DeplayDetailChatChannel{Name: "Quota Type", Value: MessageQuota.Type},
+		DeplayDetailChatChannel{Name: "Quota Value", Value: fmt.Sprintf("%d", MessageQuota.Value)},
+		DeplayDetailChatChannel{Name: "Quota Consumption Type", Value: MessageQuotaConsumption.Type},
+		DeplayDetailChatChannel{Name: "Quota Consumption TotalUsage", Value: fmt.Sprintf("%d", MessageQuotaConsumption.TotalUsage)},
+		DeplayDetailChatChannel{Name: "Quota Consumption Value", Value: fmt.Sprintf("%d", MessageQuotaConsumption.Value)},
+		DeplayDetailChatChannel{Name: "Consumption TotalUsage", Value: fmt.Sprintf("%d", MessageConsumption.TotalUsage)},
+		DeplayDetailChatChannel{Name: "Reply Messages Status", Value: NumberReplyMessages.Status},
+		DeplayDetailChatChannel{Name: "Reply Messages Success", Value: strconv.FormatInt(NumberReplyMessages.Success, 16)},
+		DeplayDetailChatChannel{Name: "Push Messages Status", Value: NumberPushMessages.Status},
+		DeplayDetailChatChannel{Name: "Push Messages Success", Value: strconv.FormatInt(NumberPushMessages.Success, 16)},
+		DeplayDetailChatChannel{Name: "Broadcast Messages Status", Value: NumberBroadcastMessages.Status},
+		DeplayDetailChatChannel{Name: "Broadcast Messages Success", Value: strconv.FormatInt(NumberBroadcastMessages.Success, 16)},
+		DeplayDetailChatChannel{Name: "Multicast Messages Status", Value: NumberMulticastMessages.Status},
+		DeplayDetailChatChannel{Name: "Multicast Messages Success", Value: strconv.FormatInt(NumberMulticastMessages.Success, 16)})
 
 	if richMenuDefault != nil {
 		richMenu = richMenuDefault.RichMenuID
@@ -365,17 +371,17 @@ func ChatChannelCreatePostHandler(c *Context) error {
 		}
 		URLRegister := fmt.Sprintf("https://web.%s/register/%s", Conf.Server.Domain, chatChannel.LineID)
 		URLContent := fmt.Sprintf("https://web.%s/content/%s", Conf.Server.Domain, chatChannel.LineID)
-		URLPayment := fmt.Sprintf("https://web.%s/omise", Conf.Server.Domain, chatChannel.LineID)
+		URLPayment := fmt.Sprintf("https://web.%s/omise", Conf.Server.Domain)
 		URLReport := fmt.Sprintf("https://web.%s/report/%s", Conf.Server.Domain, chatChannel.LineID)
 		viewURLRegister := linebot.View{Type: "full", URL: URLRegister}
 		viewURLContent := linebot.View{Type: "full", URL: URLContent}
 		viewURLReport := linebot.View{Type: "full", URL: URLReport}
 		viewURLPayment := linebot.View{Type: "full", URL: URLPayment}
 		var status string = "success"
-		var LIFFIDRegister string = ""
-		var LIFFIDContent string = ""
-		var LIFFIDReport string = ""
-		var LIFFIDPayment string = ""
+		var LIFFIDRegister string
+		var LIFFIDContent string
+		var LIFFIDReport string
+		var LIFFIDPayment string
 		res, err := bot.AddLIFF(viewURLRegister).Do()
 		if err != nil {
 			status = "error"

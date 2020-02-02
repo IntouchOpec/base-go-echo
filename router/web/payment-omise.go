@@ -16,6 +16,7 @@ import (
 func PaymentOmiseHandler(c echo.Context) error {
 	accountName := c.QueryParam("account_name")
 	DocCodeTransaction := c.QueryParam("doc_code_transaction")
+	LiffID := c.QueryParam("liff_id")
 	var transaction model.Transaction
 	var account model.Account
 	db := model.DB()
@@ -33,6 +34,7 @@ func PaymentOmiseHandler(c echo.Context) error {
 		"accountName":        accountName,
 		"DocCodeTransaction": DocCodeTransaction,
 		"detail":             transaction,
+		"LiffID":             LiffID,
 	})
 }
 
@@ -51,6 +53,7 @@ func ChargeOmiseHandler(c echo.Context) error {
 	db.Where("acc_name = ?", accountName).Find(&account)
 	db.Where("account_id = ? and tran_document_code = ?", account.ID, DocCodeTransaction).Find(&transaction)
 	if err != nil {
+		fmt.Println("err", err)
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	token := c.FormValue("token")
@@ -71,12 +74,12 @@ func ChargeOmiseHandler(c echo.Context) error {
 	omiseLog.Json = ev
 	omiseLog.AccountID = account.ID
 	if charge.Status != omise.ChargeSuccessful {
+		fmt.Println("err", err)
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
 	if err := db.Save(&omiseLog).Error; err != nil {
 		fmt.Println(err)
-
 	}
 	var payment model.Payment
 	payment.PayAt = charge.Created

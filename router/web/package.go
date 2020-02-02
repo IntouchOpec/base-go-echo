@@ -249,7 +249,6 @@ func PackageServiceCreatePostHandler(c *Context) error {
 			Minute = service.SSTime.Hour() * int(time.Hour)
 			timemillisecon = time.Duration(Minute)
 			sumTimeUsed = sumTimeUsed.Add(timemillisecon)
-			fmt.Println(sumTimeUsed)
 		}
 	}
 	fmt.Println(sumTimeUsed)

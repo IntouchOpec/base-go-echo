@@ -24,7 +24,7 @@
   <script src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
 
   <script>
-      liff.init({ liffId: "1615136604-5wld9ZdL" }, () => {
+      liff.init({ liffId: "{{.LiffID}}" }, () => {
       }, err => console.error(err.code, error.message));
     OmiseCard.configure({
       publicKey: 'pkey_test_5ip8fflleizk5mzvnut',
@@ -64,7 +64,7 @@
         return res.json()
       }).then(json => {
         liff.closeWindow()
-      }).catch(err => {})
+      }).catch(err => {alert(err)})
     }
 
     buttonTHB.addEventListener('click', function(event) {

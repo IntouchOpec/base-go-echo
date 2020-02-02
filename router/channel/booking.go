@@ -60,7 +60,7 @@ var checkoutTemplate string = `{
 		  ]
 	},
 	"footer": { "type": "box", "layout": "vertical", "spacing": "sm", "contents": [
-		{ "type": "button", "style": "link", "height": "sm", "action": { "type": "uri", "label": "ชำระเงิน", "uri": "line://app/%s?account_name=%s&doc_code_transaction=%s" }
+		{ "type": "button", "style": "link", "height": "sm", "action": { "type": "uri", "label": "ชำระเงิน", "uri": "line://app/%s?account_name=%s&doc_code_transaction=%s&liff_id%s" }
 		},
 		{ "type": "spacer", "size": "sm" }
 	],
@@ -478,9 +478,8 @@ func BookingTimeSlotHandler(c *Context) (linebot.SendingMessage, error) {
 		return nil, err
 	}
 	tx.Commit()
-	setting := model.Setting{Value: "LIFFIDPayment"}
-	c.DB.Model(&c.ChatChannel).Association("Settings").Find(&setting)
-	checkout := fmt.Sprintf(checkoutTemplate, c.ChatChannel.ChaImage, c.ChatChannel.ChaAddress, timeSlot.TimeStart, timeSlot.TimeEnd, setting.Value, c.Account.AccName, tran.TranDocumentCode)
+	checkout := fmt.Sprintf(checkoutTemplate, c.ChatChannel.ChaImage, c.ChatChannel.ChaAddress, timeSlot.TimeStart, timeSlot.TimeEnd, c.ChatChannel.Settings[0].Value, c.Account.AccName, tran.TranDocumentCode, c.ChatChannel.Settings[0].Value)
+	fmt.Println(checkout)
 	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(checkout))
 	if err != nil {
 		return nil, err
@@ -746,7 +745,8 @@ func BookingServiceHandler(c *Context) (linebot.SendingMessage, error) {
 		}
 		tx.Commit()
 	}
-	checkout := fmt.Sprintf(checkoutTemplate, c.ChatChannel.ChaImage, c.ChatChannel.ChaAddress, c.PostbackAction.Start, c.PostbackAction.End, c.Account.AccName, tran.TranDocumentCode)
+	fmt.Println(c.ChatChannel.Settings[0])
+	checkout := fmt.Sprintf(checkoutTemplate, c.ChatChannel.ChaImage, c.ChatChannel.ChaAddress, c.PostbackAction.Start, c.PostbackAction.End, c.ChatChannel.Settings[0].Value, c.Account.AccName, tran.TranDocumentCode, c.ChatChannel.Settings[0].Value)
 	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(checkout))
 	if err != nil {
 		return nil, err

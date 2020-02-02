@@ -33,7 +33,7 @@ func HandleWebHookLineAPI(c echo.Context) error {
 		return c.NoContent(http.StatusNotFound)
 	}
 
-	if err := db.Where("cha_channel_id = ?", ChannelID).Find(&chatChannel).Error; err != nil {
+	if err := db.Preload("Settings", "name = ?", model.NameLIFFIDPayment).Where("cha_channel_id = ?", ChannelID).Find(&chatChannel).Error; err != nil {
 		return c.NoContent(http.StatusNotFound)
 	}
 
@@ -75,11 +75,9 @@ func HandleWebHookLineAPI(c echo.Context) error {
 			postBackActionStr = fmt.Sprintf(fmt.Sprintf("{%s}", postBackActionStr[:len(postBackActionStr)-1]))
 			postBackAction := PostbackAction{}
 			if err := json.Unmarshal([]byte(postBackActionStr), &postBackAction); err != nil {
-				fmt.Println("err", err)
 				return c.JSON(http.StatusBadRequest, err)
 			}
 			con.PostbackAction = &postBackAction
-			fmt.Println(postBackAction.Action)
 			switch postBackAction.Action {
 			case "location":
 				messageReply, err = LocationHandler(&con)
