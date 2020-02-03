@@ -9,22 +9,23 @@ import (
 
 func WelcomeHandle(c *Context) (linebot.SendingMessage, error) {
 	customer := model.Customer{}
-	setting := model.Setting{Name: model.NameLIFFregister}
-	// setting := c.ChatChannel.GetSetting([]string{model.NameLIFFregister})
-	// fmt.Println(setting, "====")
-	if err := c.DB.Model(&c.ChatChannel).Association("Settings").Find(&setting).Error; err != nil {
+	// setting := model.Setting{Name: model.NameLIFFregister}
+	setting := c.ChatChannel.GetSetting([]string{model.NameLIFFregister})
+	// if err := c.DB.Model(&c.ChatChannel).Association("Settings").Find(&setting, "name = ?", model.NameLIFFregister).Error; err != nil {
 
-	}
+	// }
+	fmt.Println(setting, c.ChatChannel.Settings, model.NameLIFFregister)
 	if err := model.DB().FirstOrCreate(&customer, model.Customer{
 		CusLineID: c.Event.Source.UserID,
 		AccountID: c.ChatChannel.AccountID}).Error; err != nil {
 		return nil, err
 	}
-	jsonFlexMessage := fmt.Sprintf(FollowTemplate, c.ChatChannel.ChaImage, c.ChatChannel.ChaName, c.ChatChannel.ChaWelcomeMessage, setting.Value, c.ChatChannel.ChaWebSite)
+	jsonFlexMessage := fmt.Sprintf(FollowTemplate, c.ChatChannel.ChaImage, c.ChatChannel.ChaName, c.ChatChannel.ChaWelcomeMessage, setting["LIFFregister"], c.ChatChannel.ChaWebSite)
 	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(jsonFlexMessage))
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println("jsonFlexMessage", jsonFlexMessage)
 	FlexMessage := linebot.NewFlexMessage(c.ChatChannel.ChaWelcomeMessage, flexContainer)
 	return FlexMessage, nil
 }

@@ -32,8 +32,8 @@ func HandleWebHookLineAPI(c echo.Context) error {
 	if err := db.Where("acc_name = ?", name).Find(&account).Error; err != nil {
 		return c.NoContent(http.StatusNotFound)
 	}
-
-	if err := db.Preload("Settings", "name = ?", model.NameLIFFIDPayment).Where("cha_channel_id = ?", ChannelID).Find(&chatChannel).Error; err != nil {
+	// , "name = ?", model.NameLIFFIDPayment
+	if err := db.Preload("Settings").Where("cha_channel_id = ?", ChannelID).Find(&chatChannel).Error; err != nil {
 		return c.NoContent(http.StatusNotFound)
 	}
 

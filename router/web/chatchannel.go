@@ -78,10 +78,7 @@ func ChatChannelGetChannelAccessTokenHandler(c *Context) error {
 	dateStatusToken := model.Setting{Detail: model.DetailDateStatusToken, Name: model.NameDateStatusToken, Value: "success"}
 	statusAccessToken := model.Setting{Detail: model.DetailStatusAccessToken, Name: model.NameStatusAccessToken, Value: time.Now().Format("Mon Jan 2 2006")}
 	if chatChannel.Settings == nil {
-		db.Save(&statusAccessToken)
-		db.Save(&dateStatusToken)
-		db.Model(&chatChannel).Association("Settings").Append(&statusAccessToken)
-		db.Model(&chatChannel).Association("Settings").Append(&dateStatusToken)
+		db.Model(&chatChannel).Association("Settings").Append(&statusAccessToken, &dateStatusToken)
 	} else {
 		for _, setting := range chatChannel.Settings {
 			if setting.Name == dateStatusToken.Name {

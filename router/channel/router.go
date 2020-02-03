@@ -50,8 +50,8 @@ func Routers() *echo.Echo {
 
 	e.GET("/", indexHandler)
 
-	// e.GET("/register/:lineID", web.LIFFRegisterHandler)
-	// e.POST("/register/:lineID", web.LIIFRegisterSaveCustomer)
+	e.GET("/register/:lineID", web.LIFFRegisterHandler)
+	e.POST("/register/:lineID", web.LIIFRegisterSaveCustomer)
 	e.GET("/omise", web.PaymentOmiseHandler)
 	e.POST("/omise_charge", web.ChargeOmiseHandler)
 	e.POST("/omise", HandlerOmiseWebHook)
