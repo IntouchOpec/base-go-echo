@@ -666,7 +666,7 @@ func BookingServiceHandler(c *Context) (linebot.SendingMessage, error) {
 		book.PlaceID = serviceItem.Service.Places[0].ID
 		book.ChatChannelID = c.ChatChannel.ID
 		book.CustomerID = c.Customer.ID
-		book.BooLineID = c.Source.UserID
+		book.BooLineID = c.Event.Source.UserID
 		// layout := "2006-01-02 15:00"
 		// updatedAt, err := time.Parse(layout, c.PostbackAction.Day+" 15:00")
 		if err != nil {
@@ -691,7 +691,7 @@ func BookingServiceHandler(c *Context) (linebot.SendingMessage, error) {
 		tran.TranTotal = serviceItem.SSPrice
 		tran.AccountID = c.ChatChannel.AccountID
 		tran.CustomerID = c.Customer.ID
-		tran.TranLineID = c.Source.UserID
+		tran.TranLineID = c.Event.Source.UserID
 		tran.TranStatus = model.TranStatusPanding
 		if err := tx.Create(&tran).Error; err != nil {
 			tx.Rollback()
@@ -745,7 +745,6 @@ func BookingServiceHandler(c *Context) (linebot.SendingMessage, error) {
 		}
 		tx.Commit()
 	}
-	fmt.Println(c.ChatChannel.Settings[0])
 	checkout := fmt.Sprintf(checkoutTemplate, c.ChatChannel.ChaImage, c.ChatChannel.ChaAddress, c.PostbackAction.Start, c.PostbackAction.End, c.ChatChannel.Settings[0].Value, c.Account.AccName, tran.TranDocumentCode, c.ChatChannel.Settings[0].Value)
 	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(checkout))
 	if err != nil {

@@ -114,6 +114,7 @@ type Booking struct {
 	Start string
 	End   string
 	Name  string
+	Price float64
 }
 
 func TransactionDetailHandler(c *Context) error {
@@ -127,8 +128,9 @@ func TransactionDetailHandler(c *Context) error {
 	var bookingPackage model.BookingPackage
 	var bookings []Booking
 	err := db.Preload("Payments").Preload("ChatChannel").Preload("Bookings").Where("account_id = ?", a).Find(&Transaction, id).Error
-	fmt.Println(err, "====")
-	fmt.Println(Transaction.Bookings)
+	if err != nil {
+		fmt.Println(err)
+	}
 	for _, booking := range Transaction.Bookings {
 		switch booking.BookingType {
 		case model.BookingTypeSlotTime:

@@ -2,15 +2,18 @@
 
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Success</title>
-</head>
+{{ template "header" .title }}    
 <body>
-    <img src="https://ak2.picdn.net/shutterstock/videos/1030885892/thumb/5.jpg" alt="Success">
-    ชำระเรียบร้อยแล้ว
+    <div class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <img class="img-fluid img-thumbnail" src="https://ak2.picdn.net/shutterstock/videos/1030885892/thumb/5.jpg" alt="Success">
+                    <h4 class="text-success">ชำระเรียบร้อยแล้ว</h4>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
 {{ end }}

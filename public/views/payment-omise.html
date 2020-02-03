@@ -8,6 +8,7 @@
   <title>payment {{.detail.TranDocumentCode}}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://cdn.omise.co/omise.js"></script>
+  <link href="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.5.0/css/bootstrap4-toggle.min.css" rel="stylesheet">
 </head>
 
 <body>
@@ -20,11 +21,14 @@
     <input type="hidden" name="omiseToken">
     <input type="hidden" id="pay-button-thb">
     <input type="hidden" id="pay-button-usd">
+    <input type="hidden" id="_csrf" value="{{._csrf}}">
   </form>
   <script src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
 
   <script>
       liff.init({ liffId: "{{.LiffID}}" }, () => {
+
+        
       }, err => console.error(err.code, error.message));
     OmiseCard.configure({
       publicKey: 'pkey_test_5ip8fflleizk5mzvnut',
@@ -51,9 +55,11 @@
         form.omiseSource.value = token;
       };
       let body = new FormData()
+      let csrf = document.getElementById("_csrf").value
       body.append("amount", amount.value)
       body.append("currency", "THB")
       body.append("token", token)
+      body.append("_csrf", csrf)
       fetch("/omise_charge?account_name={{.accountName}}&doc_code_transaction={{.DocCodeTransaction}}", {
           method: "POST",
           body
@@ -64,7 +70,7 @@
         return res.json()
       }).then(json => {
         liff.closeWindow()
-      }).catch(err => {alert(err)})
+      }).catch(err => {liff.closeWindow()})
     }
 
     buttonTHB.addEventListener('click', function(event) {
