@@ -124,6 +124,7 @@ func ChatChannelAddRegisterLIFF(c *Context) error {
 	// URLContent := fmt.Sprintf("https://%s/content/%s", "afeb70eb.ngrok.io", chatChannel.ChaLineID)
 	// URLPayment := fmt.Sprintf("https://%s/omise", "afeb70eb.ngrok.io")
 	// URLReport := fmt.Sprintf("https://%s/report/%s", "afeb70eb.ngrok.io", chatChannel.ChaLineID)
+	var LIFFIDRegister string
 	var LIFFIDContent string
 	var LIFFIDReport string
 	var LIFFIDPayment string
@@ -135,13 +136,14 @@ func ChatChannelAddRegisterLIFF(c *Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
+	LIFFIDRegister = res.LIFFID
 	res, err = bot.AddLIFF(viewURLContent).Do()
 	LIFFIDContent = res.LIFFID
 	res, err = bot.AddLIFF(viewURLReport).Do()
 	LIFFIDReport = res.LIFFID
 	res, err = bot.AddLIFF(viewURLPayment).Do()
 	LIFFIDPayment = res.LIFFID
-	LIFFregister := model.Setting{Detail: model.DetailLIFFIDRegister, Name: model.NameLIFFregister, Value: res.LIFFID}
+	LIFFregister := model.Setting{Detail: model.DetailLIFFIDRegister, Name: model.NameLIFFregister, Value: LIFFIDRegister}
 	statusLIFFregister := model.Setting{Detail: model.DetailStatusLIFFregister, Name: model.NameStatusLIFFregister, Value: "success"}
 	LIFFIDContentSetting := model.Setting{Detail: model.DetailLIFFIDContent, Name: model.NameLIFFIDContent, Value: LIFFIDContent}
 	LIFFIDReportSetting := model.Setting{Detail: model.DetailLIFFIDReport, Name: model.NameLIFFIDReport, Value: LIFFIDReport}

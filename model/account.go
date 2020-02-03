@@ -5,17 +5,22 @@ import (
 )
 
 type AccBookingType int8
+type AccTransactionType string
+type AccTypePayment string
 
 const (
 	AccBookingByTimeSlot AccBookingType = 0
 	AccBookingByItem     AccBookingType = 1
 )
 
-type AccTransactionType string
-
 const (
 	AccTransactionMan  AccTransactionType = "man"
 	AccTransactionAuto AccTransactionType = "auto"
+)
+
+const (
+	AccTypePaymentBooking AccTypePayment = "booking"
+	AccTypePaymentNow     AccTypePayment = "now"
 )
 
 // Account struct.
@@ -28,11 +33,10 @@ type Account struct {
 	AccTimeZone         string             `json:"acc_time_zone" grom:"type:varchar(100)"`
 	AccName             string             `json:"acc_name" gorm:"type:varchar(25)"`
 	AccTransactionType  AccTransactionType `json:"acc_transaction_type" gorm:"type:varchar(25)"`
-	AccBookingType      AccBookingType     `json:"acc_booking_type"`
-	// AccOpenDate         time.Time          `json:"acc_open_deta"`
-	// AccCloseDate time.Time      `json:"acc_close_deta"`
-	Settings     []*Setting     `json:"settings" gorm:"many2many:account_setting"`
-	ChatChannels []*ChatChannel `json:"chat_channels"`
+	AccBookingType      AccBookingType     `json:"acc_booking_type" gorm:"type:varchar(10)"`
+	AccTypePayment      AccTypePayment     `json:"acc_type_payment" gorm:"type:varchar(10)"`
+	Settings            []*Setting         `json:"settings" gorm:"many2many:account_setting"`
+	ChatChannels        []*ChatChannel     `json:"chat_channels"`
 }
 
 // func (account *Account) BeforeCreate(scope *gorm.Scope) error {

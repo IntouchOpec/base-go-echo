@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/IntouchOpec/base-go-echo/model/orm"
@@ -119,13 +120,14 @@ func DeleteChatChannel(id string) *ChatChannel {
 
 //
 func (cha *ChatChannel) GetSetting(settingNames []string) map[string]string {
-	if err := DB().Preload("Settings", "name in (?)", settingNames).Find(&cha).Error; err != nil {
+	if err := DB().Preload("Settings").Find(&cha).Error; err != nil {
 		return nil
 	}
-
+	fmt.Println(cha.Settings)
 	var m map[string]string
 	m = make(map[string]string)
 	for key := range cha.Settings {
+		fmt.Println(cha.Settings[key].Value, "=++++++++")
 		m[cha.Settings[key].Name] = cha.Settings[key].Value
 	}
 	return m

@@ -28,6 +28,7 @@
                    <div class="table-responsive">
                      <table class="table">
                        <thead class=" text-primary">
+                        <th>Doc Number</th>
                         <th>Customer</th>
                         <th>Status</th>
                         <th>Total</th>
@@ -39,6 +40,7 @@
                          {{ with .list }}
                            {{ range . }}
                             <tr name="row_{{ .ID }}">
+                              <td>{{ .TranDocumentCode }}</td>
                               <td>{{ if not .Customer.CusFullName }} {{ .TranLineID }} {{ else }} {{ .Customer.CusFullName }} {{end}}</td>
                               <td>{{ if  (eq .TranStatus 0) }} Panding {{ else if (eq .TranStatus 1) }} ApproveBooking {{ else if (eq .TranStatus 2) }} Paid {{ end }}</td>
                               <td>{{ .TranTotal }}</td>

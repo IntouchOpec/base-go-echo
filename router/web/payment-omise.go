@@ -155,31 +155,10 @@ var listTemplate string = `
 
 var receiptTemplate string = `{
 	"type": "bubble",
-	"body": {
-	  "type": "box",
-	  "layout": "vertical",
-	  "contents": [
-		{
-		  "type": "text",
-		  "text": "RECEIPT",
-		  "weight": "bold",
-		  "color": "#1DB446",
-		  "size": "sm"
-		},
-		{
-		  "type": "text",
-		  "text": "%s",
-		  "weight": "bold",
-		  "size": "xxl",
-		  "margin": "md"
-		},
-		{
-		  "type": "text",
-		  "text": "%s",
-		  "size": "xs",
-		  "color": "#aaaaaa",
-		  "wrap": true
-		},
+	"body": { "type": "box", "layout": "vertical", "contents": [
+		{ "type": "text", "text": "RECEIPT", "weight": "bold", "color": "#1DB446", "size": "sm" },
+		{ "type": "text", "text": "%s", "weight": "bold", "size": "xxl", "margin": "md" },
+		{ "type": "text", "text": "%s", "size": "xs", "color": "#aaaaaa", "wrap": true },
 		{
 		  "type": "separator",
 		  "margin": "xxl"

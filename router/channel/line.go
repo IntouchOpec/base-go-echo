@@ -168,7 +168,7 @@ func HandleWebHookLineAPI(c echo.Context) error {
 			return c.JSON(200, "")
 
 		case linebot.EventTypeFollow:
-			messageReply, err = welcomeHandle(&c, event, &chatChannel)
+			messageReply, err = WelcomeHandle(&con)
 			if err != nil {
 				fmt.Println("err", err)
 				return c.JSON(http.StatusBadRequest, err)

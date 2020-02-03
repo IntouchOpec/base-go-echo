@@ -58,7 +58,7 @@ func TransactionListHandler(c *Context) error {
 	db := model.DB()
 	filterTran := db.Where("account_id = ?", a.GetAccountID()).Preload("Customer").Find(&Transactions).Count(&total)
 	pagination := MakePagination(total, page, limit)
-	filterTran.Limit(pagination.Record).Offset(pagination.Offset).Find(&Transactions)
+	filterTran.Order("tran_document_code desc").Limit(pagination.Record).Offset(pagination.Offset).Find(&Transactions)
 	return c.Render(http.StatusOK, "transaction-list", echo.Map{
 		"title":      "transaction",
 		"list":       Transactions,
