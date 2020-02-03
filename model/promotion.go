@@ -39,8 +39,7 @@ type Promotion struct {
 
 type Voucher struct {
 	orm.ModelBase
-	PromotionID   uint         `json:"promotion_id"`
-	Promotion     *Promotion   `json:"promotion" gorm:"ForeignKey:PromotionID"`
+
 	ChatChannelID uint         `json:"chat_channel_id"`
 	IsActive      bool         `json:"is_active" sql:"default:true" gorm:"default:true"`
 	ChatChannel   *ChatChannel `json:"chat_channel" gorm:"ForeignKey:ChatChannelID"`
@@ -48,6 +47,8 @@ type Voucher struct {
 	PromEndDate   time.Time    `from:"end_time" gorm:"column:end_time" json:"prom_end_time"`
 	PromAmount    int          `form:"amount" json:"prom_amount"`
 	PromCondition string       `form:"condition" json:"prom_condition"`
+	PromotionID   uint         `json:"promotion_id"`
+	Promotion     *Promotion   `json:"promotion" gorm:"ForeignKey:PromotionID"`
 	AccountID     uint         `json:"account_id"`
 	Account       Account      `gorm:"ForeignKey:AccountID"`
 }

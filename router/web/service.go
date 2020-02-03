@@ -324,7 +324,6 @@ func ServiceItemCreatePostHandler(c *Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	if err := c.Bind(&req); err != nil {
-		fmt.Println(err)
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	SSTime, _ := time.Parse("15:04", req.Time)
@@ -332,9 +331,7 @@ func ServiceItemCreatePostHandler(c *Context) error {
 	serviceItem.SSPrice = req.Price
 	serviceItem.SSName = req.Name
 	serviceItem.AccountID = accID
-	fmt.Println(req)
 	if err := db.Model(&service).Association("ServiceItems").Append(&serviceItem).Error; err != nil {
-		fmt.Println(err)
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	return c.JSON(http.StatusCreated, echo.Map{
@@ -396,7 +393,6 @@ func ServiceItemRemoveHandler(c *Context) error {
 	db := model.DB()
 	var service model.Service
 	var serviceItem model.ServiceItem
-	fmt.Println(id, seriveItemID)
 	if err := db.Where("account_id = ?", accID).Find(&service, id).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}

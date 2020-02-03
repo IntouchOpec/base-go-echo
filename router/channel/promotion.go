@@ -3,10 +3,12 @@ package channel
 import (
 	"fmt"
 
+	"github.com/jinzhu/gorm"
+
 	. "github.com/IntouchOpec/base-go-echo/conf"
 
 	"github.com/IntouchOpec/base-go-echo/model"
-	"github.com/hb-go/gorm"
+	// "github.com/hb-go/gorm"
 	"github.com/line/line-bot-sdk-go/linebot"
 )
 
@@ -35,9 +37,8 @@ func VoucherListHandler(c *Context) (linebot.SendingMessage, error) {
 	var endDateStr string
 	c.DB.Preload("Voucher", func(db *gorm.DB) *gorm.DB {
 		return db.Preload("Promotion")
-	}).Where("account_id = ? and customer_id = ? and v_c_used = ?",
+	}).Where("account_id = ? and customer_id = ? and vc_used = ?",
 		c.Account.ID, c.Customer.ID, false).Find(&voucherCustomers)
-
 	for _, voucherCustomer := range voucherCustomers {
 		startDateStr = voucherCustomer.Voucher.PromStartDate.Format("2006-01-02")
 		endDateStr = voucherCustomer.Voucher.PromEndDate.Format("2006-01-02")
@@ -51,7 +52,6 @@ func VoucherListHandler(c *Context) (linebot.SendingMessage, error) {
 	} else {
 		template = fmt.Sprintf(carouselTemplate, template[:len(template)-1])
 	}
-
 	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(template))
 	if err != nil {
 		return nil, err

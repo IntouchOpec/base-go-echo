@@ -48,7 +48,6 @@ func (templateSoc *TemplateSocial) GetTemplateSocial() string {
 	if err := DB().Preload("KeyTemplates").Preload("TemplateSocialDetails.KeyTemplates", func(db *gorm.DB) *gorm.DB {
 		return db.Order("template_social_detail.no asc")
 	}).Find(&templateSoc).Error; err != nil {
-		fmt.Println(err)
 		return ""
 	}
 	tempDetails := []*TemplateSocialDetail{}
