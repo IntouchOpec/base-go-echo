@@ -134,7 +134,7 @@ func ServiceList(c *Context) (linebot.SendingMessage, error) {
 	filter.Limit(pagination.Record).Offset(pagination.Offset).Find(&services)
 	for _, service := range services {
 		button = fmt.Sprintf(buttonTimePrimaryTemplate, service.SerName, fmt.Sprintf("action=%s&service_id=%d&day=%s", "choose_timeslot", service.ID, c.PostbackAction.Day))
-		image = "https://" + Conf.Server.Domain + service.SerImage
+		image = fmt.Sprintf("https://web.%s/files?path=%s", Conf.Server.Domain, service.SerImage)
 		template += fmt.Sprintf(serviceListTemplate, image, service.SerName, strconv.FormatInt(int64(service.SerPrice), 10), ","+button[:len(button)-1]) + ","
 	}
 	template = fmt.Sprintf(`{ "type": "carousel", "contents": [%s]}`, template[:len(template)-1])
