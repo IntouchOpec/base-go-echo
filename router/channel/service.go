@@ -46,6 +46,7 @@ func ServiceNowListHandler(c *Context) (linebot.SendingMessage, error) {
 		filter.Limit(pagination.Record).Offset(pagination.Offset).Preload("ServiceItems", "ss_is_active = ?", true).Find(&services)
 		for _, service := range services {
 			button = ""
+			fmt.Println(service.ServiceItems)
 			if len(service.ServiceItems) == 0 {
 				continue
 			}
