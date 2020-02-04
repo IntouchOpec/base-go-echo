@@ -52,7 +52,7 @@
 
                                                             {{ with .chatChannels }}
                                                             {{ range . }}
-                                                                <option value='{{ . }}'>{{.}}</option>
+                                                                <option value='{{ .ID }}'>{{.ChaName}}</option>
                                                             {{ end }}
                                                             {{ end }}
                                                         </select>
