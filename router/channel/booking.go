@@ -57,7 +57,6 @@ func CalendarTemplate(firstKeyWordAction, lastKeyWordAction, date string) string
 		}
 		contents = contents + fmt.Sprintf(`{ "type": "text", "text": "%s", "size": "sm", "color": "%s", "align": "center", "gravity": "center",
 					"action": { "type": "postback", "label": "%d", "data": "action=%s&day=%s-%s-%s"}},`, dayStr, color, day, "calendar", fmt.Sprintf("%s%d", firstKeyWordAction, year), monthStr, dayStr)
-		fmt.Println(contents, "contents")
 		contents = contents + `{"type": "separator"},`
 		Weekday = int(time.Date(year, month, day, 0, 0, 0, -1, time.UTC).Weekday())
 		if endOfMonth.Day() == day {
@@ -138,8 +137,6 @@ func ServiceList(c *Context) (linebot.SendingMessage, error) {
 		image = "https://" + Conf.Server.Domain + service.SerImage
 		template += fmt.Sprintf(serviceListTemplate, image, service.SerName, strconv.FormatInt(int64(service.SerPrice), 10), ","+button[:len(button)-1]) + ","
 	}
-	// cardPagination := pagination.MakePaginationTemplate("calendar")
-	// fmt.Println(cardPagination)
 	template = fmt.Sprintf(`{ "type": "carousel", "contents": [%s]}`, template[:len(template)-1])
 	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(template))
 	if err != nil {
@@ -392,8 +389,16 @@ func BookingTimeSlotHandler(c *Context) (linebot.SendingMessage, error) {
 		return nil, err
 	}
 	tx.Commit()
-	checkout := fmt.Sprintf(checkoutTemplate, c.ChatChannel.ChaImage, c.ChatChannel.ChaAddress, timeSlot.TimeStart, timeSlot.TimeEnd, c.ChatChannel.Settings[0].Value, c.Account.AccName, tran.TranDocumentCode, c.ChatChannel.Settings[0].Value)
-	fmt.Println(checkout)
+	setting := c.ChatChannel.GetSetting([]string{model.NameLIFFIDPayment})
+	checkout := fmt.Sprintf(checkoutTemplate,
+		c.ChatChannel.ChaImage,
+		c.ChatChannel.ChaAddress,
+		timeSlot.TimeStart,
+		timeSlot.TimeEnd,
+		setting[model.NameLIFFIDPayment],
+		c.Account.AccName,
+		tran.TranDocumentCode,
+		setting[model.NameLIFFIDPayment])
 	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(checkout))
 	if err != nil {
 		return nil, err

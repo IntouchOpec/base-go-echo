@@ -98,7 +98,7 @@ var checkoutTemplate string = `{
 		  ]
 	},
 	"footer": { "type": "box", "layout": "vertical", "spacing": "sm", "contents": [
-		{ "type": "button", "style": "link", "height": "sm", "action": { "type": "uri", "label": "ชำระเงิน", "uri": "line://app/%s?account_name=%s&doc_code_transaction=%s&liff_id%s" }
+		{ "type": "button", "style": "link", "height": "sm", "action": { "type": "uri", "label": "ชำระเงิน", "uri": "line://app/%s?account_name=%s&doc_code_transaction=%s&liff_id=%s" }
 		},
 		{ "type": "spacer", "size": "sm" }
 	],

@@ -86,7 +86,6 @@ func UploadImageRichMenu(c echo.Context) error {
 	if _, err = io.Copy(dst, src); err != nil {
 		return err
 	}
-	fmt.Println(file.Filename, "====")
 	chatChannel := model.ChatChannel{}
 
 	db := model.DB()

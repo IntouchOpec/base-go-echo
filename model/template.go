@@ -1,8 +1,6 @@
 package model
 
 import (
-	"fmt"
-
 	"github.com/IntouchOpec/base-go-echo/model/orm"
 	"github.com/jinzhu/gorm"
 )
@@ -96,6 +94,5 @@ func (templateSoc *TemplateSocial) GetTemplateSocial() string {
 
 		}
 	}
-	fmt.Println(souce)
 	return ""
 }

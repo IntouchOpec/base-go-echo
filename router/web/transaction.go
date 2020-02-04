@@ -129,7 +129,7 @@ func TransactionDetailHandler(c *Context) error {
 	var bookings []Booking
 	err := db.Preload("Payments").Preload("ChatChannel").Preload("Bookings").Where("account_id = ?", a).Find(&Transaction, id).Error
 	if err != nil {
-		fmt.Println(err)
+
 	}
 	for _, booking := range Transaction.Bookings {
 		switch booking.BookingType {

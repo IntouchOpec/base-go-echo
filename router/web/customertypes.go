@@ -57,7 +57,6 @@ func CustomerTypeEditPutHandler(c *Context) error {
 	if err := c.Bind(&customerType); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	fmt.Println(customerType.ID)
 
 	if err := db.Save(&customerType).Error; err != nil {
 		return err

@@ -14,7 +14,6 @@ func WelcomeHandle(c *Context) (linebot.SendingMessage, error) {
 	// if err := c.DB.Model(&c.ChatChannel).Association("Settings").Find(&setting, "name = ?", model.NameLIFFregister).Error; err != nil {
 
 	// }
-	fmt.Println(setting, c.ChatChannel.Settings, model.NameLIFFregister)
 	if err := model.DB().FirstOrCreate(&customer, model.Customer{
 		CusLineID: c.Event.Source.UserID,
 		AccountID: c.ChatChannel.AccountID}).Error; err != nil {
@@ -25,7 +24,6 @@ func WelcomeHandle(c *Context) (linebot.SendingMessage, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("jsonFlexMessage", jsonFlexMessage)
 	FlexMessage := linebot.NewFlexMessage(c.ChatChannel.ChaWelcomeMessage, flexContainer)
 	return FlexMessage, nil
 }

@@ -240,7 +240,6 @@ func PackageServiceCreatePostHandler(c *Context) error {
 	var sumTimeUsed time.Time
 	var timemillisecon time.Duration
 	var Minute int
-	fmt.Println(len(packageModel.ServiceItems), packageModel.ServiceItems[0].SSTime)
 	if packageModel.ServiceItems != nil {
 		for _, service := range packageModel.ServiceItems {
 			Minute = service.SSTime.Minute() * int(time.Minute)
@@ -251,7 +250,6 @@ func PackageServiceCreatePostHandler(c *Context) error {
 			sumTimeUsed = sumTimeUsed.Add(timemillisecon)
 		}
 	}
-	fmt.Println(sumTimeUsed)
 
 	packageModel.PacTime = sumTimeUsed
 

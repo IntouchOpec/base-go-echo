@@ -2,7 +2,6 @@ package web
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 
 	"github.com/IntouchOpec/base-go-echo/lib"
@@ -30,7 +29,6 @@ func SettingHandler(c *Context) error {
 		AccBooking{ID: model.AccBookingByTimeSlot, Text: "Time Slot"},
 		AccBooking{ID: model.AccBookingByItem, Text: "item"},
 	}
-	fmt.Println(accBookingTypes[acc.AccBookingType].Text)
 	err := c.Render(http.StatusOK, "setting", echo.Map{
 		"detail":              acc,
 		"bookingType":         accBookingTypes[acc.AccBookingType].Text,
