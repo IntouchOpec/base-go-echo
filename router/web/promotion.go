@@ -60,14 +60,36 @@ func PromotionDetailHandler(c *Context) error {
 	})
 }
 
+type PromotionDetailForm struct {
+	PromotionDetail *model.PromotionDetail
+	ChatChannels    []model.ChatChannel
+}
+type VoucherForm struct {
+	Voucher      *model.Voucher
+	ChatChannels []model.ChatChannel
+}
+
+type CouponForm struct {
+	Coupon       *model.Coupon
+	ChatChannels []model.ChatChannel
+}
+
 func PromotionFormHandler(c *Context) error {
 	promotion := model.Promotion{}
+	chatChannels := []model.ChatChannel{}
+	accID := auth.Default(c).GetAccountID()
+	db := model.DB()
+	db.Where("account_id = ?", accID).Find(&chatChannels)
 	promotionTypes := []model.PromotionType{model.PromotionPromotionType, model.PromotionTypeCoupon, model.PromotionTypeVoucher}
 	return c.Render(http.StatusOK, "promotion-form", echo.Map{
 		"method":         "POST",
+		"chatChannels":   chatChannels,
 		"detail":         promotion,
 		"title":          "promotion",
 		"promotionTypes": promotionTypes,
+		"PromotionForm":  &PromotionDetailForm{PromotionDetail: &model.PromotionDetail{}, ChatChannels: chatChannels},
+		"VoucherForm":    &VoucherForm{Voucher: &model.Voucher{}, ChatChannels: chatChannels},
+		"CouponForm":     &CouponForm{Coupon: &model.Coupon{}, ChatChannels: chatChannels},
 	})
 }
 

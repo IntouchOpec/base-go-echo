@@ -1,4 +1,148 @@
 
+{{define "form-detail" }}
+<div class="card" name="form-Promotion">
+    <div class="card-header card-header-primary">
+        <h4 class="card-title">Detail</h4>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-12 mt-2">
+                <div class="form-group">
+                    <label class="bmd-label-floating" >chat channel</label>
+                    <select name="employee-serviceType" class="form-control" data-style="btn btn-link"> 
+                        {{ if .PromotionDetail.ChatChannelID }}
+                            <option value="{{.PromotionDetail.ChatChannelID}}">
+                                {{ .PromotionDetail.ChatChannel.ChaName }}
+                            </option>
+                        {{ else }}
+                            <option value="">choose type</option>
+                        {{ end }}      
+                        {{ with .ChatChannels }}
+                        {{ range . }}
+                            <option value="{{.ID}}">{{.ChaName}}</option>
+                        {{ end }}
+                        {{ end }}
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-12 mt-2">
+                <div class="form-group">
+                    <label class="bmd-label-floating">StartDate</label>
+                    <input name="PDStartDate"  value="{{.PromotionDetail.PDStartDate}}" type="date" class="form-control" >
+                </div>
+            </div>
+            <div class="col-md-12 mt-2">
+                <div class="form-group">
+                    <label class="bmd-label-floating">EndDate</label>
+                    <input name="PDEndDate" value="{{.PromotionDetail.PDEndDate}}" type="date" class="form-control" >
+                </div>
+            </div>
+            <div class="col-md-12 mt-2">
+                <div class="form-group">
+                    <label class="bmd-label-floating" >condition</label>
+                    <textarea name="PDCondition" value="{{.PromotionDetail.PDCondition}}" type="text" class="form-control" ></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{end}}
+{{define "form-Coupon"}}
+<div class="card" name="form-Coupon">
+    <div class="card-header card-header-primary">
+        <h4 class="card-title">Coupon</h4>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-12 mt-2">
+                <div class="form-group">
+                    <label class="bmd-label-floating" >chat channel</label>
+                    <select name="employee-serviceType" class="form-control" data-style="btn btn-link" >       
+                        {{ if .Coupon.ChatChannelID }}
+                            <option value="{{.Coupon.ChatChannelID}}">
+                                {{ .Coupon.ChatChannel.ChaName }}
+                            </option>
+                        {{ else }}
+                            <option value="">choose type</option>
+                        {{ end }}
+                        {{ with .ChatChannels }}
+                        {{ range . }}
+                            <option value="{{.ID}}">{{.ChaName}}</option>
+                        {{ end }}
+                        {{ end }}
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-12 mt-2">
+                <div class="form-group">
+                    <label class="bmd-label-floating">StartDate</label>
+                    <input name="PromStartDate" value="{{.Coupon.PromStartDate}}" type="date" class="form-control" >
+                </div>
+            </div>
+            <div class="col-md-12 mt-2">
+                <div class="form-group">
+                    <label class="bmd-label-floating">EndDate</label>
+                    <input name="PromEndDate" value="{{.Coupon.PromEndDate}}" type="date" class="form-control" >
+                </div>
+            </div>
+            <div class="col-md-12 mt-2">
+                <div class="form-group">
+                    <label class="bmd-label-floating" >condition</label>
+                    <textarea name="PromCondition" value="{{.Coupon.PromCondition}}" type="text" class="form-control" ></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{end}}
+{{define "form-Voucher"}}
+<div class="card" name="form-Voucher">
+    <div class="card-header card-header-primary">
+        <h4 class="card-title">Voucher</h4>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-12 mt-2">
+                <div class="form-group">
+                    <label class="bmd-label-floating" >chat channel</label>
+                    <select name="employee-serviceType" class="form-control" data-style="btn btn-link">       
+                        {{ if .Voucher.ChatChannelID }}
+                            <option value="{{.PromotionDetail.ChatChannelID}}">
+                                {{ .Voucher.ChatChannel.ChaName }}
+                            </option>
+                        {{ else }}
+                            <option value="">choose type</option>
+                        {{ end }}      
+                        {{ with .ChatChannels }}
+                        {{ range . }}
+                            <option value="{{.ID}}">{{.ChaName}}</option>
+                        {{ end }}
+                        {{ end }}
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-12 mt-2">
+                <div class="form-group">
+                    <label class="bmd-label-floating">StartDate</label>
+                    <input name="PromStartDate"  value="{{.Voucher.PromStartDate}}" type="date" class="form-control" >
+                </div>
+            </div>
+            <div class="col-md-12 mt-2">
+                <div class="form-group">
+                    <label class="bmd-label-floating">EndDate</label>
+                    <input name="PromEndDate" value="{{.Voucher.PromEndDate}}" type="date" class="form-control" >
+                </div>
+            </div>
+            <div class="col-md-12 mt-2">
+                <div class="form-group">
+                    <label class="bmd-label-floating" >condition</label>
+                    <textarea name="PromCondition" value="{{.Voucher.PromCondition}}" type="text" class="form-control" ></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{end}}
 {{define "promotion-form"}}
 <!DOCTYPE html>
 <html lang="en">
@@ -11,6 +155,7 @@
         <div class="main-panel">
             {{ template "navbar" .title }}
             <div class="content">
+                <form method="{{.method}}" name="create-promotion" >
                 <div class="container-fluid">
                     <div class="row">
                             <div class="col-md-6">
@@ -19,7 +164,6 @@
                                         <h4 class="card-title">{{.mode}} Promotion</h4>
                                     </div>
                                     <div class="card-body">
-                                       <form method="{{.method}}" name="create-promotion" >
                                             <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden" >
                                             <div class="row">
                                                 <div class="col-md-12 mt-2">
@@ -35,7 +179,7 @@
                                                             {{ if .detail.PromType }}
                                                                 <option value="{{.detail.PromType}}">{{.detail.PromType}}</option>
                                                             {{ else }}
-                                                                <option value="">choose Type</option>
+                                                                <option value="">choose type</option>
                                                             {{ end }}
 
                                                             {{ with .promotionTypes }}
@@ -84,22 +228,247 @@
                                                 </div>
                                             </div>
                                             <input type="submit" rel="tooltip" value="Submit" class="btn btn-success">
-                                        </form>
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-6" id="type-promotiom">
+                                
+                            </div>
                         </div>
                     </div>
-                </div>
+                </form>
+            </div>
             {{ template "footer" }}
             </div>
         </div>
     </div>
   {{ template "script" }}
   <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jquery.add-input-area@4.11.0/dist/jquery.add-input-area.min.js"></script>
   <script>
    
     (function ($) {
+        let buttonAdd = `<button id="button-add-form" type="button" class="btn btn-primary">add</button>`
+        let rules = {
+            Title: {
+                    required: true
+                },
+                PromotionType: {
+                    required: true
+                },
+                Discount: {
+                    required: true
+                },
+                Amount: {
+                    required: true
+                },
+                Code: {
+                    required: true
+                },
+                Name: {
+                    required: true
+                },
+                Image: {
+                    required: true
+                },}
+        let messages = {
+                Title: {
+                    required: "Please enter a valid Title"
+                },
+                PromotionType: {
+                    required: "Please enter a valid PromotionType"
+                },
+                Discount: {
+                    required: "Please enter a valid Discount"
+                },
+                Amount: {
+                    required: "Please enter a valid Amount"
+                },
+                Code: {
+                    required: "Please enter a valid Code"
+                },
+                Name: {
+                    required: "Please enter a valid Name"
+                },
+                Image: {
+                    required: "Please enter a valid Image"
+                },}
+        let formTypePromotion = $("#type-promotiom")
+        let PromotionType = $("#PromotionType")
+        let rulesDetail = {}
+        let messagesDetail = {}
+        let i = 0
+       
+        function buttonAddForm(number) {
+            let form 
+            switch (PromotionType.val()) {
+                case "Coupon":
+                    form = `<div class="card" name="form-Coupon">
+                                <div class="card-header card-header-primary d-flex justify-content-between">
+                                    <h4 class="card-title">Coupon</h4>
+                                    <p value="${number}" name="remove-card" class="btn btn-info">X</p>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-12 mt-2">
+                                            <div class="form-group">
+                                                <label class="bmd-label-floating" >chat channel</label>
+                                                <select name="employee-serviceType${number}" class="form-control" data-style="btn btn-link" id="chat_channel_id">       
+                                                    {{ if .Coupon.ChatChannelID }}
+                                                        <option value="{{.Coupon.ChatChannelID}}">
+                                                            {{ .Coupon.ChatChannel.ChaName }}
+                                                        </option>
+                                                    {{ else }}
+                                                        <option value="">choose type</option>
+                                                    {{ end }}
+                                                    {{ with .ChatChannels }}
+                                                    {{ range . }}
+                                                        <option value="{{.ID}}">{{.ChaName}}</option>
+                                                    {{ end }}
+                                                    {{ end }}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12 mt-2">
+                                            <div class="form-group">
+                                                <label class="bmd-label-floating">StartDate</label>
+                                                <input name="PromStartDate${number}" value="{{.Coupon.PromStartDate}}" id="StartDate" type="date" class="form-control" >
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12 mt-2">
+                                            <div class="form-group">
+                                                <label class="bmd-label-floating">EndDate</label>
+                                                <input name="PromEndDate${number}" value="{{.Coupon.PromEndDate}}" type="date" class="form-control" >
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12 mt-2">
+                                            <div class="form-group">
+                                                <label class="bmd-label-floating" >condition</label>
+                                                <textarea name="PromCondition${number}" value="{{.Coupon.PromCondition}}" type="text" class="form-control" ></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>`
+                    break;
+                case "Voucher":
+                    form =  `<div class="card" name="form-Voucher">
+                                <div class="card-header card-header-primary d-flex justify-content-between">
+                                    <h4 class="card-title">Voucher</h4>
+                                    <p value="${number}" name="remove-card" class="btn btn-info">X</p>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-12 mt-2">
+                                            <div class="form-group">
+                                                <label class="bmd-label-floating" >chat channel</label>
+                                                <select name="employee-serviceType${number}" class="form-control" data-style="btn btn-link" id="chat_channel_id">       
+                                                    {{ if .Voucher.ChatChannelID }}
+                                                        <option value="{{.PromotionDetail.ChatChannelID}}">
+                                                            {{ .Voucher.ChatChannel.ChaName }}
+                                                        </option>
+                                                    {{ else }}
+                                                        <option value="">choose type</option>
+                                                    {{ end }}      
+                                                    {{ with .ChatChannels }}
+                                                    {{ range . }}
+                                                        <option value="{{.ID}}">{{.ChaName}}</option>
+                                                    {{ end }}
+                                                    {{ end }}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12 mt-2">
+                                            <div class="form-group">
+                                                <label class="bmd-label-floating">StartDate</label>
+                                                <input name="PromStartDate${number}" value="{{.Voucher.PromStartDate}}" id="StartDate" type="date" class="form-control" >
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12 mt-2">
+                                            <div class="form-group">
+                                                <label class="bmd-label-floating">EndDate</label>
+                                                <input name="PromEndDate${number}" value="{{.Voucher.PromEndDate}}" type="date" class="form-control" >
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12 mt-2">
+                                            <div class="form-group">
+                                                <label class="bmd-label-floating" >condition</label>
+                                                <textarea name="PromCondition${number}" value="{{.Voucher.PromCondition}}" type="text" class="form-control" ></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>`
+                    break;
+                default:
+                    break;
+            }
+            $("#button-add-form").click(function() {
+                formTypePromotion.append(form)
+            })
+            
+        }
+        $("p[name='remove-card']").click(function () {
+            console.log($(this).val())
+            // $(this).click(function () {
+            //     console.log($(this).val())
+            // })
+        })
+        PromotionType.change(() => {
+            switch (PromotionType.val()) {
+                case "Promotion":
+                    $(`div[name="form-Coupon"]`).remove()
+                    $(`div[name="form-Voucher"]`).remove()
+                    formTypePromotion.html(`{{ template "form-detail" .PromotionForm }}`)
+                    break;
+                case "Coupon":
+                    $(`div[name="form-Promotion"]`).remove()
+                    $(`div[name="form-Voucher"]`).remove()
+                    formTypePromotion.append(`{{ template "form-Coupon" .CouponForm }}${buttonAdd}`)
+                    buttonAddForm(i)
+                    break;
+                case "Voucher":
+                    $(`div[name="form-Promotion"]`).remove()
+                    $(`div[name="form-Coupon"]`).remove()
+                    formTypePromotion.append(`{{ template "form-Voucher" .VoucherForm }}${buttonAdd}`)
+                    buttonAddForm(i)
+                    break;
+                default:
+                    formTypePromotion.html("")
+                    break;
+            }
+            i++
+        })
+        $("form[name='create-promotion']").on("submit", function() {
+            let index = 0
+            $(`div[name='form-${PromotionType.val()}']`).each(function( ) {
+                $(this).find("input").each(function( ) {
+                    let name = $(this).attr('name')
+                    $(this).rules("add", 
+                    {
+                        required:  { required : true },
+                        messages:  { required: `Please enyer a valid ${name}`  },
+                    })
+                })
+                $(this).find("select").each(function( ) {
+                    let name = $(this).attr('name')
+                    $(this).rules("add", 
+                    {
+                        required:  { required : true },
+                        messages:  { required: `Please enyer a valid ${name}`  },
+                    })
+                })
+                $(this).find("textarea").each(function( ) {
+                    let name = $(this).attr('name')
+                    $(this).rules("add", 
+                    {
+                        required:  { required : true },
+                        messages:  { required: `Please enyer a valid ${name}`  },
+                    })
+                })
+                index++
+            })
+        })
         function removeImage () {
             let id = $("#image").val()
             let _csrf = $("#_csrf").val()
@@ -167,55 +536,11 @@
         }
         
         $("form[name='create-promotion']").validate({
-            rules: {
-                Title: {
-                    required: true
-                },
-                PromotionType: {
-                    required: true
-                },
-                Discount: {
-                    required: true
-                },
-                Amount: {
-                    required: true
-                },
-                Code: {
-                    required: true
-                },
-                Name: {
-                    required: true
-                },
-                Image: {
-                    required: true
-                },
-            },
-            messages: {
-                Title: {
-                    required: "Please enter a valid Title"
-                },
-                PromotionType: {
-                    required: "Please enter a valid PromotionType"
-                },
-                Discount: {
-                    required: "Please enter a valid Discount"
-                },
-                Amount: {
-                    required: "Please enter a valid Amount"
-                },
-                Code: {
-                    required: "Please enter a valid Code"
-                },
-                Name: {
-                    required: "Please enter a valid Name"
-                },
-                Image: {
-                    required: "Please enter a valid Image"
-                },
-            },
+            rules,
+            messages,
             submitHandler: function(form) {
                 let _csrf = $("#_csrf").val()
-                let PromotionType = $("#PromotionType").val()
+               
                 let Title = $("#Title").val()
                 let Discount = $("#Discount").val()
                 let Amount = $("#Amount").val()
@@ -231,7 +556,7 @@
                 let nameEncodedKey = encodeURIComponent("name") 
                 let imageEncodedKey = encodeURIComponent("file") 
 
-                let typePromotionEncodedValue = encodeURIComponent(PromotionType)
+                let typePromotionEncodedValue = encodeURIComponent(PromotionType.val())
                 let titleEncodedValue = encodeURIComponent(Title)
                 let discountEncodedValue = encodeURIComponent(Discount)
                 let amountEncodedValue = encodeURIComponent(Amount)
@@ -258,7 +583,7 @@
                         let promImageEncodedValue = encodeURIComponent("")
                         data.push(promImageEncodedKey + "=" + promImageEncodedValue)
                         data.push(imageEncodedKey + "=" + imageEncodedValue)
-                        onSubmit(data)
+                        // onSubmit(data)
                     })
                     return
                 } else {
@@ -266,7 +591,7 @@
                     let ImageEncodedKey = encodeURIComponent("image")
                     let ImageEncodedValue = encodeURIComponent(image)
                     data.push(ImageEncodedKey + "=" + ImageEncodedValue)
-                    onSubmit(data)
+                    // onSubmit(data)
 
                 }
             }
