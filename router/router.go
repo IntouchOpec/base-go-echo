@@ -47,15 +47,6 @@ func RunSubdomains(confFilePath string) {
 
 	e.Pre(mw.RemoveTrailingSlash())
 
-	// Elastic APM
-	// Requires APM Server 6.5.0 or newer
-	// apm.DefaultTracer.Service.Version = Conf.App.Version
-	// e.Use(apmechov4.Middleware(
-	// 	apmechov4.WithRequestIgnorer(func(request *http.Request) bool {
-	// 		return false
-	// 	}),
-	// ))
-
 	e.Logger.SetLevel(GetLogLvl())
 
 	// Metrics

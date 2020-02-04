@@ -659,7 +659,8 @@ func BookingServiceHandler(c *Context) (linebot.SendingMessage, error) {
 		}
 		tx.Commit()
 	}
-	checkout := fmt.Sprintf(checkoutTemplate, c.ChatChannel.ChaImage, c.ChatChannel.ChaAddress, c.PostbackAction.Start, c.PostbackAction.End, c.ChatChannel.Settings[0].Value, c.Account.AccName, tran.TranDocumentCode, c.ChatChannel.Settings[0].Value)
+	setting := c.ChatChannel.GetSetting([]string{model.NameLIFFIDPayment})
+	checkout := fmt.Sprintf(checkoutTemplate, c.ChatChannel.ChaImage, c.ChatChannel.ChaAddress, c.PostbackAction.Start, c.PostbackAction.End, setting[model.NameLIFFIDPayment], c.Account.AccName, tran.TranDocumentCode, setting[model.NameLIFFIDPayment])
 	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(checkout))
 	if err != nil {
 		return nil, err
