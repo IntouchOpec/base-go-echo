@@ -97,27 +97,30 @@ func EmployeePostHandler(c *Context) error {
 func EmployeePutHandler(c *Context) error {
 	employee := model.Employee{}
 	a := auth.Default(c)
+	id := c.Param("id")
 	file := c.FormValue("file")
-	ctx := context.Background()
-	imagePath, err := lib.UploadGoolgeStorage(ctx, file, "images/employee/")
-	if err != nil {
+	if file != "" {
+		ctx := context.Background()
+		imagePath, err := lib.UploadGoolgeStorage(ctx, file, "images/employee/")
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, err)
+		}
+		employee.ProvImage = imagePath
+	}
+	db := model.DB()
+	if err := db.Where("account_id = ?", a.GetAccountID()).Find(&employee, id).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-
-	employee.ProvImage = imagePath
-	employee.AccountID = a.GetAccountID()
-
 	if err := c.Bind(&employee); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	err = employee.CreateEmployee()
-	if err != nil {
+	if err := db.Save(&employee).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	redirect := fmt.Sprintf("/admin/employee/%d", employee.ID)
 
-	return c.JSON(http.StatusCreated, redirect)
+	return c.JSON(http.StatusCreated, echo.Map{"redirect": redirect})
 }
 
 func EmployeeEditHandler(c *Context) error {
