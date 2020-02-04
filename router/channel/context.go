@@ -66,7 +66,6 @@ func (pagi *Pagination) MakePagination(total, limit int) {
 	countPage := total / limit
 
 	pagi.StartPage = 1
-	fmt.Println(pagi.Page, "pagi.Page")
 	if pagi.Page > 1 {
 		pagi.Previous = true
 	}
@@ -79,9 +78,7 @@ func (pagi *Pagination) MakePagination(total, limit int) {
 	}
 	pagi.Record = total - limit*pagi.Page
 	pagi.Offset = limit * pagi.Page
-	if pagi.Record > 9 {
-		pagi.Record = 9
-	}
+	pagi.Record = 9
 }
 
 func (pagi *Pagination) ParseQueryUnmarshal(param string) error {
