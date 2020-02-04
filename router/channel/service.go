@@ -43,6 +43,7 @@ func ServiceNowListHandler(c *Context) (linebot.SendingMessage, error) {
 		filter = db.Model(&services).Where("account_id = ? and ser_active = ?", c.Account.ID, true).Count(&total)
 		pagination.SetPagination()
 		pagination.MakePagination(total, 9-len(packageModels))
+		fmt.Println(total)
 		filter.Limit(pagination.Record).Offset(pagination.Offset).Preload("ServiceItems", "ss_is_active = ?", true).Find(&services)
 		fmt.Println(services)
 		for _, service := range services {
