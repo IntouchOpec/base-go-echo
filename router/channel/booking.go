@@ -208,7 +208,7 @@ func ServiceListLineHandler(c *Context) (linebot.SendingMessage, error) {
 			if len(timeSlot.Bookings) > 0 {
 				buttonTime = buttonTime + fmt.Sprintf(buttonTimeSecondaryTemplate, fmt.Sprintf("%s-%s", timeSlot.TimeStart, timeSlot.TimeEnd), "เต็มแล้ว")
 			} else {
-				actionMessge = fmt.Sprintf("x=booking_timeslot&day=%s&time_slot_id=%d", dateTime, timeSlot.ID)
+				actionMessge = fmt.Sprintf("action=booking_timeslot&day=%s&time_slot_id=%d", dateTime, timeSlot.ID)
 				buttonTime = buttonTime + fmt.Sprintf(buttonTimePrimaryTemplate, fmt.Sprintf("%s-%s", timeSlot.TimeStart, timeSlot.TimeEnd), actionMessge)
 			}
 			count = count + 1
@@ -229,7 +229,6 @@ func ServiceListLineHandler(c *Context) (linebot.SendingMessage, error) {
 	nextPage := nextPageTemplate
 
 	serviceTamplate := fmt.Sprintf(`{ "type": "carousel", "contents": [%s, %s]}`, serviceList, nextPage)
-	fmt.Println(serviceTamplate)
 	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(serviceTamplate))
 	if err != nil {
 		return nil, err
