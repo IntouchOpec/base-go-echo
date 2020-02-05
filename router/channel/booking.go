@@ -130,7 +130,6 @@ func ServiceList(c *Context) (linebot.SendingMessage, error) {
 		return nil, err
 	}
 	pagination.MakePagination(total, 9)
-	fmt.Println(c.Event.Postback.Data)
 	filter.Limit(pagination.Record).Offset(pagination.Offset).Find(&services)
 	for _, service := range services {
 		button = fmt.Sprintf(buttonTimePrimaryTemplate, service.SerName, fmt.Sprintf("action=%s&service_id=%d&day=%s", "choose_timeslot", service.ID, c.PostbackAction.Day))
@@ -179,26 +178,20 @@ func ServiceListLineHandler(c *Context) (linebot.SendingMessage, error) {
 	var MSPlaces []*model.MasterPlace
 	var placeIDs []uint
 	count = 0
-	fmt.Println(c.Event.Postback.Data)
 	dateTime := c.PostbackAction.Day
 
 	var employeeServices []model.EmployeeService
 	day, err := time.Parse("2006-01-02", dateTime)
 	if err != nil {
-		fmt.Println("err", err)
 		return nil, err
 	}
-
 	if err := c.DB.Where("account_id = ?", c.Account.ID).Find(&service, c.PostbackAction.ServiceID).Error; err != nil {
-		fmt.Println(err, "Err")
 		return nil, err
 	}
-	fmt.Println(service, "service")
 	if err := c.DB.Preload("Employee").Preload("TimeSlots", func(db *gorm.DB) *gorm.DB {
-		return db.Where("time_day = ?", day.Weekday())
+		return db.Where("time_day = ?", int(day.Weekday()))
 	}).Where("service_id = ? and account_id = ?",
 		service.ID, c.Account.ID).Find(&employeeServices).Error; err != nil {
-		fmt.Println("err", err)
 		return nil, err
 	}
 
@@ -217,7 +210,6 @@ func ServiceListLineHandler(c *Context) (linebot.SendingMessage, error) {
 				buttonTime = buttonTime + fmt.Sprintf(buttonTimeSecondaryTemplate, fmt.Sprintf("%s-%s", timeSlot.TimeStart, timeSlot.TimeEnd), "เต็มแล้ว")
 			} else {
 				actionMessge = fmt.Sprintf("action=booking_timeslot&day=%s&time_slot_id=%d", dateTime, timeSlot.ID)
-				// + " " + dateTime + " " + timeSlot.TimeStart + "-" + timeSlot.TimeEnd + " " + fmt.Sprint(timeSlot.ID)
 				buttonTime = buttonTime + fmt.Sprintf(buttonTimePrimaryTemplate, fmt.Sprintf("%s-%s", timeSlot.TimeStart, timeSlot.TimeEnd), actionMessge)
 			}
 			count = count + 1
@@ -313,7 +305,6 @@ func BookingTimeSlotHandler(c *Context) (linebot.SendingMessage, error) {
 	if len(service.Places) > 1 {
 		place = service.Places[0]
 	}
-	fmt.Println("service", c.Event.Source.UserID)
 
 	book.PlaceID = place.ID
 	book.ChatChannelID = c.ChatChannel.ID

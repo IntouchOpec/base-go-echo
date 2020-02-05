@@ -9,7 +9,7 @@
             <div class="col-md-12 mt-2">
                 <div class="form-group">
                     <label class="bmd-label-floating" >chat channel</label>
-                    <select name="employee-serviceType" class="form-control" data-style="btn btn-link"> 
+                    <select name="chat_channel_id" class="form-control" data-style="btn btn-link"> 
                         {{ if .PromotionDetail.ChatChannelID }}
                             <option value="{{.PromotionDetail.ChatChannelID}}">
                                 {{ .PromotionDetail.ChatChannel.ChaName }}
@@ -28,19 +28,19 @@
             <div class="col-md-12 mt-2">
                 <div class="form-group">
                     <label class="bmd-label-floating">StartDate</label>
-                    <input name="PDStartDate"  value="{{.PromotionDetail.PDStartDate}}" type="date" class="form-control" >
+                    <input name="pd_start_date"  value="{{.PromotionDetail.PDStartDate}}" type="date" class="form-control" >
                 </div>
             </div>
             <div class="col-md-12 mt-2">
                 <div class="form-group">
                     <label class="bmd-label-floating">EndDate</label>
-                    <input name="PDEndDate" value="{{.PromotionDetail.PDEndDate}}" type="date" class="form-control" >
+                    <input name="pd_end_date" value="{{.PromotionDetail.PDEndDate}}" type="date" class="form-control" >
                 </div>
             </div>
             <div class="col-md-12 mt-2">
                 <div class="form-group">
                     <label class="bmd-label-floating" >condition</label>
-                    <textarea name="PDCondition" value="{{.PromotionDetail.PDCondition}}" type="text" class="form-control" ></textarea>
+                    <textarea name="pd_condition" value="{{.PromotionDetail.PDCondition}}" type="text" class="form-control" ></textarea>
                 </div>
             </div>
         </div>
@@ -57,7 +57,7 @@
             <div class="col-md-12 mt-2">
                 <div class="form-group">
                     <label class="bmd-label-floating" >chat channel</label>
-                    <select name="employee-serviceType" class="form-control" data-style="btn btn-link" >       
+                    <select name="chat_channel_id" class="form-control" data-style="btn btn-link" >       
                         {{ if .Coupon.ChatChannelID }}
                             <option value="{{.Coupon.ChatChannelID}}">
                                 {{ .Coupon.ChatChannel.ChaName }}
@@ -76,19 +76,19 @@
             <div class="col-md-12 mt-2">
                 <div class="form-group">
                     <label class="bmd-label-floating">StartDate</label>
-                    <input name="PromStartDate" value="{{.Coupon.PromStartDate}}" type="date" class="form-control" >
+                    <input name="prom_start_date" value="{{.Coupon.PromStartDate}}" type="date" class="form-control" >
                 </div>
             </div>
             <div class="col-md-12 mt-2">
                 <div class="form-group">
                     <label class="bmd-label-floating">EndDate</label>
-                    <input name="PromEndDate" value="{{.Coupon.PromEndDate}}" type="date" class="form-control" >
+                    <input name="prom_end_date" value="{{.Coupon.PromEndDate}}" type="date" class="form-control" >
                 </div>
             </div>
             <div class="col-md-12 mt-2">
                 <div class="form-group">
                     <label class="bmd-label-floating" >condition</label>
-                    <textarea name="PromCondition" value="{{.Coupon.PromCondition}}" type="text" class="form-control" ></textarea>
+                    <textarea name="prom_condition" value="{{.Coupon.PromCondition}}" type="text" class="form-control" ></textarea>
                 </div>
             </div>
         </div>
@@ -105,7 +105,7 @@
             <div class="col-md-12 mt-2">
                 <div class="form-group">
                     <label class="bmd-label-floating" >chat channel</label>
-                    <select name="employee-serviceType" class="form-control" data-style="btn btn-link">       
+                    <select name="chat_channel_id" class="form-control" data-style="btn btn-link">       
                         {{ if .Voucher.ChatChannelID }}
                             <option value="{{.PromotionDetail.ChatChannelID}}">
                                 {{ .Voucher.ChatChannel.ChaName }}
@@ -124,19 +124,19 @@
             <div class="col-md-12 mt-2">
                 <div class="form-group">
                     <label class="bmd-label-floating">StartDate</label>
-                    <input name="PromStartDate"  value="{{.Voucher.PromStartDate}}" type="date" class="form-control" >
+                    <input name="prom_start_date"  value="{{.Voucher.PromStartDate}}" type="date" class="form-control" >
                 </div>
             </div>
             <div class="col-md-12 mt-2">
                 <div class="form-group">
                     <label class="bmd-label-floating">EndDate</label>
-                    <input name="PromEndDate" value="{{.Voucher.PromEndDate}}" type="date" class="form-control" >
+                    <input name="prom_end_date" value="{{.Voucher.PromEndDate}}" type="date" class="form-control" >
                 </div>
             </div>
             <div class="col-md-12 mt-2">
                 <div class="form-group">
                     <label class="bmd-label-floating" >condition</label>
-                    <textarea name="PromCondition" value="{{.Voucher.PromCondition}}" type="text" class="form-control" ></textarea>
+                    <textarea name="prom_condition" value="{{.Voucher.PromCondition}}" type="text" class="form-control" ></textarea>
                 </div>
             </div>
         </div>
@@ -313,7 +313,7 @@
                                         <div class="col-md-12 mt-2">
                                             <div class="form-group">
                                                 <label class="bmd-label-floating" >chat channel</label>
-                                                <select name="employee-serviceType${number}" class="form-control" data-style="btn btn-link" id="chat_channel_id">       
+                                                <select name="chat_channel_id${number}" class="form-control" data-style="btn btn-link">       
                                                     {{ if .Coupon.ChatChannelID }}
                                                         <option value="{{.Coupon.ChatChannelID}}">
                                                             {{ .Coupon.ChatChannel.ChaName }}
@@ -321,7 +321,7 @@
                                                     {{ else }}
                                                         <option value="">choose type</option>
                                                     {{ end }}
-                                                    {{ with .ChatChannels }}
+                                                    {{ with .chatChannels }}
                                                     {{ range . }}
                                                         <option value="{{.ID}}">{{.ChaName}}</option>
                                                     {{ end }}
@@ -332,19 +332,19 @@
                                         <div class="col-md-12 mt-2">
                                             <div class="form-group">
                                                 <label class="bmd-label-floating">StartDate</label>
-                                                <input name="PromStartDate${number}" value="{{.Coupon.PromStartDate}}" id="StartDate" type="date" class="form-control" >
+                                                <input name="prom_startDate_${number}" value="{{.Coupon.PromStartDate}}" id="StartDate" type="date" class="form-control" >
                                             </div>
                                         </div>
                                         <div class="col-md-12 mt-2">
                                             <div class="form-group">
                                                 <label class="bmd-label-floating">EndDate</label>
-                                                <input name="PromEndDate${number}" value="{{.Coupon.PromEndDate}}" type="date" class="form-control" >
+                                                <input name="prom_end_date_${number}" value="{{.Coupon.PromEndDate}}" type="date" class="form-control" >
                                             </div>
                                         </div>
                                         <div class="col-md-12 mt-2">
                                             <div class="form-group">
                                                 <label class="bmd-label-floating" >condition</label>
-                                                <textarea name="PromCondition${number}" value="{{.Coupon.PromCondition}}" type="text" class="form-control" ></textarea>
+                                                <textarea name="prom_condition_${number}" value="{{.Coupon.PromCondition}}" type="text" class="form-control" ></textarea>
                                             </div>
                                         </div>
                                     </div>
@@ -370,7 +370,7 @@
                                                     {{ else }}
                                                         <option value="">choose type</option>
                                                     {{ end }}      
-                                                    {{ with .ChatChannels }}
+                                                    {{ with .chatChannels }}
                                                     {{ range . }}
                                                         <option value="{{.ID}}">{{.ChaName}}</option>
                                                     {{ end }}
@@ -439,11 +439,21 @@
             }
             i++
         })
+
+        let object = []
+        let subPromotions = []
+        let dataSubPromotions = []
         $("form[name='create-promotion']").on("submit", function() {
             let index = 0
+            let values = []
             $(`div[name='form-${PromotionType.val()}']`).each(function( ) {
+                values = []
                 $(this).find("input").each(function( ) {
                     let name = $(this).attr('name')
+                    if (index === 0) {
+                        object.push(name)
+                    }
+                    values.push($(this).val())
                     $(this).rules("add", 
                     {
                         required:  { required : true },
@@ -452,6 +462,10 @@
                 })
                 $(this).find("select").each(function( ) {
                     let name = $(this).attr('name')
+                    if (index === 0) {
+                        object.push(name)
+                    }
+                    values.push($(this).val())
                     $(this).rules("add", 
                     {
                         required:  { required : true },
@@ -460,6 +474,10 @@
                 })
                 $(this).find("textarea").each(function( ) {
                     let name = $(this).attr('name')
+                    values.push($(this).val())
+                    if (index === 0) {
+                        object.push(name)
+                    }
                     $(this).rules("add", 
                     {
                         required:  { required : true },
@@ -467,6 +485,18 @@
                     })
                 })
                 index++
+                let item = {}
+                for (let x = 0; x < subPromotions.length; x++) {
+                    for (let i = 0; i < object.length; i++) {
+                        item[object[i]] = subPromotions[x][i]
+                    }
+                    console.log(item[object[i]])
+                    dataSubPromotions.push(item)
+                    item = {}
+                }
+                console.log(dataSubPromotions)
+                // object = []
+                // subPromotions = []
             })
         })
         function removeImage () {
@@ -555,7 +585,26 @@
                 let codeEncodedKey = encodeURIComponent("code") 
                 let nameEncodedKey = encodeURIComponent("name") 
                 let imageEncodedKey = encodeURIComponent("file") 
-
+                let data = []
+                let keyEncodedKey
+                let valueEncodedKey
+                console.log(dataSubPromotions)
+                switch (PromotionType.val()) {
+                case "Promotion":
+                    keyEncodedKey = encodeURIComponent("promotion_detail") 
+                    valueEncodedKey = encodeURIComponent(JSON.stringify(...dataSubPromotions))
+                    break;
+                case "Coupon":
+                    keyEncodedKey = encodeURIComponent("coupons") 
+                    valueEncodedKey = encodeURIComponent(JSON.stringify(dataSubPromotions))
+                    break;
+                case "Voucher":
+                    keyEncodedKey = encodeURIComponent("vouchers") 
+                    valueEncodedKey = encodeURIComponent(JSON.stringify(dataSubPromotions))
+                    break;
+                }
+                data.push(keyEncodedKey + "=" + valueEncodedKey)
+                dataSubPromotions = {}
                 let typePromotionEncodedValue = encodeURIComponent(PromotionType.val())
                 let titleEncodedValue = encodeURIComponent(Title)
                 let discountEncodedValue = encodeURIComponent(Discount)
@@ -566,7 +615,6 @@
                 let encodedKey = encodeURIComponent("_csrf");
                 let encodedValue = encodeURIComponent(_csrf);
 
-                let data = []
 
                 data.push(encodedKey + "=" + encodedValue)
                 data.push(typePromotionEncodedKey + "=" + typePromotionEncodedValue) 

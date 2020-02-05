@@ -43,9 +43,9 @@
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating" >Chat Channel</label>
-                                                        <select name="PlacTypes" class="form-control" data-style="btn btn-link" id="PlacTypes">
+                                                        <select name="chat_channel_id" class="form-control" data-style="btn btn-link" id="chat_channel_id">
                                                             {{ if .detail.ChatChannelID }}
-                                                                <option value="{{.detail.PlacType}}">{{.detail.ChatChannel.ChaName}}</option>
+                                                                <option value="{{.detail.ChatChannelID}}">{{.detail.ChatChannel.ChaName}}</option>
                                                             {{ else }}
                                                                 <option value="">choose chat channel</option>
                                                             {{ end }}
@@ -89,39 +89,38 @@
   <script>
     (function ($) {
 
-        // function removeImage () {
-        //     let id = $("#image").val()
-        //     let _csrf = $("#_csrf").val()
-        //     let data = [] 
-        //     data = data.join("&");
+        function removeImage () {
+            let id = $("#image").val()
+            let _csrf = $("#_csrf").val()
+            let data = new FormData()
+            data.append("_csrf", _csrf)
 
-        //     fetch(`/admin/employee/${id}/delete_image`, {
-        //             method: "DELETE",
-        //             headers: {"Content-Type": "application/x-www-form-urlencoded"},
-        //             body: data
-        //     }).then(res => {
-        //         $("#form-image").html(`
-        //             <input id="Image" name="Image" type="file">
-        //             <p><strong>Note:</strong> Choose any file on your computer and its name will be displayed in an alert dialog box.</p>
-        //         `)
-        //     }).catch(err => Swal.fire("fial", "", "warning"))
-        // }
+            fetch(`/admin/employee/${id}/delete_image`, {
+                    method: "DELETE",
+                    body: data
+            }).then(res => {
+                $("#form-image").html(`
+                    <input id="Image" name="Image" type="file">
+                    <p><strong>Note:</strong> Choose any file on your computer and its name will be displayed in an alert dialog box.</p>
+                `)
+            }).catch(err => Swal.fire("fial", "", "warning"))
+        }
 
-        // $("#btn-delete-image").click(function () {
-        //     Swal.fire({
-        //         title: 'Are you sure?',
-        //         text: "You won't be able to revert this!",
-        //         icon: 'warning',
-        //         showCancelButton: true,
-        //         confirmButtonColor: '#3085d6',
-        //         cancelButtonColor: '#d33',
-        //         confirmButtonText: 'Yes, delete it!'
-        //     }).then(result => {
-        //         if (result.value) {
-        //             removeImage()
-        //         }
-        //     })
-        // })
+        $("#btn-delete-image").click(function () {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then(result => {
+                if (result.value) {
+                    removeImage()
+                }
+            })
+        })
 
         const toBase64 = file => new Promise((resolve, reject) => {
             const reader = new FileReader()
@@ -132,10 +131,8 @@
         
         const onSubmit = (data) => {
             let method = $("form[name='create-employee']").attr("method")
-            data = data.join("&")
             fetch(window.location.href, {
                 method, 
-                headers: {"Content-Type": "application/x-www-form-urlencoded"},
                 body: data
             })
             .then(res => {
@@ -166,6 +163,9 @@
                 Image: {
                     required: true
                 },
+                chat_channel_id: {
+                    required: true
+                }
             },
             messages: {
                 name:  {
@@ -180,43 +180,46 @@
                 Image:  {
                     required: "Please enter a valid Image"
                 },
+                chat_channel_id: {
+                    required: "Please enter a valid chat_channel_id"
+                }
             },
             submitHandler: function(form) {
                 let _csrf = $("#_csrf").val()
                 let name = $("#name").val()
                 let line_id = $("#line_id").val()
                 let detail = $("#detail").val()
+                let chat_channel_id = $("#chat_channel_id").val()
                 let Image =  $("#Image")
 
 
                 let encodedKey = encodeURIComponent("_csrf");
                 let encodedValue = encodeURIComponent(_csrf);
 
+                let key_chat_channel_id = encodeURIComponent("chat_channel_id")
+                chat_channel_id = encodeURIComponent(chat_channel_id)
                 let encodenameKey = encodeURIComponent("prov_name")
                 let nameEncodeCalue = encodeURIComponent(name)
                 let encodeline_idKey = encodeURIComponent("prov_line_id")
                 let line_idEncodeCalue = encodeURIComponent(line_id)
                 let encodedetailKey = encodeURIComponent("prov_detail")
                 let detailEncodeCalue = encodeURIComponent(detail)
-                let data = []
+                let data = new FormData()
                 
-                data.push(encodedKey + "=" + encodedValue)
-                data.push(encodenameKey + "=" + nameEncodeCalue)
-                data.push(encodeline_idKey + "=" + line_idEncodeCalue)
-                data.push(encodedetailKey + "=" + detailEncodeCalue)
+                data.append("_csrf", _csrf)
+                data.append("chat_channel_id", chat_channel_id)
+                data.append("prov_name", name)
+                data.append("prov_line_id", line_id)
+                data.append("prov_detail", detail)
                 let imageEncodedValue = ""
-
-                if (Image[0].files.length !== 0) {    
+                if (Image.length !== 0) {    
                     toBase64(Image[0].files[0]).then(base64Image => {
-                        imageEncodedValue = encodeURIComponent(base64Image)
-                        let imageEncodedKey = encodeURIComponent("file") 
-                        data.push(imageEncodedKey + "=" + imageEncodedValue) 
+                        data.append("file", base64Image)
                         onSubmit(data)
                     })
                 } else {
                     imageEncodedValue = $("#ProvImage").val()
-                    let imageEncodedKey = encodeURIComponent("prov_image") 
-                    data.push(imageEncodedKey + "=" + imageEncodedValue) 
+                    data.append("prov_image", imageEncodedValue)
                     onSubmit(data)
                 }
             }
