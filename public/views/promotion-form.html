@@ -444,7 +444,10 @@
         let subPromotions = []
         let dataSubPromotions = []
         $("form[name='create-promotion']").on("submit", function() {
+            dataSubPromotions = []
             let index = 0
+            object = []
+            subPromotions = []
             let values = []
             $(`div[name='form-${PromotionType.val()}']`).each(function( ) {
                 values = []
@@ -485,19 +488,16 @@
                     })
                 })
                 index++
-                let item = {}
-                for (let x = 0; x < subPromotions.length; x++) {
-                    for (let i = 0; i < object.length; i++) {
-                        item[object[i]] = subPromotions[x][i]
-                    }
-                    console.log(item[object[i]])
-                    dataSubPromotions.push(item)
-                    item = {}
-                }
-                console.log(dataSubPromotions)
-                // object = []
-                // subPromotions = []
+                subPromotions.push(values)
             })
+            let item = {}
+            for (let x = 0; x < subPromotions.length; x++) {
+                for (let i = 0; i < object.length; i++) {
+                    item[object[i]] = subPromotions[x][i]
+                }
+                dataSubPromotions.push(item)
+                item = {}
+            }
         })
         function removeImage () {
             let id = $("#image").val()
@@ -588,7 +588,6 @@
                 let data = []
                 let keyEncodedKey
                 let valueEncodedKey
-                console.log(dataSubPromotions)
                 switch (PromotionType.val()) {
                 case "Promotion":
                     keyEncodedKey = encodeURIComponent("promotion_detail") 
@@ -604,7 +603,6 @@
                     break;
                 }
                 data.push(keyEncodedKey + "=" + valueEncodedKey)
-                dataSubPromotions = {}
                 let typePromotionEncodedValue = encodeURIComponent(PromotionType.val())
                 let titleEncodedValue = encodeURIComponent(Title)
                 let discountEncodedValue = encodeURIComponent(Discount)
@@ -615,7 +613,6 @@
                 let encodedKey = encodeURIComponent("_csrf");
                 let encodedValue = encodeURIComponent(_csrf);
 
-
                 data.push(encodedKey + "=" + encodedValue)
                 data.push(typePromotionEncodedKey + "=" + typePromotionEncodedValue) 
                 data.push(titleEncodedKey + "=" + titleEncodedValue) 
@@ -623,7 +620,6 @@
                 data.push(amountEncodedKey + "=" + amountEncodedValue) 
                 data.push(codeEncodedKey + "=" + codeEncodedValue) 
                 data.push(nameEncodedKey + "=" + nameEncodedValue) 
-
                 if (Image.length !== 0) {
                     toBase64(Image[0].files[0]).then(base64Image => {
                         let imageEncodedValue = encodeURIComponent(base64Image)
@@ -631,7 +627,7 @@
                         let promImageEncodedValue = encodeURIComponent("")
                         data.push(promImageEncodedKey + "=" + promImageEncodedValue)
                         data.push(imageEncodedKey + "=" + imageEncodedValue)
-                        // onSubmit(data)
+                        onSubmit(data)
                     })
                     return
                 } else {
@@ -639,8 +635,7 @@
                     let ImageEncodedKey = encodeURIComponent("image")
                     let ImageEncodedValue = encodeURIComponent(image)
                     data.push(ImageEncodedKey + "=" + ImageEncodedValue)
-                    // onSubmit(data)
-
+                    onSubmit(data)f
                 }
             }
         })

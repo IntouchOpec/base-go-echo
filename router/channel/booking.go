@@ -269,7 +269,6 @@ func BookingTimeSlotHandler(c *Context) (linebot.SendingMessage, error) {
 	}).Find(&timeSlot, c.PostbackAction.TimeSlotID).Error; err != nil {
 		return nil, err
 	}
-	fmt.Println("====<>", timeSlot.EmployeeService.ServiceID)
 	c.DB.Preload("Places").Where("account_id = ?", c.Account.ID).Find(&service, timeSlot.EmployeeService.ServiceID)
 	if len(service.Places) == 0 {
 		return nil, errors.New("Not found place")
@@ -279,7 +278,6 @@ func BookingTimeSlotHandler(c *Context) (linebot.SendingMessage, error) {
 	for _, place := range service.Places {
 		placeIDs = append(placeIDs, place.ID)
 	}
-	fmt.Println(" service.Places ", service.Places)
 	c.DB.Order("m_pla_status desc, place_id").Where("account_id =? and m_pla_day = ? and m_pla_to BETWEEN ? and ? or m_pla_from BETWEEN ? and ? and place_id in (?) ",
 		c.Account.ID, timeSlot.TimeDay, timeSlot.TimeStart, timeSlot.TimeEnd, timeSlot.TimeStart, timeSlot.TimeEnd, placeIDs).Find(&MSPlaces)
 	// if len(MSPlaces) != 0 {
@@ -287,12 +285,10 @@ func BookingTimeSlotHandler(c *Context) (linebot.SendingMessage, error) {
 	// }
 	var placeSums []placeSum
 	for index, MSPlace := range MSPlaces {
-		fmt.Println("1-----")
 		// if MSPlace.MPlaStatus == model.MPlaStatusBusy {
 		// 	return nil, errors.New("")
 		// }
 		for i, placeSum := range placeSums {
-			fmt.Println("1-----2")
 			if placeSum.PlaceID != MSPlace.PlaceID {
 				continue
 			} else {
@@ -304,7 +300,6 @@ func BookingTimeSlotHandler(c *Context) (linebot.SendingMessage, error) {
 			placeSums = append(placeSums, placeSum{Amount: MSPlace.MPlaAmount, PlaceID: MSPlace.PlaceID})
 		}
 	}
-	fmt.Println("1-----3")
 
 	tx := c.DB.Begin()
 
@@ -316,7 +311,6 @@ func BookingTimeSlotHandler(c *Context) (linebot.SendingMessage, error) {
 	book.ChatChannelID = c.ChatChannel.ID
 	book.CustomerID = c.Customer.ID
 	book.BooLineID = c.Event.Source.UserID
-	fmt.Println("1-----4")
 	layout := "2006-01-02 15:00"
 	updatedAt, err := time.Parse(layout, dateTime+" 15:00")
 	if err != nil {
@@ -329,7 +323,6 @@ func BookingTimeSlotHandler(c *Context) (linebot.SendingMessage, error) {
 		tx.Rollback()
 		return nil, err
 	}
-	fmt.Println("1-----5")
 	bookingTimeSlot.BookingID = book.ID
 	bookingTimeSlot.TimeSlotID = timeSlot.ID
 	bookingTimeSlot.EmployeeID = timeSlot.EmployeeService.EmployeeID
@@ -345,7 +338,6 @@ func BookingTimeSlotHandler(c *Context) (linebot.SendingMessage, error) {
 	tran.TranLineID = c.Event.Source.UserID
 	tran.TranStatus = model.TranStatusPanding
 	err = tx.Create(&tran).Error
-	fmt.Println("1-----5")
 	if err != nil {
 		tx.Rollback()
 		return nil, err
@@ -355,7 +347,6 @@ func BookingTimeSlotHandler(c *Context) (linebot.SendingMessage, error) {
 		tx.Rollback()
 		return nil, err
 	}
-	fmt.Println("1-----6")
 	if len(MSPlaces) == 0 {
 		MSPlace.PlaceID = book.PlaceID
 		MSPlace.MPlaDay = start
