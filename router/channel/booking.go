@@ -264,9 +264,12 @@ func BookingTimeSlotHandler(c *Context) (linebot.SendingMessage, error) {
 	dateTime := c.PostbackAction.Day
 	start, err := time.Parse("2006-01-02", dateTime)
 
-	if err := c.DB.Preload("EmployeeService").Find(&timeSlot, c.PostbackAction.TimeSlotID).Error; err != nil {
+	if err := c.DB.Preload("EmployeeService", func(db *gorm.DB) *gorm.DB {
+		return db.Preload("Service")
+	}).Find(&timeSlot, c.PostbackAction.TimeSlotID).Error; err != nil {
 		return nil, err
 	}
+	fmt.Println("====<>", timeSlot.EmployeeService.ServiceID)
 	c.DB.Preload("Places").Where("account_id = ?", c.Account.ID).Find(&service, timeSlot.EmployeeService.ServiceID)
 	if len(service.Places) == 0 {
 		return nil, errors.New("Not found place")
@@ -276,12 +279,12 @@ func BookingTimeSlotHandler(c *Context) (linebot.SendingMessage, error) {
 	for _, place := range service.Places {
 		placeIDs = append(placeIDs, place.ID)
 	}
-
+	fmt.Println(" service.Places ", service.Places)
 	c.DB.Order("m_pla_status desc, place_id").Where("account_id =? and m_pla_day = ? and m_pla_to BETWEEN ? and ? or m_pla_from BETWEEN ? and ? and place_id in (?) ",
 		c.Account.ID, timeSlot.TimeDay, timeSlot.TimeStart, timeSlot.TimeEnd, timeSlot.TimeStart, timeSlot.TimeEnd, placeIDs).Find(&MSPlaces)
-	if len(MSPlaces) != 0 {
-		return nil, errors.New("")
-	}
+	// if len(MSPlaces) != 0 {
+	// 	return nil, errors.New("")
+	// }
 	var placeSums []placeSum
 	for index, MSPlace := range MSPlaces {
 		if MSPlace.MPlaStatus == model.MPlaStatusBusy {

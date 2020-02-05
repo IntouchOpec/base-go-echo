@@ -58,7 +58,6 @@ func HandleWebHookLineAPI(c echo.Context) error {
 	for _, event := range events {
 		con.Event = event
 		db.Where("cus_line_id = ? and account_id = ?", event.Source.UserID, account.ID).Find(&con.Customer)
-		// con.Customer = customer
 		chatAnswer := model.ChatAnswer{}
 		eventType := event.Type
 		chatAnswer.AnsInputType = string(eventType)
@@ -77,6 +76,7 @@ func HandleWebHookLineAPI(c echo.Context) error {
 			if err := json.Unmarshal([]byte(postBackActionStr), &postBackAction); err != nil {
 				return c.JSON(http.StatusBadRequest, err)
 			}
+			fmt.Println(event.Postback.Data)
 			con.PostbackAction = &postBackAction
 			switch postBackAction.Action {
 			case "location":
