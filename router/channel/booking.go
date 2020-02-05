@@ -195,12 +195,10 @@ func ServiceListLineHandler(c *Context) (linebot.SendingMessage, error) {
 		return nil, err
 	}
 	c.DB.Order("m_pla_status").Where("m_pla_day = ? and place_id in (?)", day, placeIDs).Find(&MSPlaces)
-	fmt.Println("=======1")
 	for index, employeeService := range employeeServices {
 		if employeeService.Employee.ChatChannelID != c.ChatChannel.ID {
 			continue
 		}
-		fmt.Println("=======2")
 		for _, timeSlot := range employeeService.TimeSlots {
 			if count == 2 {
 				slotTime = slotTime + fmt.Sprintf(slotTimeTemplate, buttonTime[:len(buttonTime)-1])
@@ -216,12 +214,10 @@ func ServiceListLineHandler(c *Context) (linebot.SendingMessage, error) {
 			count = count + 1
 		}
 		if index == len(employeeServices)-1 {
-			fmt.Println("=======3")
 			slotTime = slotTime + fmt.Sprintf(slotTimeTemplate, buttonTime[:len(buttonTime)-1])
 			serviceList += fmt.Sprintf(serviceListTemplate, fmt.Sprintf("https://web.%s/files?path=%s", Conf.Server.Domain, employeeService.Employee.ProvImage), employeeService.Employee.ProvName, strconv.FormatInt(int64(employeeService.PSPrice), 10), slotTime)
 			break
 		}
-		fmt.Println("=======4")
 		serviceList = serviceList + fmt.Sprintf(serviceListTemplate+",",
 			fmt.Sprintf("https://web.%s/files?path=%s", Conf.Server.Domain, employeeService.Employee.ProvImage),
 			employeeService.Employee.ProvName, strconv.FormatInt(int64(employeeService.PSPrice), 10), slotTime)
@@ -233,6 +229,7 @@ func ServiceListLineHandler(c *Context) (linebot.SendingMessage, error) {
 	nextPage := nextPageTemplate
 
 	serviceTamplate := fmt.Sprintf(`{ "type": "carousel", "contents": [%s, %s]}`, serviceList, nextPage)
+	fmt.Println(serviceTamplate)
 	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(serviceTamplate))
 	if err != nil {
 		return nil, err
