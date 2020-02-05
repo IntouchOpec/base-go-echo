@@ -308,7 +308,7 @@ func BookingTimeSlotHandler(c *Context) (linebot.SendingMessage, error) {
 
 	tx := c.DB.Begin()
 
-	if len(service.Places) > 1 {
+	if len(service.Places) >= 1 {
 		place = service.Places[0]
 	}
 
