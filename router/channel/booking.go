@@ -194,7 +194,6 @@ func ServiceListLineHandler(c *Context) (linebot.SendingMessage, error) {
 		service.ID, c.Account.ID).Find(&employeeServices).Error; err != nil {
 		return nil, err
 	}
-
 	c.DB.Order("m_pla_status").Where("m_pla_day = ? and place_id in (?)", day, placeIDs).Find(&MSPlaces)
 	for index, employeeService := range employeeServices {
 		if employeeService.Employee.ChatChannelID != c.ChatChannel.ID {
@@ -209,7 +208,7 @@ func ServiceListLineHandler(c *Context) (linebot.SendingMessage, error) {
 			if len(timeSlot.Bookings) > 0 {
 				buttonTime = buttonTime + fmt.Sprintf(buttonTimeSecondaryTemplate, fmt.Sprintf("%s-%s", timeSlot.TimeStart, timeSlot.TimeEnd), "เต็มแล้ว")
 			} else {
-				actionMessge = fmt.Sprintf("action=booking_timeslot&day=%s&time_slot_id=%d", dateTime, timeSlot.ID)
+				actionMessge = fmt.Sprintf("x=booking_timeslot&day=%s&time_slot_id=%d", dateTime, timeSlot.ID)
 				buttonTime = buttonTime + fmt.Sprintf(buttonTimePrimaryTemplate, fmt.Sprintf("%s-%s", timeSlot.TimeStart, timeSlot.TimeEnd), actionMessge)
 			}
 			count = count + 1
@@ -280,7 +279,7 @@ func BookingTimeSlotHandler(c *Context) (linebot.SendingMessage, error) {
 
 	c.DB.Order("m_pla_status desc, place_id").Where("account_id =? and m_pla_day = ? and m_pla_to BETWEEN ? and ? or m_pla_from BETWEEN ? and ? and place_id in (?) ",
 		c.Account.ID, timeSlot.TimeDay, timeSlot.TimeStart, timeSlot.TimeEnd, timeSlot.TimeStart, timeSlot.TimeEnd, placeIDs).Find(&MSPlaces)
-	if MSPlaces == nil {
+	if len(MSPlaces) != 0 {
 		return nil, errors.New("")
 	}
 	var placeSums []placeSum
