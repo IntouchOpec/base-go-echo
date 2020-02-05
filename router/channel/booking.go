@@ -215,11 +215,11 @@ func ServiceListLineHandler(c *Context) (linebot.SendingMessage, error) {
 		}
 		if index == len(employeeServices)-1 {
 			slotTime = slotTime + fmt.Sprintf(slotTimeTemplate, buttonTime[:len(buttonTime)-1])
-			serviceList += fmt.Sprintf(serviceListTemplate, fmt.Sprintf("https://web.%s/file?path=%s", Conf.Server.Domain, employeeService.Employee.ProvImage), employeeService.Employee.ProvName, strconv.FormatInt(int64(employeeService.PSPrice), 10), slotTime)
+			serviceList += fmt.Sprintf(serviceListTemplate, fmt.Sprintf("https://web.%s/files?path=%s", Conf.Server.Domain, employeeService.Employee.ProvImage), employeeService.Employee.ProvName, strconv.FormatInt(int64(employeeService.PSPrice), 10), slotTime)
 			break
 		}
 		serviceList = serviceList + fmt.Sprintf(serviceListTemplate+",",
-			fmt.Sprintf("https://web.%s/file?path=%s", Conf.Server.Domain, employeeService.Employee.ProvImage),
+			fmt.Sprintf("https://web.%s/files?path=%s", Conf.Server.Domain, employeeService.Employee.ProvImage),
 			employeeService.Employee.ProvName, strconv.FormatInt(int64(employeeService.PSPrice), 10), slotTime)
 		slotTime = ""
 		count = 0
