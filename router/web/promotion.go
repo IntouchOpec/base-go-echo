@@ -2,6 +2,7 @@ package web
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -104,6 +105,8 @@ type PromotionForm struct {
 
 func PromotionPostHandler(c *Context) error {
 	file := c.FormValue("file")
+	promotionDetail := c.FormValue("promotion_detail")
+
 	accID := auth.Default(c).GetAccountID()
 	promotion := PromotionForm{}
 	if err := c.Bind(&promotion); err != nil {
@@ -114,7 +117,7 @@ func PromotionPostHandler(c *Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-
+	tx := model.DB().Begin()
 	promotionModel := model.Promotion{
 		PromTitle:    promotion.Title,
 		PromType:     promotion.PromotionType,
@@ -125,10 +128,43 @@ func PromotionPostHandler(c *Context) error {
 		PromImage:    imagePath,
 		AccountID:    accID,
 	}
-	if err := model.DB().Create(&promotionModel).Error; err != nil {
+
+	if err := tx.Create(&promotionModel).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	// promotionModel.SavePromotion()
+
+	if promotionDetail != "" {
+		var promotionDetailModel model.PromotionDetail
+		err := json.Unmarshal([]byte(promotionDetail), promotionDetailModel)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, err)
+		}
+		if err := tx.Model(&promotionModel).Association("").Append(&promotionDetailModel).Error; err != nil {
+			return c.JSON(http.StatusBadRequest, err)
+		}
+	}
+	coupons := c.FormValue("coupons")
+	if coupons != "" {
+		var couponsModel []*model.Coupon
+		err := json.Unmarshal([]byte(coupons), couponsModel)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, err)
+		}
+		if err := tx.Model(&promotionModel).Association("").Append(&couponsModel).Error; err != nil {
+			return c.JSON(http.StatusBadRequest, err)
+		}
+	}
+	vouchers := c.FormValue("vouchers")
+	if vouchers != "" {
+		var vouchersModel []*model.Voucher
+		err := json.Unmarshal([]byte(vouchers), vouchersModel)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, err)
+		}
+		if err := tx.Model(&promotionModel).Association("").Append(&vouchersModel).Error; err != nil {
+			return c.JSON(http.StatusBadRequest, err)
+		}
+	}
 	return c.JSON(http.StatusCreated, echo.Map{
 		"data":     promotionModel,
 		"redirect": fmt.Sprintf("/admin/promotion/%d", promotionModel.ID),
