@@ -76,10 +76,8 @@ func SettingAccountPutHandler(c *Context) error {
 		acc.AccAuthJSONFilePath = jsonPath
 	}
 	if err := c.Bind(&acc); err != nil {
-		fmt.Println("err", err)
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	fmt.Println("====1")
 	if err := db.Save(&acc).Error; err != nil {
 		fmt.Println("err", err)
 		return c.JSON(http.StatusBadRequest, err)

@@ -44,7 +44,9 @@ func PromotionDetailHandler(c *Context) error {
 	id := c.Param("id")
 	a := auth.Default(c)
 
-	model.DB().Preload("Account").Preload("Coupons", func(db *gorm.DB) *gorm.DB {
+	model.DB().Preload("Account").Preload("PromotionDetail", func(db *gorm.DB) *gorm.DB {
+		return db.Preload("ChatChannel")
+	}).Preload("Coupons", func(db *gorm.DB) *gorm.DB {
 		return db.Preload("ChatChannel")
 	}).Preload("Vouchers", func(db *gorm.DB) *gorm.DB {
 		return db.Preload("ChatChannel")
@@ -133,19 +135,17 @@ func PromotionPostHandler(c *Context) error {
 		tx.Rollback()
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	fmt.Println("=====1")
 
 	if promotionDetail != "" {
 		var promotionDetailModel model.PromotionDetail
-		fmt.Println(promotionDetail)
 		err := json.Unmarshal([]byte(promotionDetail), &promotionDetailModel)
 		if err != nil {
 			fmt.Println(err)
 			tx.Rollback()
 			return c.JSON(http.StatusBadRequest, err)
 		}
+		promotionDetailModel.AccountID = accID
 		if err := tx.Model(&promotionModel).Association("PromotionDetail").Append(&promotionDetailModel).Error; err != nil {
-			fmt.Println("=====2")
 			fmt.Println(err)
 			tx.Rollback()
 			return c.JSON(http.StatusBadRequest, err)
@@ -164,7 +164,6 @@ func PromotionPostHandler(c *Context) error {
 			return c.JSON(http.StatusBadRequest, err)
 		}
 	}
-	fmt.Println("=====3")
 	vouchers := c.FormValue("vouchers")
 	if vouchers != "" {
 		var vouchersModel []*model.Voucher
@@ -181,7 +180,6 @@ func PromotionPostHandler(c *Context) error {
 	if err := tx.Commit().Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	fmt.Println("=====4")
 	return c.JSON(http.StatusCreated, echo.Map{
 		"data":     promotionModel,
 		"redirect": fmt.Sprintf("/admin/promotion/%d", promotionModel.ID),

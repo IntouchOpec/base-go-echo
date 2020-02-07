@@ -448,12 +448,13 @@
             let values = []
             $(`div[name='form-${PromotionType.val()}']`).each(function( ) {
                 values = []
-                $(this).find("input").each(function( ) {
+                $(this).find("input[type=date]").each(function( ) {
+                    console.log("")
                     let name = $(this).attr('name')
                     if (index === 0) {
                         object.push(name)
                     }
-                    values.push($(this).val())
+                    values.push(new Date($(this).val()))
                     $(this).rules("add", 
                     {
                         required:  { required : true },
@@ -465,7 +466,7 @@
                     if (index === 0) {
                         object.push(name)
                     }
-                    values.push($(this).val())
+                    values.push(parseInt($(this).val(), 10))
                     $(this).rules("add", 
                     {
                         required:  { required : true },

@@ -28,7 +28,7 @@
                                 <h6 class="card-category text-gray">{{ .detail.PromType }}</h6>
                                 <h6 class="card-category text-gray"></h6>
                                 <div class="d-flex justify-content-center">
-                                    <button type="button" class="btn btn-warning"><i class="material-icons">edit</i>edit</button>
+                                   <a href="/admin/promotion/{{.detail.ID}}/edit"><button type="button" class="btn btn-warning"><i class="material-icons">edit</i>edit</button></a>
                                     <button type="button" class="btn btn-danger"><i class="material-icons">delete</i>delete</button>
                                 </div>
                             </div>
@@ -65,12 +65,21 @@
                         <div class="card">
                             <div class="card-header card-header-primary d-flex justify-content-between">
                                 <h4 id="PromType" value="{{.detail.PromType}}" class="card-title ">{{.detail.PromType}}</h4>
-                                    <button class="btn btn-info" id="create">
-                                    <i class="material-icons">add</i>
-                                        create {{ .detail.PromType }}
-                                    </button>
+                                {{ if (eq .detail.PromType "Coupon") }}
+                                <button class="btn btn-info" id="create">
+                                <i class="material-icons">add</i>
+                                    create {{ .detail.PromType }}
+                                </button>
+                                {{ else if (eq .detail.PromType "Promotion")  }}
+                                {{ else if (eq .detail.PromType "Voucher")  }}
+                                <button class="btn btn-info" id="create">
+                                <i class="material-icons">add</i>
+                                    create {{ .detail.PromType }}
+                                </button>
+                                {{ end }}
                             </div>
                             <div class="card-body">
+                                {{ if (eq .detail.PromType "Coupon") }}
                                 <div class="table-responsive">
                                     <table class="table">
                                         <thead>
@@ -83,44 +92,60 @@
                                             <th></th>
                                         </thead>
                                         <tbody id="body-child">
-                                            {{ if (eq .detail.PromType "Coupon") }}
-                                                {{ with .detail.Coupons }}
-                                                {{ range . }}
-                                                <tr name="row_{{ .ID }}">
-                                                    <td>{{.ChatChannel}}</td>
-                                                    <td>{{.IsActive}}</td>
-                                                    <td>{{.PromStartDate.Format "Mon Jan 2 2006"}}</td>
-                                                    <td>{{.PromEndDate.Format "Mon Jan 2 2006"}}</td>
-                                                    <td>{{.PromAmount}}</td>
-                                                    <td>{{.PromCondition}}</td>
-                                                </tr>
-                                                {{ end }}
-                                                {{ end }}
-                                            {{ else if (eq .detail.PromType "Voucher")  }}
-                                                {{ with .detail.Vouchers }}
-                                                {{ range . }}
-                                                <tr name="row_{{ .ID }}">
-                                                    <td>{{.ChatChannel.ChaName}}</td>
-                                                    <td><input type="checkbox" checked="{{.IsActive}}" data-toggle="toggle"></td>
-                                                    <td>{{.PromStartDate.Format "Mon Jan 2 2006"}}</td>
-                                                    <td>{{.PromEndDate.Format "Mon Jan 2 2006"}}</td>
-                                                    <td>{{.PromAmount}}</td>
-                                                    <td>{{.PromCondition}}</td>
-                                                    <td class="td-actions text-right">
-                                                        <button value="{{ .ID }}" type="button" rel="tooltip" class="btn btn-success">
-                                                            <i class="material-icons">settings_applications</i>
-                                                        </button>
-                                                        <button value="{{ .ID }}" name="remove" type="button" rel="tooltip" class="btn btn-danger">
-                                                            <i class="material-icons">close</i>
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                                {{ end }}
-                                                {{ end }}
+                                            {{ with .detail.Coupons }}
+                                            {{ range . }}
+                                            <tr name="row_{{ .ID }}">
+                                                <td>{{.ChatChannel}}</td>
+                                                <td>{{.IsActive}}</td>
+                                                <td>{{.PromStartDate.Format "Mon Jan 2 2006"}}</td>
+                                                <td>{{.PromEndDate.Format "Mon Jan 2 2006"}}</td>
+                                                <td>{{.PromAmount}}</td>
+                                                <td>{{.PromCondition}}</td>
+                                            </tr>
+                                            {{ end }}
                                             {{ end }}
                                         </tbody>
                                     </table>
                                 </div>
+                                {{ else if (eq .detail.PromType "Promotion")  }}
+                                <div class="d-flex">
+                                    <div class="col-6">chat channel</div>
+                                    <div class="col-5">{{.detail.PromotionDetail.ChatChannel.ChaName}}</div>
+                                </div>
+                                <div class="d-flex">
+                                    <div class="col-6">start date</div>
+                                    <div class="col-5">{{.detail.PromotionDetail.PDStartDate.Format "Mon Jan 2 2006"}}</div>
+                                </div>
+                                <div class="d-flex">
+                                    <div class="col-6">end date</div>
+                                    <div class="col-5">{{.detail.PromotionDetail.PDEndDate.Format "Mon Jan 2 2006"}}</div>
+                                </div>
+                                <div class="d-flex">
+                                    <div class="col-6">condition</div>
+                                    <div class="col-5">{{.detail.PromotionDetail.PDCondition}}</div>
+                                </div>
+                                {{ else if (eq .detail.PromType "Voucher")  }}
+                                    {{ with .detail.Vouchers }}
+                                    {{ range . }}
+                                    <tr name="row_{{ .ID }}">
+                                        <td>{{.ChatChannel.ChaName}}</td>
+                                        <td><input type="checkbox" checked="{{.IsActive}}" data-toggle="toggle"></td>
+                                        <td>{{.PromStartDate.Format "Mon Jan 2 2006"}}</td>
+                                        <td>{{.PromEndDate.Format "Mon Jan 2 2006"}}</td>
+                                        <td>{{.PromAmount}}</td>
+                                        <td>{{.PromCondition}}</td>
+                                        <td class="td-actions text-right">
+                                            <button value="{{ .ID }}" type="button" rel="tooltip" class="btn btn-success">
+                                                <i class="material-icons">settings_applications</i>
+                                            </button>
+                                            <button value="{{ .ID }}" name="remove" type="button" rel="tooltip" class="btn btn-danger">
+                                                <i class="material-icons">close</i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {{ end }}
+                                    {{ end }}
+                                {{ end }}
                             </div>
                         </div>
                     </div>
