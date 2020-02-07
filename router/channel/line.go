@@ -81,7 +81,7 @@ func HandleWebHookLineAPI(c echo.Context) error {
 			switch postBackAction.Action {
 			case "location":
 				messageReply, err = LocationHandler(&con)
-			case "promotiom":
+			case "promotion":
 				messageReply, err = PromotionHandler(&con)
 			case "voucher":
 				messageReply, err = VoucherListHandler(&con)

@@ -232,7 +232,21 @@
                                 </div>
                             </div>
                             <div class="col-6" id="type-promotiom">
-                                
+                                {{ if (eq .detail.PromType "Coupon") }}
+                                     with .detail.Coupons }}
+                                     range . }}
+                                        template "form-Coupon" .}}
+                                     end }}
+                                     end }}
+                                {{ else if (eq .detail.PromType "Promotion")  }}
+                                    template "form-detail" .detail.PromotionDetail }}
+                                {{ else if (eq .detail.PromType "Voucher")  }}
+                                     with .detail.Vouchers }}
+                                     range . }}
+                                        template "form-Voucher" . }}
+                                     end }}
+                                     end }}
+                                {{ end }}
                             </div>
                         </div>
                     </div>

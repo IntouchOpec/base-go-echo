@@ -44,25 +44,28 @@ func VoucherListHandler(c *Context) (linebot.SendingMessage, error) {
 
 func PromotionHandler(c *Context) (linebot.SendingMessage, error) {
 	var promotions []*model.Promotion
-	var promotionCards string
 	var startDateStr string
 	var endDateStr string
 	var template string
-	model.DB().Preload("PromotionDetail").Where("promotion_type = ?", "Promotion").Find(&promotions)
+	model.DB().Preload("PromotionDetail").Where("prom_type = ?", "Promotion").Find(&promotions)
 	for _, promotion := range promotions {
-		fmt.Println(promotion)
+		if promotion.PromotionDetail == nil {
+			continue
+		}
 		startDateStr = promotion.PromotionDetail.PDStartDate.Format("2006-01-02")
 		endDateStr = promotion.PromotionDetail.PDEndDate.Format("2006-01-02")
-		template += fmt.Sprintf(VoucherCard,
+		template = template + fmt.Sprintf(VoucherCard,
 			fmt.Sprintf("https://web.%s/files?path=%s", Conf.Server.Domain, promotion.PromImage),
 			promotion.PromTitle,
-			startDateStr, endDateStr, promotion.PromotionDetail.PDCondition, " ") + ","
+			startDateStr,
+			endDateStr,
+			promotion.PromotionDetail.PDCondition, promotion.PromCode) + ","
 	}
-	var promotionsTemplate string = fmt.Sprintf(`{
+	template = fmt.Sprintf(`{
 		"type": "carousel",
 		"contents": [%s]
-	  }`, promotionCards[:len(promotionCards)-1])
-	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(promotionsTemplate))
+	  }`, template[:len(template)-1])
+	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(template))
 	if err != nil {
 		return nil, err
 	}
