@@ -71,7 +71,7 @@ func Routers() *echo.Echo {
 
 	e.GET("/register/:lineID", LIFFRegisterHandler)
 	e.POST("/register/:lineID", LIIFRegisterSaveCustomer)
-	e.GET("/content/:lineID", GetContentHandler)
+	e.GET("/content/:cha_line_id", GetContentHandler)
 	e.GET("/report/:lineID", GetReportViewsHandler)
 	e.POST("/report/:lineID", CreateReportHandler)
 	e.GET("/omise", PaymentOmiseHandler)
@@ -246,6 +246,7 @@ func Routers() *echo.Echo {
 		managent.GET("/content/create", handler(ContentCreateHandler))
 		managent.POST("/content/create", handler(ContentPostHandler))
 		managent.GET("/content/:id", handler(ContentDetailHandler))
+		managent.PATCH("/content/:id", handler(ContentPatchHandler))
 		managent.GET("/content/:id/edit", handler(ContentEditHandler))
 		managent.PUT("/content/:id/edit", handler(ContentPutHandler))
 		managent.DELETE("/content/:id", handler(ContentDeleteHandler))

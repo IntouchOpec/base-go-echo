@@ -4,13 +4,14 @@ import "github.com/IntouchOpec/base-go-echo/model/orm"
 
 type Content struct {
 	orm.ModelBase
-	ConTitle  string  `form:"con_title" json:"con_title" gorm:"varchar(50)"`
-	ConDetail string  `form:"con_detail" json:"con_detail"`
-	ConImage  string  `json:"con_image" gorm:"varchar(50)"`
-	UserID    uint    `json:"user_id"`
-	User      *User   `json:"user" gorm:"ForeignKey:UserID"`
-	AccountID uint    `json:"account_id"`
-	Account   Account `json:"account" gorm:"ForeignKey:AccountID"`
+	ConIsActive bool    `json:"con_is_active" sql:"default:true"`
+	ConTitle    string  `form:"con_title" json:"con_title" gorm:"varchar(50)"`
+	ConDetail   string  `form:"con_detail" json:"con_detail"`
+	ConImage    string  `json:"con_image" gorm:"varchar(50)"`
+	UserID      uint    `json:"user_id"`
+	User        *User   `json:"user" gorm:"ForeignKey:UserID"`
+	AccountID   uint    `json:"account_id"`
+	Account     Account `json:"account" gorm:"ForeignKey:AccountID"`
 }
 
 func DeleteContent(id string, accID uint) error {

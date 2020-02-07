@@ -33,6 +33,7 @@ func HandleWebHookLineAPI(c echo.Context) error {
 		return c.NoContent(http.StatusNotFound)
 	}
 	// , "name = ?", model.NameLIFFIDPayment
+	fmt.Println(name, ChannelID)
 	if err := db.Preload("Settings").Where("cha_channel_id = ?", ChannelID).Find(&chatChannel).Error; err != nil {
 		return c.NoContent(http.StatusNotFound)
 	}
@@ -89,8 +90,11 @@ func HandleWebHookLineAPI(c echo.Context) error {
 				messageReply, err = ChooseService(&con)
 			case "report":
 				fmt.Println("report")
+			case "comment":
+				fmt.Println("comment")
 			case "content":
 				fmt.Println("content")
+				messageReply, err = ContentListHandler(&con)
 			case "choive_man":
 				fmt.Println("choive_man")
 				messageReply, err = CalandarHandler(&con, postBackAction.DateStr)

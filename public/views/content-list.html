@@ -31,6 +31,7 @@
                           <th>title</th>
                           <th>detail</th>
                           <th>created at</th>
+                          <th>active</th>
                           <th></th>
                        </thead>
                        <tbody>
@@ -41,6 +42,7 @@
                               <td>{{ .ConTitle }}</td>
                               <td>{{ .ConDetail }}</td>
                               <td>{{ .CreatedAt.Format "Mon Jan 2 2006" }}</td>
+                              <td><input type="checkbox" data-toggle="toggle" {{ if .ConIsActive }} checked {{end}} value={{.ID}}></td>
                               <td class="td-actions text-right">
                                 <a href="/admin/content/{{ .ID }}">
                                   <button type="button" rel="tooltip" class="btn btn-success">
@@ -121,6 +123,30 @@
         })
         return 
       })
+      $("input[type='checkbox']").each(function() {
+        $(this).change(() => {
+          let _csrf = $("#_csrf").val()
+          let data = new URLSearchParams()
+          let id = $(this).val()
+          data.append("_csrf", _csrf)
+          data.append("con_is_active", this.checked)
+                    
+          fetch(`/admin/content/${id}`, {
+            body: data,
+            method: "PATCH"
+          }).then(res => {
+            if (res.status !== 200) {
+              throw ""
+            }
+            return res.json()
+          }).then(json => {
+            Swal.fire("success", "", "success")
+          }).catch(err => {
+            Swal.fire("fial", "", "warning")      
+          })
+        })
+      })
+
     })(jQuery)
   </script>
 </body>

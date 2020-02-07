@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/IntouchOpec/base-go-echo/lib"
 	"github.com/IntouchOpec/base-go-echo/model"
@@ -13,12 +14,21 @@ import (
 
 func GetContentHandler(c echo.Context) error {
 	contentID := c.QueryParam("contentID")
+	chaLineID := c.Param("cha_line_id")
+	fmt.Println(contentID, chaLineID)
 	var content model.Content
+	var chatCha model.ChatChannel
 	db := model.DB()
-	if err := db.Find(&content, contentID).Error; err != nil {
+	if err := db.Where("cha_line_id = ?", chaLineID).Find(&chatCha).Error; err != nil {
+		fmt.Println(err)
 		return c.Render(http.StatusOK, "content-liff", echo.Map{})
 	}
-	return c.Render(http.StatusOK, "content-liff", echo.Map{})
+	if err := db.Where("account_id = ?", chatCha.AccountID).Find(&content, contentID).Error; err != nil {
+		return c.Render(http.StatusOK, "content-liff", echo.Map{})
+	}
+	return c.Render(http.StatusOK, "content-liff", echo.Map{
+		"detail": content,
+	})
 }
 
 func ContentListHandler(c *Context) error {
@@ -28,9 +38,19 @@ func ContentListHandler(c *Context) error {
 	page, limit := SetPagination(queryPar)
 	var total int
 	db := model.DB()
-	filterChatAns := db.Where("account_id = ?", a.GetAccountID()).Find(&contents).Count(&total)
+	filterChatAns := db.Model(&contents).Where("account_id = ?", a.GetAccountID()).Count(&total)
 	pagination := MakePagination(total, page, limit)
+	fmt.Println("pagination.Record", pagination.Record)
 	filterChatAns.Limit(pagination.Record).Offset(pagination.Offset).Find(&contents)
+	fmt.Println("len(contents)", len(contents))
+	for i := 0; i < len(contents); i++ {
+		fmt.Println(len(contents[i].ConDetail) > 20)
+		if len(contents[i].ConDetail) > 20 {
+			fmt.Println(contents[i].ConDetail[:20])
+			contents[i].ConDetail = contents[i].ConDetail[:20]
+		}
+
+	}
 	return c.Render(http.StatusOK, "content-list", echo.Map{
 		"title":      "content",
 		"list":       contents,
@@ -99,9 +119,9 @@ func ContentEditHandler(c *Context) error {
 func ContentPutHandler(c *Context) error {
 	id := c.Param("id")
 	content := model.Content{}
-	a := auth.Default(c)
+	a := auth.Default(c).GetAccountID()
 	db := model.DB()
-	if err := db.Where("account_id = ?", a.GetAccountID()).Find(&content, id).Error; err != nil {
+	if err := db.Where("account_id = ?", a).Find(&content, id).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	if err := c.Bind(&content); err != nil {
@@ -113,6 +133,31 @@ func ContentPutHandler(c *Context) error {
 	redirect := fmt.Sprintf("/admin/content/%d", content.ID)
 
 	return c.JSON(http.StatusCreated, echo.Map{
+		"redirect": redirect,
+		"data":     content,
+	})
+}
+
+func ContentPatchHandler(c *Context) error {
+	id := c.Param("id")
+	content := model.Content{}
+	a := auth.Default(c)
+	db := model.DB()
+	IsActive := c.FormValue("con_is_active")
+	if err := db.Where("account_id = ?", a.GetAccountID()).Find(&content, id).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	b, err := strconv.ParseBool(IsActive)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	content.ConIsActive = b
+	if err := db.Save(&content).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	redirect := fmt.Sprintf("/admin/content/%d", content.ID)
+
+	return c.JSON(http.StatusOK, echo.Map{
 		"redirect": redirect,
 		"data":     content,
 	})

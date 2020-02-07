@@ -39,6 +39,7 @@ type PromotionDetail struct {
 	orm.ModelBase
 	PDCondition   string       `json:"pd_condition" gorm:"type:varchar(255)"`
 	PDStartDate   time.Time    `from:"pd_start_date"  json:"pd_start_date"`
+	PDIsActive    bool         `json:"is_active" sql:"default:true" gorm:"default:true"`
 	PDEndDate     time.Time    `from:"pd_end_date"  json:"pd_end_date"`
 	ChatChannelID uint         `form:"chat_channel_id" json:"chat_channel_id"`
 	ChatChannel   *ChatChannel `json:"chat_channel" gorm:"ForeignKey:ChatChannelID"`
