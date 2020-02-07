@@ -490,3 +490,7 @@ iframe {
   min-height: 2rem;
   height: 1.5rem;
 }
+
+.p-07{
+  padding: 0.7rem !important;
+}

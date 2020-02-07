@@ -130,41 +130,58 @@ func PromotionPostHandler(c *Context) error {
 	}
 
 	if err := tx.Create(&promotionModel).Error; err != nil {
+		tx.Rollback()
 		return c.JSON(http.StatusBadRequest, err)
 	}
+	fmt.Println("=====1")
 
 	if promotionDetail != "" {
 		var promotionDetailModel model.PromotionDetail
-		err := json.Unmarshal([]byte(promotionDetail), promotionDetailModel)
+		fmt.Println(promotionDetail)
+		err := json.Unmarshal([]byte(promotionDetail), &promotionDetailModel)
 		if err != nil {
+			fmt.Println(err)
+			tx.Rollback()
 			return c.JSON(http.StatusBadRequest, err)
 		}
-		if err := tx.Model(&promotionModel).Association("").Append(&promotionDetailModel).Error; err != nil {
+		if err := tx.Model(&promotionModel).Association("PromotionDetail").Append(&promotionDetailModel).Error; err != nil {
+			fmt.Println("=====2")
+			fmt.Println(err)
+			tx.Rollback()
 			return c.JSON(http.StatusBadRequest, err)
 		}
 	}
 	coupons := c.FormValue("coupons")
 	if coupons != "" {
 		var couponsModel []*model.Coupon
-		err := json.Unmarshal([]byte(coupons), couponsModel)
+		err := json.Unmarshal([]byte(coupons), &couponsModel)
 		if err != nil {
+			tx.Rollback()
 			return c.JSON(http.StatusBadRequest, err)
 		}
-		if err := tx.Model(&promotionModel).Association("").Append(&couponsModel).Error; err != nil {
+		if err := tx.Model(&promotionModel).Association("Coupons").Append(&couponsModel).Error; err != nil {
+			tx.Rollback()
 			return c.JSON(http.StatusBadRequest, err)
 		}
 	}
+	fmt.Println("=====3")
 	vouchers := c.FormValue("vouchers")
 	if vouchers != "" {
 		var vouchersModel []*model.Voucher
-		err := json.Unmarshal([]byte(vouchers), vouchersModel)
+		err := json.Unmarshal([]byte(vouchers), &vouchersModel)
 		if err != nil {
+			tx.Rollback()
 			return c.JSON(http.StatusBadRequest, err)
 		}
-		if err := tx.Model(&promotionModel).Association("").Append(&vouchersModel).Error; err != nil {
+		if err := tx.Model(&promotionModel).Association("Vouchers").Append(&vouchersModel).Error; err != nil {
+			tx.Rollback()
 			return c.JSON(http.StatusBadRequest, err)
 		}
 	}
+	if err := tx.Commit().Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	fmt.Println("=====4")
 	return c.JSON(http.StatusCreated, echo.Map{
 		"data":     promotionModel,
 		"redirect": fmt.Sprintf("/admin/promotion/%d", promotionModel.ID),

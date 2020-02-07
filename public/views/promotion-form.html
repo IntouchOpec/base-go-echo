@@ -409,10 +409,7 @@
             
         }
         $("p[name='remove-card']").click(function () {
-            console.log($(this).val())
-            // $(this).click(function () {
-            //     console.log($(this).val())
-            // })
+           
         })
         PromotionType.change(() => {
             switch (PromotionType.val()) {
@@ -635,7 +632,7 @@
                     let ImageEncodedKey = encodeURIComponent("image")
                     let ImageEncodedValue = encodeURIComponent(image)
                     data.push(ImageEncodedKey + "=" + ImageEncodedValue)
-                    onSubmit(data)f
+                    onSubmit(data)
                 }
             }
         })

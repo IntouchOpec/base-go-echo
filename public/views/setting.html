@@ -4,7 +4,6 @@
 <html lang="en">
 
 {{ template "header" .title }}
-
 <body class="">
   <div class="wrapper ">
    {{ template "sidebar" .base }}
@@ -25,64 +24,97 @@
                             <div class="col-md-12 mt-2">
                                 <div class="form-group">
                                     <label class="bmd-label-floating" >AccProjectID</label>
-                                    <input name="AccProjectID" value="{{.detail.AccProjectID}}" id="AccProjectID" class="form-control">
+                                    <input name="acc_project_id" value="{{.detail.AccProjectID}}" id="acc_project_id" class="form-control">
                                 </div>
                             </div>
                             <div class="col-md-12 mt-2">
                                 <div class="form-group">
                                     <label class="bmd-label-floating" >AccLang</label>
-                                    <input name="AccLang" value="{{.detail.AccLang}}" id="AccLang" class="form-control">
+                                    <input name="acc_lang" value="{{.detail.AccLang}}" id="acc_lang" class="form-control">
                                 </div>
                             </div>
                             <div class="col-md-12 mt-2">
                                 <div class="form-group">
                                     <label class="bmd-label-floating" >AccTimeZone</label>
-                                    <input name="AccTimeZone" value="{{.detail.AccTimeZone}}" id="AccTimeZone" class="form-control">
+                                    <input name="acc_time_zone" value="{{.detail.AccTimeZone}}" id="acc_time_zone" class="form-control">
                                 </div>
                             </div>
                             <div class="col-md-12 mt-2">
                                 <div class="form-group">
                                     <label class="bmd-label-floating" >AccName</label>
-                                    <input name="AccName" value="{{.detail.AccName}}" id="AccName" class="form-control">
+                                    <input name="acc_name" value="{{.detail.AccName}}" id="acc_name" class="form-control">
                                 </div>
                             </div>
                             <div class="col-md-12 mt-2">
                                 <div class="form-group">
-                                    <label class="bmd-label-floating" >AccTransactionType</label>
-                                    <select name="PlacTypes" class="form-control" data-style="btn btn-link" id="AccType">
-                                        {{ if .detail.AccTransactionType }}
-                                            <option value="{{.detail.AccTransactionType}}">{{.detail.AccTransactionType}}</option>
+                                    <label class="bmd-label-floating" >AccTransactionConfirmType</label>
+                                    <select name="acc_transaction_confirm_type" class="form-control" data-style="btn btn-link" id="acc_transaction_confirm_type">
+                                        {{ if .detail.AccTransactionConfirmType }}
+                                          <option value="{{.detail.AccTransactionConfirmType}}">{{.detail.AccTransactionConfirmType}}</option>
                                         {{ else }}
-                                            <option value="">choose AccTransactionType</option>
+                                          <option value="">choose Transaction Confirm Type</option>
                                         {{ end }}
-                                        {{ with .accTypeTransactions }}
+                                        {{ with .accBookingConfirmTpyes }}
                                         {{ range . }}
-                                            <option value='{{ . }}'>{{.}}</option>
+                                          <option value="{{.}}">{{.}}</option>
                                         {{ end }}
                                         {{ end }}
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-12 mt-2">
+                            <div id="input-payment" class="col-md-12 d-flex">
+                              <div class="col-6 p-0 m-0">
                                 <div class="form-group">
-                                    <label class="bmd-label-floating" >AccBookingType</label>
-                                    <select name="PlacTypes" class="form-control" data-style="btn btn-link" id="AccType">
-                                        <option value="{{.detail.AccBookingType}}">{{.bookingType}}</option>
-                                        {{ with .accBookingTypes }}
-                                        {{ range . }}
-                                            <option value='{{ .ID }}'>{{.Text}}</option>
-                                        {{ end }}
-                                        {{ end }}
+                                    <label class="bmd-label-floating" >AccTypePayment</label>
+                                    <select name="acc_type_payment" class="form-control" data-style="btn btn-link" id="acc_type_payment">
+                                      {{ if .detail.AccTypePayment }}
+                                        <option value="{{.detail.AccTypePayment}}">{{.detail.AccTypePayment}}</option>
+                                      {{ else }}
+                                        <option value="">choose Type Payment</option>
+                                      {{ end }}
+
+                                    {{ with .accTypePayments }}
+                                    {{ range . }}
+                                        <option value='{{ . }}'>{{.}}</option>
+                                    {{ end }}
+                                    {{ end }}
                                     </select>
                                 </div>
+                              </div>
+                              {{ if (eq .detail.AccTypePayment "booking") }}
+                                <div class="col-6 p-0 mt-2 p-07"  id="input-amount">
+                                  <div class="form-group">
+                                    <label class="bmd-label-floating">AccAmountPayment</label>
+                                    <input name="acc_amount_payment" id="acc_amount_payment" type="text" class="form-control" value="{{.detail.AccAmountPayment}}">
+                                  </div>
+                                </div>
+                              {{ end }}
+                            </div>
+                            <div class="col-md-12 mt-2">
+                              <div>
+                                  <label class="bmd-label-floating" >AccBookingType</label>
+                              </div>
+                              <div class="form-check form-check-inline" id="booking-type-list" name="booking-type-list">
+                                {{ with .bookingTypes }}
+                                {{ range . }}
+                                <div class="form-check mx-2">
+                                  <label class="form-check-label">
+                                      <input class="form-check-input" {{ if .Checked }} checked {{ end }} type="checkbox" name="{{.Text}}" value="{{.ID}}">
+                                      {{.Text}}
+                                    <span class="form-check-sign">
+                                        <span class="check"></span>
+                                    </span>
+                                  </label>
+                                </div>
+                                {{ end }}
+                                {{ end }}
+                              </div>
                             </div>
                             <div class="col-md-12 mt-2">
                               {{ if .detail.AccAuthJSONFilePath }}
-                                <form method="get" action="file.doc">
-                                  <input type="hidden" name="AccAuthJSONFilePath" id="AccAuthJSONFilePath" value="{{.detail.AccAuthJSONFilePath}}">
-                                  <button class="btn btn-success" type="submit">Download Auth JSON File Path</button>
-                                  <button id="btn-delete-file" type="button" rel="tooltip" class="btn btn-danger button-wrapper">delete</button>
-                               </form>                                               
+                                <input type="hidden" name="AccAuthJSONFilePath" id="AccAuthJSONFilePath" value="{{.detail.AccAuthJSONFilePath}}">
+                                <button class="btn btn-success" type="submit">Download Auth JSON File Path</button>
+                                <button id="btn-delete-file" type="button" rel="tooltip" class="btn btn-danger button-wrapper">delete</button>                                             
                               {{ else }}
                                   <input id="AccAuthJSONFilePath" name="AccAuthJSONFilePath" type="file">
                                   <p><strong>Note:</strong> Choose any file on your computer and its name will be displayed in an alert dialog box.</p>
@@ -146,8 +178,10 @@
     </div>
   </div>
   {{ template "script" }}
+  <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
   <script>
     (function () {
+
       const toBase64 = file => new Promise((resolve, reject) => {
         const reader = new FileReader()
         reader.readAsDataURL(file)
@@ -176,69 +210,121 @@
             .catch(err => Swal.fire("fial", "", "warning"))
         }
 
-        $("form[name='create-account']").validate({
+       $("#acc_type_payment").change(function (){
+         switch ($(this).val()) {
+           case "booking":
+           $("#input-payment").append(`
+            <div class="col-6 p-07 mt-4" id="input-amount">
+              <div class="form-group">
+                <label class="bmd-label-floating">AccAmountPayment</label>
+                <input name="acc_amount_payment" id="acc_amount_payment" type="text" class="form-control" value="">
+              </div>
+            </div>`)
+             break;
+           default:
+            $("#input-amount").remove()
+             break;
+         }
+       })
+       $("form[name='create-account']").on("submit", function() {
+          $(this).find("#acc_amount_payment").each(function( ) {
+            let name = $(this).attr("name")
+            $(this).rules("add", 
+              {
+                  required:  { required : true },
+                  messages:  { required: `Please enyer a valid ${name}`  },
+              })
+            })
+            let checkbox = false 
+          $('input[type="checkbox"]').each(function() {
+            if ($(this).is(":checked")) {
+              checkbox = false
+              return false;
+            }
+              checkbox = true
+          });
+
+          if (checkbox){
+            $("#booking-type-list input").rules("add",  {
+                  required:  { required : true },
+                  messages:  { required: `Please enyer a valid booking type`  },
+              })
+          }
+       })
+       $("form[name='create-account']").validate({
             rules: {
-              AccProjectID: {required: true },
+              acc_project_id: {required: true },
               AccAuthJSONFilePath: {required: true },
-              AccLang: {required: true },
-              AccTimeZone: {required: true },
-              AccName: {required: true },
-              AccTransactionType: {required: true },
-              AccBookingType: {required: true },
+              acc_lang: {required: true },
+              acc_time_zone: {required: true },
+              acc_name: {required: true },
+              acc_transaction_confirm_type: {required: true },
+              acc_type_payment: {required: true }
             },
             messages: {
-              AccProjectID: {messages:"Please enter a valid AccProjectID"},
+              acc_project_id: {messages:"Please enter a valid AccProjectID"},
               AccAuthJSONFilePath: {messages:"Please enter a valid AccAuthJSONFilePath"},
-              AccLang: {messages:"Please enter a valid AccLang"},
-              AccTimeZone: {messages:"Please enter a valid AccTimeZone"},
-              AccName: {messages:"Please enter a valid AccName"},
-              AccTransactionType: {messages:"Please enter a valid AccTransactionType"},
-              AccBookingType: {messages:"Please enter a valid AccBookingType"},
+              acc_lang: {messages:"Please enter a valid acc_lang"},
+              acc_time_zone: {messages:"Please enter a valid AccTimeZone"},
+              acc_name: {messages:"Please enter a valid acc_name"},
+              acc_transaction_confirm_type: {messages:"Please enter a valid acc_transaction_confirm_type"},
+              acc_type_payment: {messages:"Please enter a valid acc_type_payment"},
             },
             submitHandler: function(form) {
                 let _csrf = $("#_csrf").val()
                 let data = []
-                let AccProjectID = $("#AccProjectID").val()
+                let AccProjectID = $("#acc_project_id").val()
                 let AccAuthJSONFilePath = $("#AccAuthJSONFilePath")
-                let AccLang = $("#AccLang").val()
-                let AccTimeZone = $("#AccTimeZone").val()
-                let AccName = $("#AccName").val()
-                let AccTransactionType = $("#AccTransactionType").val()
-                let AccBookingType = $("#AccBookingType").val()
-
+                let AccLang = $("#acc_lang").val()
+                let AccTimeZone = $("#acc_time_zone").val()
+                let AccName = $("#acc_name").val()
+                let AccTransactionConfirmType = $("#acc_transaction_confirm_type").val()
+                let acc_type_payment = $("#acc_type_payment").val()
+                let bookingTypes = []
+                
+                $('input[type="checkbox"]:checked').each(function() {
+                  bookingTypes.push($(this).val())
+                });
+                let bookingTypesEncodedKey = encodeURIComponent("acc_booking_type")
+                let bookingTypesEncodedValue = encodeURIComponent(bookingTypes)
                 let encodedKey = encodeURIComponent("_csrf");
                 let encodedValue = encodeURIComponent(_csrf);
-                let AccProjectIDEncodeKey = encodeURIComponent("AccProjectID")
+                let AccProjectIDEncodeKey = encodeURIComponent("acc_project_id")
                 let AccProjectIDEncodeValue = encodeURIComponent(AccProjectID)  
-                let AccLangEncodeKey = encodeURIComponent("AccLang")
+                let AccLangEncodeKey = encodeURIComponent("acc_lang")
                 let AccLangEncodeValue = encodeURIComponent(AccLang)  
-                let AccTimeZoneEncodeKey = encodeURIComponent("AccTimeZone")
+                let AccTimeZoneEncodeKey = encodeURIComponent("ccc_time_zone")
                 let AccTimeZoneEncodeValue = encodeURIComponent(AccTimeZone)  
-                let AccNameEncodeKey = encodeURIComponent("AccName")
+                let AccNameEncodeKey = encodeURIComponent("acc_name")
                 let AccNameEncodeValue = encodeURIComponent(AccName)
-                let AccTransactionTypeEncodeValue = encodeURIComponent(AccTransactionType)
-                let AccTransactionTypeEncodeKey = encodeURIComponent("AccTransactionType")
-                let AccBookingTypeEncodeValue = encodeURIComponent(AccBookingType)
-                let AccBookingTypeEncodeKey = encodeURIComponent("AccBookingType")
-                
+                let AccTransactionConfirmTypeEncodeValue = encodeURIComponent(AccTransactionConfirmType)
+                let AccTransactionConfirmTypeEncodeKey = encodeURIComponent("acc_transaction_confirm_type")
+                let acc_type_paymentEncodeValue = encodeURIComponent(acc_type_payment)
+                let acc_type_paymentEncodeKey = encodeURIComponent("acc_type_payment")
+                if (acc_type_payment === "booking"){
+                  let acc_amount_payment = $("#acc_amount_payment").val()
+                  acc_amount_payment = encodeURIComponent(acc_amount_payment)
+                  let acc_amount_paymentEncodeKey = encodeURIComponent("acc_amount_payment")
+                  data.push(acc_amount_paymentEncodeKey + "=" + acc_amount_payment)
+                }
                 data.push(encodedKey + "=" + encodedValue)
                 data.push(encodedKey+ "="+ encodedValue)
                 data.push(AccProjectIDEncodeKey+ "="+ AccProjectIDEncodeValue)
                 data.push(AccLangEncodeKey+ "="+ AccLangEncodeValue)
                 data.push(AccTimeZoneEncodeKey+ "="+ AccTimeZoneEncodeValue)
                 data.push(AccNameEncodeKey+ "="+ AccNameEncodeValue)
-                data.push(AccTransactionTypeEncodeKey+ "="+ AccTransactionTypeEncodeValue)
-                data.push(AccBookingTypeEncodeKey+ "="+ AccBookingTypeEncodeValue)
-                
-                if (AccAuthJSONFilePath[0].files.length !== 0) {    
-                    toBase64(Image[0].files[0]).then(base64Image => {
+                data.push(AccTransactionConfirmTypeEncodeKey+ "="+ AccTransactionConfirmTypeEncodeValue)
+                data.push(acc_type_paymentEncodeKey+ "="+ acc_type_paymentEncodeValue)
+                data.push(bookingTypesEncodedKey+ "="+ bookingTypesEncodedValue)
+                if (AccAuthJSONFilePath.attr("type") !== "hidden") {    
+                    toBase64(AccAuthJSONFilePath[0].files[0]).then(base64Image => {
                         imageEncodedValue = encodeURIComponent(base64Image)
                         let imageEncodedKey = encodeURIComponent("file") 
-                        data.push(imageEncodedKey + "=" + imageEncodedValue) 
+                        data.push(encodeURIComponent() + "=" + imageEncodedValue) 
                         onSubmit(data)
                     })
                 } else {
-                  data.append("AccAuthJSONFilePath", AccAuthJSONFilePath)
+                  data.push(encodeURIComponent("AccAuthJSONFilePath"), encodeURIComponent(AccAuthJSONFilePath.val()))
                   onSubmit(data)
                 }
             }})

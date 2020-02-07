@@ -171,7 +171,7 @@ func Routers() *echo.Echo {
 		managent.GET("/setting", handler(SettingHandler))
 		managent.GET("/setting/:id/edit", handler(SettingEditViewHandler))
 		managent.PUT("/setting/:id/edit", handler(SettingPutHandler))
-		managent.PUT("/setting", handler(SettingPostHandler))
+		managent.PUT("/setting", handler(SettingAccountPutHandler))
 		managent.DELETE("/setting/auth_json_file", handler(RemoaveAuthJSONFile))
 		managent.GET("/service/:id/chatchannel_service/create", handler(ServiceChatChannelViewHandler))
 		managent.POST("/service/:id/chatchannel_service/create", handler(ServiceChatChannelPostHandler))

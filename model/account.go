@@ -5,17 +5,18 @@ import (
 )
 
 type AccBookingType int8
-type AccTransactionType string
+type AccTransactionConfirmType string
 type AccTypePayment string
 
 const (
 	AccBookingByTimeSlot AccBookingType = 0
 	AccBookingByItem     AccBookingType = 1
+	AccBookingByNow      AccBookingType = 2
 )
 
 const (
-	AccTransactionMan  AccTransactionType = "man"
-	AccTransactionAuto AccTransactionType = "auto"
+	AccTransactionMan  AccTransactionConfirmType = "man"
+	AccTransactionAuto AccTransactionConfirmType = "auto"
 )
 
 const (
@@ -27,16 +28,17 @@ const (
 type Account struct {
 	orm.ModelBase
 
-	AccProjectID        string             `json:"acc_project_id" grom:"type:varchar(100)"`
-	AccAuthJSONFilePath string             `json:"acc_auth_json_file_path" grom:"type:varchar(100)"`
-	AccLang             string             `json:"acc_lang" grom:"type:varchar(100)"`
-	AccTimeZone         string             `json:"acc_time_zone" grom:"type:varchar(100)"`
-	AccName             string             `json:"acc_name" gorm:"type:varchar(25)"`
-	AccTransactionType  AccTransactionType `json:"acc_transaction_type" gorm:"type:varchar(25)"`
-	AccBookingType      AccBookingType     `json:"acc_booking_type" gorm:"type:varchar(10)"`
-	AccTypePayment      AccTypePayment     `json:"acc_type_payment" gorm:"type:varchar(10)"`
-	Settings            []*Setting         `json:"settings" gorm:"many2many:account_setting"`
-	ChatChannels        []*ChatChannel     `json:"chat_channels"`
+	AccProjectID              string                    `form:"acc_project_id" json:"acc_project_id" grom:"type:varchar(100)"`
+	AccAuthJSONFilePath       string                    `form:"acc_auth_json_file_path" json:"acc_auth_json_file_path" grom:"type:varchar(100)"`
+	AccLang                   string                    `form:"acc_lang" json:"acc_lang" grom:"type:varchar(100)"`
+	AccTimeZone               string                    `form:"acc_time_zone" json:"acc_time_zone" grom:"type:varchar(100)"`
+	AccName                   string                    `form:"acc_name" json:"acc_name" gorm:"type:varchar(25)"`
+	AccAmountPayment          int                       `form:"acc_amount_payment" json:"acc_amount_payment"`
+	AccTransactionConfirmType AccTransactionConfirmType `form:"acc_transaction_confirm_type" json:"acc_transaction_confirm_type" gorm:"type:varchar(25)"`
+	AccBookingType            string                    `form:"acc_booking_type" json:"acc_booking_type" gorm:"type:varchar(32)"`
+	AccTypePayment            AccTypePayment            `form:"acc_type_payment" json:"acc_type_payment" gorm:"type:varchar(10)"`
+	Settings                  []*Setting                `json:"settings" gorm:"many2many:account_setting"`
+	ChatChannels              []*ChatChannel            `json:"chat_channels"`
 }
 
 // func (account *Account) BeforeCreate(scope *gorm.Scope) error {

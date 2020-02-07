@@ -2,6 +2,9 @@ package web
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/IntouchOpec/base-go-echo/lib"
@@ -12,8 +15,9 @@ import (
 )
 
 type AccBooking struct {
-	ID   model.AccBookingType
-	Text string
+	ID      model.AccBookingType
+	Text    string
+	Checked bool
 }
 
 func SettingHandler(c *Context) error {
@@ -24,37 +28,46 @@ func SettingHandler(c *Context) error {
 	if err := db.Preload("Settings").Find(&acc, accID).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	accTypeTransactions := []model.AccTransactionType{model.AccTransactionMan, model.AccTransactionAuto}
-	accBookingTypes := []AccBooking{
-		AccBooking{ID: model.AccBookingByTimeSlot, Text: "Time Slot"},
-		AccBooking{ID: model.AccBookingByItem, Text: "item"},
+	accTypePayments := []model.AccTypePayment{
+		model.AccTypePaymentBooking,
+		model.AccTypePaymentNow,
 	}
-	err := c.Render(http.StatusOK, "setting", echo.Map{
-		"detail":              acc,
-		"bookingType":         accBookingTypes[acc.AccBookingType].Text,
-		"title":               "setting",
-		"method":              "PUT",
-		"accTypeTransactions": accTypeTransactions,
-		"accBookingTypes":     accBookingTypes,
+	accBookingConfirmTpyes := []model.AccTransactionConfirmType{model.AccTransactionMan, model.AccTransactionAuto}
+	bookingTypes := []AccBooking{
+		AccBooking{ID: model.AccBookingByTimeSlot, Text: "TimeSlot"},
+		AccBooking{ID: model.AccBookingByItem, Text: "Item"},
+		AccBooking{ID: model.AccBookingByNow, Text: "Now"},
+	}
+	var ints []int
+	err := json.Unmarshal([]byte(fmt.Sprintf("[%s]", acc.AccBookingType)), &ints)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("%v", ints)
+	for _, char := range ints {
+		bookingTypes[char].Checked = true
+	}
+
+	return c.Render(http.StatusOK, "setting", echo.Map{
+		"detail":                 acc,
+		"accTypePayments":        accTypePayments,
+		"title":                  "setting",
+		"method":                 "PUT",
+		"accBookingConfirmTpyes": accBookingConfirmTpyes,
+		"bookingTypes":           bookingTypes,
 	})
-	return err
 }
 
-func SettingPostHandler(c *Context) error {
+func SettingAccountPutHandler(c *Context) error {
 	accID := auth.Default(c).GetAccountID()
 	var acc model.Account
-
 	db := model.DB()
 	if err := db.Find(&acc, accID).Error; err != nil {
+		fmt.Println("err")
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	if err := c.Bind(&acc); err != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
-
 	jsonPath := c.FormValue("file")
-
-	if jsonPath == "" {
+	if jsonPath != "" {
 		ctx := context.Background()
 		jsonPath, err := lib.UploadGoolgeStorage(ctx, jsonPath, "json/AuthJSONGoogle/")
 		if err != nil {
@@ -62,10 +75,15 @@ func SettingPostHandler(c *Context) error {
 		}
 		acc.AccAuthJSONFilePath = jsonPath
 	}
-
-	// if err := db.Save(&acc).Error; err != nil {
-	// 	return c.JSON(http.StatusBadRequest, err)
-	// }
+	if err := c.Bind(&acc); err != nil {
+		fmt.Println("err", err)
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	fmt.Println("====1")
+	if err := db.Save(&acc).Error; err != nil {
+		fmt.Println("err", err)
+		return c.JSON(http.StatusBadRequest, err)
+	}
 	return c.JSON(http.StatusOK, acc)
 }
 

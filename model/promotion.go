@@ -40,8 +40,8 @@ type PromotionDetail struct {
 	PDCondition   string     `json:"pd_condition" gorm:"type:varchar(255)"`
 	ChatChannelID uint       `json:"chat_channel_id"`
 	PDIsActive    bool       `json:"is_active" sql:"default:true" gorm:"default:true"`
-	PDStartDate   time.Time  `from:"start_time"  json:"pd_start_time"`
-	PDEndDate     time.Time  `from:"end_time"  json:"pd_end_time"`
+	PDStartDate   time.Time  `from:"pd_start_date"  json:"pd_start_date"`
+	PDEndDate     time.Time  `from:"pd_end_date"  json:"pd_end_date"`
 	PromotionID   uint       `json:"promotion_id"`
 	Promotion     *Promotion `json:"promotion" gorm:"ForeignKey:PromotionID"`
 	AccountID     uint       `json:"account_id"`
