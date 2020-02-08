@@ -1,6 +1,7 @@
 package web
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/IntouchOpec/base-go-echo/model"
@@ -11,7 +12,8 @@ import (
 func GetReportViewsHandler(c echo.Context) error {
 	var transaction model.Transaction
 	transactionID := c.QueryParam("transactionID")
-	chatChannelID := c.Param("ChatChannelID")
+	chatChannelID := c.Param("lineID")
+	fmt.Println(transactionID, chatChannelID)
 	db := model.DB()
 	if err := db.Preload("Bookings").Where("chat_channel_id = ?", chatChannelID).Find(&transaction, transactionID).Error; err != nil {
 		return c.Render(http.StatusOK, "report-form", echo.Map{

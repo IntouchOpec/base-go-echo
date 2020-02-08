@@ -90,8 +90,10 @@ func HandleWebHookLineAPI(c echo.Context) error {
 				messageReply, err = ChooseService(&con)
 			case "report":
 				fmt.Println("report")
+				messageReply, err = ReportListHandler(&con)
 			case "comment":
 				fmt.Println("comment")
+				messageReply, err = ReportListHandler(&con)
 			case "content":
 				fmt.Println("content")
 				messageReply, err = ContentListHandler(&con)

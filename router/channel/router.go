@@ -59,6 +59,8 @@ func Routers() *echo.Echo {
 	e.POST("/callback/:account/:ChannelID", HandleWebHookLineAPI)
 	e.GET("/webhook-facebook", HandleWebHookFacebookAPI)
 	e.POST("/webhook-facebook", HandleWebHookFacebookAPI)
+	e.GET("/report/:lineID", web.GetReportViewsHandler)
+	e.POST("/report/:lineID", web.CreateReportHandler)
 	e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
 		Root: "public/assets",
 	}))
