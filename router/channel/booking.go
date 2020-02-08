@@ -640,7 +640,7 @@ func BookingServiceHandler(c *Context) (linebot.SendingMessage, error) {
 		}
 		err = tx.Model(&tran).Association("Bookings").Append(&book).Error
 		if err != nil {
-
+			fmt.Println("=====5")
 			tx.Rollback()
 			return nil, err
 		}
@@ -657,13 +657,13 @@ func BookingServiceHandler(c *Context) (linebot.SendingMessage, error) {
 			MSPlace.AccountID = c.Account.ID
 			form, err := time.Parse("15:04", c.PostbackAction.Start)
 			if err != nil {
+				fmt.Println("=====4")
 				tx.Rollback()
-
 				return nil, err
 			}
 			to, err := time.Parse("15:04", c.PostbackAction.End)
 			if err != nil {
-
+				fmt.Println("=====3")
 				tx.Rollback()
 				return nil, err
 			}
@@ -674,13 +674,14 @@ func BookingServiceHandler(c *Context) (linebot.SendingMessage, error) {
 				MSPlace.MPlaStatus = model.MPlaStatusBusy
 			}
 			if err := tx.Create(&MSPlace).Error; err != nil {
+				fmt.Println("=====2")
 				tx.Rollback()
 				return nil, err
 			}
 		}
 
 		if err != nil {
-
+			fmt.Println("=====1")
 			tx.Rollback()
 			return nil, err
 		}
@@ -693,6 +694,8 @@ func BookingServiceHandler(c *Context) (linebot.SendingMessage, error) {
 		setting := c.ChatChannel.GetSetting([]string{model.NameLIFFIDPayment})
 		template = fmt.Sprintf(checkoutTemplate, c.ChatChannel.ChaImage, c.ChatChannel.ChaAddress, c.PostbackAction.Start, c.PostbackAction.End, setting[model.NameLIFFIDPayment], c.Account.AccName, tran.TranDocumentCode, setting[model.NameLIFFIDPayment])
 	}
+	fmt.Println(template)
+	fmt.Println("=====6")
 	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(template))
 	if err != nil {
 		return nil, err
