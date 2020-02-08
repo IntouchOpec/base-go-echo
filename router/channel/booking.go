@@ -405,17 +405,23 @@ func BookingTimeSlotHandler(c *Context) (linebot.SendingMessage, error) {
 		return nil, err
 	}
 	tx.Commit()
-	setting := c.ChatChannel.GetSetting([]string{model.NameLIFFIDPayment})
-	checkout := fmt.Sprintf(checkoutTemplate,
-		c.ChatChannel.ChaImage,
-		c.ChatChannel.ChaAddress,
-		timeSlot.TimeStart,
-		timeSlot.TimeEnd,
-		setting[model.NameLIFFIDPayment],
-		c.Account.AccName,
-		tran.TranDocumentCode,
-		setting[model.NameLIFFIDPayment])
-	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(checkout))
+	var template string
+	if c.Account.AccTransactionConfirmType == model.AccTransactionMan {
+		template = fmt.Sprintf(withComfirmTemplate, c.ChatChannel.ChaImage)
+	} else {
+		setting := c.ChatChannel.GetSetting([]string{model.NameLIFFIDPayment})
+		template = fmt.Sprintf(checkoutTemplate,
+			c.ChatChannel.ChaImage,
+			c.ChatChannel.ChaAddress,
+			timeSlot.TimeStart,
+			timeSlot.TimeEnd,
+			setting[model.NameLIFFIDPayment],
+			c.Account.AccName,
+			tran.TranDocumentCode,
+			setting[model.NameLIFFIDPayment])
+	}
+
+	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(template))
 	if err != nil {
 		return nil, err
 	}
@@ -680,9 +686,14 @@ func BookingServiceHandler(c *Context) (linebot.SendingMessage, error) {
 		}
 		tx.Commit()
 	}
-	setting := c.ChatChannel.GetSetting([]string{model.NameLIFFIDPayment})
-	checkout := fmt.Sprintf(checkoutTemplate, c.ChatChannel.ChaImage, c.ChatChannel.ChaAddress, c.PostbackAction.Start, c.PostbackAction.End, setting[model.NameLIFFIDPayment], c.Account.AccName, tran.TranDocumentCode, setting[model.NameLIFFIDPayment])
-	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(checkout))
+	var template string
+	if c.Account.AccTransactionConfirmType == model.AccTransactionMan {
+		template = fmt.Sprintf(withComfirmTemplate, c.ChatChannel.ChaImage)
+	} else {
+		setting := c.ChatChannel.GetSetting([]string{model.NameLIFFIDPayment})
+		template = fmt.Sprintf(checkoutTemplate, c.ChatChannel.ChaImage, c.ChatChannel.ChaAddress, c.PostbackAction.Start, c.PostbackAction.End, setting[model.NameLIFFIDPayment], c.Account.AccName, tran.TranDocumentCode, setting[model.NameLIFFIDPayment])
+	}
+	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(template))
 	if err != nil {
 		return nil, err
 	}

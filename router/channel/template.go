@@ -79,7 +79,60 @@ var serviceListTemplate string = `{"type": "bubble", "hero": { "type": "image", 
 }}`
 var nextPageTemplate string = `{ "type": "bubble", "body": { "type": "box", "layout": "vertical", "spacing": "sm", "contents": [
 	{ "type": "button", "flex": 1, "gravity": "center", "action": { "type": "uri", "label": "See more", "uri": "line://app/1615136604-5wld9ZdL" } }] }}`
-
+var withComfirmTemplate string = `{
+	"type": "bubble",
+	"hero": {
+	  "type": "image",
+	  "url": "%s",
+	  "size": "full",
+	  "aspectRatio": "20:13",
+	  "aspectMode": "cover"
+	},
+	"body": {
+	  "type": "box",
+	  "layout": "vertical",
+	  "contents": [
+		{
+		  "type": "text",
+		  "text": "รอการยืนยันจากผู้ให้บริการ",
+		  "weight": "bold",
+		  "size": "xl"
+		}
+	  ]
+	},
+	"footer": {
+	  "type": "box",
+	  "layout": "vertical",
+	  "spacing": "sm",
+	  "contents": [
+		{
+		  "type": "button",
+		  "style": "link",
+		  "height": "sm",
+		  "action": {
+			"type": "uri",
+			"label": "CALL",
+			"uri": "https://linecorp.com"
+		  }
+		},
+		{
+		  "type": "button",
+		  "style": "link",
+		  "height": "sm",
+		  "action": {
+			"type": "uri",
+			"label": "WEBSITE",
+			"uri": "https://linecorp.com"
+		  }
+		},
+		{
+		  "type": "spacer",
+		  "size": "sm"
+		}
+	  ],
+	  "flex": 0
+	}
+  }`
 var checkoutTemplate string = `{
 	"type": "bubble",
 	"hero": { "type": "image", "url": "%s", "size": "full", "aspectRatio": "20:13", "aspectMode": "cover" },
