@@ -22,6 +22,7 @@ func ServiceNowListHandler(c *Context) (linebot.SendingMessage, error) {
 	var button string
 	var pagination Pagination
 	var total int
+	var count time.Duration
 	pagination.ParseQueryUnmarshal(c.Event.Postback.Data)
 	pagination.SetPagination()
 	timeStart = now.Add(30 * time.Minute)
@@ -29,12 +30,12 @@ func ServiceNowListHandler(c *Context) (linebot.SendingMessage, error) {
 	filter := db.Model(&packageModels).Where("account_id = ? and pac_is_active = ?", c.Account.ID, true).Count(&total)
 	pagination.MakePagination(total, 9)
 	filter.Order("pac_order").Limit(pagination.Record).Offset(pagination.Offset).Find(&packageModels)
+	timeStartStr = timeStart.Format("15:04")
 	for _, packageModel := range packageModels {
 		duration = time.Duration(packageModel.PacTime.Hour() * int(time.Hour))
 		timeEnd = timeStart.Add(duration)
 		duration = time.Duration(packageModel.PacTime.Minute() * int(time.Minute))
 		timeEnd = timeEnd.Add(duration)
-		timeStartStr = timeStart.Format("15:04")
 		timeEndStr = timeEnd.Format("15:04")
 		flexContainerStr += fmt.Sprintf(cardPackageTemplate, packageModel.PacName, fmt.Sprintf("https://web.%s/files?path=%s", Conf.Server.Domain, packageModel.PacImage), timeStartStr, timeEndStr, timeStartStr, timeEndStr) + ","
 	}
@@ -50,13 +51,14 @@ func ServiceNowListHandler(c *Context) (linebot.SendingMessage, error) {
 				continue
 			}
 			for _, item := range service.ServiceItems {
+				count = (time.Duration(item.SSTime.Minute()) * time.Minute) + (time.Duration(item.SSTime.Hour()) * time.Hour)
+				timeEndStr = timeEnd.Add(count).Format("15:04")
 				button += fmt.Sprintf(buttonTemplate, item.SSName, fmt.Sprintf("action=booking&service_item_id=%d&start=%s&end=%s&day=%s", item.ID, timeStartStr, timeEndStr, timeStart.Format("2006-01-02")))
 			}
 			flexContainerStr += fmt.Sprintf(cardServiceTemplate, service.SerName, fmt.Sprintf("https://web.%s/files?path=%s", Conf.Server.Domain, service.SerImage), service.SerDetail, button[:len(button)-1]) + ","
 		}
 	}
 	flexContainerStr = fmt.Sprintf(carouselTemplate, flexContainerStr[:len(flexContainerStr)-1])
-	fmt.Println("flexContainerStr", flexContainerStr)
 	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(flexContainerStr))
 	if err != nil {
 		return nil, err
