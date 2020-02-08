@@ -55,15 +55,15 @@ var serviceMassage string = `
 { "type": "bubble",
 "hero": { "type": "image", "size": "full", "aspectRatio": "20:13", "aspectMode": "cover", "url": "%s" },
 "body": { "type": "box", "layout": "vertical", "spacing": "sm",
-  "contents": [
-	{ "type": "button", "style": "primary", "action": {
-		"type": "postback", "label": "จองเดี๋ยวนี้", "data": "action=booking_now" } },
-	{ "type": "button", "style": "primary", "action": 
-		{ "type": "datetimepicker", "label": "จองล่วงหน้า", "data": "action=booking_appointment", "mode": "datetime", "initial": "%s", "max": "%s", "min": "%s" } },	
-	{ "type": "button", "style": "primary", "action": {
-		"type": "postback", "label": "ทำนัดเอง", "data": "action=choive_man" } }
-	]}
+  "contents": [%s]}
 }`
+
+var serviceButtonBookingNow string = `{ "type": "button", "style": "primary", "action": {
+	"type": "postback", "label": "จองเดี๋ยวนี้", "data": "action=booking_now" } },`
+var serviceButtonBookingAppointment string = `{ "type": "button", "style": "primary", "action": 
+	{ "type": "datetimepicker", "label": "จองล่วงหน้า", "data": "action=booking_appointment", "mode": "datetime", "initial": "%s", "max": "%s", "min": "%s" } },`
+var serviceButtonBookingMan string = `{ "type": "button", "style": "primary", "action": {
+		"type": "postback", "label": "ทำนัดเอง", "data": "action=choive_man" } },`
 
 var buttonTimeSecondaryTemplate string = `{"type": "button", "style": "secondary", "margin": "sm", "action": { "type": "postback", "label": "%s", "data": "%s" }},`
 var buttonTimePrimaryTemplate string = `{"type": "button","style": "primary", "margin": "sm", "action": { "type": "postback", "label": "%s", "data": "%s" }},`

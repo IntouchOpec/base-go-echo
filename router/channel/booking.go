@@ -1,6 +1,7 @@
 package channel
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strconv"
@@ -108,7 +109,33 @@ func CalendarTemplate(firstKeyWordAction, lastKeyWordAction, date string) string
 func ChooseService(c *Context) (linebot.SendingMessage, error) {
 	now := time.Now().Add(30 * time.Minute)
 	format := "2006-01-02T15:04"
-	m := fmt.Sprintf(serviceMassage, c.ChatChannel.ChaImage, now.Format(format), now.AddDate(0, 3, 0).Format(format), now.Format(format))
+	var m string
+
+	if c.Account.AccBookingType == "" {
+		m = fmt.Sprintf(serviceMassage,
+			c.ChatChannel.ChaImage,
+			serviceButtonBookingNow+
+				fmt.Sprintf(serviceButtonBookingAppointment, now.Format(format), now.AddDate(0, 3, 0).Format(format), now.Format(format))+
+				serviceButtonBookingMan[:len(serviceButtonBookingMan)-1])
+	} else {
+		var numbers []int
+		err := json.Unmarshal([]byte(fmt.Sprintf("[%s]", c.Account.AccBookingType)), &numbers)
+		if err != nil {
+			return nil, err
+		}
+		for _, number := range numbers {
+			fmt.Println(number)
+			switch number {
+			case 0:
+				m += serviceButtonBookingNow
+			case 1:
+				m += fmt.Sprintf(serviceButtonBookingAppointment, now.Format(format), now.AddDate(0, 3, 0).Format(format), now.Format(format))
+			case 2:
+				m += serviceButtonBookingMan
+			}
+		}
+		m = fmt.Sprintf(serviceMassage, c.ChatChannel.ChaImage, m[:len(m)-1])
+	}
 	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(m))
 	if err != nil {
 		return nil, err
