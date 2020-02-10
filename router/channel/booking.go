@@ -1,11 +1,12 @@
 package channel
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"strconv"
 	"time"
+
+	"github.com/IntouchOpec/base-go-echo/lib"
 
 	"github.com/jinzhu/gorm"
 
@@ -106,41 +107,46 @@ func CalendarTemplate(firstKeyWordAction, lastKeyWordAction, date string) string
 	return m
 }
 
-func ChooseService(c *Context) (linebot.SendingMessage, error) {
-	now := time.Now().Add(30 * time.Minute)
-	format := "2006-01-02T15:04"
+func ChooseService(c *Context) {
+	var packageModels []*model.Package
+	var services []*model.Service
 	var m string
-
-	if c.Account.AccBookingType == "" {
-		m = fmt.Sprintf(serviceMassage,
-			c.ChatChannel.ChaImage,
-			serviceButtonBookingNow+
-				fmt.Sprintf(serviceButtonBookingAppointment, now.Format(format), now.AddDate(0, 3, 0).Format(format), now.Format(format))+
-				serviceButtonBookingMan[:len(serviceButtonBookingMan)-1])
-	} else {
-		var numbers []int
-		err := json.Unmarshal([]byte(fmt.Sprintf("[%s]", c.Account.AccBookingType)), &numbers)
-		if err != nil {
-			return nil, err
-		}
-		for _, number := range numbers {
-			fmt.Println(number)
-			switch number {
-			case 0:
-				m += serviceButtonBookingNow
-			case 1:
-				m += fmt.Sprintf(serviceButtonBookingAppointment, now.Format(format), now.AddDate(0, 3, 0).Format(format), now.Format(format))
-			case 2:
-				m += serviceButtonBookingMan
-			}
-		}
-		m = fmt.Sprintf(serviceMassage, c.ChatChannel.ChaImage, m[:len(m)-1])
+	var total int
+	now := time.Now()
+	format := "2006-01-02"
+	initial := now.Format(format)
+	max := now.AddDate(0, 3, 0).Format(format)
+	min := now.Format(format)
+	packsFilter := c.DB.Model(&packageModels).Where("account_id = ? and pac_is_active = ?", c.Account.ID, true).Count(&total)
+	packsFilter.Limit(9).Offset(1).Order("pac_order").Find(&packageModels)
+	for _, pack := range packageModels {
+		m += fmt.Sprintf(serviceTemplate,
+			fmt.Sprintf("https://web.%s/files?path=%s", Conf.Server.Domain, pack.PacImage),
+			pack.PacName,
+			pack.PacPrice,
+			fmt.Sprintf("action=booking_now&package_id=%d", pack.ID),
+			fmt.Sprintf("action=booking_appointment&package_id=%d", pack.ID),
+			initial,
+			max,
+			min) + ","
 	}
-	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(m))
-	if err != nil {
-		return nil, err
+	if len(packageModels) < 9 {
+		serviceFilter := c.DB.Model(&services).Where("account_id = ? and ser_active = ?", c.Account.ID, true).Count(&total)
+		serviceFilter.Limit(9).Find(&services)
+		for _, ser := range services {
+			m += fmt.Sprintf(serviceTemplate,
+				fmt.Sprintf("https://web.%s/files?path=%s", Conf.Server.Domain, ser.SerImage),
+				ser.SerName,
+				ser.SerPrice,
+				fmt.Sprintf("action=booking_now&service_id=%d", ser.ID),
+				fmt.Sprintf("action=booking_appointment&service_id=%d", ser.ID),
+				initial,
+				max,
+				min) + ","
+		}
 	}
-	return linebot.NewFlexMessage("service", flexContainer), nil
+	m = fmt.Sprintf(`{ "replyToken": "%s", "messages":[ { "type": "flex",  "altText":  "Flex Message",  "contents": { "type": "carousel", "contents": [ %s ] } }]}`, c.Event.ReplyToken, m[:len(m)-1])
+	lib.SendMessageCustom("reply", c.ChatChannel.ChaChannelAccessToken, m)
 }
 
 func ServiceList(c *Context) (linebot.SendingMessage, error) {
@@ -640,7 +646,6 @@ func BookingServiceHandler(c *Context) (linebot.SendingMessage, error) {
 		}
 		err = tx.Model(&tran).Association("Bookings").Append(&book).Error
 		if err != nil {
-			fmt.Println("=====5")
 			tx.Rollback()
 			return nil, err
 		}
@@ -657,13 +662,11 @@ func BookingServiceHandler(c *Context) (linebot.SendingMessage, error) {
 			MSPlace.AccountID = c.Account.ID
 			form, err := time.Parse("15:04", c.PostbackAction.Start)
 			if err != nil {
-				fmt.Println("=====4")
 				tx.Rollback()
 				return nil, err
 			}
 			to, err := time.Parse("15:04", c.PostbackAction.End)
 			if err != nil {
-				fmt.Println("=====3")
 				tx.Rollback()
 				return nil, err
 			}
@@ -674,14 +677,12 @@ func BookingServiceHandler(c *Context) (linebot.SendingMessage, error) {
 				MSPlace.MPlaStatus = model.MPlaStatusBusy
 			}
 			if err := tx.Create(&MSPlace).Error; err != nil {
-				fmt.Println("=====2")
 				tx.Rollback()
 				return nil, err
 			}
 		}
 
 		if err != nil {
-			fmt.Println("=====1")
 			tx.Rollback()
 			return nil, err
 		}
@@ -694,8 +695,6 @@ func BookingServiceHandler(c *Context) (linebot.SendingMessage, error) {
 		setting := c.ChatChannel.GetSetting([]string{model.NameLIFFIDPayment})
 		template = fmt.Sprintf(checkoutTemplate, c.ChatChannel.ChaImage, c.ChatChannel.ChaAddress, c.PostbackAction.Start, c.PostbackAction.End, setting[model.NameLIFFIDPayment], c.Account.AccName, tran.TranDocumentCode, setting[model.NameLIFFIDPayment])
 	}
-	fmt.Println(template)
-	fmt.Println("=====6")
 	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(template))
 	if err != nil {
 		return nil, err

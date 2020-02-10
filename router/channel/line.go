@@ -87,7 +87,7 @@ func HandleWebHookLineAPI(c echo.Context) error {
 			case "voucher":
 				messageReply, err = VoucherListHandler(&con)
 			case "service":
-				messageReply, err = ChooseService(&con)
+				ChooseService(&con)
 			case "report":
 				fmt.Println("report")
 				messageReply, err = ReportListHandler(&con)
@@ -113,14 +113,13 @@ func HandleWebHookLineAPI(c echo.Context) error {
 				messageReply, err = BookingTimeSlotHandler(&con)
 			case "booking_now":
 				fmt.Println("booking_now")
-				messageReply, err = ServiceNowListHandler(&con)
+				// messageReply, err = ServiceNowListHandler(&con)
 			case "booking_appointment":
 				fmt.Println("booking_appointment")
 				messageReply, err = ServiceDateListHandler(&con, event.Postback.Params.Datetime)
 			case "booking":
 				fmt.Println("booking")
-				fmt.Println(postBackAction)
-				messageReply, err = BookingServiceHandler(&con)
+				// messageReply, err = BookingServiceHandler(&con)
 			}
 			_, err = bot.ReplyMessage(event.ReplyToken, messageReply).Do()
 			if err != nil {

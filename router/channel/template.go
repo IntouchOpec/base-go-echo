@@ -51,12 +51,41 @@ var notFoundVoucher string = `
     }
   }`
 
-var serviceMassage string = `
-{ "type": "bubble",
-"hero": { "type": "image", "size": "full", "aspectRatio": "20:13", "aspectMode": "cover", "url": "%s" },
-"body": { "type": "box", "layout": "vertical", "spacing": "sm",
-  "contents": [%s]}
-}`
+var serviceTemplate string = `
+{ "type": "bubble", "body": { "type": "box", "layout": "vertical", "contents": [
+		{ "type": "image", "url": "%s", "size": "full", "aspectMode": "cover", "aspectRatio": "2:3", "gravity": "top" },
+		{ "type": "box", "layout": "vertical", "spacing": "lg", "contents": [
+			{ "type": "box", "layout": "vertical", "contents": [ { "type": "text", "text": "%s", "size": "xl", "color": "#ffffff", "weight": "bold" } ] },
+			{ "type": "box", "layout": "baseline", "contents": [
+				{ "type": "text", "text": "฿%f", "color": "#ebebeb", "size": "sm", "flex": 0 } ] },
+			{ "type": "box", "layout": "vertical", "contents": [ { "type": "filler" },
+				{ "type": "box", "layout": "baseline", "spacing": "sm", "action": { "type": "postback", "data": "%s" },
+				"contents": [
+					{ "type": "filler" },
+					{ "type": "icon", "url": "https://scdn.line-apps.com/n/channel_devcenter/img/flexsnapshot/clip/clip14.png" },
+					{ "type": "text", "text": "Booking Now", "color": "#ffffff", "flex": 0, "offsetTop": "-2px" },
+					{ "type": "filler" }
+				  ] },
+				{ "type": "filler" } ], "borderWidth": "1px", "cornerRadius": "4px", "spacing": "sm", "borderColor": "#ffffff", "margin": "sm", "height": "40px"
+			},
+			{ "type": "box", "layout": "vertical", "contents": [ { "type": "filler" },
+				{ "type": "box", "layout": "baseline", "spacing": "sm", "action": { "type": "datetimepicker", "data": "%s", "mode": "date", "initial": "%s", "max": "%s", "min": "%s" },"contents": [
+					{ "type": "filler" },
+					{ "type": "icon", "url": "https://scdn.line-apps.com/n/channel_devcenter/img/flexsnapshot/clip/clip14.png" },
+					{ "type": "text", "text": "Booking", "color": "#ffffff", "flex": 0, "offsetTop": "-2px" },
+					{ "type": "filler" }
+				  ] },
+				{ "type": "filler" } ], "borderWidth": "1px", "cornerRadius": "4px", "spacing": "sm", "borderColor": "#ffffff", "margin": "sm", "height": "40px"
+			}
+		  ], "position": "absolute", "offsetBottom": "0px", "offsetStart": "0px", "offsetEnd": "0px", "backgroundColor": "#9C8E7Ecc", "paddingAll": "20px", "paddingTop": "18px"
+		},
+		{ "type": "box", "layout": "vertical", "contents": [
+			{ "type": "text", "text": "SALE", "color": "#ffffff", "align": "center", "size": "xs", "offsetTop": "3px" }
+		  ], "position": "absolute", "cornerRadius": "20px", "offsetTop": "18px", "backgroundColor": "#ff334b", "offsetStart": "18px", "height": "25px", "width": "53px"
+		}
+	  ], "paddingAll": "0px"
+	}
+  }`
 
 var serviceButtonBookingNow string = `{ "type": "button", "style": "primary", "action": {
 	"type": "postback", "label": "จองเดี๋ยวนี้", "data": "action=booking_now" } },`
