@@ -87,13 +87,6 @@ var serviceTemplate string = `
 	}
   }`
 
-var serviceButtonBookingNow string = `{ "type": "button", "style": "primary", "action": {
-	"type": "postback", "label": "จองเดี๋ยวนี้", "data": "action=booking_now" } },`
-var serviceButtonBookingAppointment string = `{ "type": "button", "style": "primary", "action": 
-	{ "type": "datetimepicker", "label": "จองล่วงหน้า", "data": "action=booking_appointment", "mode": "datetime", "initial": "%s", "max": "%s", "min": "%s" } },`
-var serviceButtonBookingMan string = `{ "type": "button", "style": "primary", "action": {
-		"type": "postback", "label": "ทำนัดเอง", "data": "action=choive_man" } },`
-
 var buttonTimeSecondaryTemplate string = `{"type": "button", "style": "secondary", "margin": "sm", "action": { "type": "postback", "label": "%s", "data": "%s" }},`
 var buttonTimePrimaryTemplate string = `{"type": "button","style": "primary", "margin": "sm", "action": { "type": "postback", "label": "%s", "data": "%s" }},`
 var buttonTimePrimaryLastTemplate string = `{"type": "button","style": "primary", "margin": "sm", "action": { "type": "postback", "label": "%s", "data": "%s" }},`

@@ -41,12 +41,6 @@
                                                         <input name="Price" value="{{.detail.SerPrice}}" id="Price" type="text" class="form-control" >
                                                     </div>
                                                 </div>
-                                                <div class="col-md-12 mt-2">
-                                                    <div class="form-group">
-                                                        <label class="bmd-label-floating" >Time</label>
-                                                        <input name="Time" value="{{.detail.SerTime}}" id="Time" type="time" class="form-control" >
-                                                    </div>
-                                                </div>
                                                 <div id="form-image" class="col-md-12 mt-2">
                                                 {{ if .detail.SerImage }}
                                                     <div className="image-wrapper" >
@@ -113,10 +107,8 @@
 
         function onSubmit (data) {
             let method = $("form[name='create-service']").attr("method")
-            data = data.join("&")
             fetch(window.location.href, {
                 method, 
-                headers: {"Content-Type": "application/x-www-form-urlencoded"},
                 body: data
             })
             .then(res => {
@@ -126,7 +118,7 @@
                 return res.json()
             })
             .then(json => {
-                Swal.fire("success", "", "success").then(result => {
+                Swal.fire("success", "สร้างบริการเรียบร้อยแล้ว", "success").then(result => {
                     window.location.href = json.redirect
                 })
             })
@@ -148,9 +140,6 @@
                 Detail: {
                     required: true
                 },
-                Time: {
-                    required: true
-                },
                 Price: {
                     required: true
                 },
@@ -159,9 +148,6 @@
                 },
             },
             messages: {
-                Time: {
-                    required: "Please enter a valid Time"
-                },
                 Name: {
                     required: "Please enter a valid Name"
                 },
@@ -177,37 +163,18 @@
             },
             submitHandler: function(form) {
                 let _csrf = $("#_csrf").val()
-                let Name = $("#Name").val()
-                let Detail = $("#Detail").val()
-                let Price = $("#Price").val()
-                let Time = $("#Time").val()
+                let name = $("#Name").val()
+                let detail = $("#Detail").val()
+                let price = $("#Price").val()
                 let Image = $("#Image")
-                let data = [] 
-                let encodedKey = encodeURIComponent("_csrf");
-                let encodedValue = encodeURIComponent(_csrf);
-                let nameEncodedKey = encodeURIComponent("name");
-                let nameEncodedValue = encodeURIComponent(Name);
-                let detailEncodedKey = encodeURIComponent("detail");
-                let detailEncodedValue = encodeURIComponent(Detail);
-                let priceEncodedKey = encodeURIComponent("price");
-                let priceEncodedValue = encodeURIComponent(Price);
-                let imageEncodedKey = encodeURIComponent("file");
-                let timeEncodedKey = encodeURIComponent("time");
-                let timeEncodedValue = encodeURIComponent(Time);
-
-                data.push(encodedKey + "=" + encodedValue)
-                data.push(nameEncodedKey + "=" + nameEncodedValue)
-                data.push(detailEncodedKey + "=" + detailEncodedValue)
-                data.push(priceEncodedKey + "=" + priceEncodedValue)
-                data.push(timeEncodedKey + "=" + timeEncodedValue)
-                
+                let data = new FormData()
+                data.append("_csrf", _csrf)
+                data.append("name", name)
+                data.append("detail", detail)
+                data.append("price", price)
                 if (Image.length !== 0) {
                     toBase64(Image[0].files[0]).then(base64Image => {
-                        let imageEncodedValue = encodeURIComponent(base64Image)
-                        data.push(imageEncodedKey + "=" + imageEncodedValue)
-                        let serImageEncodedKey = encodeURIComponent("image")
-                        let serImageEncodedValue = encodeURIComponent("")
-                        data.push(serImageEncodedKey + "=" + serImageEncodedValue)
+                        data.append("file", base64Image)
                         onSubmit(data)
                     })
                     return

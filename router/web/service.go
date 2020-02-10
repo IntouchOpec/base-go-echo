@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/IntouchOpec/base-go-echo/lib"
 	"github.com/IntouchOpec/base-go-echo/model"
@@ -50,7 +49,7 @@ func ServiceEditViewHandler(c *Context) error {
 }
 
 func ServiceEditPutHandler(c *Context) error {
-	service := serviceForm{}
+	service := model.Service{}
 	image := c.FormValue("image")
 	id := c.Param("id")
 	var err error
@@ -69,10 +68,10 @@ func ServiceEditPutHandler(c *Context) error {
 	if err := db.Where("account_id = ?", accID).Find(&serviceModel, id).Error; err != nil {
 		return err
 	}
-	serviceModel.SerName = service.Name
-	serviceModel.SerDetail = service.Detail
-	serviceModel.SerPrice = service.Price
-	serviceModel.SerTime = service.Time
+	// serviceModel.SerName = service.Name
+	// serviceModel.SerDetail = service.Detail
+	// serviceModel.SerPrice = service.Price
+	// serviceModel.SerTime = service.Time
 	serviceModel.SerImage = image
 
 	if err := db.Save(&serviceModel).Error; err != nil {
@@ -164,13 +163,6 @@ func ServiceDeleteHandler(c *Context) error {
 // 	return err
 // }
 
-type serviceForm struct {
-	Name   string  `form:"name"`
-	Detail string  `form:"detail"`
-	Price  float64 `form:"price"`
-	Time   string  `form:"time"`
-}
-
 var (
 	ErrBucket       = errors.New("Invalid bucket!")
 	ErrSize         = errors.New("Invalid size!")
@@ -193,30 +185,30 @@ func ServicePatchHandler(c *Context) error {
 }
 
 func ServicePostHandler(c *Context) error {
-	service := serviceForm{}
+	service := model.Service{}
 	file := c.FormValue("file")
+	if file == "" {
+		return c.JSON(http.StatusBadRequest, errors.New("file exit"))
+	}
 	ctx := context.Background()
 	imagePath, err := lib.UploadGoolgeStorage(ctx, file, "images/Service/")
-
-	if err := c.Bind(&service); err != nil {
+	if err != nil {
+		fmt.Println(err)
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	a := auth.Default(c)
-	serviceModel := model.Service{
-		SerName:   service.Name,
-		SerDetail: service.Detail,
-		SerPrice:  service.Price,
-		SerTime:   service.Time,
-		SerImage:  imagePath,
-		AccountID: a.User.GetAccountID(),
+	if err := c.Bind(&service); err != nil {
+		fmt.Println(err, "err")
+		return c.JSON(http.StatusBadRequest, err)
 	}
-	err = serviceModel.SaveService()
+	service.SerImage = imagePath
+	service.AccountID = auth.Default(c).GetAccountID()
+	err = service.SaveService()
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	return c.JSON(http.StatusCreated, echo.Map{
-		"data":     serviceModel,
-		"redirect": fmt.Sprintf("/admin/service/%d", serviceModel.ID),
+		"data":     service,
+		"redirect": fmt.Sprintf("/admin/service/%d", service.ID),
 	})
 }
 
@@ -307,35 +299,44 @@ func ServiceItemCreateViewHandlder(c *Context) error {
 	})
 }
 
-type ServiceItemReq struct {
-	Time  string  `form:"time"`
-	Price float64 `form:"price"`
-	Name  string  `form:"name"`
+type Reqsi struct {
+	Price  float64 `form:"price"`
+	Hour   int     `form:"hour"`
+	Minute int     `form:"minute"`
+}
+
+func bindSerI(c *Context) (*model.ServiceItem, error) {
+	var req Reqsi
+	id := c.Param("id")
+	accID := auth.Default(c).GetAccountID()
+	u64, err := strconv.ParseUint(id, 10, 32)
+	if err != nil {
+		return nil, err
+	}
+	if err := c.Bind(&req); err != nil {
+		return nil, err
+	}
+	return &model.ServiceItem{
+		SSPrice:   req.Price,
+		SSHour:    req.Hour,
+		SSMinute:  req.Minute,
+		AccountID: accID,
+		ServiceID: uint(u64),
+	}, nil
 }
 
 func ServiceItemCreatePostHandler(c *Context) error {
 	id := c.Param("id")
-	accID := auth.Default(c).GetAccountID()
 	db := model.DB()
-	var service model.Service
-	var serviceItem model.ServiceItem
-	var req ServiceItemReq
-	if err := db.Where("account_id = ?", accID).Find(&service, id).Error; err != nil {
+	serviceItem, err := bindSerI(c)
+	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
-	SSTime, _ := time.Parse("15:04", req.Time)
-	serviceItem.SSTime = SSTime
-	serviceItem.SSPrice = req.Price
-	serviceItem.SSName = req.Name
-	serviceItem.AccountID = accID
-	if err := db.Model(&service).Association("ServiceItems").Append(&serviceItem).Error; err != nil {
+	if err := db.Save(&serviceItem).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	return c.JSON(http.StatusCreated, echo.Map{
-		"redirect": fmt.Sprintf("/admin/service/%d", service.ID),
+		"redirect": fmt.Sprintf("/admin/service/%s", id),
 		"data":     serviceItem,
 	})
 }
@@ -343,7 +344,7 @@ func ServiceItemCreatePostHandler(c *Context) error {
 func ServiceItemEditViewHandler(c *Context) error {
 	id := c.Param("id")
 	seriveItemID := c.Param("seriveItemID")
-	accID := auth.Default(c)
+	accID := auth.Default(c).GetAccountID()
 	db := model.DB()
 	var service model.Service
 	var serviceItem model.ServiceItem
@@ -362,26 +363,22 @@ func ServiceItemEditViewHandler(c *Context) error {
 }
 
 func ServiceItemEditPutHandler(c *Context) error {
-	id := c.Param("id")
 	seriveItemID := c.Param("seriveItemID")
-	accID := auth.Default(c)
+	u64, err := strconv.ParseUint(seriveItemID, 10, 32)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
 	db := model.DB()
-	var service model.Service
-	var serviceItem model.ServiceItem
-	if err := db.Where("account_id = ?", accID).Find(&service, id).Error; err != nil {
+	serviceItem, err := bindSerI(c)
+	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	if err := db.Where("account_id = ?", accID).Find(&serviceItem, seriveItemID).Error; err != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
-	if err := c.Bind(&serviceItem); err != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
+	serviceItem.ID = uint(u64)
 	if err := db.Save(&serviceItem).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	return c.JSON(http.StatusCreated, echo.Map{
-		"redirect": fmt.Sprintf("/admin/service/%d", service.ID),
+		"redirect": fmt.Sprintf("/admin/service/%d", serviceItem.ServiceID),
 		"data":     serviceItem,
 	})
 }

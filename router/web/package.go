@@ -238,17 +238,17 @@ func PackageServiceCreatePostHandler(c *Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	var sumTimeUsed time.Time
-	var timemillisecon time.Duration
-	var Minute int
+	// var timemillisecon time.Duration
+	// var Minute int
 	if packageModel.ServiceItems != nil {
-		for _, service := range packageModel.ServiceItems {
-			Minute = service.SSTime.Minute() * int(time.Minute)
-			timemillisecon = time.Duration(Minute)
-			sumTimeUsed = sumTimeUsed.Add(timemillisecon)
-			Minute = service.SSTime.Hour() * int(time.Hour)
-			timemillisecon = time.Duration(Minute)
-			sumTimeUsed = sumTimeUsed.Add(timemillisecon)
-		}
+		// for _, service := range packageModel.ServiceItems {
+		// Minute = service.SSTime.Minute() * int(time.Minute)
+		// timemillisecon = time.Duration(Minute)
+		// sumTimeUsed = sumTimeUsed.Add(timemillisecon)
+		// Minute = service.SSTime.Hour() * int(time.Hour)
+		// timemillisecon = time.Duration(Minute)
+		// sumTimeUsed = sumTimeUsed.Add(timemillisecon)
+		// }
 	}
 
 	packageModel.PacTime = sumTimeUsed

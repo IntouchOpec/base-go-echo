@@ -28,10 +28,11 @@ type Context struct {
 
 type PostbackAction struct {
 	Action        string `json:"action"`
+	Type          string `json:"type"`
 	DateStr       string `json:"date"`
 	ServiceID     string `json:"service_id"`
 	ServiceItemID string `json:"service_item_id"`
-	PackageID     uint   `json:"package_id"`
+	PackageID     string `json:"package_id"`
 	Start         string `json:"start"`
 	End           string `json:"end"`
 	Day           string `json:"day"`

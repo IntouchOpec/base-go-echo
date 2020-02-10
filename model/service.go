@@ -1,8 +1,6 @@
 package model
 
 import (
-	"time"
-
 	"github.com/IntouchOpec/base-go-echo/model/orm"
 )
 
@@ -12,10 +10,9 @@ type Service struct {
 	SerName          string             `form:"name" json:"ser_name" gorm:"type:varchar(25)"`
 	SerDetail        string             `form:"detail" json:"ser_detail" gorm:"type:varchar(25)"`
 	SerPrice         float64            `form:"price" json:"ser_price"`
-	SerTime          string             `form:"time" json:"ser_time" gorm:"type:varchar(10)"`
-	SerActive        bool               `form:"active" json:"ser_active" sql:"default:true" gorm:"default:true"`
-	SerImage         string             `form:"image" json:"ser_image" gorm:"type:varchar(255)"`
-	AccountID        uint               `form:"account_id" json:"account_id" gorm:"not null;"`
+	SerActive        bool               `json:"ser_active" sql:"default:true" gorm:"default:true"`
+	SerImage         string             `json:"ser_image" gorm:"type:varchar(255)"`
+	AccountID        uint               `json:"account_id" gorm:"not null;"`
 	ServiceItems     []*ServiceItem     `json:"service_items"`
 	Places           []*Place           `json:"places" gorm:"many2many:place_service"`
 	Account          *Account           `json:"account" gorm:"ForeignKey:AccountID"`
@@ -25,10 +22,10 @@ type Service struct {
 
 type ServiceItem struct {
 	orm.ModelBase
-	SSTime     time.Time  `form:"s_s_time" json:"s_s_time"`
-	SSPrice    float64    `form:"s_s_price" json:"s_s_price"`
-	SSName     string     `form:"s_s_name" json:"s_s_name" gorm:"type:varchar(10)"`
-	SSIsActive bool       `json:"s_s_is_active" form:"s_s_is_active" sql:"default:false"`
+	SSPrice    float64    `form:"price" json:"s_s_price"`
+	SSHour     int        `form:"hour" json:"s_s_hour"`
+	SSMinute   int        `form:"minute" json:"s_s_minute"`
+	SSIsActive bool       `json:"s_s_is_active" sql:"default:false"`
 	ServiceID  uint       `json:"service_id"`
 	Packages   []*Package `json:"packages" gorm:"many2many:package_service_item"`
 	Service    Service    `json:"service" gorm:"ForeignKey:ServiceID"`

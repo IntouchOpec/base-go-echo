@@ -25,20 +25,45 @@
                                             <div class="row">
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
-                                                        <label class="bmd-label-floating" >Name</label>
-                                                        <input value="{{.detail.SSName}}" name="name" id="name" type="text" class="form-control" >
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-12 mt-2">
-                                                    <div class="form-group">
                                                         <label class="bmd-label-floating" >Price</label>
                                                         <input value="{{.detail.SSPrice}}" name="Price" id="Price" type="number" class="form-control" >
                                                     </div>
                                                 </div>
-                                                <div class="col-md-12 mt-2">
-                                                    <div class="form-group">
-                                                        <label class="bmd-label-floating" >Time</label>
-                                                        <input value="{{.detail.SSTime}}" name="Time" id="Time" type="time" class="form-control" >
+                                                <div class="col-md-12 d-flex">
+                                                    <div class="col-6 p-0 m-0">
+                                                        <div class="form-group pr-2">
+                                                            <label class="bmd-label-floating" >hour</label>
+                                                            <select name="hour" class="form-control p-2 m-2" id="hour" data-style="btn btn-link" >
+                                                                {{ if .detail.SSHour }}
+                                                                    <option value="{{.detail.SSHour}}">{{.detail.SSHour}}</option>
+                                                                {{ else }}
+                                                                    <option value=""></option>
+                                                                {{ end }}
+                                                                <option value="0">0</option>
+                                                                <option value="1">1</option>
+                                                                <option value="2">2</option>
+                                                                <option value="3">3</option>
+                                                                <option value="4">4</option>
+                                                                <option value="5">5</option>
+                                                                <option value="6">6</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6 p-0 m-0">
+                                                        <div class="form-group pr-2">
+                                                            <label class="bmd-label-floating" >minute</label>
+                                                            <select name="minute" class="form-control p-2 m-2" id="minute" data-style="btn btn-link" >
+                                                                {{ if .detail.SSHour }}
+                                                                    <option value="{{.detail.SSMinute}}">{{.detail.SSMinute}}</option>
+                                                                {{ else }}
+                                                                    <option value=""></option>
+                                                                {{ end }}
+                                                                <option value="0">00</option>
+                                                                <option value="15">15</option>
+                                                                <option value="30">30</option>
+                                                                <option value="45">45</option>
+                                                            </select>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -60,25 +85,26 @@
     (function ($) {
         $("form[name='service-item-form']").validate({
             rules: {
-                name: { required: true },
                 Price: { required: true },
-                Time: { required: true },
+                hour: { required: true },
+                minute: { required: true },
             },
             messages: {
-                name: "Please enter a valid name",
+                name:  {messages:"Please enter a valid name"},
                 Price: {messages: "Please enter a valid Price" },
-                Time: {messages: "Please enter a valid Time" },
+                hour: {messages: "Please enter a valid hour" },
+                minute: {messages: "Please enter a valid minute" },
             },
             submitHandler: function(form) {
                 let _csrf = $("#_csrf").val()
-                let name = $("#name").val()
                 let Price = $("#Price").val()
-                let Time = $("#Time").val()
+                let hour = $("#hour").val()
+                let minute = $("#minute").val()
                 let data = new FormData();
                 data.append("_csrf", _csrf)
-                data.append("name", name)
                 data.append("price", Price)
-                data.append("time", Time)
+                data.append("hour", hour)
+                data.append("minute", minute)
                 let method = $("form[name='service-item-form']").attr("method")
                 
                 fetch(window.location.href, { method, body: data })

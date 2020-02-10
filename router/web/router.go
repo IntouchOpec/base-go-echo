@@ -83,7 +83,13 @@ func Routers() *echo.Echo {
 	e.GET("/login", handler(LoginHandler))
 	e.POST("/login", handler(LoginPostHandler))
 	e.GET("/logout", handler(LogoutHandler))
+	files := e.Group("/files")
+	files.GET("", handler(GetFileGoogleStorageHandler))
+	files.PUT("", handler(UploadFileGoogleStorageHandler))
 
+	e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
+		Root: "public/assets",
+	}))
 	managent := e.Group("/admin")
 	managent.Use(auth.LoginRequired())
 	{
@@ -251,14 +257,6 @@ func Routers() *echo.Echo {
 		managent.PUT("/content/:id/edit", handler(ContentPutHandler))
 		managent.DELETE("/content/:id", handler(ContentDeleteHandler))
 	}
-
-	files := e.Group("/files")
-	files.GET("", handler(GetFileGoogleStorageHandler))
-	files.PUT("", handler(UploadFileGoogleStorageHandler))
-
-	e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
-		Root: "public/assets",
-	}))
 
 	return e
 }

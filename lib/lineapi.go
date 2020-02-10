@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/IntouchOpec/base-go-echo/model"
@@ -113,6 +115,31 @@ func (client *ClientLine) ReplyLineMessage(chatAws model.ChatAnswer) (linebot.Se
 
 	}
 	return message, nil
+}
+
+func SendMessageCustom(action, channelAccsssToken, json string) error {
+	url := fmt.Sprintf("https://api.line.me/v2/bot/message/%s", action)
+	method := "POST"
+	Auth := fmt.Sprintf("Bearer %s", channelAccsssToken)
+	payload := strings.NewReader(json)
+
+	cl := &http.Client{}
+	req, err := http.NewRequest(method, url, payload)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Authorization", Auth)
+
+	res, err := cl.Do(req)
+	defer res.Body.Close()
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return err
+	}
+	fmt.Println("body", body)
+	return nil
 }
 
 // FlexMessage

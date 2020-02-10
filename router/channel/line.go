@@ -75,9 +75,9 @@ func HandleWebHookLineAPI(c echo.Context) error {
 			postBackActionStr = fmt.Sprintf(fmt.Sprintf("{%s}", postBackActionStr[:len(postBackActionStr)-1]))
 			postBackAction := PostbackAction{}
 			if err := json.Unmarshal([]byte(postBackActionStr), &postBackAction); err != nil {
+				fmt.Println(err)
 				return c.JSON(http.StatusBadRequest, err)
 			}
-			fmt.Println(event.Postback.Data)
 			con.PostbackAction = &postBackAction
 			switch postBackAction.Action {
 			case "location":
@@ -99,27 +99,18 @@ func HandleWebHookLineAPI(c echo.Context) error {
 				messageReply, err = ContentListHandler(&con)
 			case "choive_man":
 				fmt.Println("choive_man")
-				messageReply, err = CalandarHandler(&con, postBackAction.DateStr)
+				// messageReply, err = CalandarHandler(&con, postBackAction.DateStr)
 			case "calendar_next":
-				messageReply, err = CalandarHandler(&con, postBackAction.DateStr)
-			case "calendar":
-				fmt.Println("calendar")
-				messageReply, err = ServiceList(&con)
+				// messageReply, err = CalandarHandler(&con, postBackAction.DateStr)
+			// case "calendar":
+			// 	fmt.Println("calendar")
+			// messageReply, err = ServiceList(&con)
 			case "choose_timeslot":
 				fmt.Println("choose_timeslot")
 				messageReply, err = ServiceListLineHandler(&con)
-			case "booking_timeslot":
-				fmt.Println("booking_timeslot")
-				messageReply, err = BookingTimeSlotHandler(&con)
-			case "booking_now":
-				fmt.Println("booking_now")
-				// messageReply, err = ServiceNowListHandler(&con)
-			case "booking_appointment":
-				fmt.Println("booking_appointment")
-				messageReply, err = ServiceDateListHandler(&con, event.Postback.Params.Datetime)
 			case "booking":
 				fmt.Println("booking")
-				// messageReply, err = BookingServiceHandler(&con)
+				BookingHandler(&con)
 			}
 			_, err = bot.ReplyMessage(event.ReplyToken, messageReply).Do()
 			if err != nil {

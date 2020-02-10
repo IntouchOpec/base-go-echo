@@ -6,8 +6,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/IntouchOpec/base-go-echo/lib"
-
 	"github.com/jinzhu/gorm"
 
 	. "github.com/IntouchOpec/base-go-echo/conf"
@@ -15,190 +13,247 @@ import (
 	"github.com/line/line-bot-sdk-go/linebot"
 )
 
-func CalendarTemplate(firstKeyWordAction, lastKeyWordAction, date string) string {
-	var contents string
-	var calendar string
-	var color string
-	year, month, _ := time.Now().Date()
-	t := time.Now()
-	if len(date) != 0 {
-		time2, _ := time.Parse("2006-01-02", date)
-		year, month, _ = time2.Date()
-	}
-
-	color = "#000000"
-
-	endOfMonth := time.Date(year, month+1, 1, 0, 0, 0, -1, time.UTC)
-
-	Weekday := int(time.Date(year, month, 1, 0, 0, 0, 0, time.UTC).Weekday())
-
-	for day := 0; day < Weekday; day++ {
-		contents = contents + fmt.Sprintf(`{
-			"type":    "text",
-			"text":    " ",
-			"size":    "sm",
-			"color":   "#000000",
-			"align":   "center",
-			"gravity": "center"},`)
-	}
-	Weekday = int(t.Weekday())
-
-	for day := 1; day <= endOfMonth.Day(); day++ {
-		if day == t.Day() && month == t.Month() {
-			color = "#1db446"
-		} else {
-			color = "#000000"
-		}
-		dayStr := strconv.FormatInt(int64(day), 10)
-		monthStr := strconv.FormatInt(int64(month), 10)
-		if len(dayStr) == 1 {
-			dayStr = fmt.Sprintf("0%s", dayStr)
-		}
-		if len(monthStr) == 1 {
-			monthStr = fmt.Sprintf("0%s", monthStr)
-		}
-		contents = contents + fmt.Sprintf(`{ "type": "text", "text": "%s", "size": "sm", "color": "%s", "align": "center", "gravity": "center",
-					"action": { "type": "postback", "label": "%d", "data": "action=%s&day=%s-%s-%s"}},`, dayStr, color, day, "calendar", fmt.Sprintf("%s%d", firstKeyWordAction, year), monthStr, dayStr)
-		contents = contents + `{"type": "separator"},`
-		Weekday = int(time.Date(year, month, day, 0, 0, 0, -1, time.UTC).Weekday())
-		if endOfMonth.Day() == day {
-			for dw := int(endOfMonth.Weekday()); dw < 6; dw++ {
-				contents = contents + fmt.Sprintf(`{ "type": "text", "text": " ", "size": "sm", "color": "#000000", "align": "center", "gravity": "center"},`)
-			}
-		}
-
-		// 6 == saturday
-		if (int(Weekday) == 5) || endOfMonth.Day() == day {
-
-			calendar = calendar + fmt.Sprintf(`{
-				"type":     "box",
-				"layout":   "horizontal",
-				"margin":   "md",
-				"contents": [%s]
-			},`, contents[:len(contents)-1])
-			contents = ""
-		}
-	}
-	weekdays := []string{"อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"}
-	var weekdaysStr string
-	for weekday := 0; weekday < len(weekdays); weekday++ {
-
-		weekdaysStr = weekdaysStr + fmt.Sprintf(`{ "type": "text", "text": "%s", "size": "sm", "color": "#000000", "align": "center" },`, weekdays[weekday])
-	}
-	weekdaysStr = fmt.Sprintf(`{"type": "box","layout": "horizontal","margin": "md","contents": [%s]},`, weekdaysStr[:len(weekdaysStr)-1])
-	HeaderCalendat := fmt.Sprintf("%s %s", month, strconv.FormatInt(int64(year), 10))
-	var nextMonth string = strconv.FormatInt(int64(month+1), 10)
-	var nextYear int = year
-	if nextMonth == "13" {
-		nextMonth = "01"
-		nextYear = year + 1
-	}
-
-	if len(nextMonth) == 1 {
-		nextMonth = "0" + nextMonth
-	}
-	actionNextMonth := fmt.Sprintf("%d-%s-01", nextYear, nextMonth)
-	m := fmt.Sprintf(`{"type": "bubble","styles": {"footer": {"separator": true}},
-	"body": { "type": "box", "layout": "vertical", "contents": [
-		{ "type": "box", "layout": "horizontal", "contents": [
-				{ "type": "text", "text": "%s", "size": "sm", "weight": "bold", "color": "#1db446", "flex": 0 },
-				{ "type": "text", "text": "ถัดไป", "size": "sm", "color": "#111111", "align": "end", "action": { "type": "postback", "label": " ", "data": "action=choive_man&date=%s"} }]
-		}, %s]}}`, HeaderCalendat, actionNextMonth, weekdaysStr+`{"type": "separator"},`+calendar[:len(calendar)-1])
-	return m
+type Booking struct {
+	WeekDay int
+	deta    *time.Time
 }
 
-func ChooseService(c *Context) {
-	var packageModels []*model.Package
-	var services []*model.Service
-	var m string
-	var total int
-	now := time.Now()
-	format := "2006-01-02"
-	initial := now.Format(format)
-	max := now.AddDate(0, 3, 0).Format(format)
-	min := now.Format(format)
-	packsFilter := c.DB.Model(&packageModels).Where("account_id = ? and pac_is_active = ?", c.Account.ID, true).Count(&total)
-	packsFilter.Limit(9).Offset(1).Order("pac_order").Find(&packageModels)
-	for _, pack := range packageModels {
-		m += fmt.Sprintf(serviceTemplate,
-			fmt.Sprintf("https://web.%s/files?path=%s", Conf.Server.Domain, pack.PacImage),
-			pack.PacName,
-			pack.PacPrice,
-			fmt.Sprintf("action=booking_now&package_id=%d", pack.ID),
-			fmt.Sprintf("action=booking_appointment&package_id=%d", pack.ID),
-			initial,
-			max,
-			min) + ","
-	}
-	if len(packageModels) < 9 {
-		serviceFilter := c.DB.Model(&services).Where("account_id = ? and ser_active = ?", c.Account.ID, true).Count(&total)
-		serviceFilter.Limit(9).Find(&services)
-		for _, ser := range services {
-			m += fmt.Sprintf(serviceTemplate,
-				fmt.Sprintf("https://web.%s/files?path=%s", Conf.Server.Domain, ser.SerImage),
-				ser.SerName,
-				ser.SerPrice,
-				fmt.Sprintf("action=booking_now&service_id=%d", ser.ID),
-				fmt.Sprintf("action=booking_appointment&service_id=%d", ser.ID),
-				initial,
-				max,
-				min) + ","
+func BookingHandler(c *Context) {
+	fmt.Println(c.PostbackAction.Type, "======")
+	switch c.PostbackAction.Type {
+	case "now":
+		now := time.Now()
+		weekDay := int(now.Weekday())
+		fmt.Println(weekDay)
+	case "appointment":
+		d, err := time.Parse("2006-01-02", c.Event.Postback.Params.Date)
+		if err != nil {
+			fmt.Println(err)
 		}
+		fmt.Println(d.Weekday())
 	}
-	m = fmt.Sprintf(`{ "replyToken": "%s", "messages":[ { "type": "flex",  "altText":  "Flex Message",  "contents": { "type": "carousel", "contents": [ %s ] } }]}`, c.Event.ReplyToken, m[:len(m)-1])
-	lib.SendMessageCustom("reply", c.ChatChannel.ChaChannelAccessToken, m)
+
+	if c.PostbackAction.PackageID != "" {
+		var pack model.Package
+		c.DB.Find(&pack, c.PostbackAction.PackageID)
+		fmt.Println(pack)
+	} else if c.PostbackAction.ServiceID != "" {
+		var ser model.Service
+		c.DB.Find(&ser, c.PostbackAction.ServiceID)
+		fmt.Println(ser)
+	}
 }
 
-func ServiceList(c *Context) (linebot.SendingMessage, error) {
-	var services []model.Service
-	var template string
-	var image string
-	var button string
-	var pagination Pagination
-	pagination.ParseQueryUnmarshal(c.Event.Postback.Data)
-	pagination.SetPagination()
-	var total int
-	filter := c.DB.Model(&services).Where("account_id = ? and ser_active = ?", c.ChatChannel.AccountID, true).Count(&total)
-	if err := filter.Error; err != nil {
-		return nil, err
-	}
-	pagination.MakePagination(total, 9)
-	filter.Limit(pagination.Record).Offset(pagination.Offset).Find(&services)
-	for _, service := range services {
-		button = fmt.Sprintf(buttonTimePrimaryTemplate, service.SerName, fmt.Sprintf("action=%s&service_id=%d&day=%s", "choose_timeslot", service.ID, c.PostbackAction.Day))
-		image = fmt.Sprintf("https://web.%s/files?path=%s", Conf.Server.Domain, service.SerImage)
-		template += fmt.Sprintf(serviceListTemplate, image, service.SerName, strconv.FormatInt(int64(service.SerPrice), 10), ","+button[:len(button)-1]) + ","
-	}
-	template = fmt.Sprintf(`{ "type": "carousel", "contents": [%s]}`, template[:len(template)-1])
-	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(template))
-	if err != nil {
-		return nil, err
-	}
-	return linebot.NewFlexMessage("service", flexContainer), err
+func bindBooking() {
+
 }
 
-func CalandarHandler(c *Context, date string) (linebot.SendingMessage, error) {
-	m := CalendarTemplate("", "", date)
-	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(m))
-	if err != nil {
-		return nil, err
-	}
-	return linebot.NewFlexMessage("ตาราง", flexContainer), nil
-}
+// func BookingHandler(c *Context) {
+// 	if c.PostbackAction.PackageID != "" {
+// 		var pack model.Package
+// 		c.DB.Find(&pack, c.PostbackAction.PackageID)
+// 	} else if c.PostbackAction.ServiceID != "" {
+// 		var ser model.Service
+// 		c.DB.Find(&ser, c.PostbackAction.ServiceID)
+// 	}
+// var flexContainerStr string
+// var packageModels []*model.Package
+// var services []*model.Service
+// timeStart, err := time.Parse("2006-01-02T15:04", date)
+// if err != nil {
+// 	return nil, err
+// }
+// var timeEnd time.Time
+// var timeStartStr string
+// var timeEndStr string
+// var duration time.Duration
+// var button string
+// db := c.DB
+// if err := db.Limit(9).Order("pac_order").Where("account_id = ? and pac_is_active = ?", c.Account.ID, true).Find(&packageModels).Error; err != nil {
+// 	return nil, err
+// }
 
-func SaveServiceHandler(c *Context) (linebot.SendingMessage, error) {
-	var service model.Service
-	var m string
-	if err := c.DB.Where(&model.Service{SerName: c.Massage.Text[8:]}).Find(&service).Error; err != nil {
-		return nil, err
-	}
-	m = CalendarTemplate("booking ", c.Massage.Text[8:], "")
-	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(m))
-	if err != nil {
-		return nil, err
-	}
-	return linebot.NewFlexMessage("ตาราง", flexContainer), nil
-}
+// for _, packageModel := range packageModels {
+// 	duration = time.Duration(packageModel.PacTime.Hour() * int(time.Hour))
+// 	timeEnd = timeStart.Add(duration)
+// 	duration = time.Duration(packageModel.PacTime.Minute() * int(time.Minute))
+// 	timeEnd = timeEnd.Add(duration)
+// 	timeStartStr = timeStart.Format("15:04")
+// 	timeEndStr = timeEnd.Format("15:04")
+// 	flexContainerStr += fmt.Sprintf(cardPackageTemplate,
+// 		packageModel.PacName, fmt.Sprintf("https://web.%s/files?path=%s", Conf.Server.Domain, packageModel.PacImage), timeStartStr, timeEndStr, timeStartStr, timeEndStr, packageModel.ID) + ","
+// }
+// if len(packageModels) < 9 {
+// 	if err := db.Preload("ServiceItems", "ss_is_active = ?", true).Where("account_id = ?", c.Account.ID).Find(&services).Error; err != nil {
+// 		return nil, err
+// 	}
+// 	for _, service := range services {
+// 		button = ""
+// 		if len(service.ServiceItems) == 0 {
+// 			continue
+// 		}
+// 		for _, item := range service.ServiceItems {
+// 			duration = time.Duration(item.SSTime.Hour() * int(time.Hour))
+// 			timeEnd = timeStart.Add(duration)
+// 			duration = time.Duration(item.SSTime.Minute() * int(time.Minute))
+// 			timeEnd = timeEnd.Add(duration)
+// 			timeStartStr = timeStart.Format("15:04")
+// 			timeEndStr = timeEnd.Format("15:04")
+// 			button += fmt.Sprintf(buttonTemplate, item.SSName, fmt.Sprintf("action=booking&service_item_id=%d&start=%s&end=%s&day=%s", item.ID, timeStartStr, timeEndStr, timeStart.Format("2006-01-02")))
+// 		}
+// 		flexContainerStr += fmt.Sprintf(cardServiceTemplate, service.SerName, fmt.Sprintf("https://web.%s/files?path=%s", Conf.Server.Domain, service.SerImage), service.SerDetail, button[:len(button)-1]) + ","
+// 	}
+// }
+// flexContainerStr = fmt.Sprintf(carouselTemplate, flexContainerStr[:len(flexContainerStr)-1])
+// flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(flexContainerStr))
+// if err != nil {
+// 	return nil, err
+// }
+// return linebot.NewFlexMessage("service", flexContainer), err
+// }
+
+// func CalendarTemplate(firstKeyWordAction, lastKeyWordAction, date string) string {
+// 	var contents string
+// 	var calendar string
+// 	var color string
+// 	year, month, _ := time.Now().Date()
+// 	t := time.Now()
+// 	if len(date) != 0 {
+// 		time2, _ := time.Parse("2006-01-02", date)
+// 		year, month, _ = time2.Date()
+// 	}
+
+// 	color = "#000000"
+
+// 	endOfMonth := time.Date(year, month+1, 1, 0, 0, 0, -1, time.UTC)
+
+// 	Weekday := int(time.Date(year, month, 1, 0, 0, 0, 0, time.UTC).Weekday())
+
+// 	for day := 0; day < Weekday; day++ {
+// 		contents = contents + fmt.Sprintf(`{
+// 			"type":    "text",
+// 			"text":    " ",
+// 			"size":    "sm",
+// 			"color":   "#000000",
+// 			"align":   "center",
+// 			"gravity": "center"},`)
+// 	}
+// 	Weekday = int(t.Weekday())
+
+// 	for day := 1; day <= endOfMonth.Day(); day++ {
+// 		if day == t.Day() && month == t.Month() {
+// 			color = "#1db446"
+// 		} else {
+// 			color = "#000000"
+// 		}
+// 		dayStr := strconv.FormatInt(int64(day), 10)
+// 		monthStr := strconv.FormatInt(int64(month), 10)
+// 		if len(dayStr) == 1 {
+// 			dayStr = fmt.Sprintf("0%s", dayStr)
+// 		}
+// 		if len(monthStr) == 1 {
+// 			monthStr = fmt.Sprintf("0%s", monthStr)
+// 		}
+// 		contents = contents + fmt.Sprintf(`{ "type": "text", "text": "%s", "size": "sm", "color": "%s", "align": "center", "gravity": "center",
+// 					"action": { "type": "postback", "label": "%d", "data": "action=%s&day=%s-%s-%s"}},`, dayStr, color, day, "calendar", fmt.Sprintf("%s%d", firstKeyWordAction, year), monthStr, dayStr)
+// 		contents = contents + `{"type": "separator"},`
+// 		Weekday = int(time.Date(year, month, day, 0, 0, 0, -1, time.UTC).Weekday())
+// 		if endOfMonth.Day() == day {
+// 			for dw := int(endOfMonth.Weekday()); dw < 6; dw++ {
+// 				contents = contents + fmt.Sprintf(`{ "type": "text", "text": " ", "size": "sm", "color": "#000000", "align": "center", "gravity": "center"},`)
+// 			}
+// 		}
+
+// 		// 6 == saturday
+// 		if (int(Weekday) == 5) || endOfMonth.Day() == day {
+
+// 			calendar = calendar + fmt.Sprintf(`{
+// 				"type":     "box",
+// 				"layout":   "horizontal",
+// 				"margin":   "md",
+// 				"contents": [%s]
+// 			},`, contents[:len(contents)-1])
+// 			contents = ""
+// 		}
+// 	}
+// 	weekdays := []string{"อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"}
+// 	var weekdaysStr string
+// 	for weekday := 0; weekday < len(weekdays); weekday++ {
+
+// 		weekdaysStr = weekdaysStr + fmt.Sprintf(`{ "type": "text", "text": "%s", "size": "sm", "color": "#000000", "align": "center" },`, weekdays[weekday])
+// 	}
+// 	weekdaysStr = fmt.Sprintf(`{"type": "box","layout": "horizontal","margin": "md","contents": [%s]},`, weekdaysStr[:len(weekdaysStr)-1])
+// 	HeaderCalendat := fmt.Sprintf("%s %s", month, strconv.FormatInt(int64(year), 10))
+// 	var nextMonth string = strconv.FormatInt(int64(month+1), 10)
+// 	var nextYear int = year
+// 	if nextMonth == "13" {
+// 		nextMonth = "01"
+// 		nextYear = year + 1
+// 	}
+
+// 	if len(nextMonth) == 1 {
+// 		nextMonth = "0" + nextMonth
+// 	}
+// 	actionNextMonth := fmt.Sprintf("%d-%s-01", nextYear, nextMonth)
+// 	m := fmt.Sprintf(`{"type": "bubble","styles": {"footer": {"separator": true}},
+// 	"body": { "type": "box", "layout": "vertical", "contents": [
+// 		{ "type": "box", "layout": "horizontal", "contents": [
+// 				{ "type": "text", "text": "%s", "size": "sm", "weight": "bold", "color": "#1db446", "flex": 0 },
+// 				{ "type": "text", "text": "ถัดไป", "size": "sm", "color": "#111111", "align": "end", "action": { "type": "postback", "label": " ", "data": "action=choive_man&date=%s"} }]
+// 		}, %s]}}`, HeaderCalendat, actionNextMonth, weekdaysStr+`{"type": "separator"},`+calendar[:len(calendar)-1])
+// 	return m
+// }
+
+// func ServiceList(c *Context) (linebot.SendingMessage, error) {
+// 	var services []model.Service
+// 	var template string
+// 	var image string
+// 	var button string
+// 	var pagination Pagination
+// 	pagination.ParseQueryUnmarshal(c.Event.Postback.Data)
+// 	pagination.SetPagination()
+// 	var total int
+// 	filter := c.DB.Model(&services).Where("account_id = ? and ser_active = ?", c.ChatChannel.AccountID, true).Count(&total)
+// 	if err := filter.Error; err != nil {
+// 		return nil, err
+// 	}
+// 	pagination.MakePagination(total, 9)
+// 	filter.Limit(pagination.Record).Offset(pagination.Offset).Find(&services)
+// 	for _, service := range services {
+// 		button = fmt.Sprintf(buttonTimePrimaryTemplate, service.SerName, fmt.Sprintf("action=%s&service_id=%d&day=%s", "choose_timeslot", service.ID, c.PostbackAction.Day))
+// 		image = fmt.Sprintf("https://web.%s/files?path=%s", Conf.Server.Domain, service.SerImage)
+// 		template += fmt.Sprintf(serviceListTemplate, image, service.SerName, strconv.FormatInt(int64(service.SerPrice), 10), ","+button[:len(button)-1]) + ","
+// 	}
+// 	template = fmt.Sprintf(`{ "type": "carousel", "contents": [%s]}`, template[:len(template)-1])
+// 	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(template))
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	return linebot.NewFlexMessage("service", flexContainer), err
+// }
+
+// func CalandarHandler(c *Context, date string) (linebot.SendingMessage, error) {
+// m := CalendarTemplate("", "", date)
+// flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(m))
+// if err != nil {
+// 	return nil, err
+// }
+// return linebot.NewFlexMessage("ตาราง", flexContainer), nil
+// }
+
+// func SaveServiceHandler(c *Context) (linebot.SendingMessage, error) {
+// 	var service model.Service
+// 	var m string
+// 	if err := c.DB.Where(&model.Service{SerName: c.Massage.Text[8:]}).Find(&service).Error; err != nil {
+// 		return nil, err
+// 	}
+// 	// m = CalendarTemplate("booking ", c.Massage.Text[8:], "")
+// 	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(m))
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	return linebot.NewFlexMessage("ตาราง", flexContainer), nil
+// }
 
 // linebot.SendingMessage
 func ServiceListLineHandler(c *Context) (linebot.SendingMessage, error) {
@@ -483,7 +538,7 @@ func BookingServiceHandler(c *Context) (linebot.SendingMessage, error) {
 	var MSPlace model.MasterPlace
 	var MSPlaces []*model.MasterPlace
 
-	if c.PostbackAction.PackageID != 0 {
+	if c.PostbackAction.PackageID != "" {
 		var packageModel model.Package
 		err := c.DB.Preload("ServiceItems", func(db *gorm.DB) *gorm.DB {
 			return db.Preload("Service", func(*gorm.DB) *gorm.DB {
@@ -702,21 +757,21 @@ func BookingServiceHandler(c *Context) (linebot.SendingMessage, error) {
 	return linebot.NewFlexMessage("จองสำเร็จ", flexContainer), nil
 }
 
-func bindBooking(c *Context, palceID uint) (*model.Booking, error) {
-	var book model.Booking
-	book.PlaceID = palceID
-	book.ChatChannelID = c.ChatChannel.ID
-	book.CustomerID = c.Customer.ID
-	book.BooLineID = c.Massage.ID
-	layout := "2006-01-02 15:00"
-	book.BookingType = model.BookingTypePackage
-	updatedAt, err := time.Parse(layout, c.PostbackAction.Day+" 15:00")
-	if err != nil {
-		return nil, err
-	}
-	book.BookedDate = updatedAt
-	return &book, nil
-}
+// func bindBooking(c *Context, palceID uint) (*model.Booking, error) {
+// 	var book model.Booking
+// 	book.PlaceID = palceID
+// 	book.ChatChannelID = c.ChatChannel.ID
+// 	book.CustomerID = c.Customer.ID
+// 	book.BooLineID = c.Massage.ID
+// 	layout := "2006-01-02 15:00"
+// 	book.BookingType = model.BookingTypePackage
+// 	updatedAt, err := time.Parse(layout, c.PostbackAction.Day+" 15:00")
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	book.BookedDate = updatedAt
+// 	return &book, nil
+// }
 
 func bindTransaction(c *Context, Total float64) (*model.Transaction, error) {
 	var tran model.Transaction
