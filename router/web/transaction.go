@@ -139,7 +139,7 @@ func TransactionDetailHandler(c *Context) error {
 					return db.Preload("Employee").Preload("Service")
 				})
 			}).Find(&bookingTimeSlot)
-			bookings = append(bookings, Booking{Start: bookingTimeSlot.TimeSlot.TimeStart, End: bookingTimeSlot.TimeSlot.TimeEnd, Name: bookingTimeSlot.TimeSlot.EmployeeService.Service.SerName})
+			// bookings = append(bookings, Booking{Start: bookingTimeSlot.TimeSlot.TimeStart, End: bookingTimeSlot.TimeSlot.TimeEnd, Name: bookingTimeSlot.TimeSlot.EmployeeService.Service.SerName})
 		case model.BookingTypeServiceItem:
 			db.Preload("ServiceItem", func(db *gorm.DB) *gorm.DB {
 				return db.Preload("Service")

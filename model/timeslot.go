@@ -10,10 +10,11 @@ import (
 type TimeSlot struct {
 	orm.ModelBase
 
-	TimeStart         string          `json:"time_start" gorm:"type:varchar(10)"`
-	TimeEnd           string          `json:"time_end" gorm:"type:varchar(10)"`
+	TimeStartHour     int             `json:"time_start_hour"`
+	TimeStarMinute    int             `json:"time_start_minute"`
+	TimeEndHour       int             `json:"time_end_hour"`
+	TimeEndMinute     int             `json:"time_end_minute"`
 	TimeDay           int             `json:"time_day"`
-	TimeAmount        int             `json:"time_amount"`
 	TimeActive        bool            `json:"time_active" sql:"default:true" gorm:"default:true"`
 	EmployeeServiceID uint            `json:"employee_service_id"`
 	AccountID         uint            `json:"account_id"`

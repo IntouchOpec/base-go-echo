@@ -260,7 +260,7 @@ func ServiceListLineHandler(c *Context) (linebot.SendingMessage, error) {
 	var slotTime string
 	var buttonTime string
 	var serviceList string
-	var actionMessge string
+	// var actionMessge string
 	var count int
 	var service model.Service
 	var MSPlaces []*model.MasterPlace
@@ -294,10 +294,10 @@ func ServiceListLineHandler(c *Context) (linebot.SendingMessage, error) {
 				count = 0
 			}
 			if len(timeSlot.Bookings) > 0 {
-				buttonTime = buttonTime + fmt.Sprintf(buttonTimeSecondaryTemplate, fmt.Sprintf("%s-%s", timeSlot.TimeStart, timeSlot.TimeEnd), "เต็มแล้ว")
+				// buttonTime = buttonTime + fmt.Sprintf(buttonTimeSecondaryTemplate, fmt.Sprintf("%s-%s", timeSlot.TimeStart, timeSlot.TimeEnd), "เต็มแล้ว")
 			} else {
-				actionMessge = fmt.Sprintf("action=booking_timeslot&day=%s&time_slot_id=%d", dateTime, timeSlot.ID)
-				buttonTime = buttonTime + fmt.Sprintf(buttonTimePrimaryTemplate, fmt.Sprintf("%s-%s", timeSlot.TimeStart, timeSlot.TimeEnd), actionMessge)
+				// actionMessge = fmt.Sprintf("action=booking_timeslot&day=%s&time_slot_id=%d", dateTime, timeSlot.ID)
+				// buttonTime = buttonTime + fmt.Sprintf(buttonTimePrimaryTemplate, fmt.Sprintf("%s-%s", timeSlot.TimeStart, timeSlot.TimeEnd), actionMessge)
 			}
 			count = count + 1
 		}
@@ -366,8 +366,8 @@ func BookingTimeSlotHandler(c *Context) (linebot.SendingMessage, error) {
 	for _, place := range service.Places {
 		placeIDs = append(placeIDs, place.ID)
 	}
-	c.DB.Order("m_pla_status desc, place_id").Where("account_id =? and m_pla_day = ? and m_pla_to BETWEEN ? and ? or m_pla_from BETWEEN ? and ? and place_id in (?) ",
-		c.Account.ID, timeSlot.TimeDay, timeSlot.TimeStart, timeSlot.TimeEnd, timeSlot.TimeStart, timeSlot.TimeEnd, placeIDs).Find(&MSPlaces)
+	// c.DB.Order("m_pla_status desc, place_id").Where("account_id =? and m_pla_day = ? and m_pla_to BETWEEN ? and ? or m_pla_from BETWEEN ? and ? and place_id in (?) ",
+	// 	c.Account.ID, timeSlot.TimeDay, timeSlot.TimeStart, timeSlot.TimeEnd, timeSlot.TimeStart, timeSlot.TimeEnd, placeIDs).Find(&MSPlaces)
 	// if len(MSPlaces) != 0 {
 	// 	return nil, errors.New("")
 	// }
@@ -439,18 +439,18 @@ func BookingTimeSlotHandler(c *Context) (linebot.SendingMessage, error) {
 		MSPlace.PlaceID = book.PlaceID
 		MSPlace.MPlaDay = start
 		MSPlace.AccountID = c.Account.ID
-		form, err := time.Parse("15:04", timeSlot.TimeStart)
+		// form, err := time.Parse("15:04", timeSlot.TimeStart)
 		if err != nil {
 			tx.Rollback()
 			return nil, err
 		}
-		to, err := time.Parse("15:04", timeSlot.TimeEnd)
+		// to, err := time.Parse("15:04", timeSlot.TimeEnd)
 		if err != nil {
 			tx.Rollback()
 			return nil, err
 		}
-		MSPlace.MPlaFrom = form
-		MSPlace.MPlaTo = to
+		// MSPlace.MPlaFrom = form
+		// MSPlace.MPlaTo = to
 		MSPlace.MPlaAmount = MSPlace.MPlaAmount + 1
 		if MSPlace.MPlaAmount == place.PlacAmount {
 			MSPlace.MPlaStatus = model.MPlaStatusBusy
@@ -474,8 +474,8 @@ func BookingTimeSlotHandler(c *Context) (linebot.SendingMessage, error) {
 		template = fmt.Sprintf(checkoutTemplate,
 			c.ChatChannel.ChaImage,
 			c.ChatChannel.ChaAddress,
-			timeSlot.TimeStart,
-			timeSlot.TimeEnd,
+			// timeSlot.TimeStart,
+			// timeSlot.TimeEnd,
 			setting[model.NameLIFFIDPayment],
 			c.Account.AccName,
 			tran.TranDocumentCode,

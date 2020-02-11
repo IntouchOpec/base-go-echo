@@ -30,8 +30,8 @@ func ReportListHandler(c *Context) (linebot.SendingMessage, error) {
 						return db.Preload("Employee").Preload("Service")
 					})
 				}).Find(&bookingTimeSlot)
-				timeStart = bookingTimeSlot.TimeSlot.TimeStart
-				timeEnd = bookingTimeSlot.TimeSlot.TimeEnd
+				// timeStart = bookingTimeSlot.TimeSlot.TimeStart
+				// timeEnd = bookingTimeSlot.TimeSlot.TimeEnd
 				name = bookingTimeSlot.TimeSlot.EmployeeService.Service.SerName
 			case model.BookingTypeServiceItem:
 				c.DB.Preload("ServiceItem", func(db *gorm.DB) *gorm.DB {
