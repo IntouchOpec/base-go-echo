@@ -1,6 +1,9 @@
 
 # Start from golang:1.12-alpine base image
-FROM golang:1.12-alpine
+FROM golang:1.13.7
+
+# ENV TZ=Asia/Bangkok
+# RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # The latest alpine images don't have some tools like (`git` and `bash`).
 # Adding git, bash and openssh to the image
