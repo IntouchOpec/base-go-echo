@@ -28,7 +28,7 @@
                                                 {{range $i, $day := .DayWeeks}}
                                                     <div class="form-check mx-2">
                                                         <label class="form-check-label">
-                                                            <input class="form-check-input" type="checkbox" name="{{ $day }}" value='{ "id": {{$i}}, "name": "{{ $day }}" }'>
+                                                            <input class="form-check-input" type="checkbox" name="{{ $day }}" value="{{ $i }}">
                                                             {{ $day }}
                                                             <span class="form-check-sign">
                                                                 <span class="check"></span>
@@ -40,7 +40,6 @@
                                             <div id="input-service-list">       
                                             </div>
                                             <input type="submit" rel="tooltip" value="Submit" class="btn btn-success">
-
                                         </form>
                                     </div>
                                 </div>
@@ -59,61 +58,65 @@
     (function ($) {
         let rules = {}
         let messages = {}
-        let hour = (day, value) =>  `<div class="form-group col-md-6">
+        let hour = (day, value) =>  {
+            return `<div class="form-group col-md-6">
                         <label class="bmd-label-floating" >hour</label>
-                        <select name="hour-${day}" class="form-control" id="hour-${day}" data-style="btn btn-link" >
+                        <select name="hour" class="form-control" id="hour-${day}" data-style="btn btn-link" >
                             <option value="">-</option>
-                            <option value="{hour: 0, day: ${value}}">00</option>
-                            <option value="{hour: 1, day: ${value}}">01</option>
-                            <option value="{hour: 2, day: ${value}}">02</option>
-                            <option value="{hour: 3, day: ${value}}">03</option>
-                            <option value="{hour: 4, day: ${value}}">04</option>
-                            <option value="{hour: 5, day: ${value}}">05</option>
-                            <option value="{hour: 6, day: ${value}}">06</option>
-                            <option value="{hour: 7, day: ${value}}">07</option>
-                            <option value="{hour: 8, day: ${value}}">08</option>
-                            <option value="{hour: 9, day: ${value}}">09</option>
-                            <option value="{hour: 10, day: ${value}}">10</option>
-                            <option value="{hour: 11, day: ${value}}">11</option>
-                            <option value="{hour: 12, day: ${value}}">12</option>
-                            <option value="{hour: 13, day: ${value}}">13</option>
-                            <option value="{hour: 14, day: ${value}}">14</option>
-                            <option value="{hour: 15, day: ${value}}">15</option>
-                            <option value="{hour: 16, day: ${value}}">16</option>
-                            <option value="{hour: 17, day: ${value}}">17</option>
-                            <option value="{hour: 18, day: ${value}}">18</option>
-                            <option value="{hour: 19, day: ${value}}">19</option>
-                            <option value="{hour: 20, day: ${value}}">20</option>
-                            <option value="{hour: 21, day: ${value}}">21</option>
-                            <option value="{hour: 22, day: ${value}}">22</option>
-                            <option value="{hour: 23, day: ${value}}">23</option>
+                            <option value="1">01</option>
+                            <option value="0">00</option>
+                            <option value="2">02</option>
+                            <option value="3">03</option>
+                            <option value="4">04</option>
+                            <option value="5">05</option>
+                            <option value="6">06</option>
+                            <option value="7">07</option>
+                            <option value="8">08</option>
+                            <option value="9">09</option>
+                            <option value="10">10</option>
+                            <option value="11">11</option>
+                            <option value="12">12</option>
+                            <option value="13">13</option>
+                            <option value="14">14</option>
+                            <option value="15">15</option>
+                            <option value="16">16</option>
+                            <option value="17">17</option>
+                            <option value="18">18</option>
+                            <option value="19">19</option>
+                            <option value="20">20</option>
+                            <option value="21">21</option>
+                            <option value="22">22</option>
+                            <option value="23">23</option>
                         </select>
                     </div>`
-        let minute = (day, value) => `<div class="form-group col-md-6">
+                    }
+        let minute = (day, value) => {
+            return `<div class="form-group col-md-6">
                         <label class="bmd-label-floating" >minute</label>
-                        <select name="minute-${day}" class="form-control" id="minute-${day}" data-style="btn btn-link" >
+                        <select name="minute" class="form-control" id="minute-${day}" data-style="btn btn-link" >
                             <option value="">-</option>
-                            <option value="{minute: 0, day:${value}}">00</option>
-                            <option value="{minute: 15, day:${value}}">15</option>
-                            <option value="{minute: 30, day:${value}}">30</option>
-                            <option value="{minute: 45, day:${value}}">45</option>
+                            <option value="0">00</option>
+                            <option value="15">15</option>
+                            <option value="30">30</option>
+                            <option value="45">45</option>
                         </select>
-                    </div>`
+                    </div>`}
         $("#form-day input[type='checkbox']").each(function( ) {
             $(this).click(function (){
                 let checked = $(this).prop("checked")
                 let name = $(this).attr('name')
                 let value = $(this).val()
+                console.log(value)
 
-                if (checked === true){
+                if (checked === true) {
                     $("#input-service-list").append(` 
-                    <div class="${name}">
+                    <div class="${name}" name="${value}">
                         <label class="bmd-label-floating" >${name}</label>
                         <div class="d-flex">
-                            <div class="col-md-6 d-flex">
-                                ${hour(`form-${name}`, value)}${minute(`form-${name}`, value)}
+                            <div class="col-md-6 d-flex" name="from">
+                                ${hour(`form-${name}`, value, )}${minute(`form-${name}`, value)}
                             </div> - 
-                            <div class="col-md-6 d-flex">
+                            <div class="col-md-6 d-flex" name="to">
                                 ${hour(`to-${name}`, value)}${minute(`to-${name}`, value)}                                
                             </div>
                         </div>
@@ -126,31 +129,45 @@
         
         let createTimeslot = $("form[name='create-time-slot']")
         let dayWeeksList = $("#form-day input[type='checkbox']")
-
+        let dayWeeksData = []
+        let timeList = []
         createTimeslot.on("submit", function () {
-            debugger
-            $("#input-service-list select").each(function( ) {
-                let name = $(this).attr('name')
-                console.log( $(this).val(), $(this).attr('name'))
-                $(this).rules("add", 
-                {
-                    required:  { required : true },
-                    messages:  { required: `Please enyer a valid ${name}`  },
-                })
-            })
-
+            let name
+            let value
+            let isDayWeekValidateService = false
             dayWeeksList.each(function(index) {
                 if ($(this).is(":checked")) {
-                    // isDayWeekValidateService = $(this).is(":checked")
-                    dayWeeksData.push($(this).val())
+                    isDayWeekValidateService = $(this).is(":checked")
+                    dayWeeksData.push(parseInt($(this).val(), 10))
                 }
 
-                if (dayWeeksList.length - 1 === index) {
+                if (dayWeeksList.length - 1 === index && !isDayWeekValidateService) {
                     dayWeeksList.rules("add", {   
                         required:  { required : true },
                         messages:  { required: `You must check at least 1 box`  },
                     })
                 }
+            })
+            timeList
+            let data = {}
+            dayWeeksData.map(day => {
+                data = {}
+                data.day = day
+                $(`#input-service-list div[name=${day}]`).each(function( ) {
+                    $(this).find("div[name='from'] select[name='hour']").each(function () {
+                        data.time_start_hour = parseInt($(this).val(), 10)
+                    })
+                    $(this).find("div[name='from'] select[name='minute']").each(function () {
+                        data.time_start_minute =parseInt($(this).val(), 10)
+                    })
+                    $(this).find("div[name='to'] select[name='hour']").each(function () {
+                        data.time_end_hour =parseInt($(this).val(), 10)
+                    })
+                    $(this).find("div[name='to'] select[name='minute']").each(function () {
+                        data.time_end_minute =parseInt($(this).val(), 10)
+                    })
+                    timeList.push(data)
+                })
             })
         })
 
@@ -159,23 +176,17 @@
             messages,
             submitHandler: function(form) {
                 let _csrf = $("#_csrf").val()
-
-                // let encodedKey = encodeURIComponent("_csrf");
-                // let encodedValue = encodeURIComponent(_csrf);
-                // let timeSlotsEncodedKey = encodeURIComponent("timeSlots");
-                // let timeSlotsEncodedValue = encodeURIComponent(JSON.stringify(timeSlotsReq));
-                // let data = []
-
-                // data.push(encodedKey + "=" + encodedValue)
-                // data.push(timeSlotsEncodedKey + "=" + timeSlotsEncodedValue)
-                // data = data.join("&");
+                let data = new FormData()
+                data.append("_csrf", _csrf)
+                data.append("timeSlots", JSON.stringify(timeList))
                 let method = $("form[name='create-time-slot']").attr("method")
                 fetch(window.location.href, {
-                    method, 
-                    headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                    method,
                     body: data
                 })
                 .then(res => {
+                    dayWeeksData = []
+                    timeList = []
                     if (res.status !== 201) {
                         throw ""
                     }
