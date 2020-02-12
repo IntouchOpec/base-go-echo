@@ -38,6 +38,7 @@ func TimeSlotCreateHandler(c *Context) error {
 	return c.Render(http.StatusOK, "time-slot-form", echo.Map{
 		"method":           "POST",
 		"title":            "employee",
+		"employeeID":       id,
 		"EmployeeServices": employeeServices,
 		"DayWeeks":         DayWeeks,
 	})

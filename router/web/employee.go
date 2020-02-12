@@ -190,15 +190,15 @@ func weeDayString(day int) string {
 
 func EmployeeSerciveListHandler(c *Context) error {
 	id := c.Param("prov_id")
+	db := model.DB()
 	accID := auth.Default(c).GetAccountID()
-	employee, err := model.GetEmployeeServiceTimeSlotList(id, accID)
-
-	if err != nil {
+	timeSlots := []model.TimeSlot{}
+	if err := db.Where("account_id = ? and employee_id = ?", accID, id).Find(&timeSlots).Error; err != nil {
 		return c.Render(http.StatusNotFound, "404-page", echo.Map{})
 	}
 	return c.Render(http.StatusOK, "employee-service-detail", echo.Map{
-		"title":  "employee",
-		"detail": employee,
+		"title": "employee",
+		"list":  timeSlots,
 	})
 }
 

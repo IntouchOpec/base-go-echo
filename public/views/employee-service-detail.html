@@ -24,69 +24,48 @@
                                 </button>
                             </a>
                         </div>
-                        {{ with .detail.EmployeeServices }}
-                        {{ range . }}
                             <div class="card-body">
-                                {{ .Service.SerName}}
-                                <hr/>   
-                                <div class="row m-0 p-0">
-                                    {{ $length := len .TimeSlots }} {{ if eq $length 0 }}
-                                        <h4 >ไม่ไม่มีตารางเวลา</h4>
-                                    {{ else }}
-                                        <div class="table-responsive">
-                                            <table class="table">
-                                              <thead class=" text-primary">
-                                                   <th>Time Start</th>
-                                                   <th>Time End</th>
-                                                   <th>Time Day</th>
-                                                   <th>Time Amount</th>
-                                                   <th>Time Active</th>
-                                                    <th></th>
-                                              </thead>
-                                              <tbody>
-                                                {{ with .TimeSlots }}
-                                                {{ range . }}
-                                                <tr name="row_{{ .ID }}">
-                                                    <td>{{ .TimeStart }}</td>
-                                                    <td>{{ .TimeEnd }}</td>
-                                                    <td>
-                                                        {{ if (eq .TimeDay 0) }}
-                                                            Mon
-                                                        {{ else if (eq .TimeDay 1) }}
-                                                            Tue
-                                                        {{ else if (eq .TimeDay 2) }}
-                                                            Wed
-                                                        {{ else if (eq .TimeDay 3) }}
-                                                            Thu
-                                                        {{ else if (eq .TimeDay 4) }}
-                                                            Fri
-                                                        {{ else if (eq .TimeDay 5) }}
-                                                            Sat
-                                                        {{ else if (eq .TimeDay 6) }}
-                                                            Sun
-                                                        {{ end }}
-                                                    </td>
-                                                    <td>{{ .TimeAmount }}</td>
-                                                    <td><input type="checkbox" data-toggle="toggle" {{if .TimeActive }}checked{{end}}></td>
-                                                    <td>
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <thead class=" text-primary">
+                                            <th>Day</th>
+                                            <th>Start</th>
+                                            <th>End</th>
+                                            <th>Active</th>
+                                            <th></th>
+                                        </thead>
+                                        <tbody>
+                                            {{if not .list}}<tr><td colspan="8" class="text-center">No content</td></tr> {{end}}
+                                            {{ with .list }}
+                                            {{ range . }}
+                                            <tr name="row_{{ .ID }}">
+                                                <td>{{ .TimeDay }}</td>
+                                                <td>{{ .TimeStartHour }}:{{.TimeStarMinute}}</td>
+                                                <td>{{ .TimeEndHour }}:{{.TimeEndMinute}}</td>
+                                                <td><input type="checkbox" data-toggle="toggle" {{ if .TimeActive }} checked {{end}} value={{.ID}}></td>
+                                                <td class="td-actions text-right">
+                                                    <a href="/admin/package/{{ .ID }}/edit">
                                                         <button type="button" rel="tooltip" class="btn btn-warning">
                                                             <i class="material-icons">edit</i>
                                                         </button>
-                                                        <button value="{{ .ID }}" name="remove"  type="button" rel="tooltip" class="btn btn-danger">
-                                                            <i class="material-icons">close</i>
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                                {{ end }}
-                                                {{ end }}
-                                              </tbody>
-                                            </table>
-                                          </div>
-                                    {{ end }}
+                                                    </a>
+                                                    <button value="{{ .ID }}" name="remove"  type="button" rel="tooltip" class="btn btn-danger">
+                                                        <i class="material-icons">close</i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            {{ end }}
+                                            {{ end }}
+                                        </tbody>
+                                    </table>
+                                    <div class="row p-0 m-0">
+                                        <div class="ml-auto" name="pagination">
+                                            {{ template "pagination" .pagination }}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        {{ end }}
-                        {{ end }}
+                        </div>     
                     </div>
                 </div>
             </div>

@@ -106,8 +106,6 @@
                 let checked = $(this).prop("checked")
                 let name = $(this).attr('name')
                 let value = $(this).val()
-                console.log(value)
-
                 if (checked === true) {
                     $("#input-service-list").append(` 
                     <div class="${name}" name="${value}">
@@ -153,6 +151,7 @@
             dayWeeksData.map(day => {
                 data = {}
                 data.day = day
+                data.employee_id = parseInt("{{.employeeID}}", 10)
                 $(`#input-service-list div[name=${day}]`).each(function( ) {
                     $(this).find("div[name='from'] select[name='hour']").each(function () {
                         data.time_start_hour = parseInt($(this).val(), 10)

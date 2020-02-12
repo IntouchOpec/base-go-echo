@@ -17,6 +17,8 @@ type TimeSlot struct {
 	TimeDay           int             `json:"time_day"`
 	TimeActive        bool            `json:"time_active" sql:"default:true" gorm:"default:true"`
 	EmployeeServiceID uint            `json:"employee_service_id"`
+	EmployeeID        uint            `json:"employee_id"`
+	Employee          Employee        `json:"employee" gorm:"ForeignKey:EmployeeID"`
 	AccountID         uint            `json:"account_id"`
 	Bookings          []*Booking      `json:"bookings"`
 	EmployeeService   EmployeeService `json:"employee_service" gorm:"ForeignKey:EmployeeServiceID"`
