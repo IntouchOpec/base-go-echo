@@ -7,11 +7,12 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/IntouchOpec/base-go-echo/lib/lineapi"
+	"github.com/IntouchOpec/base-go-echo/lib/uploadgoolgestorage"
 	"github.com/IntouchOpec/base-go-echo/module/auth"
 	"github.com/labstack/echo"
 	"github.com/line/line-bot-sdk-go/linebot"
 
-	"github.com/IntouchOpec/base-go-echo/lib"
 	"github.com/IntouchOpec/base-go-echo/model"
 )
 
@@ -25,7 +26,7 @@ func RichMenuListHandler(c *Context) error {
 
 	filterChatChannelDB.First(&chatChannel, chatChannelID)
 
-	bot, err := lib.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
+	bot, err := lineapi.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
 	if err != nil {
 		return c.Render(http.StatusOK, "rich-menu-list", echo.Map{
 			"chatChannels": chatChannels,
@@ -64,7 +65,7 @@ func RichMenuDetailHandler(c *Context) error {
 		return c.NoContent(http.StatusBadRequest)
 	}
 
-	bot, err := lib.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
+	bot, err := lineapi.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
 
 	if err != nil {
 		return c.NoContent(http.StatusBadRequest)
@@ -97,7 +98,7 @@ func RichMenuActiveHandler(c *Context) error {
 		return c.NoContent(http.StatusBadRequest)
 	}
 
-	bot, err := lib.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
+	bot, err := lineapi.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
 
 	if err != nil {
 		return c.NoContent(http.StatusBadRequest)
@@ -118,7 +119,7 @@ func RichMenuAddCustomerHandler(c *Context) error {
 	chatChannelID := c.QueryParam("chat_channel_id")
 	lineID := c.FormValue("line_id")
 	db.Where("account_id = ?", accID).Find(&chatChannel, chatChannelID)
-	bot, err := lib.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
+	bot, err := lineapi.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
@@ -137,9 +138,9 @@ func RichMenuImageHandler(c *Context) error {
 	chatChannelID := c.QueryParam("chat_channel_id")
 	file := c.FormValue("file")
 
-	_, fileURL, err := lib.UploadteImage(file)
+	_, fileURL, err := uploadgoolgestorage.UploadteImage(file)
 	ctx := context.Background()
-	image, err := lib.UploadGoolgeStorage(ctx, file, "images/richMenu/")
+	image, err := uploadgoolgestorage.UploadGoolgeStorage(ctx, file, "images/richMenu/")
 
 	if err != nil {
 		fmt.Println("err1", err)
@@ -147,7 +148,7 @@ func RichMenuImageHandler(c *Context) error {
 	}
 	db.Where("account_id = ?", a.GetAccountID()).Find(&chatChannel, chatChannelID)
 
-	bot, err := lib.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
+	bot, err := lineapi.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
 	if err != nil {
 		fmt.Println("err2", err)
 		return c.JSON(http.StatusBadRequest, err)
@@ -171,7 +172,7 @@ func RichMenuDonwloadImage(c *Context) error {
 	chatChannelID := c.QueryParam("chat_channel_id")
 	db.Where("account_id = ?", a.GetAccountID()).Find(&chatChannel, chatChannelID)
 
-	bot, err := lib.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
+	bot, err := lineapi.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
@@ -247,7 +248,7 @@ func RichMenuCreateHandler(c *Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	bot, err := lib.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
+	bot, err := lineapi.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
 
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
@@ -298,7 +299,7 @@ func RichMenuCreateHandler(c *Context) error {
 // 		return c.JSON(http.StatusBadRequest, err)
 // 	}
 
-// 	bot, err := lib.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
+// 	bot, err := lineapi.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
 
 // 	if err != nil {
 // 		return c.JSON(http.StatusBadRequest, err)
@@ -349,7 +350,7 @@ func RichMenuEditView(c *Context) error {
 		return c.NoContent(http.StatusBadRequest)
 	}
 
-	bot, err := lib.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
+	bot, err := lineapi.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
 
 	if err != nil {
 		return c.NoContent(http.StatusBadRequest)
@@ -383,7 +384,7 @@ func RichMenuDeleteHandler(c *Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	bot, err := lib.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
+	bot, err := lineapi.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
@@ -408,7 +409,7 @@ func RichMenuDeleteHandler(c *Context) error {
 // 		return c.JSON(http.StatusBadRequest, err)
 // 	}
 
-// 	bot, err := lib.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
+// 	bot, err := lineapi.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
 
 // 	if err != nil {
 // 		return c.JSON(http.StatusBadRequest, err)

@@ -28,6 +28,7 @@ func FileListHandler(c *Context) error {
 	return c.Render(http.StatusOK, "file-list", echo.Map{
 		"pagination": pagination,
 		"list":       fils,
+		"method":     "POST",
 		"title":      "upload_file",
 		"host":       "web." + Conf.Server.Domain,
 	})

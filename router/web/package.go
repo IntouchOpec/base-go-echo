@@ -7,8 +7,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/jinzhu/gorm"
-
 	"github.com/IntouchOpec/base-go-echo/lib"
 	"github.com/IntouchOpec/base-go-echo/model"
 	"github.com/IntouchOpec/base-go-echo/module/auth"
@@ -57,16 +55,23 @@ func PackageIsactiveHandler(c *Context) error {
 func PackageDetailHandler(c *Context) error {
 	id := c.Param("id")
 	accID := auth.Default(c).GetAccountID()
-	packageModel := model.Package{}
+	pack := model.Package{}
 	db := model.DB()
-	if err := db.Preload("ServiceItems", func(db *gorm.DB) *gorm.DB {
-		return db.Preload("Service")
-	}).Where("account_id = ?", accID).Find(&packageModel, id).Error; err != nil {
+	err := db.Preload("ServiceItems").Where("account_id = ?", accID).Find(&pack, id).Error
+	if err != nil {
+		fmt.Println(err)
 		return c.Render(http.StatusNotFound, "404-page", echo.Map{})
+	}
+	list := []model.ServiceItem{}
+	for _, serI := range pack.ServiceItems {
+		item := model.ServiceItem{}
+		db.Preload("Service").Find(&item, serI.ID)
+		list = append(list, item)
 	}
 	return c.Render(http.StatusOK, "package-detail", echo.Map{
 		"title":  "package",
-		"detail": packageModel,
+		"detail": pack,
+		"list":   list,
 	})
 }
 
@@ -119,6 +124,7 @@ func PackagePutHandler(c *Context) error {
 func PackagePostHandler(c *Context) error {
 	packageModel := model.Package{}
 	accID := auth.Default(c).GetAccountID()
+	fmt.Println(accID)
 	file := c.FormValue("file")
 	ctx := context.Background()
 	db := model.DB()

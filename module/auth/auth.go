@@ -43,7 +43,7 @@ type User interface {
 	// Populate this user object with values
 	GetById(id interface{}) error
 
-	GetAccount() string
+	GetAccount() model.Account
 
 	GetAccountID() uint
 }

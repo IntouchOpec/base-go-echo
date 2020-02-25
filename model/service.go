@@ -1,36 +1,37 @@
 package model
 
 import (
+	"time"
+
 	"github.com/IntouchOpec/base-go-echo/model/orm"
 )
 
 // service souce service and service.
 type Service struct {
 	orm.ModelBase
-	SerName          string             `form:"name" json:"ser_name" gorm:"type:varchar(25)"`
-	SerDetail        string             `form:"detail" json:"ser_detail" gorm:"type:varchar(25)"`
-	SerPrice         float64            `form:"price" json:"ser_price"`
-	SerActive        bool               `json:"ser_active" sql:"default:true" gorm:"default:true"`
-	SerImage         string             `json:"ser_image" gorm:"type:varchar(255)"`
-	AccountID        uint               `json:"account_id" gorm:"not null;"`
-	ServiceItems     []*ServiceItem     `json:"service_items"`
-	Places           []*Place           `json:"places" gorm:"many2many:place_service"`
-	Account          *Account           `json:"account" gorm:"ForeignKey:AccountID"`
-	ChatChannels     []*ChatChannel     `json:"chat_channels" gorm:"many2many:service_chat_channel"`
-	EmployeeServices []*EmployeeService `json:"employee_services" gorm:"many2many:EmployeeService"`
+	SerName      string         `form:"name" json:"ser_name" gorm:"type:varchar(25)"`
+	SerDetail    string         `form:"detail" json:"ser_detail" gorm:"type:varchar(25)"`
+	SerPrice     float64        `form:"price" json:"ser_price"`
+	SerActive    bool           `json:"ser_active" sql:"default:true" gorm:"default:true"`
+	SerImage     string         `json:"ser_image" gorm:"type:varchar(255)"`
+	AccountID    uint           `json:"account_id" gorm:"not null;"`
+	ServiceItems []*ServiceItem `json:"service_items" gorm:"foreignkey:ServiceID"`
+	Places       []*Place       `json:"places" gorm:"many2many:place_service"`
+	Account      *Account       `json:"account" gorm:"ForeignKey:AccountID"`
+	ChatChannels []*ChatChannel `json:"chat_channels" gorm:"many2many:service_chat_channel"`
+	Employees    []*Employee    `json:"employees" gorm:"many2many:employee_service"` //gorm:"many2many:service_employee"
 }
 
 type ServiceItem struct {
 	orm.ModelBase
-	SSPrice    float64    `form:"price" json:"s_s_price"`
-	SSHour     int        `form:"hour" json:"s_s_hour"`
-	SSMinute   int        `form:"minute" json:"s_s_minute"`
-	SSIsActive bool       `json:"s_s_is_active" sql:"default:false"`
-	ServiceID  uint       `json:"service_id"`
-	Packages   []*Package `json:"packages" gorm:"many2many:package_service_item"`
-	Service    Service    `json:"service" gorm:"ForeignKey:ServiceID"`
-	AccountID  uint       `json:"account_id" gorm:"not null;"`
-	Account    Account    `json:"account" gorm:"ForeignKey:AccountID"`
+	SSPrice    float64       `form:"price" json:"s_s_price"`
+	SSTime     time.Duration `form:"time" json:"s_s_time"`
+	SSIsActive bool          `json:"s_s_is_active" sql:"default:false"`
+	Packages   []*Package    `json:"packages" gorm:"many2many:package_service_item"`
+	Service    *Service      `json:"service" gorm:"ForeignKey:ServiceID"`
+	ServiceID  uint          `json:"service_id"`
+	AccountID  uint          `json:"account_id" gorm:"not null;"`
+	Account    Account       `json:"account" gorm:"ForeignKey:AccountID"`
 }
 
 // Saveservice is function create service.

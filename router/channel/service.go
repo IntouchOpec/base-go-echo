@@ -5,7 +5,7 @@ import (
 	"time"
 
 	. "github.com/IntouchOpec/base-go-echo/conf"
-	"github.com/IntouchOpec/base-go-echo/lib"
+	"github.com/IntouchOpec/base-go-echo/lib/lineapi"
 	"github.com/IntouchOpec/base-go-echo/model"
 )
 
@@ -27,26 +27,34 @@ func ChooseService(c *Context) {
 			pack.PacName,
 			pack.PacPrice,
 			fmt.Sprintf("action=booking&type=now&package_id=%d", pack.ID),
-			fmt.Sprintf("action=booking&type=appointment&package_id=%d", pack.ID),
-			initial,
-			max,
-			min) + ","
+			fmt.Sprintf(buttonServiceTemplate,
+				fmt.Sprintf("action=booking&type=appointment&package_id=%d", pack.ID),
+				initial,
+				max,
+				min,
+				"booking")) + ","
 	}
 	if len(packageModels) < 9 {
 		serviceFilter := c.DB.Model(&services).Where("account_id = ? and ser_active = ?", c.Account.ID, true).Count(&total)
-		serviceFilter.Limit(9).Find(&services)
+		serviceFilter.Limit(9).Preload("ServiceItems", "ss_is_active = ?", true).Find(&services)
 		for _, ser := range services {
+			var button string
+			for _, serI := range ser.ServiceItems {
+				button += fmt.Sprintf(buttonServiceTemplate,
+					fmt.Sprintf("action=booking&type=appointment&service_item_id=%d", ser.ID),
+					initial,
+					max,
+					min,
+					serI.SSTime.String()) + ","
+			}
 			m += fmt.Sprintf(serviceTemplate,
 				fmt.Sprintf("https://web.%s/files?path=%s", Conf.Server.Domain, ser.SerImage),
 				ser.SerName,
 				ser.SerPrice,
-				fmt.Sprintf("action=booking&type=now&service_id=%d", ser.ID),
-				fmt.Sprintf("action=booking&type=appointment&service_id=%d", ser.ID),
-				initial,
-				max,
-				min) + ","
+				fmt.Sprintf("action=booking&type=now&service_item_id=%d", ser.ID),
+				button[:len(button)-1]) + ","
 		}
 	}
 	m = fmt.Sprintf(`{ "replyToken": "%s", "messages":[ { "type": "flex",  "altText":  "รายการบริการ",  "contents": { "type": "carousel", "contents": [ %s ] } }]}`, c.Event.ReplyToken, m[:len(m)-1])
-	lib.SendMessageCustom("reply", c.ChatChannel.ChaChannelAccessToken, m)
+	lineapi.SendMessageCustom("reply", c.ChatChannel.ChaChannelAccessToken, m)
 }

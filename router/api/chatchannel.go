@@ -7,7 +7,7 @@ import (
 
 	// . "github.com/IntouchOpec/base-go-echo/conf"
 
-	"github.com/IntouchOpec/base-go-echo/lib"
+	"github.com/IntouchOpec/base-go-echo/lib/lineapi"
 	"github.com/IntouchOpec/base-go-echo/model"
 	"github.com/labstack/echo"
 	"github.com/line/line-bot-sdk-go/linebot"
@@ -76,7 +76,7 @@ func ActiveRegisterLIFFAPI(c echo.Context) error {
 	url := fmt.Sprintf("https://%s/register/%s", chatChannel.Settings[0].Value, chatChannel.ChaLineID)
 
 	view := linebot.View{Type: "full", URL: url}
-	bot, err := lib.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
+	bot, err := lineapi.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
 	if err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}
@@ -94,31 +94,31 @@ func ActiveRegisterLIFFAPI(c echo.Context) error {
 
 // GetChannelAccessToken route get channel access token.
 func GetChannelAccessToken(c echo.Context) error {
-	// id := c.Param("id")
+	id := c.Param("id")
 
-	// chatChannel := model.ChatChannel{}
+	chatChannel := model.ChatChannel{}
 
-	// db := model.DB()
+	db := model.DB()
 
-	// if err := db.Find(&chatChannel, id).Error; err != nil {
-	// 	return c.NoContent(http.StatusNotFound)
-	// }
-	// bot, err := linebot.New(chatChannel.ChaChannelID, chatChannel.ChaChannelSecret)
+	if err := db.Find(&chatChannel, id).Error; err != nil {
+		return c.NoContent(http.StatusNotFound)
+	}
+	bot, err := linebot.New(chatChannel.ChaChannelID, chatChannel.ChaChannelSecret)
 
-	// if err != nil {
-	// 	return c.NoContent(http.StatusBadRequest)
-	// }
+	if err != nil {
+		return c.NoContent(http.StatusBadRequest)
+	}
 
-	// res, err := bot.IssueAccessToken(chatChannel.ChaChannelID, chatChannel.ChaChannelSecret).Do()
-	// if err != nil {
-	// 	return c.NoContent(http.StatusBadRequest)
-	// }
+	res, err := bot.IssueAccessToken(chatChannel.ChaChannelID, chatChannel.ChaChannelSecret).Do()
+	if err != nil {
+		return c.NoContent(http.StatusBadRequest)
+	}
 
-	// chatChannel.ChannelAccessToken = res.AccessToken
+	chatChannel.ChaChannelAccessToken = res.AccessToken
 
-	// if err := db.Save(&chatChannel).Error; err != nil {
-	// 	return c.NoContent(http.StatusInternalServerError)
-	// }
+	if err := db.Save(&chatChannel).Error; err != nil {
+		return c.NoContent(http.StatusInternalServerError)
+	}
 	return c.JSON(http.StatusOK, "chatChannel")
 }
 

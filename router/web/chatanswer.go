@@ -4,27 +4,37 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/IntouchOpec/base-go-echo/module/auth"
-	"github.com/line/line-bot-sdk-go/linebot"
-
+	"github.com/IntouchOpec/base-go-echo/lib/dialogflow"
 	"github.com/IntouchOpec/base-go-echo/model"
+	"github.com/IntouchOpec/base-go-echo/module/auth"
 	"github.com/labstack/echo"
+	"github.com/line/line-bot-sdk-go/linebot"
 )
 
 func ChatAnswerListHandler(c *Context) error {
 	chatAnswers := []*model.ChatAnswer{}
-	a := auth.Default(c)
+	a := auth.Default(c).GetAccount()
 	queryPar := c.QueryParams()
 	page, limit := SetPagination(queryPar)
 	var total int
 	db := model.DB()
-	filterChatAns := db.Where("account_id = ?", a.GetAccountID()).Find(&chatAnswers).Count(&total)
+	var da dialogflow.DialogFlowAgent
+	if err := da.InitAgen(a.AccProjectID, a.AccAuthJSONFilePath, a.AccLang, a.AccTimeZone); err != nil {
+		fmt.Println("err", err)
+	}
+	var dc dialogflow.DialogFlowContent
+	dc.InitContent(a.AccProjectID, a.AccAuthJSONFilePath, a.AccLang, a.AccTimeZone)
+	dc.GetListContexts("intouch")
+	dc.GetListContexts("intouch")
+
+	filterChatAns := db.Where("account_id = ?", a.ID).Find(&chatAnswers).Count(&total)
 	pagination := MakePagination(total, page, limit)
 	filterChatAns.Limit(pagination.Record).Offset(pagination.Offset).Find(&chatAnswers)
 	return c.Render(http.StatusOK, "chat-answer-list", echo.Map{
 		"title":      "chat_answer",
 		"list":       chatAnswers,
 		"pagination": pagination,
+		// "agent":      agen,
 	})
 }
 
@@ -33,7 +43,7 @@ func ChatAnswerDetailHandler(c *Context) error {
 	chatAnswer := model.ChatAnswer{}
 	a := auth.Default(c)
 
-	model.DB().Preload("Account", "name = ?", a.User.GetAccount()).Find(&chatAnswer, id)
+	model.DB().Preload("Account").Where("account_id = ?", a.User.GetAccountID()).Find(&chatAnswer, id)
 	return c.Render(http.StatusOK, "chat-answer-detail", echo.Map{
 		"title":  "chat_answer",
 		"detail": chatAnswer,

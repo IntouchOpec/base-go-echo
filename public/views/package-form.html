@@ -41,6 +41,12 @@
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12 mt-2">
+                                                    <div class="form-group">
+                                                        <label class="bmd-label-floating">Price</label>
+                                                        <input name="Price" id="Price" type="text" class="form-control" value="{{.detail.PacPrice}}">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12 mt-2">
                                                     {{ if .detail.PacImage }}
                                                         <div className="image-wrapper" >
                                                             <input id="image" name="image" value="{{.detail.ID}}" type="hidden" >
@@ -168,7 +174,7 @@
                 let order = $("#order").val()
                 let detail = $("#detail").val()
                 let Image =  $("#Image")
-
+                let Price = $("#Price").val()
 
                 let encodedKey = encodeURIComponent("_csrf");
                 let encodedValue = encodeURIComponent(_csrf);
@@ -179,12 +185,16 @@
                 let line_idEncodeCalue = encodeURIComponent(order)
                 let encodedetailKey = encodeURIComponent("pac_detail")
                 let detailEncodeCalue = encodeURIComponent(detail)
+                let encodePriceKey = encodeURIComponent("pac_price")
+                let priceEncodeCalue = encodeURIComponent(Price)
+
                 let data = []
                 
                 data.push(encodedKey + "=" + encodedValue)
                 data.push(encodenameKey + "=" + nameEncodeCalue)
                 data.push(encodeline_idKey + "=" + line_idEncodeCalue)
                 data.push(encodedetailKey + "=" + detailEncodeCalue)
+                data.push(encodePriceKey + "=" + priceEncodeCalue)
                 let imageEncodedValue = ""
 
                 if (Image[0].files.length !== 0) {    

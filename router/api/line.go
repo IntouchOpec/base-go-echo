@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/IntouchOpec/base-go-echo/lib"
+	"github.com/IntouchOpec/base-go-echo/lib/lineapi"
 	"github.com/IntouchOpec/base-go-echo/model"
 	"github.com/labstack/echo"
 	"github.com/line/line-bot-sdk-go/linebot"
@@ -24,7 +24,7 @@ func GetRichMenu(c echo.Context) error {
 		return c.NoContent(http.StatusNotFound)
 	}
 
-	bot, err := lib.ConnectLineBot(chatChannel.ChaChannelID, chatChannel.ChaChannelSecret)
+	bot, err := lineapi.ConnectLineBot(chatChannel.ChaChannelID, chatChannel.ChaChannelSecret)
 	if err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}
@@ -51,7 +51,7 @@ func CreateRichMenu(c echo.Context) error {
 		return c.NoContent(http.StatusNotFound)
 	}
 
-	bot, err := lib.ConnectLineBot(chatChannel.ChaChannelID, chatChannel.ChaChannelSecret)
+	bot, err := lineapi.ConnectLineBot(chatChannel.ChaChannelID, chatChannel.ChaChannelSecret)
 	if err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}
@@ -94,7 +94,7 @@ func UploadImageRichMenu(c echo.Context) error {
 		return c.NoContent(http.StatusNotFound)
 	}
 
-	bot, err := lib.ConnectLineBot(chatChannel.ChaChannelID, chatChannel.ChaChannelSecret)
+	bot, err := lineapi.ConnectLineBot(chatChannel.ChaChannelID, chatChannel.ChaChannelSecret)
 	if err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}
@@ -120,7 +120,7 @@ func AtiveRichMenu(c echo.Context) error {
 		return c.NoContent(http.StatusNotFound)
 	}
 
-	bot, err := lib.ConnectLineBot(chatChannel.ChaChannelID, chatChannel.ChaChannelSecret)
+	bot, err := lineapi.ConnectLineBot(chatChannel.ChaChannelID, chatChannel.ChaChannelSecret)
 	if err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}
@@ -145,7 +145,7 @@ func DeleteRichMenu(c echo.Context) error {
 		return c.NoContent(http.StatusNotFound)
 	}
 
-	bot, err := lib.ConnectLineBot(chatChannel.ChaChannelID, chatChannel.ChaChannelSecret)
+	bot, err := lineapi.ConnectLineBot(chatChannel.ChaChannelID, chatChannel.ChaChannelSecret)
 	if err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}
@@ -166,7 +166,7 @@ func CreateLIFF(c echo.Context) error {
 		return c.NoContent(http.StatusNotFound)
 	}
 
-	bot, err := lib.ConnectLineBot(chatChannel.ChaChannelID, chatChannel.ChaChannelSecret)
+	bot, err := lineapi.ConnectLineBot(chatChannel.ChaChannelID, chatChannel.ChaChannelSecret)
 	if err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}
@@ -195,7 +195,7 @@ func UpdateLIFF(c echo.Context) error {
 		return c.NoContent(http.StatusNotFound)
 	}
 
-	bot, err := lib.ConnectLineBot(chatChannel.ChaChannelID, chatChannel.ChaChannelSecret)
+	bot, err := lineapi.ConnectLineBot(chatChannel.ChaChannelID, chatChannel.ChaChannelSecret)
 	if err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}
@@ -222,7 +222,7 @@ func UpdateLIFF(c echo.Context) error {
 // 		return c.NoContent(http.StatusNotFound)
 // 	}
 
-// 	bot, err := lib.ConnectLineBot(chatChannel.ChaChannelID, chatChannel.ChaChannelSecret)
+// 	bot, err := lineapi.ConnectLineBot(chatChannel.ChaChannelID, chatChannel.ChaChannelSecret)
 // 	if err != nil {
 // 		return c.NoContent(http.StatusBadRequest)
 // 	}
@@ -238,7 +238,7 @@ func GetDatailLIFF(c echo.Context) error {
 		return c.NoContent(http.StatusNotFound)
 	}
 
-	bot, err := lib.ConnectLineBot(chatChannel.ChaChannelID, chatChannel.ChaChannelSecret)
+	bot, err := lineapi.ConnectLineBot(chatChannel.ChaChannelID, chatChannel.ChaChannelSecret)
 	if err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}

@@ -123,7 +123,7 @@ func TransactionDetailHandler(c *Context) error {
 	a := auth.Default(c).GetAccountID()
 	db := model.DB()
 
-	var bookingTimeSlot model.BookingTimeSlot
+	// var bookingTimeSlot model.BookingTimeSlot
 	var bookingServiceItem model.BookingServiceItem
 	var bookingPackage model.BookingPackage
 	var bookings []Booking
@@ -133,13 +133,13 @@ func TransactionDetailHandler(c *Context) error {
 	}
 	for _, booking := range Transaction.Bookings {
 		switch booking.BookingType {
-		case model.BookingTypeSlotTime:
-			db.Preload("TimeSlot", func(db *gorm.DB) *gorm.DB {
-				return db.Preload("EmployeeService", func(db *gorm.DB) *gorm.DB {
-					return db.Preload("Employee").Preload("Service")
-				})
-			}).Find(&bookingTimeSlot)
-			// bookings = append(bookings, Booking{Start: bookingTimeSlot.TimeSlot.TimeStart, End: bookingTimeSlot.TimeSlot.TimeEnd, Name: bookingTimeSlot.TimeSlot.EmployeeService.Service.SerName})
+		// case model.BookingTypeSlotTime:
+		// 	db.Preload("TimeSlot", func(db *gorm.DB) *gorm.DB {
+		// 		return db.Preload("EmployeeService", func(db *gorm.DB) *gorm.DB {
+		// 			return db.Preload("Employee").Preload("Service")
+		// 		})
+		// 	}).Find(&bookingTimeSlot)
+		// bookings = append(bookings, Booking{Start: bookingTimeSlot.TimeSlot.TimeStart, End: bookingTimeSlot.TimeSlot.TimeEnd, Name: bookingTimeSlot.TimeSlot.EmployeeService.Service.SerName})
 		case model.BookingTypeServiceItem:
 			db.Preload("ServiceItem", func(db *gorm.DB) *gorm.DB {
 				return db.Preload("Service")
@@ -191,7 +191,7 @@ func TransactionEditHandler(c *Context) error {
 	Transaction := model.Transaction{}
 	a := auth.Default(c)
 
-	model.DB().Preload("Account", "name = ?", a.User.GetAccount()).Find(&Transaction, id)
+	model.DB().Preload("Account", "name = ?", a.User.GetAccount().AccName).Find(&Transaction, id)
 	return c.Render(http.StatusOK, "transaction-form", echo.Map{"method": "PUT",
 		"title":  "transaction",
 		"detail": Transaction,

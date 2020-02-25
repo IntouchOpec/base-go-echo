@@ -23,12 +23,6 @@
                                             <div class="row">
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
-                                                        <label class="bmd-label-floating" >Price</label>
-                                                        <input name="price" id="price" type="text" class="form-control" >
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-12 mt-2">
-                                                    <div class="form-group">
                                                         <label class="bmd-label-floating" >service</label>
                                                         <select name="employee-serviceType" class="form-control" data-style="btn btn-link" id="service_id">
                                                             <option value="">choose service </option>
@@ -84,13 +78,10 @@
                 let encodedValue = encodeURIComponent(_csrf)
                 let serviceEncodedKey = encodeURIComponent("service_id")
                 let serviceEncodedValue = encodeURIComponent(service_id)
-                let priceEncodedKey = encodeURIComponent("price")
-                let priceEncodedValue = encodeURIComponent(price)
                 let data = []
 
                 data.push(encodedKey + "=" + encodedValue)
                 data.push(serviceEncodedKey + "=" + serviceEncodedValue)
-                data.push(priceEncodedKey + "=" + priceEncodedValue)
                 
                 let method = $("form[name='create-employee-service']").attr("method")
                 data = data.join("&")

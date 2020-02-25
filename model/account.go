@@ -30,6 +30,7 @@ type Account struct {
 
 	AccProjectID              string                    `form:"acc_project_id" json:"acc_project_id" grom:"type:varchar(100)"`
 	AccAuthJSONFilePath       string                    `form:"acc_auth_json_file_path" json:"acc_auth_json_file_path" grom:"type:varchar(100)"`
+	AccProjectIDDialogflow    string                    `json:"acc_project_id_dialogflow"`
 	AccLang                   string                    `form:"acc_lang" json:"acc_lang" grom:"type:varchar(100)"`
 	AccTimeZone               string                    `form:"acc_time_zone" json:"acc_time_zone" grom:"type:varchar(100)"`
 	AccName                   string                    `form:"acc_name" json:"acc_name" gorm:"type:varchar(25)"`

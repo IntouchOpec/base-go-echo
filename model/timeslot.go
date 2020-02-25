@@ -10,19 +10,15 @@ import (
 type TimeSlot struct {
 	orm.ModelBase
 
-	TimeStartHour     int             `json:"time_start_hour"`
-	TimeStarMinute    int             `json:"time_start_minute"`
-	TimeEndHour       int             `json:"time_end_hour"`
-	TimeEndMinute     int             `json:"time_end_minute"`
-	TimeDay           int             `json:"time_day"`
-	TimeActive        bool            `json:"time_active" sql:"default:true" gorm:"default:true"`
-	EmployeeServiceID uint            `json:"employee_service_id"`
-	EmployeeID        uint            `json:"employee_id"`
-	Employee          Employee        `json:"employee" gorm:"ForeignKey:EmployeeID"`
-	AccountID         uint            `json:"account_id"`
-	Bookings          []*Booking      `json:"bookings"`
-	EmployeeService   EmployeeService `json:"employee_service" gorm:"ForeignKey:EmployeeServiceID"`
-	Account           Account         `json:"account" gorm:"ForeignKey:AccountID"`
+	TimeStart  time.Time  `form:"time_start" json:"time_start"`
+	TimeEnd    time.Time  `form:"time_end" json:"time_end"`
+	TimeDay    int        `json:"time_day"`
+	TimeActive bool       `json:"time_active" sql:"default:true" gorm:"default:true"`
+	EmployeeID uint       `json:"employee_id"`
+	Employee   Employee   `json:"employee" gorm:"ForeignKey:EmployeeID"`
+	AccountID  uint       `json:"account_id"`
+	Bookings   []*Booking `json:"bookings"`
+	Account    Account    `json:"account" gorm:"ForeignKey:AccountID"`
 }
 
 func (tim *TimeSlot) CreateTimeSlot() error {

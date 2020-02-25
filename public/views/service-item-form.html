@@ -34,18 +34,18 @@
                                                         <div class="form-group pr-2">
                                                             <label class="bmd-label-floating" >hour</label>
                                                             <select name="hour" class="form-control p-2 m-2" id="hour" data-style="btn btn-link" >
-                                                                {{ if .detail.SSHour }}
-                                                                    <option value="{{.detail.SSHour}}">{{.detail.SSHour}}</option>
+                                                                {{ if .detail.SSTime }}
+                                                                    <option value="{{.detail.SSTime.Format "15"}}">{{.detail.SSTime.Format "15"}}</option>
                                                                 {{ else }}
                                                                     <option value=""></option>
                                                                 {{ end }}
-                                                                <option value="0">0</option>
-                                                                <option value="1">1</option>
-                                                                <option value="2">2</option>
-                                                                <option value="3">3</option>
-                                                                <option value="4">4</option>
-                                                                <option value="5">5</option>
-                                                                <option value="6">6</option>
+                                                                <option value="00">0</option>
+                                                                <option value="01">1</option>
+                                                                <option value="02">2</option>
+                                                                <option value="03">3</option>
+                                                                <option value="04">4</option>
+                                                                <option value="05">5</option>
+                                                                <option value="06">6</option>
                                                             </select>
                                                         </div>
                                                     </div>
@@ -53,12 +53,12 @@
                                                         <div class="form-group pr-2">
                                                             <label class="bmd-label-floating" >minute</label>
                                                             <select name="minute" class="form-control p-2 m-2" id="minute" data-style="btn btn-link" >
-                                                                {{ if .detail.SSHour }}
-                                                                    <option value="{{.detail.SSMinute}}">{{.detail.SSMinute}}</option>
+                                                                {{ if .detail.SSTime }}
+                                                                    <option value="{{.detail.SSTime.Format "02"}}">{{.detail.SSTime.Format "02"}}</option>
                                                                 {{ else }}
                                                                     <option value=""></option>
                                                                 {{ end }}
-                                                                <option value="0">00</option>
+                                                                <option value="00">00</option>
                                                                 <option value="15">15</option>
                                                                 <option value="30">30</option>
                                                                 <option value="45">45</option>
@@ -103,8 +103,14 @@
                 let data = new FormData();
                 data.append("_csrf", _csrf)
                 data.append("price", Price)
-                data.append("hour", hour)
-                data.append("minute", minute)
+                const Nanosecond = 1
+                const Microsecond = 1000 * Nanosecond
+                const Millisecond = 1000 * Microsecond
+                const Second = 1000 * Millisecond
+                const Minute = 60 * Second
+                const Hour = 60 * Minute
+                data.append("time", (parseInt(hour, 10) * Hour) + (parseInt(minute, 10) * Minute))
+
                 let method = $("form[name='service-item-form']").attr("method")
                 
                 fetch(window.location.href, { method, body: data })

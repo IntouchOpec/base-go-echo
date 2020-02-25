@@ -6,15 +6,11 @@ import (
 
 type EmployeeService struct {
 	orm.ModelBase
-	PSPrice    float64     `form:"price" json:"ps_price"`
-	EmployeeID uint        `json:"employee_id"`
-	ServiceID  uint        `form:"service_id" json:"service_id"`
-	Employee   Employee    `json:"employee" gorm:"ForeignKey:EmployeeID"`
-	Service    Service     `json:"service" gorm:"ForeignKey:ServiceID"`
-	TimeSlots  []*TimeSlot `json:"time_slots"`
-	Bookings   []*Booking  `json:"bookings"`
-	AccountID  uint        `json:"account_id"`
-	Account    Account     `json:"account" gorm:"ForeignKey:AccountID"`
+	PSPrice    float64 `form:"price" json:"ps_price"`
+	EmployeeID uint    `json:"employee_id"`
+	ServiceID  uint    `form:"service_id" json:"service_id"`
+	AccountID  uint    `json:"account_id"`
+	Account    Account `json:"account" gorm:"ForeignKey:AccountID"`
 }
 
 func GetEmployeeServiceDetail(id string) (*EmployeeService, error) {

@@ -22,7 +22,7 @@
                               {{ if (eq .customer.CusDisplayName "") }}
                                 <img class="img" src="https://icon-library.net/images/person-image-icon/person-image-icon-6.jpg" />
                               {{ else }}
-                                <img class="img" src="/files?path={{ .customer.CusPictureURL }}" />
+                                <img class="img" src="{{ .customer.CusPictureURL }}" />
                               {{ end }}
                             </a>
                           </div>

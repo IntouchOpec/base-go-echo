@@ -12,7 +12,7 @@ func ReportListHandler(c *Context) (linebot.SendingMessage, error) {
 	var template string
 	var transactions []*model.Transaction
 	c.DB.Limit(10).Preload("ChatChannel").Preload("Bookings").Where("tran_line_id = ? and chat_channel_id = ?", c.Event.Source.UserID, c.ChatChannel.ID).Find(&transactions)
-	var bookingTimeSlot model.BookingTimeSlot
+	// var bookingTimeSlot model.BookingTimeSlot
 	var bookingServiceItem model.BookingServiceItem
 	var bookingPackage model.BookingPackage
 	var timeStart string
@@ -24,15 +24,15 @@ func ReportListHandler(c *Context) (linebot.SendingMessage, error) {
 	for _, transaction := range transactions {
 		for _, booking := range transaction.Bookings {
 			switch booking.BookingType {
-			case model.BookingTypeSlotTime:
-				c.DB.Preload("TimeSlot", func(db *gorm.DB) *gorm.DB {
-					return db.Preload("EmployeeService", func(db *gorm.DB) *gorm.DB {
-						return db.Preload("Employee").Preload("Service")
-					})
-				}).Find(&bookingTimeSlot)
-				// timeStart = bookingTimeSlot.TimeSlot.TimeStart
-				// timeEnd = bookingTimeSlot.TimeSlot.TimeEnd
-				name = bookingTimeSlot.TimeSlot.EmployeeService.Service.SerName
+			// case model.BookingTypeSlotTime:
+			// 	c.DB.Preload("TimeSlot", func(db *gorm.DB) *gorm.DB {
+			// 		return db.Preload("EmployeeService", func(db *gorm.DB) *gorm.DB {
+			// 			return db.Preload("Employee").Preload("Service")
+			// 		})
+			// 	}).Find(&bookingTimeSlot)
+			// timeStart = bookingTimeSlot.TimeSlot.TimeStart
+			// timeEnd = bookingTimeSlot.TimeSlot.TimeEnd
+			// name = bookingTimeSlot.TimeSlot.EmployeeService.Service.SerName
 			case model.BookingTypeServiceItem:
 				c.DB.Preload("ServiceItem", func(db *gorm.DB) *gorm.DB {
 					return db.Preload("Service")

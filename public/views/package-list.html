@@ -30,7 +30,7 @@
                         <th>Name</th>
                         <th>Detail</th>
                         <th>Order</th>
-                        <th>Type</th>
+                        <th>Price</th>
                         <th>Image</th>
                         <th>Active</th>
                         <th>Create at</th>
@@ -44,7 +44,7 @@
                                 <td>{{.PacName}}</td>
                                 <td>{{.PacDetail}}</td>
                                 <td>{{.PacOrder}}</td>
-                                <td>{{.PacType}}</td>
+                                <td>{{.PacPrice}}</td>
                                 <td><img height="80px" width="80px" src="/files?path={{ .PacImage }}" class="img-fluid mb-2 ml-2 img-thumbnail" /></td>
                                 <td><input type="checkbox" data-toggle="toggle" {{ if .PacIsActive }} checked {{end}} value={{.ID}}></td>
                                 <td>{{ .CreatedAt.Format "Mon Jan 2 2006" }}</td>

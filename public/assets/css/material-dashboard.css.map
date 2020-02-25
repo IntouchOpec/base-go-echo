@@ -2,7 +2,6 @@
 	"version": 3,
 	"file": "dashboard-free.css",
 	"sources": [
-		"../scss/dashboard-free.scss",
 		"../scss/partials/dashboard/core/_variables.scss",
 		"../scss/partials/dashboard/core/variables/_colors.scss",
 		"../scss/partials/dashboard/core/variables/_shadow.scss",

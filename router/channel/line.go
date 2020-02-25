@@ -6,47 +6,36 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/IntouchOpec/base-go-echo/lib"
+	"github.com/IntouchOpec/base-go-echo/lib/dialogflow"
+	"github.com/IntouchOpec/base-go-echo/lib/lineapi"
 	"github.com/IntouchOpec/base-go-echo/model"
 	"github.com/line/line-bot-sdk-go/linebot"
 
 	"github.com/labstack/echo"
 )
 
-// var dp lib.DialogFlowProcessor
-// dp.Init(account.AccProjectID, account.AccAuthJSONFilePath, account.AccLang, account.AccTimeZone)
-// replyDialogflow := dp.ProcessNLP(messageText, customer.CusDisplayName)
-// fmt.Println(replyDialogflow)
 // HandleWebHookLineAPI webhook for connent line api.
 func HandleWebHookLineAPI(c echo.Context) error {
-	db := model.DB()
 	name := c.Param("account")
 	ChannelID := c.Param("ChannelID")
-	var account model.Account
-	var chatChannel model.ChatChannel
-	// var customer model.Customer
-	// var eventLog model.EventLog
 	var con Context
-	con.DB = db
+	con.DB = model.DB()
 
-	if err := db.Where("acc_name = ?", name).Find(&account).Error; err != nil {
+	if err := con.DB.Where("acc_name = ?", name).Find(&con.Account).Error; err != nil {
 		return c.NoContent(http.StatusNotFound)
 	}
-	// , "name = ?", model.NameLIFFIDPayment
 	fmt.Println(name, ChannelID)
-	if err := db.Preload("Settings").Where("cha_channel_id = ?", ChannelID).Find(&chatChannel).Error; err != nil {
+	if err := con.DB.Preload("Settings").Where("cha_channel_id = ?", ChannelID).Find(&con.ChatChannel).Error; err != nil {
 		return c.NoContent(http.StatusNotFound)
 	}
 
-	bot, err := lib.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
+	bot, err := lineapi.ConnectLineBot(con.ChatChannel.ChaChannelSecret, con.ChatChannel.ChaChannelAccessToken)
 
 	if err != nil {
 		fmt.Println(err, "bot", bot)
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	con.Account = account
-	con.ChatChannel = chatChannel
 	events, err := bot.ParseRequest(c.Request())
 	if err != nil {
 		fmt.Println(err, "events", events)
@@ -58,7 +47,7 @@ func HandleWebHookLineAPI(c echo.Context) error {
 
 	for _, event := range events {
 		con.Event = event
-		db.Where("cus_line_id = ? and account_id = ?", event.Source.UserID, account.ID).Find(&con.Customer)
+		con.DB.Where("cus_line_id = ? and account_id = ?", event.Source.UserID, con.Account.ID).Find(&con.Customer)
 		chatAnswer := model.ChatAnswer{}
 		eventType := event.Type
 		chatAnswer.AnsInputType = string(eventType)
@@ -99,15 +88,19 @@ func HandleWebHookLineAPI(c echo.Context) error {
 				messageReply, err = ContentListHandler(&con)
 			case "choive_man":
 				fmt.Println("choive_man")
+			case "checkout":
+				fmt.Println("checkout")
+				messageReply, err = ChackOutHandler(&con)
+			case "status":
 				// messageReply, err = CalandarHandler(&con, postBackAction.DateStr)
 			case "calendar_next":
 				// messageReply, err = CalandarHandler(&con, postBackAction.DateStr)
 			// case "calendar":
 			// 	fmt.Println("calendar")
 			// messageReply, err = ServiceList(&con)
-			case "choose_timeslot":
-				fmt.Println("choose_timeslot")
-				messageReply, err = ServiceListLineHandler(&con)
+			// case "choose_timeslot":
+			// fmt.Println("choose_timeslot")
+			// messageReply, err = ServiceListLineHandler(&con)
 			case "booking":
 				fmt.Println("booking")
 				BookingHandler(&con)
@@ -119,8 +112,12 @@ func HandleWebHookLineAPI(c echo.Context) error {
 		case linebot.EventTypeMessage:
 			switch message := event.Message.(type) {
 			case *linebot.TextMessage:
-				if err := db.Where("account_id = ? and chat_input = ?", account.ID, message.Text).Find(&chatAnswer).Error; err != nil {
-					db.Where("account_id = ? and chat_input = 'error'", account.ID).Find(&chatAnswer)
+				var dp dialogflow.DialogFlowProcessor
+				dp.Init(con.Account.AccProjectID, con.Account.AccAuthJSONFilePath, con.Account.AccLang, con.Account.AccTimeZone)
+				replyDialogflow := dp.ProcessNLP(message.Text, con.Customer.CusDisplayName)
+				fmt.Println(replyDialogflow)
+				if err := con.DB.Where("account_id = ? and chat_input = ?", con.Account.ID, message.Text).Find(&chatAnswer).Error; err != nil {
+					con.DB.Where("account_id = ? and chat_input = 'error'", con.Account.ID).Find(&chatAnswer)
 				}
 				messageReply, err := bot.ReplyLineMessage(chatAnswer)
 				if err != nil {
@@ -134,24 +131,6 @@ func HandleWebHookLineAPI(c echo.Context) error {
 			case *linebot.LocationMessage:
 				messageReply := linebot.NewTextMessage(fmt.Sprintf("%v", message))
 				_, err = bot.ReplyMessage(event.ReplyToken, messageReply).Do()
-				// _, err := bot.ReplyMessage(event.ReplyToken, textMessage).Do()
-				// if err != nil {
-				// 	act := model.ActionLog{
-				// 		ActName:       "LocationMessage",
-				// 		ActStatus:     model.StatusFail,
-				// 		ChatChannelID: chatChannel.ID,
-				// 		CustomerID:    customer.ID}
-				// 	act.CreateAction()
-				// 	return err
-				// }
-				// act := model.ActionLog{
-				// 	ActName:       "LocationMessage",
-				// 	ActStatus:     model.StatusSuccess,
-				// 	ChatChannelID: chatChannel.ID,
-				// 	CustomerID:    customer.ID}
-				// if err := model.DB().Create(&act).Error; err != nil {
-				// 	// return c.JSON(http.StatusBadRequest, err)
-				// }
 			case *linebot.StickerMessage:
 			case *linebot.TemplateMessage:
 			case *linebot.ImagemapMessage:

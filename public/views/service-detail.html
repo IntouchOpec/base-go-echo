@@ -47,8 +47,7 @@
                                 <div class="table-resposive">
                                     <table class="table">
                                         <thead class="text-primary">
-                                            <th>hour</th>
-                                            <th>minute</th>
+                                            <th>Time</th>
                                             <th>Price</th>
                                             <th>Active</th>
                                             <th></th>
@@ -58,8 +57,7 @@
                                             {{ with .detail.ServiceItems }}
                                             {{ range . }}
                                             <tr name="row_{{ .ID }}">
-                                               <td>{{.SSHour}}</td>
-                                               <td>{{.SSMinute}}</td>
+                                               <td>{{.SSTime}}</td>
                                                <td>{{.SSPrice}}</td>
                                                <td>
                                                     <input type="checkbox" value="{{ .ID }}" data-toggle="toggle" {{if .SSIsActive}}checked{{end}}>

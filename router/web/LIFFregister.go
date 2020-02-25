@@ -8,7 +8,7 @@ import (
 	"github.com/jinzhu/gorm"
 
 	. "github.com/IntouchOpec/base-go-echo/conf"
-	"github.com/IntouchOpec/base-go-echo/lib"
+	"github.com/IntouchOpec/base-go-echo/lib/lineapi"
 	"github.com/IntouchOpec/base-go-echo/model"
 	"github.com/labstack/echo"
 	"github.com/line/line-bot-sdk-go/linebot"
@@ -74,7 +74,7 @@ func LIIFRegisterSaveCustomer(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	bot, err := lib.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
+	bot, err := lineapi.ConnectLineBot(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}

@@ -39,56 +39,33 @@
             </div>
             <div class="col-md-12 mt-2">
                 <div class="form-group">
-                    <label class="bmd-label-floating" >condition</label>
-                    <textarea name="pd_condition" value="{{.PromotionDetail.PDCondition}}" type="text" class="form-control" ></textarea>
+                    <label class="bmd-label-floating" >Line_Bot_Designer</label>
+                    <textarea name="pd_Line_Bot_Designer" value="{{.PromotionDetail.PDLineBotDesigner}}" type="text" class="form-control" ></textarea>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
-{{end}}
-{{define "form-Coupon"}}
-<div class="card" name="form-Coupon">
-    <div class="card-header card-header-primary">
-        <h4 class="card-title">Coupon</h4>
-    </div>
-    <div class="card-body">
-        <div class="row">
             <div class="col-md-12 mt-2">
                 <div class="form-group">
-                    <label class="bmd-label-floating" >chat channel</label>
-                    <select name="chat_channel_id" class="form-control" data-style="btn btn-link" >       
-                        {{ if .Coupon.ChatChannelID }}
-                            <option value="{{.Coupon.ChatChannelID}}">
-                                {{ .Coupon.ChatChannel.ChaName }}
-                            </option>
+                    <label class="bmd-label-floating" >target group</label>
+                    <select name="PromotionType" class="form-control" id="PromotionType" data-style="btn btn-link">
+                        {{ if .PromotionDetail.CustomerTypeID }}
+                            <option value="{{.detail.CustomerTypeID}}">{{.detail.PDTargetGroup}}</option>
                         {{ else }}
-                            <option value="">choose type</option>
+                            <option value="">choose target group</option>
                         {{ end }}
-                        {{ with .ChatChannels }}
+                        {{ with .CustomerTypes }}
                         {{ range . }}
-                            <option value="{{.ID}}">{{.ChaName}}</option>
+                            <option value="{{.ID}}">{{.Name}}</option>
                         {{ end }}
                         {{ end }}
+                        <option value="all">all</option>
+                        <option value="unregister">unregister</option>
                     </select>
                 </div>
             </div>
             <div class="col-md-12 mt-2">
                 <div class="form-group">
-                    <label class="bmd-label-floating">StartDate</label>
-                    <input name="prom_start_date" value="{{.Coupon.PromStartDate}}" type="date" class="form-control" >
-                </div>
-            </div>
-            <div class="col-md-12 mt-2">
-                <div class="form-group">
-                    <label class="bmd-label-floating">EndDate</label>
-                    <input name="prom_end_date" value="{{.Coupon.PromEndDate}}" type="date" class="form-control" >
-                </div>
-            </div>
-            <div class="col-md-12 mt-2">
-                <div class="form-group">
                     <label class="bmd-label-floating" >condition</label>
-                    <textarea name="prom_condition" value="{{.Coupon.PromCondition}}" type="text" class="form-control" ></textarea>
+                    <textarea name="pd_condition" value="{{.PromotionDetail.PDCondition}}" type="text" class="form-control" ></textarea>
                 </div>
             </div>
         </div>
@@ -432,12 +409,6 @@
                     $(`div[name="form-Voucher"]`).remove()
                     formTypePromotion.html(`{{ template "form-detail" .PromotionForm }}`)
                     break;
-                case "Coupon":
-                    $(`div[name="form-Promotion"]`).remove()
-                    $(`div[name="form-Voucher"]`).remove()
-                    formTypePromotion.append(`{{ template "form-Coupon" .CouponForm }}${buttonAdd}`)
-                    buttonAddForm(i)
-                    break;
                 case "Voucher":
                     $(`div[name="form-Promotion"]`).remove()
                     $(`div[name="form-Coupon"]`).remove()
@@ -463,7 +434,6 @@
             $(`div[name='form-${PromotionType.val()}']`).each(function( ) {
                 values = []
                 $(this).find("input[type=date]").each(function( ) {
-                    console.log("")
                     let name = $(this).attr('name')
                     if (index === 0) {
                         object.push(name)

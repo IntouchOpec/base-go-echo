@@ -25,7 +25,6 @@ type Customer struct {
 	CustomerType     CustomerType       `json:"customer" gorm:"ForeignKey:CustomerTypeID"`
 	ChatChannels     []*ChatChannel     `gorm:"many2many:chat_channel_customer" json:"chat_channels"`
 	VoucherCustomers []*VoucherCustomer `json:"voucher_customers"`
-	CouponCustomer   []*CouponCustomer  `json:"coupon_customer"`
 	EventLogs        []*EventLog        `json:"even_logs" gorm:"foreignkey:ID"`
 	ActionLogs       []*ActionLog       `json:"action_logs" gorm:"foreignkey:ID"`
 	Bookings         []*Booking         `json:"bookings"`

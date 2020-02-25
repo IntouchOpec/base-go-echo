@@ -42,7 +42,7 @@ type MasterPlace struct {
 	orm.ModelBase
 
 	PlaceID    uint       `json:"place_id"`
-	MPlaAmount int        `json:"m_pla_amount"`
+	MPlaQue    int        `json:"m_pla_que"`
 	MPlaStatus MPlaStatus `json:"m_place_status"`
 	AccountID  uint       `json:"account_id"`
 	MPlaDay    time.Time  `json:"m_pla_day"`

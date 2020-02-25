@@ -5,8 +5,6 @@ import (
 	"log"
 
 	"github.com/IntouchOpec/base-go-echo/conf"
-	"github.com/IntouchOpec/base-go-echo/model"
-
 	"github.com/IntouchOpec/base-go-echo/router"
 )
 
@@ -20,10 +18,6 @@ var (
 )
 
 func init() {
-	flag.StringVar(&confFilePath, "c", DefaultConfFilePath, "配置文件路径")
-	flag.BoolVar(&cmdHelp, "h", false, "帮助")
-	flag.Parse()
-
 }
 
 func main() {
@@ -34,7 +28,7 @@ func main() {
 	if err := conf.InitConfig(confFilePath); err != nil {
 		log.Panic(err)
 	}
+	// model.Initialize()
 	// log.Debugf("run with conf:%s", confFilePath)
-	model.Initialize()
 	router.RunSubdomains(confFilePath)
 }

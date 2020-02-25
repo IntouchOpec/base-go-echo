@@ -2,6 +2,7 @@ package model
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/IntouchOpec/base-go-echo/model/orm"
 	"github.com/labstack/gommon/log"
@@ -41,9 +42,11 @@ func (u *User) SetPassword() error {
 	if len(u.Password) == 0 {
 		return errors.New("Password should not be empty!")
 	}
-	bytePassword := []byte(u.Password)
+	// bytePassword := []byte(u.Password)
 	// Make sure the second param `bcrypt generator cost` between [4, 32)
-	passwordHash, _ := bcrypt.GenerateFromPassword(bytePassword, bcrypt.DefaultCost)
+	// bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+	// HashPassword(password)
+	passwordHash, _ := HashPassword(u.Password)
 	u.Password = string(passwordHash)
 	return nil
 }
@@ -109,8 +112,8 @@ func (u *User) Login() {
 	u.Authenticated = true
 }
 
-func (u *User) GetAccount() string {
-	return u.Account.AccName
+func (u *User) GetAccount() Account {
+	return u.Account
 }
 
 func (u *User) GetAccountID() uint {
@@ -143,13 +146,16 @@ func (u *User) GetById(id interface{}) error {
 	return nil
 }
 
-func (u *User) GetUserByEmailPwd(email string, pwd string) *User {
-	user := User{}
-	if err := DB().Preload("Account").Where("email = ? ", email).First(&user).Error; err != nil {
+func GetUserByEmailPwd(email string, pwd string) *User {
+	var u User
+	if err := DB().Preload("Account").Where("email = ? ", email).First(&u).Error; err != nil {
 		log.Debugf("GetUserByNicknamePwd error: %v", err)
 		return nil
 	}
-	return &user
+	if CheckPasswordHash(pwd, u.Password) {
+		return nil
+	}
+	return &u
 }
 
 func GetUserList() []*User {
@@ -188,4 +194,19 @@ func GetUserDetail(id string) (*User, error) {
 
 func (u User) TableName() string {
 	return "user"
+}
+
+func HashPassword(password string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+	return string(bytes), err
+}
+
+func CheckPasswordHash(password, hash string) bool {
+	fmt.Println(password, hash)
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	fmt.Println("==========", err)
+	if err != nil {
+		return true
+	}
+	return false
 }

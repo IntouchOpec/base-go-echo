@@ -104,7 +104,7 @@ func TimeSlotUpdateHandler(c *Context) error {
 	if err := timeSlot.UpdateTimeSlot(id); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	redirect := fmt.Sprintf("/admin/employee_service/%d", timeSlot.EmployeeService.EmployeeID)
+	redirect := fmt.Sprintf("/admin/employee_service/%d", timeSlot.EmployeeID)
 	return c.JSON(http.StatusOK, redirect)
 }
 

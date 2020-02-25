@@ -65,6 +65,7 @@ func RunSubdomains(confFilePath string) {
 		// AllowOrigins: []string{"http://" + Conf.Server.DomainWeb, "http://" + Conf.Server.DomainApi},
 		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAcceptEncoding, echo.HeaderAuthorization},
 	}))
+	fmt.Println(echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAcceptEncoding, echo.HeaderAuthorization)
 	hosts := InitRoutes()
 	e.Any("/*", func(c echo.Context) (err error) {
 		req := c.Request()

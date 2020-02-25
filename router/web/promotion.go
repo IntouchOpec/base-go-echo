@@ -8,9 +8,12 @@ import (
 	"strconv"
 	"time"
 
+	. "github.com/IntouchOpec/base-go-echo/conf"
+
 	"github.com/IntouchOpec/base-go-echo/lib"
 	"github.com/IntouchOpec/base-go-echo/module/auth"
 	"github.com/jinzhu/gorm"
+	"github.com/line/line-bot-sdk-go/linebot"
 
 	"github.com/IntouchOpec/base-go-echo/model"
 	"github.com/labstack/echo"
@@ -46,8 +49,6 @@ func PromotionDetailHandler(c *Context) error {
 
 	model.DB().Preload("Account").Preload("PromotionDetail", func(db *gorm.DB) *gorm.DB {
 		return db.Preload("ChatChannel")
-	}).Preload("Coupons", func(db *gorm.DB) *gorm.DB {
-		return db.Preload("ChatChannel")
 	}).Preload("Vouchers", func(db *gorm.DB) *gorm.DB {
 		return db.Preload("ChatChannel")
 	}).Where("account_id = ?",
@@ -66,33 +67,31 @@ func PromotionDetailHandler(c *Context) error {
 type PromotionDetailForm struct {
 	PromotionDetail *model.PromotionDetail
 	ChatChannels    []model.ChatChannel
+	CustomerTypes   []model.CustomerType
 }
 type VoucherForm struct {
 	Voucher      *model.Voucher
 	ChatChannels []model.ChatChannel
 }
 
-type CouponForm struct {
-	Coupon       *model.Coupon
-	ChatChannels []model.ChatChannel
-}
-
 func PromotionFormHandler(c *Context) error {
 	promotion := model.Promotion{}
+	customerTypes := []model.CustomerType{}
 	chatChannels := []model.ChatChannel{}
 	accID := auth.Default(c).GetAccountID()
 	db := model.DB()
 	db.Where("account_id = ?", accID).Find(&chatChannels)
-	promotionTypes := []model.PromotionType{model.PromotionPromotionType, model.PromotionTypeCoupon, model.PromotionTypeVoucher}
+	db.Where("account_id = ?", accID).Find(&customerTypes)
+	promotionTypes := []model.PromotionType{model.PromotionPromotionType, model.PromotionTypeVoucher}
 	return c.Render(http.StatusOK, "promotion-form", echo.Map{
 		"method":         "POST",
 		"chatChannels":   chatChannels,
 		"detail":         promotion,
 		"title":          "promotion",
+		"customerTypes":  customerTypes,
 		"promotionTypes": promotionTypes,
-		"PromotionForm":  &PromotionDetailForm{PromotionDetail: &model.PromotionDetail{}, ChatChannels: chatChannels},
+		"PromotionForm":  &PromotionDetailForm{PromotionDetail: &model.PromotionDetail{}, ChatChannels: chatChannels, CustomerTypes: customerTypes},
 		"VoucherForm":    &VoucherForm{Voucher: &model.Voucher{}, ChatChannels: chatChannels},
-		"CouponForm":     &CouponForm{Coupon: &model.Coupon{}, ChatChannels: chatChannels},
 	})
 }
 
@@ -119,7 +118,8 @@ func PromotionPostHandler(c *Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	tx := model.DB().Begin()
+	db := model.DB()
+	tx := db.Begin()
 	promotionModel := model.Promotion{
 		PromTitle:    promotion.Title,
 		PromType:     promotion.PromotionType,
@@ -138,6 +138,7 @@ func PromotionPostHandler(c *Context) error {
 
 	if promotionDetail != "" {
 		var promotionDetailModel model.PromotionDetail
+		var chatChannel model.ChatChannel
 		err := json.Unmarshal([]byte(promotionDetail), &promotionDetailModel)
 		if err != nil {
 			fmt.Println(err)
@@ -150,17 +151,30 @@ func PromotionPostHandler(c *Context) error {
 			tx.Rollback()
 			return c.JSON(http.StatusBadRequest, err)
 		}
-	}
-	coupons := c.FormValue("coupons")
-	if coupons != "" {
-		var couponsModel []*model.Coupon
-		err := json.Unmarshal([]byte(coupons), &couponsModel)
+		db.Find(&chatChannel, promotionDetailModel.ChatChannelID)
+		bot, err := linebot.New(chatChannel.ChaChannelSecret, chatChannel.ChaChannelAccessToken)
+		customers := []model.Customer{}
+		var multicastCall *linebot.MulticastCall
+		db.Preload("CustomerType", "id = ?", promotionDetailModel.CustomerTypeID).Find(&customers)
+		var recipient []string
+		for _, customer := range customers {
+			recipient = append(recipient, customer.CusLineID)
+		}
+		template := fmt.Sprintf(VoucherCard,
+			fmt.Sprintf("https://web.%s/files?path=%s", Conf.Server.Domain, promotionModel.PromImage),
+			promotionModel.PromTitle,
+			promotionModel.PromotionDetail.PDStartDate.Format("2006-01-02"),
+			promotionModel.PromotionDetail.PDEndDate.Format("2006-01-02"),
+			promotionModel.PromotionDetail.PDCondition, promotionModel.PromCode)
+		// promotionDetailModel.PDLineBotDesigner
+		flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(template))
 		if err != nil {
-			tx.Rollback()
 			return c.JSON(http.StatusBadRequest, err)
 		}
-		if err := tx.Model(&promotionModel).Association("Coupons").Append(&couponsModel).Error; err != nil {
-			tx.Rollback()
+		message := linebot.NewFlexMessage(promotion.Name, flexContainer)
+		multicastCall = bot.Multicast(recipient, message)
+		_, err = multicastCall.Do()
+		if err != nil {
 			return c.JSON(http.StatusBadRequest, err)
 		}
 	}
@@ -177,6 +191,7 @@ func PromotionPostHandler(c *Context) error {
 			return c.JSON(http.StatusBadRequest, err)
 		}
 	}
+
 	if err := tx.Commit().Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
@@ -228,15 +243,6 @@ func PromotionCreateDetailHandler(c *Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	switch promotion.PromType {
-	case "Coupon":
-		db.Model(&promotion).Association("Coupons").Append(&model.Coupon{
-			PromStartDate: startDate,
-			PromEndDate:   endDate,
-			PromAmount:    amount,
-			PromCondition: req.Condition,
-			ChatChannelID: uint(chatChannelID),
-			AccountID:     accID,
-		})
 	case "Voucher":
 		db.Model(&promotion).Association("Vouchers").Append(&model.Voucher{
 			PromStartDate: startDate,
@@ -405,3 +411,32 @@ func PromotionDeleteImageHandler(c *Context) error {
 		"detail": promotion,
 	})
 }
+
+var VoucherCard string = `{
+	"type": "bubble",
+	"hero": { "type": "image", "url": "%s", "size": "full", "aspectRatio": "20:13", "aspectMode": "cover" },
+	"body": { "type": "box", "layout": "vertical", "contents": [
+		{ "type": "text", "text": "%s", "weight": "bold", "size": "xl"},
+		{ "type": "box", "layout": "vertical", "margin": "lg", "spacing": "sm", "contents": [
+			{ "type": "box", "layout": "baseline", "contents": [
+				{ "type": "text", "text": "Date", "color": "#aaaaaa", "size": "sm", "flex": 1 },
+				{ "type": "text", "text": "%s", "wrap": true, "color": "#666666", "size": "sm", "flex": 5 } ]
+			},
+			{ "type": "box", "layout": "baseline", "spacing": "sm", "contents": [
+				{ "type": "text", "text": "exp", "color": "#aaaaaa", "flex": 1 },
+				{ "type": "text", "text": "%s", "wrap": true, "color": "#666666", "size": "sm", "flex": 5 } ]
+			},
+			{"type": "text", "margin": "lg", "text": "%s", "align": "center"},
+			{"type": "button", "style": "secondary", "action": { "type": "uri", "label": "%s", "uri": "https://web.linecorp.com" }
+			}
+		  ]
+		}
+	  ]
+	},
+	"footer": { "type": "box", "layout": "vertical", "spacing": "sm", "contents": [
+		{ "type": "button", "style": "link", "height": "sm",
+		  "action": { "type": "uri", "label": "เงื่อนไขการใช้", "uri": "https://web.linecorp.com" } }
+	  ],
+	  "flex": 0
+	}
+  }`

@@ -31,22 +31,24 @@ type Promotion struct {
 	Account            *Account         `gorm:"ForeignKey:AccountID"`
 	Settings           []*Setting       `json:"settings" gorm:"many2many:promotion_setting"`
 	Vouchers           []*Voucher       `json:"vouchers"`
-	Coupons            []*Coupon        `json:"coupons"`
 	PromotionDetail    *PromotionDetail `json:"promotion_detail"`
 }
 
 type PromotionDetail struct {
 	orm.ModelBase
-	PDCondition   string       `json:"pd_condition" gorm:"type:varchar(255)"`
-	PDStartDate   time.Time    `from:"pd_start_date"  json:"pd_start_date"`
-	PDIsActive    bool         `json:"is_active" sql:"default:true" gorm:"default:true"`
-	PDEndDate     time.Time    `from:"pd_end_date"  json:"pd_end_date"`
-	ChatChannelID uint         `form:"chat_channel_id" json:"chat_channel_id"`
-	ChatChannel   *ChatChannel `json:"chat_channel" gorm:"ForeignKey:ChatChannelID"`
-	PromotionID   uint         `json:"promotion_id"`
-	Promotion     *Promotion   `json:"promotion" gorm:"ForeignKey:PromotionID"`
-	AccountID     uint         `json:"account_id"`
-	Account       Account      `gorm:"ForeignKey:AccountID"`
+	PDLineBotDesigner string       `json:"pd_line_bot_designer"`
+	CustomerTypeID    string       `json:"customer_type_id"`
+	CustomerType      CustomerType `json:"customer_type" gorm:"ForeignKey:CustomerTypeID"`
+	PDCondition       string       `json:"pd_condition" gorm:"type:varchar(255)"`
+	PDStartDate       time.Time    `from:"pd_start_date" json:"pd_start_date"`
+	PDIsActive        bool         `json:"is_active" sql:"default:true" gorm:"default:true"`
+	PDEndDate         time.Time    `from:"pd_end_date" json:"pd_end_date"`
+	ChatChannelID     uint         `form:"chat_channel_id" json:"chat_channel_id"`
+	ChatChannel       *ChatChannel `json:"chat_channel" gorm:"ForeignKey:ChatChannelID"`
+	PromotionID       uint         `json:"promotion_id"`
+	Promotion         *Promotion   `json:"promotion" gorm:"ForeignKey:PromotionID"`
+	AccountID         uint         `json:"account_id"`
+	Account           Account      `gorm:"ForeignKey:AccountID"`
 }
 
 type Voucher struct {
@@ -71,32 +73,6 @@ type VoucherCustomer struct {
 	CustomerID uint      `json:"customer_id"`
 	Customer   *Customer `gorm:"ForeignKey:CustomerID" json:"customer"`
 	VCUsed     bool      `json:"v_c_used" sql:"default:false"`
-	AccountID  uint      `json:"account_id"`
-	Account    Account   `gorm:"ForeignKey:AccountID"`
-}
-
-type Coupon struct {
-	orm.ModelBase
-	PromotionID   uint         `json:"promotion_id"`
-	Promotion     Promotion    `json:"promotion" gorm:"ForeignKey:PromotionID"`
-	IsActive      bool         `json:"is_active" gorm:"default:true" sql:"default:true"`
-	ChatChannelID uint         `json:"chat_channel_id"`
-	ChatChannel   *ChatChannel `json:"chat_channel" gorm:"ForeignKey:ChatChannelID"`
-	PromStartDate time.Time    `from:"start_time" gorm:"column:start_time" json:"prom_start_time"`
-	PromEndDate   time.Time    `from:"end_time" gorm:"column:end_time" json:"prom_end_time"`
-	PromAmount    int          `form:"amount" json:"prom_amount"`
-	PromCondition string       `form:"condition" json:"prom_condition"`
-	AccountID     uint         `json:"account_id"`
-	Account       Account      `gorm:"ForeignKey:AccountID"`
-}
-
-type CouponCustomer struct {
-	orm.ModelBase
-	CouponID   uint      `json:"coupon_id"`
-	Coupon     *Coupon   `gorm:"ForeignKey:vouponID" json:"coupon"`
-	CustomerID uint      `json:"customer_id"`
-	Customer   *Customer `gorm:"ForeignKey:CustomerID" json:"customer"`
-	CCStatus   int       `json:"c_c_status" gorm:"default:0"`
 	AccountID  uint      `json:"account_id"`
 	Account    Account   `gorm:"ForeignKey:AccountID"`
 }

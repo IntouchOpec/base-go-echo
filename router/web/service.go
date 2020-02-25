@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/IntouchOpec/base-go-echo/lib"
 	"github.com/IntouchOpec/base-go-echo/model"
@@ -300,9 +301,8 @@ func ServiceItemCreateViewHandlder(c *Context) error {
 }
 
 type Reqsi struct {
-	Price  float64 `form:"price"`
-	Hour   int     `form:"hour"`
-	Minute int     `form:"minute"`
+	Price float64       `form:"price"`
+	Time  time.Duration `form:"time"`
 }
 
 func bindSerI(c *Context) (*model.ServiceItem, error) {
@@ -318,8 +318,7 @@ func bindSerI(c *Context) (*model.ServiceItem, error) {
 	}
 	return &model.ServiceItem{
 		SSPrice:   req.Price,
-		SSHour:    req.Hour,
-		SSMinute:  req.Minute,
+		SSTime:    req.Time,
 		AccountID: accID,
 		ServiceID: uint(u64),
 	}, nil

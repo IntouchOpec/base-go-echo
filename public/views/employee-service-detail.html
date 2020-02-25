@@ -17,7 +17,7 @@
                     <div class="card">
                         <div class="card-header  card-header-primary d-flex justify-content-between">
                             <h4 class="card-title ">{{ .detail.ProvName }}</h4>
-                            <a href="/admin/time_slot/{{ .detail.ID }}/create">
+                            <a href="/admin/time_slot/{{ .id }}/create">
                                 <button class="btn btn-info">
                                   <i class="material-icons">add</i>
                                   Add time slot
@@ -40,8 +40,8 @@
                                             {{ range . }}
                                             <tr name="row_{{ .ID }}">
                                                 <td>{{ .TimeDay }}</td>
-                                                <td>{{ .TimeStartHour }}:{{.TimeStarMinute}}</td>
-                                                <td>{{ .TimeEndHour }}:{{.TimeEndMinute}}</td>
+                                                <td>{{ .TimeStart }}</td>
+                                                <td>{{ .TimeEnd }}</td>
                                                 <td><input type="checkbox" data-toggle="toggle" {{ if .TimeActive }} checked {{end}} value={{.ID}}></td>
                                                 <td class="td-actions text-right">
                                                     <a href="/admin/package/{{ .ID }}/edit">

@@ -63,16 +63,16 @@
                         <label class="bmd-label-floating" >hour</label>
                         <select name="hour" class="form-control" id="hour-${day}" data-style="btn btn-link" >
                             <option value="">-</option>
-                            <option value="1">01</option>
-                            <option value="0">00</option>
-                            <option value="2">02</option>
-                            <option value="3">03</option>
-                            <option value="4">04</option>
-                            <option value="5">05</option>
-                            <option value="6">06</option>
-                            <option value="7">07</option>
-                            <option value="8">08</option>
-                            <option value="9">09</option>
+                            <option value="00">00</option>
+                            <option value="01">01</option>
+                            <option value="02">02</option>
+                            <option value="03">03</option>
+                            <option value="04">04</option>
+                            <option value="05">05</option>
+                            <option value="06">06</option>
+                            <option value="07">07</option>
+                            <option value="08">08</option>
+                            <option value="09">09</option>
                             <option value="10">10</option>
                             <option value="11">11</option>
                             <option value="12">12</option>
@@ -95,7 +95,7 @@
                         <label class="bmd-label-floating" >minute</label>
                         <select name="minute" class="form-control" id="minute-${day}" data-style="btn btn-link" >
                             <option value="">-</option>
-                            <option value="0">00</option>
+                            <option value="00">00</option>
                             <option value="15">15</option>
                             <option value="30">30</option>
                             <option value="45">45</option>
@@ -146,28 +146,42 @@
                     })
                 }
             })
-            timeList
             let data = {}
             dayWeeksData.map(day => {
                 data = {}
-                data.day = day
+                data.time_day = day
+                let hour = ""
+                let minute = ""
                 data.employee_id = parseInt("{{.employeeID}}", 10)
                 $(`#input-service-list div[name=${day}]`).each(function( ) {
+                    let dateStart = new Date(0001, 1, 1, 0, 0, 0, 0)
                     $(this).find("div[name='from'] select[name='hour']").each(function () {
-                        data.time_start_hour = parseInt($(this).val(), 10)
+                        hour = $(this).val()
                     })
                     $(this).find("div[name='from'] select[name='minute']").each(function () {
-                        data.time_start_minute =parseInt($(this).val(), 10)
+                        minute = $(this).val()
                     })
+                    dateStart.setHours(parseInt(hour,10))
+                    dateStart.setMinutes(parseInt(minute, 10)) 
+                    data.time_start = dateStart
+                    // data.time_start = data.time_start[1:data.time_start.length -1]
+                    // dateStart
+                    let dateEnd = new Date(0001, 1, 1, 0, 0, 0, 0)
                     $(this).find("div[name='to'] select[name='hour']").each(function () {
-                        data.time_end_hour =parseInt($(this).val(), 10)
+                        hour = $(this).val()
                     })
                     $(this).find("div[name='to'] select[name='minute']").each(function () {
-                        data.time_end_minute =parseInt($(this).val(), 10)
+                        minute = $(this).val()
                     })
+                    dateEnd.setHours(parseInt(hour,10))
+                    dateEnd.setMinutes(parseInt(minute, 10)) 
+                    data.time_end = dateEnd
+                    // `${hour}:${minute}`
+                    // dateEnd 
                     timeList.push(data)
                 })
             })
+                console.log(timeList)
         })
 
         createTimeslot.validate({
@@ -179,6 +193,7 @@
                 data.append("_csrf", _csrf)
                 data.append("timeSlots", JSON.stringify(timeList))
                 let method = $("form[name='create-time-slot']").attr("method")
+                
                 fetch(window.location.href, {
                     method,
                     body: data

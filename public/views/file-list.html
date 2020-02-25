@@ -106,7 +106,6 @@
                     const data = []
                     let imageEncodeKey = encodeURIComponent("file") 
     
-    
                     let encodeKey = encodeURIComponent("_csrf")
                     let encodedValue = encodeURIComponent(_csrf)
     
@@ -141,6 +140,7 @@
                             
                         })
                         .catch(err => {
+                            console.log(err)
                             Swal.fire("fial", "", "warning")
                         })
                     })

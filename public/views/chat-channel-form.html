@@ -2,7 +2,7 @@
 {{define "chat-channel-form"}}
 <!DOCTYPE html>
 <html lang="en">
-
+      
 {{ template "header" .title }}
 
 <body class="">
@@ -13,6 +13,7 @@
             <div class="content">
                 <div class="container-fluid">
                     <div class="row">
+                        
                             <div class="col-md-8">
                                 <div class="card">
                                     <div class="card-header card-header-primary">
@@ -26,100 +27,105 @@
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating" >Name</label>
-                                                        <input name="name" id="name" type="text" class="form-control" >
+                                                        <input name="name" value="{{.detail.ChaName}}" id="name" type="text" class="form-control" >
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating" >PhoneNumber</label>
-                                                        <input name="phone_number" id="phone_number" type="text" class="form-control" >
+                                                        <input name="phone_number" value="{{.detail.ChaPhoneNumber}}" id="phone_number" type="text" class="form-control" >
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating">ChannelID</label>
-                                                        <input name="channel_id" id="channel_id" type="text" class="form-control" >
+                                                        <input name="channel_id" value="{{.detail.ChaChannelID}}" id="channel_id" type="text" class="form-control" >
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating">LineID</label>
-                                                        <input name="line_id" id="line_id" type="text" class="form-control" >
+                                                        <input name="line_id" value="{{.detail.ChaLineID}}" id="line_id" type="text" class="form-control" >
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating">WebSite</label>
-                                                        <input name="website" id="website" type="text" class="form-control" >
+                                                        <input name="website" value="{{.detail.ChaWebSite}}" id="website" type="text" class="form-control" >
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating">Address</label>
-                                                        <textarea name="address" id="address" type="text" class="form-control" ></textarea>
+                                                        <textarea name="address" id="address" type="text" class="form-control" >{{.detail.ChaAddress}}</textarea>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating">WelcomeMessage</label>
-                                                        <input name="welcome_message" id="welcome_message" type="text" class="form-control" >
+                                                        <input name="welcome_message" value="{{.detail.ChaWelcomeMessage}}" id="welcome_message" type="text" class="form-control" >
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating">ChannelSecret</label>
-                                                        <textarea name="channel_secret" id="channel_secret" type="text" class="form-control" ></textarea>
+                                                        <textarea name="channel_secret" id="channel_secret" type="text" class="form-control" >{{.detail.ChaChannelSecret}}</textarea>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating">ChannelAccessToken</label>
-                                                        <textarea name="channel_access_token" id="channel_access_token" type="text" class="form-control" ></textarea>
+                                                        <textarea name="channel_access_token" id="channel_access_token" type="text" class="form-control" >{{.detail.ChaChannelAccessToken}}</textarea>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label for="exampleFormControlSelect2">Type</label>
                                                         <select name="type" class="form-control" id="type" data-style="btn btn-link">
-                                                            {{ with .typeChatChannels }}
-                                                            {{ range . }}
-                                                                <option value="{{.}}">{{.}}</option>
-                                                            {{ end }}
-                                                            {{ end }}
+                                                            {{ if .detail.ChaType }}
+                                                                <option value="{{.detail.ChaType}}">{{.detail.ChaType}}</option>
+                                                            {{ else }}
+                                                                {{ with .typeChatChannels }}
+                                                                {{ range . }}
+                                                                    <option value="{{.}}">{{.}}</option>
+                                                                {{ end }}
+                                                                {{ end }}
+                                                            {{end}}                     
                                                         </select>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating">Latitude</label>
-                                                        <input name="Latitude" id="Latitude" type="text" class="form-control" >
+                                                        <input name="Latitude" value="{{ if .setting.Latitude}}{{.setting.Latitude}}{{end}}" id="Latitude" type="text" class="form-control" >
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label for="Longitude" class="bmd-label-floating">Longitude</label>
-                                                        <input name="Longitude" id="Longitude" type="text" class="form-control" >
+                                                        <input name="Longitude" value="{{if .setting.Longitude}}{{.setting.Longitude}}{{end}}" id="Longitude" type="text" class="form-control" >
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12 mt-2">
                                                     <div class="form-group">
                                                         <label for="Longitude" class="bmd-label-floating">image</label>
-                                                        <input name="image" id="image" type="text" class="form-control" >
+                                                        <input name="image" value="{{.detail.ChaImage}}" id="image" type="text" class="form-control" >
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating" >ChaOpenDate</label>
-                                                        <input type="time" name="ChaOpenDate" value="{{.detail.ChaOpenDate}}" id="ChaOpenDate" class="form-control">
+                                                        <input type="time"  name="ChaOpenDate" value="{{.detail.ChaOpenDate.Format "15:04"}}" id="ChaOpenDate" class="form-control">
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6 mt-2">
                                                     <div class="form-group">
                                                         <label class="bmd-label-floating" >ChaCloseDate</label>
-                                                        <input type="time" name="ChaCloseDate" value="{{.detail.ChaCloseDate}}" id="ChaCloseDate" class="form-control">
+                                                        <input type="time" name="ChaCloseDate" value="{{.detail.ChaCloseDate.Format "15:04" }}" id="ChaCloseDate" class="form-control">
                                                     </div>
                                                 </div>
                                             </div>
+                                            <div id="map"></div>
                                             <input type="submit" rel="tooltip" value="Submit" class="btn btn-success">
                                         </form>
                                     </div>
@@ -133,8 +139,53 @@
         </div>
     </div>
   {{ template "script" }}
-  <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
-  <script>
+    <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+    <script>
+        var markers = [];
+
+        function initMap() {
+            var lat = "{{.setting.Latitude}}"
+            var lng = "{{.setting.Longitude}}"
+            if (lat === "<no value>"){
+                lat = 13.76076082415235
+                lng = 100.5460212097168
+            } else {
+               lat = parseInt(lat, 10)
+               lng = parseInt(lng, 10)
+            }
+            var uluru = {lat, lng};
+            var map = new google.maps.Map(document.getElementById('map'), {zoom: 13, center: uluru});
+            var marker = new google.maps.Marker({
+                position: uluru,
+                map: map
+            });
+            markers.push(marker)
+            google.maps.event.addListener(map, 'click', function (e) {
+                for (var i = 0; i < markers.length; i++) {
+                    markers[i].setMap(null);
+                }
+                var location = e.latLng;
+                //Create a marker and placed it on the map.
+                var marker = new google.maps.Marker({
+                    position: location,
+                    map: map
+                });
+
+                document.getElementById("Latitude").value = location.lat();
+                document.getElementById("Longitude").value = location.lng();
+                google.maps.event.addListener(marker, "click", function (e) {
+                    var infoWindow = new google.maps.InfoWindow({
+                        content: 'Latitude: ' + location.lat() + '<br />Longitude: ' + location.lng()
+                    });
+                    infoWindow.open(map, marker);
+                });
+                markers.push(marker);
+            });
+        }
+    </script>
+   
+    <script>
+       
     (function ($) {
         $("form[name='form-chat-channel']").validate({
             rules: {
@@ -204,7 +255,7 @@
                 data.append("cha_close_date", ChaCloseDate)
                 data.append("settings", JSON.stringify([
                     {detail: "Latitude เพื่อตอบ location message", name: "Latitude", value: Latitude},
-                    {detail: "Longitude เพื่อตอบ location message", name: "Longitude", value: Latitude,}, 
+                    {detail: "Longitude เพื่อตอบ location message", name: "Longitude", value: Longitude,}, 
                     ]))
                 let method = $("form[name='form-chat-channel']").attr("method")
                 
@@ -225,6 +276,10 @@
         })
     })(jQuery)
   </script>
+        <!-- <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCVBthtEmWi0Ul8mejDQrBlOULXB1kTB3I&callback=myMap"type="text/javascript"></script> -->
+
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDy6RiAcYuyd0mmuIczBJ84u7Wgvc_dqQw&callback=initMap"
+  type="text/javascript"></script>
 </body>
 
 </html>

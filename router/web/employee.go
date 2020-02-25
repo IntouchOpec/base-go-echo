@@ -193,37 +193,45 @@ func EmployeeSerciveListHandler(c *Context) error {
 	db := model.DB()
 	accID := auth.Default(c).GetAccountID()
 	timeSlots := []model.TimeSlot{}
-	if err := db.Where("account_id = ? and employee_id = ?", accID, id).Find(&timeSlots).Error; err != nil {
-		return c.Render(http.StatusNotFound, "404-page", echo.Map{})
-	}
+	queryPar := c.QueryParams()
+	page, limit := SetPagination(queryPar)
+	var total int
+
+	filterTimeSlots := db.Model(&timeSlots).Where("account_id = ? and employee_id = ?", accID, id).Count(&total)
+	pagination := MakePagination(total, page, limit)
+
+	filterTimeSlots.Limit(pagination.Record).Offset(pagination.Offset).Find(&timeSlots)
 	return c.Render(http.StatusOK, "employee-service-detail", echo.Map{
-		"title": "employee",
-		"list":  timeSlots,
+		"title":      "employee",
+		"list":       timeSlots,
+		"id":         id,
+		"pagination": pagination,
 	})
 }
 
 func EmployeeAddServicePostHandler(c *Context) error {
-	var provService model.EmployeeService
+	var ser model.Service
+	var emp model.Employee
 	db := model.DB()
 	accID := auth.Default(c).GetAccountID()
-	price, err := strconv.ParseFloat(c.FormValue("price"), 10)
 	serviceID, err := strconv.ParseUint(c.FormValue("service_id"), 10, 32)
 	employeeID, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	provService.PSPrice = price
-	provService.ServiceID = uint(serviceID)
-	provService.ID = 0
-	provService.AccountID = accID
-	provService.EmployeeID = uint(employeeID)
-	if err := db.Create(&provService).Error; err != nil {
+	if err := db.Where("account_id = ?", accID).Find(&ser, serviceID).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	redirect := fmt.Sprintf("/admin/employee/%d", employeeID)
+	if err := db.Where("account_id = ?", accID).Find(&emp, employeeID).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	if err := db.Model(&emp).Association("Services").Append(&ser).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	redirect := fmt.Sprintf("/admin/employee/%d", emp.ID)
 	return c.JSON(http.StatusCreated, echo.Map{
 		"redirect": redirect,
-		"provs":    provService,
+		"provs":    emp,
 	})
 }
 

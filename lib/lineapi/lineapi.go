@@ -1,4 +1,4 @@
-package lib
+package lineapi
 
 import (
 	"encoding/json"
@@ -24,6 +24,10 @@ const (
 
 	APIEndpointInsightFollowers = "/v2/bot/insight/followers?date=%s"
 )
+
+type Message struct {
+	linebot.SendingMessage
+}
 
 // ConnectLineBot init token connent line.
 func ConnectLineBot(ChannelSecret string, ChannelAccsssToken string) (*ClientLine, error) {
@@ -133,12 +137,12 @@ func SendMessageCustom(action, channelAccsssToken, json string) error {
 	req.Header.Add("Authorization", Auth)
 
 	res, err := cl.Do(req)
-	defer res.Body.Close()
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return err
 	}
-	fmt.Println("body", body)
+	fmt.Println("body", string(body))
+	defer res.Body.Close()
 	return nil
 }
 

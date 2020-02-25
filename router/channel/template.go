@@ -51,6 +51,16 @@ var notFoundVoucher string = `
     }
   }`
 
+var buttonServiceTemplate string = `
+{ "type": "box", "layout": "vertical", "contents": [ { "type": "filler" },
+	{ "type": "box", "layout": "baseline", "spacing": "sm", "action": { "type": "datetimepicker", "data": "%s", "mode": "date", "initial": "%s", "max": "%s", "min": "%s" },"contents": [
+		{ "type": "filler" },
+		{ "type": "text", "text": "%s", "color": "#ffffff", "flex": 0, "offsetTop": "-2px" },
+		{ "type": "filler" }
+		] },
+	{ "type": "filler" } ], "borderWidth": "1px", "cornerRadius": "4px", "spacing": "sm", "borderColor": "#ffffff", "margin": "sm", "height": "40px"
+}`
+
 var serviceTemplate string = `
 { "type": "bubble", "body": { "type": "box", "layout": "vertical", "contents": [
 		{ "type": "image", "url": "%s", "size": "full", "aspectMode": "cover", "aspectRatio": "2:3", "gravity": "top" },
@@ -62,21 +72,12 @@ var serviceTemplate string = `
 				{ "type": "box", "layout": "baseline", "spacing": "sm", "action": { "type": "postback", "data": "%s" },
 				"contents": [
 					{ "type": "filler" },
-					{ "type": "icon", "url": "https://scdn.line-apps.com/n/channel_devcenter/img/flexsnapshot/clip/clip14.png" },
 					{ "type": "text", "text": "Booking Now", "color": "#ffffff", "flex": 0, "offsetTop": "-2px" },
 					{ "type": "filler" }
 				  ] },
 				{ "type": "filler" } ], "borderWidth": "1px", "cornerRadius": "4px", "spacing": "sm", "borderColor": "#ffffff", "margin": "sm", "height": "40px"
 			},
-			{ "type": "box", "layout": "vertical", "contents": [ { "type": "filler" },
-				{ "type": "box", "layout": "baseline", "spacing": "sm", "action": { "type": "datetimepicker", "data": "%s", "mode": "date", "initial": "%s", "max": "%s", "min": "%s" },"contents": [
-					{ "type": "filler" },
-					{ "type": "icon", "url": "https://scdn.line-apps.com/n/channel_devcenter/img/flexsnapshot/clip/clip14.png" },
-					{ "type": "text", "text": "Booking", "color": "#ffffff", "flex": 0, "offsetTop": "-2px" },
-					{ "type": "filler" }
-				  ] },
-				{ "type": "filler" } ], "borderWidth": "1px", "cornerRadius": "4px", "spacing": "sm", "borderColor": "#ffffff", "margin": "sm", "height": "40px"
-			}
+			%s
 		  ], "position": "absolute", "offsetBottom": "0px", "offsetStart": "0px", "offsetEnd": "0px", "backgroundColor": "#9C8E7Ecc", "paddingAll": "20px", "paddingTop": "18px"
 		},
 		{ "type": "box", "layout": "vertical", "contents": [
@@ -162,7 +163,15 @@ var checkoutTemplate string = `{
 		{ "type": "text", "text": "จองสำเร็จ", "weight": "bold", "size": "xl" },
 		{ "type": "box", "layout": "vertical", "margin": "lg", "spacing": "sm", "contents": [
 			{ "type": "box", "layout": "baseline", "spacing": "sm", "contents": [
+				{ "type": "text", "text": "Service", "color": "#aaaaaa", "size": "sm", "flex": 1 },
+				{ "type": "text", "text": "%s", "wrap": true, "color": "#666666", "size": "sm", "flex": 5 }
+			] },
+			{ "type": "box", "layout": "baseline", "spacing": "sm", "contents": [
 				{ "type": "text", "text": "Place", "color": "#aaaaaa", "size": "sm", "flex": 1 },
+				{ "type": "text", "text": "%s", "wrap": true, "color": "#666666", "size": "sm", "flex": 5 }
+			] },
+			{ "type": "box", "layout": "baseline", "spacing": "sm", "contents": [
+				{ "type": "text", "text": "Day", "color": "#aaaaaa", "size": "sm", "flex": 1 },
 				{ "type": "text", "text": "%s", "wrap": true, "color": "#666666", "size": "sm", "flex": 5 }
 			] },
 			{ "type": "box", "layout": "baseline", "spacing": "sm", "contents": [
@@ -347,5 +356,41 @@ var cardPackageTemplate string = `
 		  }
 		}
 	  ]
+	}
+}`
+
+var layoutTimeSlotTemplate string = `{ "type": "box", "layout": "horizontal", "margin": "md", "contents": [%s] }`
+var buttonTimeSlotTemplate string = `
+{ "type": "box", "layout": "vertical", "borderWidth": "1px", "cornerRadius": "4px", "spacing": "sm", "borderColor": "#ffffff", "margin": "xxl", "height": "40px", "contents": [
+		{"type": "filler"},
+		{ "type": "box", "layout": "baseline", "spacing": "sm", "contents": [
+			{ "type": "filler" },
+			{ "type": "text", "text": "%s", "color": "#ffffff", "flex": 0, "offsetTop": "-2px" },
+			{ "type": "filler" } ]
+		},
+		{ "type": "filler" }
+	],
+	"action": { "type": "postback", "data": "%s" }
+}`
+
+var timeSlotTemplate string = `
+{
+	"type": "bubble",
+	"body": {
+	  "type": "box",
+	  "layout": "vertical",
+	  "contents": [
+		{ "type": "image", "url": "https://scdn.line-apps.com/n/channel_devcenter/img/flexsnapshot/clip/clip1.jpg", "size": "full", "aspectMode": "cover", "aspectRatio": "2:3", "gravity": "top" },
+		{ "type": "box", "layout": "vertical", "contents": [ %s ],
+			"position": "absolute",
+			"offsetBottom": "0px",
+			"offsetStart": "0px",
+			"offsetEnd": "0px",
+			"backgroundColor": "#03303Acc",
+			"paddingAll": "20px",
+			"paddingTop": "18px"
+		}
+	  ],
+	  "paddingAll": "0px"
 	}
 }`

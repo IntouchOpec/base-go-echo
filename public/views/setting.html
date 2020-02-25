@@ -90,26 +90,7 @@
                                 </div>
                               {{ end }}
                             </div>
-                            <div class="col-md-12 mt-2">
-                              <div>
-                                  <label class="bmd-label-floating" >AccBookingType</label>
-                              </div>
-                              <div class="form-check form-check-inline" id="booking-type-list" name="booking-type-list">
-                                {{ with .bookingTypes }}
-                                {{ range . }}
-                                <div class="form-check mx-2">
-                                  <label class="form-check-label">
-                                      <input class="form-check-input" {{ if .Checked }} checked {{ end }} type="checkbox" name="{{.Text}}" value="{{.ID}}">
-                                      {{.Text}}
-                                    <span class="form-check-sign">
-                                        <span class="check"></span>
-                                    </span>
-                                  </label>
-                                </div>
-                                {{ end }}
-                                {{ end }}
-                              </div>
-                            </div>
+                           
                             <div class="col-md-12 mt-2">
                               {{ if .detail.AccAuthJSONFilePath }}
                                 <input type="hidden" name="AccAuthJSONFilePath" id="AccAuthJSONFilePath" value="{{.detail.AccAuthJSONFilePath}}">

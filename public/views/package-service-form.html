@@ -28,7 +28,7 @@
                                                             <option value="">choose service </option>
                                                             {{ with .serviceItems }}
                                                             {{ range . }}
-                                                                <option value="{{.ID}}">{{.Service.SerName}} {{.SSName}} {{.SSTime.Format "15:04"}} {{.SSPrice}}</option>
+                                                                <option value="{{.ID}}">{{.Service.SerName}} {{ .SSTime.Format "15:04" }} {{.SSPrice}}</option>
                                                             {{ end }}
                                                             {{ end }}
                                                         </select>

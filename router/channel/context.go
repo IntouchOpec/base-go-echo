@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/IntouchOpec/base-go-echo/lib"
+	"github.com/IntouchOpec/base-go-echo/lib/lineapi"
 	"github.com/IntouchOpec/base-go-echo/model"
 	"github.com/jinzhu/gorm"
 	"github.com/line/line-bot-sdk-go/linebot"
@@ -21,7 +21,7 @@ type Context struct {
 	Account        model.Account
 	ChatChannel    model.ChatChannel
 	Customer       model.Customer
-	ClientLine     *lib.ClientLine
+	ClientLine     *lineapi.ClientLine
 	Event          *linebot.Event
 	PostbackAction *PostbackAction
 }
@@ -30,12 +30,10 @@ type PostbackAction struct {
 	Action        string `json:"action"`
 	Type          string `json:"type"`
 	DateStr       string `json:"date"`
+	TimeStr       string `json:"time"`
 	ServiceID     string `json:"service_id"`
 	ServiceItemID string `json:"service_item_id"`
 	PackageID     string `json:"package_id"`
-	Start         string `json:"start"`
-	End           string `json:"end"`
-	Day           string `json:"day"`
 	TimeSlotID    string `json:"time_slot_id"`
 }
 

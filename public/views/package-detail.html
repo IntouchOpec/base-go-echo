@@ -54,14 +54,14 @@
                                             <th></th>
                                         </thead>
                                         <tbody>
-                                            {{ with .detail.ServiceItems }}
+                                            {{ with .list }}
                                             {{ range . }}
                                                 <tr id="row_service_{{.ID}}" name="row_{{ .ID }}">
                                                     <td>{{.Service.SerName}}</td>
-                                                    <td>{{.SSName}}</td>
+                                                    <td>{{.Service.SerDetail}}</td>
                                                     <td>{{.SSPrice}}</td>
-                                                    <td>{{.SSTime.Format "15:04"}}</td>
-                                                    <td>{{.Service.SerImage}}</td>
+                                                    <td>{{.SSTime.Format "15:02"}}</td>
+                                                    
                                                     <td class="td-actions text-right">
                                                         <button name="service_item" value="{{ .ID }}" name="remove"  type="button" rel="tooltip" class="btn btn-danger">
                                                           <i class="material-icons">close</i>

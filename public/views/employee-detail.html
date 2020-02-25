@@ -51,16 +51,14 @@
                                 <table class="table">
                                     <thead class=" text-primary">
                                         <th>Name</th>
-                                        <th>Price</th>
                                         <th>CreatedAt</th>
                                         <th></th>
                                     </thead>
                                     <tbody>
-                                        {{ with .detail.EmployeeServices }}
+                                        {{ with .detail.Services }}
                                         {{ range . }}
                                             <tr name="row_{{ .ID }}">
-                                                <td>{{ .Service.SerName }}</td>
-                                                <td>{{ .PSPrice }}</td>
+                                                <td>{{ .SerName }}</td>
                                                 <td>{{ .CreatedAt.Format "Mon Jan 2 2006" }}</td>
                                                 <td class="td-actions text-right">
                                                     <a href="/admin/employee_service/{{ .ID }}/edit">

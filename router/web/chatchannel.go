@@ -12,6 +12,7 @@ import (
 
 	. "github.com/IntouchOpec/base-go-echo/conf"
 	"github.com/IntouchOpec/base-go-echo/lib"
+	"github.com/IntouchOpec/base-go-echo/lib/lineapi"
 
 	"github.com/labstack/echo"
 
@@ -226,7 +227,7 @@ func ChatChannelDetailHandler(c *Context) error {
 
 	db.Preload("Promotion").Where("account_id = ? and is_active = ? and chat_channel_id = ?", a.GetAccountID(), true, chatChannel.ID).Find(&vouchers)
 
-	insightFollowers, err := lib.InsightFollowers(chatChannel.ChaChannelAccessToken)
+	insightFollowers, err := lineapi.InsightFollowers(chatChannel.ChaChannelAccessToken)
 	if err != nil {
 		return c.Render(http.StatusOK, "chat-channel-detail", echo.Map{
 			"vouchers":                 vouchers,
@@ -316,6 +317,8 @@ func ChatChannelCreateViewHandler(c *Context) error {
 		"title":            "chat_channel",
 		"mode":             "Create",
 		"method":           "POST",
+		"detail":           model.ChatChannel{},
+		"setings":          map[string]string{},
 		"typeChatChannels": typeChatChannels,
 		"_csrf":            csrfValue,
 	})
@@ -418,7 +421,7 @@ func ChatChannelEditHandler(c *Context) error {
 	a := auth.Default(c)
 
 	db := model.DB()
-	db.Where("account = ?", a.GetAccountID()).Preload("Settings").Find(&chatChannel, id)
+	db.Where("account_id = ?", a.GetAccountID()).Preload("Settings").Find(&chatChannel, id)
 	setting := SetSettingResponse(chatChannel.Settings)
 
 	typeChatChannels := []string{"Facebook", "Line"}

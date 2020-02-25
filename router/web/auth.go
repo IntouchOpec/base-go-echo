@@ -38,28 +38,24 @@ func LoginHandler(c *Context) error {
 
 func LoginPostHandler(c *Context) error {
 	var form LoginForm
-	// redirect := c.QueryParam(auth.RedirectParam)
 	loginURL := c.Request().RequestURI
 	a := c.Auth()
 	response := Response{}
 	if a.User.IsAuthenticated() {
-		// response.Redirect = redirect
 		c.JSON(http.StatusOK, response)
 		return nil
 	}
 
 	if err := c.Bind(&form); err == nil {
-		var User model.User
-		u := User.GetUserByEmailPwd(form.Email, form.Password)
-
-		if u != nil {
+		user := model.GetUserByEmailPwd(form.Email, form.Password)
+		if user != nil {
 			session := c.Session()
-			err := auth.AuthenticateSession(session, u)
+			err := auth.AuthenticateSession(session, user)
 			if err != nil {
 				c.JSON(http.StatusBadRequest, err)
 			}
 			response.Redirect = "/admin/dashboard"
-			response.User = u
+			response.User = user
 
 			c.JSON(http.StatusMovedPermanently, response)
 			return nil
