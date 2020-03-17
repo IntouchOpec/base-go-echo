@@ -207,7 +207,6 @@ func (dc *DialogFlowContent) InitContent(ProjectID, AuthJSONFilePath, Lang, Time
 
 func (dc *DialogFlowContent) GetListContexts(sessionID string) {
 	req := &dialogflowpb.ListContextsRequest{Parent: fmt.Sprintf("projects/%s/agent/sessions/%s", dc.ProjectID, sessionID)}
-	fmt.Println("err", req)
 	resp := dc.ContextsClient.ListContexts(dc.ctx, req)
 	// dc.ContextsClient.UpdateContext
 	fmt.Println("=", resp)

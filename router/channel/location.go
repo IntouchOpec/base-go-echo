@@ -8,18 +8,16 @@ import (
 )
 
 func LocationHandler(c *Context) (linebot.SendingMessage, error) {
-	chatChannel := c.ChatChannel
-	position := chatChannel.GetSetting([]string{"Latitude", "Longitude"})
-	Latitude, err := strconv.ParseFloat(position["Latitude"], 64)
+	Latitude, err := strconv.ParseFloat(c.AccountLine.Settings["Latitude"], 64)
 	if err != nil {
 		fmt.Println(err, "err location")
 		return nil, err
 	}
-	Longitude, err := strconv.ParseFloat(position["Longitude"], 64)
+	Longitude, err := strconv.ParseFloat(c.AccountLine.Settings["Latitude"], 64)
 	if err != nil {
 		fmt.Println(err, "Test")
 		return nil, err
 	}
 
-	return linebot.NewLocationMessage(chatChannel.ChaName, chatChannel.ChaAddress, Latitude, Longitude), nil
+	return linebot.NewLocationMessage(c.AccountLine.ChaName, c.AccountLine.ChaAddress, Latitude, Longitude), nil
 }

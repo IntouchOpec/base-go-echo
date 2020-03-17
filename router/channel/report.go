@@ -24,15 +24,6 @@ func ReportListHandler(c *Context) (linebot.SendingMessage, error) {
 	for _, transaction := range transactions {
 		for _, booking := range transaction.Bookings {
 			switch booking.BookingType {
-			// case model.BookingTypeSlotTime:
-			// 	c.DB.Preload("TimeSlot", func(db *gorm.DB) *gorm.DB {
-			// 		return db.Preload("EmployeeService", func(db *gorm.DB) *gorm.DB {
-			// 			return db.Preload("Employee").Preload("Service")
-			// 		})
-			// 	}).Find(&bookingTimeSlot)
-			// timeStart = bookingTimeSlot.TimeSlot.TimeStart
-			// timeEnd = bookingTimeSlot.TimeSlot.TimeEnd
-			// name = bookingTimeSlot.TimeSlot.EmployeeService.Service.SerName
 			case model.BookingTypeServiceItem:
 				c.DB.Preload("ServiceItem", func(db *gorm.DB) *gorm.DB {
 					return db.Preload("Service")
@@ -192,3 +183,13 @@ var ReviewTemplate string = `{
 	  "flex": 0
 	}
   }`
+
+// case model.BookingTypeSlotTime:
+// 	c.DB.Preload("TimeSlot", func(db *gorm.DB) *gorm.DB {
+// 		return db.Preload("EmployeeService", func(db *gorm.DB) *gorm.DB {
+// 			return db.Preload("Employee").Preload("Service")
+// 		})
+// 	}).Find(&bookingTimeSlot)
+// timeStart = bookingTimeSlot.TimeSlot.TimeStart
+// timeEnd = bookingTimeSlot.TimeSlot.TimeEnd
+// name = bookingTimeSlot.TimeSlot.EmployeeService.Service.SerName

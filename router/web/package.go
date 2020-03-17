@@ -243,18 +243,11 @@ func PackageServiceCreatePostHandler(c *Context) error {
 	if err := db.Preload("ServiceItems").Where("account_id = ?", accID).Find(&packageModel, packageID).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	var sumTimeUsed time.Time
-	// var timemillisecon time.Duration
-	// var Minute int
+	var sumTimeUsed time.Duration
 	if packageModel.ServiceItems != nil {
-		// for _, service := range packageModel.ServiceItems {
-		// Minute = service.SSTime.Minute() * int(time.Minute)
-		// timemillisecon = time.Duration(Minute)
-		// sumTimeUsed = sumTimeUsed.Add(timemillisecon)
-		// Minute = service.SSTime.Hour() * int(time.Hour)
-		// timemillisecon = time.Duration(Minute)
-		// sumTimeUsed = sumTimeUsed.Add(timemillisecon)
-		// }
+		for _, service := range packageModel.ServiceItems {
+			sumTimeUsed += service.SSTime
+		}
 	}
 
 	packageModel.PacTime = sumTimeUsed

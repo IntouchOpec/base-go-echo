@@ -1,61 +1,54 @@
 package api
 
-import (
-	"net/http"
+// func GetPlaceList(c echo.Context) error {
+// 	// a :=
+// 	places, err := model.GetPlaceList(1)
+// 	if err != nil {
+// 		return c.JSON(http.StatusBadRequest, err)
+// 	}
+// 	return c.JSON(http.StatusOK, places)
+// }
 
-	"github.com/IntouchOpec/base-go-echo/model"
-	"github.com/labstack/echo"
-)
+// func GetPlaceDetail(c echo.Context) error {
+// 	id := c.Param("id")
+// 	place, err := model.GetPlaceDetail(id, 1)
+// 	if err != nil {
+// 		return c.JSON(http.StatusBadRequest, err)
+// 	}
+// 	return c.JSON(http.StatusOK, place)
+// }
 
-func GetPlaceList(c echo.Context) error {
-	// a :=
-	places, err := model.GetPlaceList(1)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
-	return c.JSON(http.StatusOK, places)
-}
+// func CreatePlace(c echo.Context) error {
+// 	pla := model.Place{}
+// 	if err := c.Bind(&pla); err != nil {
+// 		return c.JSON(http.StatusBadRequest, err)
+// 	}
+// 	if err := pla.CreatePlace(); err != nil {
+// 		return c.JSON(http.StatusBadRequest, err)
+// 	}
+// 	return c.JSON(http.StatusCreated, pla)
+// }
 
-func GetPlaceDetail(c echo.Context) error {
-	id := c.Param("id")
-	place, err := model.GetPlaceDetail(id, 1)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
-	return c.JSON(http.StatusOK, place)
-}
+// func UpdatePlace(c echo.Context) error {
+// 	id := c.Param("id")
+// 	pla, err := model.GetPlaceDetail(id, 1)
+// 	if err := c.Bind(&pla); err != nil {
+// 		return c.NoContent(http.StatusBadRequest)
+// 	}
 
-func CreatePlace(c echo.Context) error {
-	pla := model.Place{}
-	if err := c.Bind(&pla); err != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
-	if err := pla.CreatePlace(); err != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
-	return c.JSON(http.StatusCreated, pla)
-}
+// 	err = pla.Update()
+// 	if err != nil {
+// 		return c.NoContent(http.StatusInternalServerError)
+// 	}
+// 	return c.JSON(http.StatusOK, pla)
+// }
 
-func UpdatePlace(c echo.Context) error {
-	id := c.Param("id")
-	pla, err := model.GetPlaceDetail(id, 1)
-	if err := c.Bind(&pla); err != nil {
-		return c.NoContent(http.StatusBadRequest)
-	}
+// func DeletePlace(c echo.Context) error {
+// 	id := c.Param("id")
+// 	pla, err := model.DeletePlaceByID(id)
+// 	if err != nil {
+// 		return c.JSON(http.StatusBadRequest, err)
+// 	}
 
-	err = pla.Update()
-	if err != nil {
-		return c.NoContent(http.StatusInternalServerError)
-	}
-	return c.JSON(http.StatusOK, pla)
-}
-
-func DeletePlace(c echo.Context) error {
-	id := c.Param("id")
-	pla, err := model.DeletePlaceByID(id)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
-
-	return c.JSON(http.StatusOK, pla)
-}
+// 	return c.JSON(http.StatusOK, pla)
+// }

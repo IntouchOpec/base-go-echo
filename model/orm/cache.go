@@ -38,7 +38,7 @@ func NewCacheDB(db *gorm.DB, store cache.CacheStore, conf CacheConf) *CacheDB {
 }
 
 // func (c *CacheDB) First(out interface{}, where ...interface{}) *CacheDB {
-// 	sql := gorm2.SQL{}
+// 	sql := gorm.SQLCommon{}
 // 	key := ""
 // 	c.DB = c.FirstSQL(&sql, out, where...)
 // 	if err := c.DB.Error; err != nil {
@@ -58,7 +58,7 @@ func NewCacheDB(db *gorm.DB, store cache.CacheStore, conf CacheConf) *CacheDB {
 // }
 
 // func (c *CacheDB) Last(out interface{}, where ...interface{}) *CacheDB {
-// 	sql := gorm.SQL{}
+// 	sql := gorm.SQLCommon{}
 // 	key := ""
 // 	c.DB = c.DB.LastSQL(&sql, out, where...)
 // 	if err := c.DB.Error; err != nil {
@@ -78,7 +78,7 @@ func NewCacheDB(db *gorm.DB, store cache.CacheStore, conf CacheConf) *CacheDB {
 // }
 
 // func (c *CacheDB) Find(out interface{}, where ...interface{}) *CacheDB {
-// 	sql := gorm.SQL{}
+// 	sql := gorm.SQLCommon{}
 // 	key := ""
 // 	c.DB = c.DB.FindSQL(&sql, out, where...)
 // 	if err := c.DB.Error; err != nil {

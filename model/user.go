@@ -5,8 +5,7 @@ import (
 	"fmt"
 
 	"github.com/IntouchOpec/base-go-echo/model/orm"
-	"github.com/labstack/gommon/log"
-
+	"github.com/IntouchOpec/base-go-echo/module/log"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -204,7 +203,6 @@ func HashPassword(password string) (string, error) {
 func CheckPasswordHash(password, hash string) bool {
 	fmt.Println(password, hash)
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
-	fmt.Println("==========", err)
 	if err != nil {
 		return true
 	}

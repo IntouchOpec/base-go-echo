@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	. "github.com/IntouchOpec/base-go-echo/conf"
-
 	"github.com/IntouchOpec/base-go-echo/lib"
 	"github.com/IntouchOpec/base-go-echo/model"
 	"github.com/IntouchOpec/base-go-echo/module/auth"

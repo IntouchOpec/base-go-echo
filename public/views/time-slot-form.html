@@ -56,6 +56,13 @@
   <script>
 
     (function ($) {
+        Date.prototype.addHours= function(h){
+            this.setHours(this.getHours()+h);
+            return this;
+        }
+        let format = dt => {
+            return `${(dt.getMonth()+1).toString().padStart(2, '0')}-${dt.getDate().toString().padStart(2, '0')}-${dt.getFullYear().toString().padStart(4, '0')} ${dt.getHours().toString().padStart(2, '0')}:${dt.getMinutes().toString().padStart(2, '0')}:${dt.getSeconds().toString().padStart(2, '0')}`
+        }
         let rules = {}
         let messages = {}
         let hour = (day, value) =>  {
@@ -154,34 +161,31 @@
                 let minute = ""
                 data.employee_id = parseInt("{{.employeeID}}", 10)
                 $(`#input-service-list div[name=${day}]`).each(function( ) {
-                    let dateStart = new Date(0001, 1, 1, 0, 0, 0, 0)
+                    let dateStart = new Date('0001-01-01')
                     $(this).find("div[name='from'] select[name='hour']").each(function () {
                         hour = $(this).val()
                     })
                     $(this).find("div[name='from'] select[name='minute']").each(function () {
                         minute = $(this).val()
                     })
-                    dateStart.setHours(parseInt(hour,10))
-                    dateStart.setMinutes(parseInt(minute, 10)) 
-                    data.time_start = dateStart
-                    // data.time_start = data.time_start[1:data.time_start.length -1]
-                    // dateStart
-                    let dateEnd = new Date(0001, 1, 1, 0, 0, 0, 0)
+                    dateStart.setHours(parseInt(hour, 10))
+                    dateStart.setMinutes(parseInt(minute, 10))
+                    
+                    data.time_start = `${hour}:${minute}` //`${hour}:${minute}`// `0001-01-01T${hour}:${minute}:04+06:45` //moment(dateStart).format() //`0000-01-01T${hour}:${minute}:00.000Z`
+                    let dateEnd = new Date('0001-01-01')
                     $(this).find("div[name='to'] select[name='hour']").each(function () {
                         hour = $(this).val()
                     })
                     $(this).find("div[name='to'] select[name='minute']").each(function () {
                         minute = $(this).val()
                     })
-                    dateEnd.setHours(parseInt(hour,10))
-                    dateEnd.setMinutes(parseInt(minute, 10)) 
-                    data.time_end = dateEnd
-                    // `${hour}:${minute}`
-                    // dateEnd 
+                    dateEnd.setHours(parseInt(hour, 10))
+                    dateEnd.setMinutes(parseInt(minute, 10))
+                    data.time_end = `${hour}:${minute}`  //`0001-01-01T${hour}:${minute}:04+06:45` //`0001-01-01 ${hour}:${minute}:00 +0000 UTC` //`0000-01-01T${hour}:${minute}:00.000Z` // dateEnd.toUTCString()
                     timeList.push(data)
+                    console.log(moment(dateStart).format(), '==', dateEnd.toUTCString())
                 })
             })
-                console.log(timeList)
         })
 
         createTimeslot.validate({
@@ -189,29 +193,22 @@
             messages,
             submitHandler: function(form) {
                 let _csrf = $("#_csrf").val()
-                let data = new FormData()
-                data.append("_csrf", _csrf)
-                data.append("timeSlots", JSON.stringify(timeList))
                 let method = $("form[name='create-time-slot']").attr("method")
-                
-                fetch(window.location.href, {
-                    method,
-                    body: data
-                })
-                .then(res => {
-                    dayWeeksData = []
-                    timeList = []
-                    if (res.status !== 201) {
-                        throw ""
+                $.ajax({
+                    url: window.location.href,
+                    data: {_csrf, "timeSlots": JSON.stringify(timeList)},
+                    type: method,
+                    success: function(data) {
+                        Swal.fire("success", "", "success").then(result => {
+                            window.location = data
+                        })
+                        },
+                    error: function(xhr, status, error){
+                        Swal.fire("success", "", "success").then(result => {
+                            window.location = data
+                        })
                     }
-                        return res.json()
                 })
-                .then(data => {
-                    Swal.fire("success", "", "success").then(result => {
-                        window.location = data
-                    })
-                })
-                .catch(err => Swal.fire("fial", "", "warning"))
             }
         })
     })(jQuery)

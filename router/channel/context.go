@@ -1,6 +1,7 @@
 package channel
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/url"
@@ -16,6 +17,8 @@ import (
 type Context struct {
 	echo.Context
 	DB             *gorm.DB
+	sqlDb          *sql.DB
+	AccountLine    *model.AccountLine
 	Source         *linebot.EventSource
 	Massage        *linebot.TextMessage
 	Account        model.Account
@@ -35,6 +38,7 @@ type PostbackAction struct {
 	ServiceItemID string `json:"service_item_id"`
 	PackageID     string `json:"package_id"`
 	TimeSlotID    string `json:"time_slot_id"`
+	EmployeeID    string `json:"employee_id"`
 }
 
 type Pagination struct {

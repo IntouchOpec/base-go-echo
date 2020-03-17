@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/IntouchOpec/base-go-echo/model"
-
 	"github.com/labstack/echo"
 )
 

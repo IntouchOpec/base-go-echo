@@ -43,11 +43,11 @@ func (act *ActionLog) CreateAction() (*ActionLog, error) {
 	return act, nil
 }
 
-func GetActionList(accID string) ([]*ActionLog, error) {
-	acts := []*ActionLog{}
-	db := DB().Where("chat_channel_id = ?", accID)
-	if err := Cache(db).Preload("Customer").Find(&acts).Error; err != nil {
-		return nil, err
-	}
-	return acts, nil
-}
+// func GetActionList(accID string) ([]*ActionLog, error) {
+// 	acts := []*ActionLog{}
+// 	db := DB().Where("chat_channel_id = ?", accID)
+// 	if err := Cache(db).Preload("Customer").Find(&acts).Error; err != nil {
+// 		return nil, err
+// 	}
+// 	return acts, nil
+// }

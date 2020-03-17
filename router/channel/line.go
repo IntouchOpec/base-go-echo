@@ -9,9 +9,8 @@ import (
 	"github.com/IntouchOpec/base-go-echo/lib/dialogflow"
 	"github.com/IntouchOpec/base-go-echo/lib/lineapi"
 	"github.com/IntouchOpec/base-go-echo/model"
-	"github.com/line/line-bot-sdk-go/linebot"
-
 	"github.com/labstack/echo"
+	"github.com/line/line-bot-sdk-go/linebot"
 )
 
 // HandleWebHookLineAPI webhook for connent line api.
@@ -20,11 +19,16 @@ func HandleWebHookLineAPI(c echo.Context) error {
 	ChannelID := c.Param("ChannelID")
 	var con Context
 	con.DB = model.DB()
+	con.sqlDb = model.SqlDB()
+
+	con.AccountLine = model.AccountLineGet(name, ChannelID, con.sqlDb)
+	if con.AccountLine == nil {
+		return c.JSON(http.StatusBadRequest, "")
+	}
 
 	if err := con.DB.Where("acc_name = ?", name).Find(&con.Account).Error; err != nil {
 		return c.NoContent(http.StatusNotFound)
 	}
-	fmt.Println(name, ChannelID)
 	if err := con.DB.Preload("Settings").Where("cha_channel_id = ?", ChannelID).Find(&con.ChatChannel).Error; err != nil {
 		return c.NoContent(http.StatusNotFound)
 	}
@@ -64,10 +68,10 @@ func HandleWebHookLineAPI(c echo.Context) error {
 			postBackActionStr = fmt.Sprintf(fmt.Sprintf("{%s}", postBackActionStr[:len(postBackActionStr)-1]))
 			postBackAction := PostbackAction{}
 			if err := json.Unmarshal([]byte(postBackActionStr), &postBackAction); err != nil {
-				fmt.Println(err)
 				return c.JSON(http.StatusBadRequest, err)
 			}
 			con.PostbackAction = &postBackAction
+			fmt.Println(postBackAction.Action)
 			switch postBackAction.Action {
 			case "location":
 				messageReply, err = LocationHandler(&con)
@@ -93,14 +97,6 @@ func HandleWebHookLineAPI(c echo.Context) error {
 				messageReply, err = ChackOutHandler(&con)
 			case "status":
 				// messageReply, err = CalandarHandler(&con, postBackAction.DateStr)
-			case "calendar_next":
-				// messageReply, err = CalandarHandler(&con, postBackAction.DateStr)
-			// case "calendar":
-			// 	fmt.Println("calendar")
-			// messageReply, err = ServiceList(&con)
-			// case "choose_timeslot":
-			// fmt.Println("choose_timeslot")
-			// messageReply, err = ServiceListLineHandler(&con)
 			case "booking":
 				fmt.Println("booking")
 				BookingHandler(&con)
@@ -137,9 +133,8 @@ func HandleWebHookLineAPI(c echo.Context) error {
 			case *linebot.FlexMessage:
 			}
 			_, err = bot.ReplyMessage(event.ReplyToken, messageReply).Do()
-			if err != nil {
-				fmt.Println("err", err, "ReplyMessage")
-			}
+			// if err != nil {
+			// }
 			return c.JSON(200, "")
 
 		case linebot.EventTypeFollow:

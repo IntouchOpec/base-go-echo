@@ -39,9 +39,11 @@ func ChooseService(c *Context) {
 		serviceFilter.Limit(9).Preload("ServiceItems", "ss_is_active = ?", true).Find(&services)
 		for _, ser := range services {
 			var button string
+			var id uint
 			for _, serI := range ser.ServiceItems {
+				id = serI.ID
 				button += fmt.Sprintf(buttonServiceTemplate,
-					fmt.Sprintf("action=booking&type=appointment&service_item_id=%d", ser.ID),
+					fmt.Sprintf("action=booking&type=appointment&service_item_id=%d", serI.ID),
 					initial,
 					max,
 					min,
@@ -51,10 +53,15 @@ func ChooseService(c *Context) {
 				fmt.Sprintf("https://web.%s/files?path=%s", Conf.Server.Domain, ser.SerImage),
 				ser.SerName,
 				ser.SerPrice,
-				fmt.Sprintf("action=booking&type=now&service_item_id=%d", ser.ID),
+				fmt.Sprintf("action=booking&type=now&service_item_id=%d", id),
 				button[:len(button)-1]) + ","
 		}
 	}
 	m = fmt.Sprintf(`{ "replyToken": "%s", "messages":[ { "type": "flex",  "altText":  "รายการบริการ",  "contents": { "type": "carousel", "contents": [ %s ] } }]}`, c.Event.ReplyToken, m[:len(m)-1])
-	lineapi.SendMessageCustom("reply", c.ChatChannel.ChaChannelAccessToken, m)
+
+	err := lineapi.SendMessageCustom("reply", c.ChatChannel.ChaChannelAccessToken, m)
+	if err != nil {
+		fmt.Println(err, "====")
+	}
+	fmt.Println(err)
 }

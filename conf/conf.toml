@@ -10,6 +10,9 @@ session_store = "REDIS"
 # REDIS,MEMCACHED,IN_MEMORY(IN_MEMORY Default)
 cache_store = "REDIS"
 
+[state]
+is_develop = false
+
 [app]
 name = "Echo Web"
 version = "0.0.1"
@@ -22,8 +25,9 @@ addr = ":8080"
 domain_api = "api.localhost"
 domain_web = "web.localhost"
 domain_socket = "socket.localhost"
-domain_line_channel = "6bbfdf22.ngrok.io"
+domain_line_channel = "234bc78b.ngrok.io"
 domain_static = "localhost"
+domain = "localhotst"
 
 [static]
 # BINDATA,FILE(FILE Default)
@@ -47,7 +51,7 @@ host = "127.0.0.1"
 port = "5432"
 
 [redis]
-server = "cache:6379"
+server = "localhost:6379"
 pwd = "password"
 
 [memcached]

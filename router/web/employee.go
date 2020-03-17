@@ -7,9 +7,8 @@ import (
 	"strconv"
 
 	"github.com/IntouchOpec/base-go-echo/lib"
-	"github.com/IntouchOpec/base-go-echo/module/auth"
-
 	"github.com/IntouchOpec/base-go-echo/model"
+	"github.com/IntouchOpec/base-go-echo/module/auth"
 	"github.com/labstack/echo"
 )
 
@@ -76,7 +75,7 @@ func EmployeePostHandler(c *Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	employee.ProvImage = imagePath
+	employee.EmpoImage = imagePath
 	employee.AccountID = a.GetAccountID()
 
 	if err := c.Bind(&employee); err != nil {
@@ -105,7 +104,7 @@ func EmployeePutHandler(c *Context) error {
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, err)
 		}
-		employee.ProvImage = imagePath
+		employee.EmpoImage = imagePath
 	}
 	db := model.DB()
 	if err := db.Where("account_id = ?", a.GetAccountID()).Find(&employee, id).Error; err != nil {
@@ -264,7 +263,7 @@ func EmployeeDeleteImageHandler(c *Context) error {
 		return c.JSON(http.StatusNotFound, err)
 	}
 	ctx := context.Background()
-	if _, err := lib.RemoveFileGoolgeStorage(ctx, "triple-t", employee.ProvImage); err != nil {
+	if _, err := lib.RemoveFileGoolgeStorage(ctx, "triple-t", employee.EmpoImage); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/IntouchOpec/base-go-echo/model"
 	"github.com/IntouchOpec/base-go-echo/module/auth"
@@ -44,9 +45,17 @@ func TimeSlotCreateHandler(c *Context) error {
 	})
 }
 
+// timeSlots: [{"time_day":6,"employee_id":5,"time_start":"0001-01-01T11:00:04+06:45","time_end":"0001-01-01T11:00:04+06:45"}]
+type timeSlot struct {
+	TimeDay    int    `json:"time_day"`
+	EmployeeID uint   `json:"employee_id"`
+	TimeStart  string `json:"time_start"`
+	TimeEnd    string `json:"time_end"`
+}
+
 func TimeSlotPostHandler(c *Context) error {
 	timeSlotsForm := c.FormValue("timeSlots")
-	var timeSlots []*model.TimeSlot
+	var timeSlots []timeSlot
 	AccountID := auth.Default(c).GetAccountID()
 	err := json.Unmarshal([]byte(timeSlotsForm), &timeSlots)
 	if err != nil {
@@ -55,8 +64,15 @@ func TimeSlotPostHandler(c *Context) error {
 	tx := model.DB().Begin()
 
 	for _, timeSlot := range timeSlots {
-		timeSlot.AccountID = AccountID
-		if err = tx.Create(&timeSlot).Error; err != nil {
+		var timeSlotM model.TimeSlot
+		start, _ := time.Parse("2006-01-02 15:04:01", fmt.Sprintf("0001-01-01 %s:01", timeSlot.TimeStart))
+		end, _ := time.Parse("2006-01-02 15:04:01", fmt.Sprintf("0001-01-01 %s:01", timeSlot.TimeEnd))
+		timeSlotM.TimeDay = timeSlot.TimeDay
+		timeSlotM.EmployeeID = timeSlot.EmployeeID
+		timeSlotM.TimeStart = start.Add(-(7 * time.Hour))
+		timeSlotM.TimeEnd = end.Add(-(7 * time.Hour))
+		timeSlotM.AccountID = AccountID
+		if err = tx.Create(&timeSlotM).Error; err != nil {
 			tx.Rollback()
 		}
 	}

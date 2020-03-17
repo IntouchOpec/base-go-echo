@@ -380,7 +380,7 @@ var timeSlotTemplate string = `
 	  "type": "box",
 	  "layout": "vertical",
 	  "contents": [
-		{ "type": "image", "url": "https://scdn.line-apps.com/n/channel_devcenter/img/flexsnapshot/clip/clip1.jpg", "size": "full", "aspectMode": "cover", "aspectRatio": "2:3", "gravity": "top" },
+		{ "type": "image", "url": "%s", "size": "full", "aspectMode": "cover", "aspectRatio": "2:3", "gravity": "top" },
 		{ "type": "box", "layout": "vertical", "contents": [ %s ],
 			"position": "absolute",
 			"offsetBottom": "0px",

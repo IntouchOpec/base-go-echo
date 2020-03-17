@@ -4,13 +4,11 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/jinzhu/gorm"
-	"github.com/line/line-bot-sdk-go/linebot"
-
-	"github.com/IntouchOpec/base-go-echo/module/auth"
-
 	"github.com/IntouchOpec/base-go-echo/model"
+	"github.com/IntouchOpec/base-go-echo/module/auth"
+	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo"
+	"github.com/line/line-bot-sdk-go/linebot"
 )
 
 const rejectTemplate string = `

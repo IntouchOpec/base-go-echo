@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/IntouchOpec/base-go-echo/model"
-	"github.com/hb-go/gorm"
+	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo"
 )
 

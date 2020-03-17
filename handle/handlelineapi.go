@@ -1,8 +1,8 @@
 package Handler
 
 import (
-	// "github.com/hb-go/gorm"
-	"github.com/hb-go/gorm"
+	// "github.com/jinzhu/gorm"
+	"github.com/jinzhu/gorm"
 	"github.com/line/line-bot-sdk-go/linebot"
 )
 

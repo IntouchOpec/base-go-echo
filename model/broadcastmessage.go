@@ -9,10 +9,8 @@ import (
 	. "github.com/IntouchOpec/base-go-echo/conf"
 	"github.com/IntouchOpec/base-go-echo/lib/uploadgoolgestorage"
 
-	// lib "github.com/IntouchOpec/base-go-echo"
 	"github.com/hb-go/echo-web/model"
 
-	// "github.com/IntouchOpec/base-go-echo/lib"
 	"github.com/line/line-bot-sdk-go/linebot"
 )
 

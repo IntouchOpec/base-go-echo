@@ -23,6 +23,7 @@ type Config struct {
 	SessionStore string `toml:"session_store"`
 	CacheStore   string `toml:"cache_store"`
 
+	State state
 	// name
 	App app
 
@@ -48,6 +49,10 @@ type Config struct {
 
 	// Metrics
 	Metrics metrics
+}
+
+type state struct {
+	IsDevelop bool `toml:"is_develop"`
 }
 
 type app struct {

@@ -3,12 +3,10 @@ package channel
 import (
 	"fmt"
 
-	"github.com/jinzhu/gorm"
-
-	. "github.com/IntouchOpec/base-go-echo/conf"
-
 	"github.com/IntouchOpec/base-go-echo/model"
+	"github.com/jinzhu/gorm"
 	"github.com/line/line-bot-sdk-go/linebot"
+	. "github.com/IntouchOpec/base-go-echo/conf"
 )
 
 func VoucherListHandler(c *Context) (linebot.SendingMessage, error) {

@@ -8,18 +8,14 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/jinzhu/gorm"
-
 	. "github.com/IntouchOpec/base-go-echo/conf"
 	"github.com/IntouchOpec/base-go-echo/lib"
 	"github.com/IntouchOpec/base-go-echo/lib/lineapi"
-
-	"github.com/labstack/echo"
-
-	"github.com/line/line-bot-sdk-go/linebot"
-
 	"github.com/IntouchOpec/base-go-echo/model"
 	"github.com/IntouchOpec/base-go-echo/module/auth"
+	"github.com/jinzhu/gorm"
+	"github.com/labstack/echo"
+	"github.com/line/line-bot-sdk-go/linebot"
 )
 
 type ChatChannelForm struct {

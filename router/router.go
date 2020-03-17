@@ -8,7 +8,6 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/IntouchOpec/base-go-echo/module/log"
 	"github.com/IntouchOpec/base-go-echo/router/api"
 	"github.com/IntouchOpec/base-go-echo/router/channel"
 	"github.com/IntouchOpec/base-go-echo/router/web"
@@ -37,7 +36,7 @@ func InitRoutes() map[string]*Host {
 
 func RunSubdomains(confFilePath string) {
 
-	log.SetLevel(GetLogLvl())
+	// log.SetLevel(GetLogLvl())
 
 	// Server
 	e := echo.New()
@@ -65,7 +64,6 @@ func RunSubdomains(confFilePath string) {
 		// AllowOrigins: []string{"http://" + Conf.Server.DomainWeb, "http://" + Conf.Server.DomainApi},
 		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAcceptEncoding, echo.HeaderAuthorization},
 	}))
-	fmt.Println(echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAcceptEncoding, echo.HeaderAuthorization)
 	hosts := InitRoutes()
 	e.Any("/*", func(c echo.Context) (err error) {
 		req := c.Request()

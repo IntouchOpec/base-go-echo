@@ -5,11 +5,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/jinzhu/gorm"
-
 	"github.com/IntouchOpec/base-go-echo/lib"
 	"github.com/IntouchOpec/base-go-echo/model"
 	"github.com/IntouchOpec/base-go-echo/module/auth"
+	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo"
 )
 

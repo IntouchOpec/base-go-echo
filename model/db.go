@@ -23,7 +23,6 @@ var dbCacheStore cache.CacheStore
 // DB connect data base pastgras.
 func DB() *gorm.DB {
 	// log.Debugf("Model NewDB")
-
 	newDb, err := newDB()
 
 	if err != nil {
@@ -34,7 +33,7 @@ func DB() *gorm.DB {
 	newDb.DB().SetConnMaxLifetime(time.Nanosecond)
 
 	newDb.SetLogger(orm.Logger{})
-	newDb.LogMode(true)
+	newDb.LogMode(Conf.State.IsDevelop)
 	// defer newDb.Close()
 
 	return newDb
@@ -51,10 +50,6 @@ func newDB() (*gorm.DB, error) {
 
 	return db, nil
 
-}
-
-type TestModel struct {
-	Namw string
 }
 
 // Initialize auto migration.
@@ -93,6 +88,7 @@ func Initialize() {
 	newDb.AutoMigrate(&BookingPackage{})
 	newDb.AutoMigrate(&Payment{})
 	newDb.AutoMigrate(&PromotionDetail{})
+	newDb.AutoMigrate(&MasterBooking{})
 }
 
 // CacheStore use cache MEMCACHED or REDIS.

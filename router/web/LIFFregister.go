@@ -5,11 +5,11 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/IntouchOpec/base-go-echo/lib/lineapi"
+	"github.com/IntouchOpec/base-go-echo/model"
 	"github.com/jinzhu/gorm"
 
 	. "github.com/IntouchOpec/base-go-echo/conf"
-	"github.com/IntouchOpec/base-go-echo/lib/lineapi"
-	"github.com/IntouchOpec/base-go-echo/model"
 	"github.com/labstack/echo"
 	"github.com/line/line-bot-sdk-go/linebot"
 )

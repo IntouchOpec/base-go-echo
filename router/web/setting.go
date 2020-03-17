@@ -8,7 +8,6 @@ import (
 	"net/http"
 
 	"github.com/IntouchOpec/base-go-echo/lib"
-
 	"github.com/IntouchOpec/base-go-echo/model"
 	"github.com/IntouchOpec/base-go-echo/module/auth"
 	"github.com/labstack/echo"

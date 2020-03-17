@@ -9,11 +9,10 @@ import (
 
 	"github.com/IntouchOpec/base-go-echo/lib/lineapi"
 	"github.com/IntouchOpec/base-go-echo/lib/uploadgoolgestorage"
+	"github.com/IntouchOpec/base-go-echo/model"
 	"github.com/IntouchOpec/base-go-echo/module/auth"
 	"github.com/labstack/echo"
 	"github.com/line/line-bot-sdk-go/linebot"
-
-	"github.com/IntouchOpec/base-go-echo/model"
 )
 
 func RichMenuListHandler(c *Context) error {

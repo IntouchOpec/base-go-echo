@@ -2,11 +2,12 @@ package channel
 
 import (
 	"fmt"
-
 	. "github.com/IntouchOpec/base-go-echo/conf"
 	"github.com/IntouchOpec/base-go-echo/model"
 	"github.com/line/line-bot-sdk-go/linebot"
 )
+
+// . "github.com/IntouchOpec/base-go-echo/conf"
 
 func ContentListHandler(c *Context) (linebot.SendingMessage, error) {
 	var flexContainerStr string
