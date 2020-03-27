@@ -1,6 +1,7 @@
 package model
 
 import (
+	"database/sql"
 	"fmt"
 	"time"
 
@@ -110,6 +111,12 @@ func CacheStore() cache.CacheStore {
 // Cache config expire time
 func Cache(db *gorm.DB) *orm.CacheDB {
 	return orm.NewCacheDB(db, CacheStore(), orm.CacheConf{
+		Expire: time.Second * 10,
+	})
+}
+
+func CacheSql(db *sql.DB) *orm.CacheSqlDB {
+	return orm.NewCacheDBSql(db, CacheStore(), orm.CacheConf{
 		Expire: time.Second * 10,
 	})
 }

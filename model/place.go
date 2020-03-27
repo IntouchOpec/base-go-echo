@@ -209,6 +209,15 @@ func MakeMasterPlaces(start, end time.Time, accID uint, day time.Time, pla *Plac
 	return mplas, nil
 }
 
+func MakeHour(d time.Time) (time.Time, error) {
+	ho := d.Hour() + 1
+	d, err := time.Parse("2006-01-02", "0001-01-01")
+	if err != nil {
+		return time.Now(), err
+	}
+	return d.Add(time.Duration(ho) * time.Hour), nil
+}
+
 func MakeTime(d time.Time) (time.Time, error) {
 	ho := d.Hour()
 	mi := d.Minute()

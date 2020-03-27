@@ -7,6 +7,7 @@ import (
 	"net/url"
 
 	"github.com/IntouchOpec/base-go-echo/lib/lineapi"
+	"github.com/IntouchOpec/base-go-echo/middleware/session"
 	"github.com/IntouchOpec/base-go-echo/model"
 	"github.com/jinzhu/gorm"
 	"github.com/line/line-bot-sdk-go/linebot"
@@ -53,6 +54,10 @@ type Pagination struct {
 type (
 	HandlerFunc func(*Context) string
 )
+
+func (ctx *Context) Session() session.Session {
+	return session.Default(ctx)
+}
 
 func (pagi Pagination) SetPagination() {
 	if pagi.Offset == 0 {

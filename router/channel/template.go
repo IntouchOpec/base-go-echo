@@ -177,7 +177,8 @@ var checkoutTemplate string = `{
 			{ "type": "box", "layout": "baseline", "spacing": "sm", "contents": [
 				{ "type": "text", "text": "Time", "color": "#aaaaaa", "size": "sm", "flex": 1 },
 				{ "type": "text", "text": "%s - %s", "wrap": true, "color": "#666666", "size": "sm", "flex": 5 }
-			] }
+			] },
+			{ "type": "text", "text": "กรุณาชำระภายใน 15 นาที", "size": "md", "color": "#DC143C" }
 		  ] }
 		  ]
 	},

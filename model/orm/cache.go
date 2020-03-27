@@ -1,6 +1,7 @@
 package orm
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -15,6 +16,12 @@ const (
 
 type CacheDB struct {
 	*gorm.DB
+	store  cache.CacheStore
+	Expire time.Duration
+}
+
+type CacheSqlDB struct {
+	*sql.DB
 	store  cache.CacheStore
 	Expire time.Duration
 }
@@ -37,8 +44,22 @@ func NewCacheDB(db *gorm.DB, store cache.CacheStore, conf CacheConf) *CacheDB {
 	return &newDB
 }
 
+func NewCacheDBSql(db *sql.DB, store cache.CacheStore, conf CacheConf) *CacheSqlDB {
+	switch conf.Expire {
+	case time.Duration(0):
+		conf.Expire = CacheExpireDefault
+	}
+
+	newDB := CacheSqlDB{
+		DB:     db,
+		store:  store,
+		Expire: conf.Expire,
+	}
+	return &newDB
+}
+
 // func (c *CacheDB) First(out interface{}, where ...interface{}) *CacheDB {
-// 	sql := gorm.SQLCommon{}
+// 	sql := &gorm.SQLCommon{}
 // 	key := ""
 // 	c.DB = c.FirstSQL(&sql, out, where...)
 // 	if err := c.DB.Error; err != nil {

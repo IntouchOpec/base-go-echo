@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"reflect"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -96,6 +96,13 @@ type BookingState struct {
 	Name string `json:"name"`
 }
 
+type MBStatus int
+
+const (
+	PanddingMBStatus MBStatus = 0
+	ApproveMBStatus  MBStatus = 1
+)
+
 type MasterBooking struct {
 	orm.ModelBase
 
@@ -107,6 +114,7 @@ type MasterBooking struct {
 	MBDay      time.Time `json:"mb_day"`
 	MBFrom     time.Time `json:"mb_from"`
 	MBTo       time.Time `json:"mb_to"`
+	MBStatus   MBStatus  `json:"mb_status" sql:"default:0"`
 
 	Booking  *Booking  `json:"booking" gorm:ForeignKey:BookingID""`
 	Employee *Employee `json:"employee" gorm:"ForeignKey:EmployeeID"`
@@ -114,9 +122,9 @@ type MasterBooking struct {
 	Account  *Account  `json:"account" gorm:"ForeignKey:AccountID"`
 }
 
-type place struct {
-	id     uint
-	amount int
+type Pla struct {
+	ID     uint
+	Amount int
 }
 
 type employee struct {
@@ -130,7 +138,7 @@ type employee struct {
 func (tran *Transaction) MakeMasterBooking(sql *sql.DB) ([]interface{}, string, error) {
 	var boos []Booking
 	var query string
-	values := []interface{}{}
+	var values []interface{}
 
 	rows, err := sql.Query(`
 		SELECT 
@@ -153,43 +161,145 @@ func (tran *Transaction) MakeMasterBooking(sql *sql.DB) ([]interface{}, string, 
 		LEFT JOIN packages AS pa ON pa.id = bp.package_id AND pa.deleted_at IS NULL 
 		WHERE bo.deleted_at IS NULL AND bo.transaction_id = $1`, tran.ID)
 	if err != nil {
-		fmt.Println("====1 ", err)
 		return nil, "notFound", err
 	}
 	var serIID uint
-	var booPacID uint
+	var booPacID string
 	var emploID uint
 	for rows.Next() {
 		var boo Booking
-		err := rows.Scan(&boo.ID, &boo.BookedStart, &boo.BookedEnd, &boo.BookedDay, &serIID, &booPacID, &emploID)
-		fmt.Println(err)
+		rows.Scan(&boo.ID, &boo.BookedStart, &boo.BookedEnd, &boo.BookedDay, &serIID, &booPacID, &emploID)
 		boos = append(boos, boo)
 	}
-	fmt.Println(emploID, tran.ID)
-	for _, boo := range boos {
-		var empIDs []string
-		var plas []place
-		var plaIDs []string
 
+	for _, boo := range boos {
 		if serIID != 0 {
-			rows, err := sql.Query(`
-				SELECT 
-					pl.id, pl.plac_amount
-				FROM place_service AS ps
-				INNER JOIN places AS pl ON pl.id = ps.place_id AND plac_active = true
-				WHERE service_id = $1 AND pl.deleted_at IS NULL
-				ORDER BY pl.id;`, serIID)
+			values, query, err = SetMasterBookingSer(sql, emploID, serIID, boo)
 			if err != nil {
-				return nil, "notPlace", err
+				return nil, query, err
 			}
-			for rows.Next() {
-				var pla place
-				rows.Scan(&pla.id, &pla.amount)
-				plaIDs = append(plaIDs, fmt.Sprintf("%d", pla.id))
-				plas = append(plas, pla)
+		} else {
+			_, serIDs, err := GetPack(sql, booPacID)
+			if err != nil {
+				fmt.Println("====1")
+				return nil, "", err
 			}
-			if emploID == 0 {
-				rows, err := sql.Query(`
+			values, query, err = setMasterPack(sql, serIDs, boo)
+			if err != nil {
+				return nil, "", err
+			}
+		}
+
+	}
+	return values, query, nil
+}
+
+func setMasterPack(sql *sql.DB, serIDs []string, boo Booking) ([]interface{}, string, error) {
+	values := []interface{}{}
+	var query string
+
+	serIDsStr := strings.Join(serIDs, ",")
+	qePlas := fmt.Sprintf(`
+		SELECT 
+			pl.id, pl.plac_amount, service_id
+		FROM place_service AS ps
+		INNER JOIN places AS pl ON pl.id = ps.place_id AND plac_active = true
+		WHERE service_id IN (%s) AND pl.deleted_at IS NULL
+		GROUP BY service_id, pl.id
+		ORDER BY service_id, pl.id;
+	`, serIDsStr)
+
+	PlaRows, err := sql.Query(qePlas)
+	if err != nil {
+		return nil, "", err
+	}
+	for PlaRows.Next() {
+		PlaRows.Scan()
+	}
+
+	qeEmpo := fmt.Sprintf(`
+		SELECT 
+			e.id 
+		FROM employees AS e
+		INNER JOIN time_slots AS ts ON ts.employee_id = e.id AND ts.deleted_at IS NULL AND time_day = $1 AND time_active = true
+		INNER JOIN employee_service AS es ON e.id = es.employee_id AND service_id IN (%s)
+		WHERE e.deleted_at IS NULL AND e.empo_is_active = true
+		ORDER BY e.id;
+	`, serIDsStr)
+	EmpoRows, err := sql.Query(qeEmpo)
+	if err != nil {
+		return nil, "", err
+	}
+	for EmpoRows.Next() {
+		EmpoRows.Scan()
+	}
+	return values, query, nil
+}
+
+func (boo Booking) MasterBookingSer(plaMDs []MasterBooking) ([]interface{}, string, error) {
+	values := []interface{}{}
+	var query string
+	var plaMD MasterBooking
+	diff := boo.BookedEnd.Sub(boo.BookedStart) / RowDur
+	for i := 0; i < int(diff); i++ {
+		var from time.Time
+		from = boo.BookedStart.Add(RowDur * time.Duration(i))
+		to := boo.BookedStart.Add(RowDur * time.Duration(i+1))
+		plaMD.EmployeeID = boo.BookingServiceItem.EmployeeID
+		plaMD.MBDay = boo.BookedDay
+		plaMD.MBFrom = from
+		plaMD.MBTo = to
+		plaMD.PlaceID = boo.BookingServiceItem.PlaceID
+		if len(plaMDs) == 0 {
+			plaMD.MBQue = 1
+		} else {
+			for _, pla := range plaMDs {
+				if plaMD.MBFrom == pla.MBFrom && pla.MBTo == plaMD.MBTo {
+					plaMD.MBQue = pla.MBQue + 1
+				}
+			}
+		}
+
+		// fmt.Println(plaMD.EmployeeID, emploID)
+		values = append(values,
+			plaMD.MBQue, plaMD.EmployeeID, boo.ID, plaMD.PlaceID, plaMD.MBDay, plaMD.MBFrom, plaMD.MBTo, boo.AccountID)
+		numFields := 8
+		n := i * numFields
+
+		query += `(`
+		for j := 0; j < numFields; j++ {
+			query += `$` + strconv.Itoa(n+j+1) + `,`
+		}
+		query = query + `now(), now()),`
+	}
+	return values, query[:len(query)-1], nil
+}
+
+func SetMasterBookingSer(sql *sql.DB, emploID, serIID uint, boo Booking) ([]interface{}, string, error) {
+	var empIDs []string
+	var plas []Pla
+	var plaIDs []string
+	values := []interface{}{}
+	var query string
+
+	rows, err := sql.Query(`
+		SELECT 
+			pl.id, pl.plac_amount
+		FROM place_service AS ps
+		INNER JOIN places AS pl ON pl.id = ps.place_id AND plac_active = true
+		WHERE service_id = $1 AND pl.deleted_at IS NULL
+		ORDER BY pl.id;`, serIID)
+	if err != nil {
+		return nil, "notPlace", err
+	}
+	for rows.Next() {
+		var pla Pla
+		rows.Scan(&pla.ID, &pla.Amount)
+		plaIDs = append(plaIDs, fmt.Sprintf("%d", pla.ID))
+		plas = append(plas, pla)
+	}
+	if emploID == 0 {
+		rows, err := sql.Query(`
 				SELECT 
 					e.id 
 				FROM employees AS e
@@ -197,126 +307,125 @@ func (tran *Transaction) MakeMasterBooking(sql *sql.DB) ([]interface{}, string, 
 				INNER JOIN employee_service AS es ON e.id = es.employee_id AND service_id = $2
 				WHERE e.deleted_at IS NULL AND e.empo_is_active = true
 				ORDER BY e.id;`, int(boo.BookedDay.Add(7*time.Hour).Weekday()), serIID)
-				if err != nil {
-					return nil, "notEmployee", err
-				}
-				for rows.Next() {
-					var empID uint
-					rows.Scan(&empID)
-					fmt.Println(empID)
-					empIDs = append(empIDs, fmt.Sprintf("%d", empID))
-				}
-			} else {
-				empIDs = append(empIDs, fmt.Sprintf("%d", emploID))
-			}
-			rows, err = sql.Query(`
-			SELECT 
+		if err != nil {
+			return nil, "notEmployee", err
+		}
+		for rows.Next() {
+			var empID uint
+			rows.Scan(&empID)
+			empIDs = append(empIDs, fmt.Sprintf("%d", empID))
+		}
+	} else {
+		empIDs = append(empIDs, fmt.Sprintf("%d", emploID))
+	}
+	rows, err = sql.Query(`
+			SELECT
 				employee_id
-			FROM master_bookings AS mb 
-			WHERE 
+			FROM master_bookings AS mb
+			WHERE
 				deleted_at IS NULL AND employee_id IN ($1) AND account_id = $2 AND mb_day = $3 AND mb_from BETWEEN $4 AND $5 OR mb_to BETWEEN $6 AND $7
 			GROUP BY employee_id
 			ORDER BY employee_id`, strings.Join(empIDs, ","), boo.AccountID, boo.BookedDay,
-				boo.BookedStart, boo.BookedEnd,
-				boo.BookedStart, boo.BookedEnd)
-			fmt.Println(rows, err, "====4")
+		boo.BookedStart, boo.BookedEnd,
+		boo.BookedStart, boo.BookedEnd)
 
-			var emplID uint
-			var isReady bool = true
+	fmt.Println(rows, err, "====4")
 
-			for rows.Next() {
-				rows.Scan(&emplID)
-				for _, empID := range empIDs {
-					iduint, _ := strconv.ParseUint(empID, 10, 64)
-					if emplID == uint(iduint) {
-						isReady = false
-						break
-					}
+	var emplID uint
+	var isReady bool = true
+
+	for rows.Next() {
+		rows.Scan(&emplID)
+		for _, empID := range empIDs {
+			iduint, _ := strconv.ParseUint(empID, 10, 64)
+			if emplID == uint(iduint) {
+				isReady = false
+				break
+			}
+		}
+		if isReady {
+			break
+		}
+	}
+	if emplID == 0 {
+		iduint, _ := strconv.ParseUint(empIDs[0], 10, 64)
+		emplID = uint(iduint)
+	}
+
+	if !isReady {
+		return nil, "notEmployeeReady", errors.New("employee not ready.")
+	}
+
+	rows, err = sql.Query(`
+		SELECT
+			place_id, MAX(mb_que), mb_from, mb_to
+		FROM master_bookings AS mb
+		WHERE
+			deleted_at IS NULL AND place_id IN ($1) AND account_id = $2 AND mb_day = $3 AND mb_from BETWEEN $4 AND $5 OR mb_to BETWEEN $6 AND $7
+		GROUP BY place_id, mb_from, mb_to
+		ORDER BY place_id, mb_from, mb_to`, strings.Join(plaIDs, ","), boo.AccountID, boo.BookedDay,
+		boo.BookedStart, boo.BookedEnd,
+		boo.BookedStart, boo.BookedEnd)
+	var plaMD MasterBooking
+	var plaMDs []MasterBooking
+	var isPlaReady bool = true
+	for _, plaI := range plas {
+		for rows.Next() {
+			// var pla MasterBooking
+			rows.Scan(&plaMD.PlaceID, &plaMD.MBQue, &plaMD.MBFrom, &plaMD.MBTo)
+			if plaI.ID == plaMD.PlaceID {
+				fmt.Println(plaI.Amount, plaMD.MBQue, "plaI.Amount >= plaMD.MBQue")
+				if plaI.Amount <= plaMD.MBQue {
+					plaMDs = make([]MasterBooking, 0)
+					isPlaReady = false
+				} else {
+					plaMDs = append(plaMDs, plaMD)
 				}
-				if isReady {
-					break
-				}
-			}
-			if emplID == 0 {
-				iduint, _ := strconv.ParseUint(empIDs[0], 10, 64)
-				emplID = uint(iduint)
-			}
+				// if len(plas) == 1 {
 
-			if !isReady {
-				return nil, "notEmployeeReady", errors.New("employee not ready.")
+				// } else {
+				// 	plas = plas[1:]
+				// }
 			}
-
-			rows, err = sql.Query(`
-			SELECT 
-				place_id, MAX(mb_que), mb_from, mb_to
-			FROM master_bookings AS mb 
-			WHERE 
-				deleted_at IS NULL AND place_id IN ($1) AND account_id = $2 AND mb_day = $3 AND mb_from BETWEEN $4 AND $5 OR mb_to BETWEEN $6 AND $7
-			GROUP BY place_id, mb_from, mb_to
-			ORDER BY place_id, mb_from, mb_to`, strings.Join(plaIDs, ","), boo.AccountID, boo.BookedDay,
-				boo.BookedStart, boo.BookedEnd,
-				boo.BookedStart, boo.BookedEnd)
-			fmt.Println(err, "====5")
-			var plaMD MasterBooking
-			var plaMDs []MasterBooking
-			var isPlaReady bool = true
-			for _, plaI := range plas {
-				for rows.Next() {
-					// var pla MasterBooking
-					rows.Scan(&plaMD.PlaceID, &plaMD.MBQue, &plaMD.MBFrom, &plaMD.MBTo)
-					if plaI.id == plaMD.PlaceID {
-						if plaI.amount >= plaMD.MBQue {
-							plaMDs = make([]MasterBooking, 0)
-							isPlaReady = false
-						} else {
-							plaMDs = append(plaMDs, plaMD)
-						}
-						plas = plas[1:]
-					}
-				}
-
-				if isPlaReady {
-					break
-				}
-			}
-			if !isPlaReady {
-				return nil, "notPlaceReady", errors.New("place not ready.")
-			}
-			if plaMD.ID == 0 {
-				plaMD.PlaceID = plas[0].id
-				plaMD.MBQue = 1
-			}
-
-			diff := boo.BookedEnd.Sub(boo.BookedStart) / RowDur
-			for i := 0; i < int(diff); i++ {
-				var from time.Time
-				from = boo.BookedStart.Add(RowDur * time.Duration(i))
-				to := boo.BookedStart.Add(RowDur * time.Duration(i+1))
-				plaMD.EmployeeID = emplID
-				plaMD.MBDay = boo.BookedDay
-				plaMD.MBFrom = from
-				plaMD.MBTo = to
-				for _, pla := range plaMDs {
-					if plaMD.MBFrom == pla.MBFrom && pla.MBTo == plaMD.MBTo {
-						plaMD.MBQue = pla.MBQue + 1
-					}
-				}
-				fmt.Println(plaMD.EmployeeID, emplID)
-				values = append(values,
-					plaMD.MBQue, plaMD.EmployeeID, boo.ID, plaMD.PlaceID, plaMD.MBDay, plaMD.MBFrom, plaMD.MBTo)
-				numFields := 7
-				n := i * numFields
-
-				query += `(`
-				for j := 0; j < numFields; j++ {
-					query += `$` + strconv.Itoa(n+j+1) + `,`
-				}
-				query = query[:len(query)-1] + `),`
-			}
-		} else {
-
 		}
 
+		if isPlaReady {
+			break
+		}
+	}
+	fmt.Println("isPlaReady", isPlaReady)
+	if !isPlaReady {
+		return nil, "notPlaceReady", errors.New("place not ready.")
+	}
+	if plaMD.ID == 0 {
+		plaMD.PlaceID = plas[0].ID
+		plaMD.MBQue = 1
+	}
+
+	diff := boo.BookedEnd.Sub(boo.BookedStart) / RowDur
+	for i := 0; i < int(diff); i++ {
+		var from time.Time
+		from = boo.BookedStart.Add(RowDur * time.Duration(i))
+		to := boo.BookedStart.Add(RowDur * time.Duration(i+1))
+		plaMD.EmployeeID = emplID
+		plaMD.MBDay = boo.BookedDay
+		plaMD.MBFrom = from
+		plaMD.MBTo = to
+		for _, pla := range plaMDs {
+			if plaMD.MBFrom == pla.MBFrom && pla.MBTo == plaMD.MBTo {
+				plaMD.MBQue = pla.MBQue + 1
+			}
+		}
+		values = append(values,
+			plaMD.MBQue, plaMD.EmployeeID, boo.ID, plaMD.PlaceID, plaMD.MBDay, plaMD.MBFrom, plaMD.MBTo, boo.AccountID)
+		numFields := 8
+		n := i * numFields
+
+		query += `(`
+		for j := 0; j < numFields; j++ {
+			query += `$` + strconv.Itoa(n+j+1) + `,`
+		}
+		query = query[:len(query)-1] + `),`
 	}
 	return values, query[:len(query)-1], nil
 }
@@ -339,7 +448,7 @@ func (b *Booking) CreateSql(tx *sql.Tx) error {
 }
 
 func CreateMasterBooking(vStr string, sql *sql.Tx, values []interface{}) error {
-	stmt, err := sql.Prepare(fmt.Sprintf("INSERT INTO master_bookings (mb_que,employee_id,booking_id,place_id,mb_day,mb_from,mb_to) VALUES %s ", vStr))
+	stmt, err := sql.Prepare(fmt.Sprintf("INSERT INTO master_bookings (mb_que,employee_id,booking_id,place_id,mb_day,mb_from,mb_to,account_id, created_at, updated_at) VALUES %s ", vStr))
 	if err != nil {
 		return err
 	}
@@ -496,7 +605,7 @@ type serEmp struct {
 }
 
 type sersPla struct {
-	plas []place
+	plas []Pla
 	id   uint
 }
 
@@ -506,11 +615,160 @@ type pack struct {
 	sersPlas []sersPla
 }
 
-func clear(v interface{}) {
-	p := reflect.ValueOf(v).Elem()
-	p.Set(reflect.Zero(p.Type()))
+func (b *Booking) PackAppoint(db *sql.DB, pack Pack, serIDs []string, d time.Time) error {
+	var strSerIDs string
+	for i := 3; i < len(serIDs)+3; i++ {
+		strSerIDs += fmt.Sprintf("%s,", serIDs[i-3])
+	}
+	strSerIDs = fmt.Sprintf("(%s)", strSerIDs[:len(strSerIDs)-1])
+	qe := fmt.Sprintf(`
+	SELECT 
+		es.service_id, es.employee_id 
+	FROM employee_service AS es
+	INNER JOIN time_slots AS ts ON ts.employee_id = es.employee_id 
+		AND ts.deleted_at IS NULL 
+		AND time_day = $1
+		AND time_start < $2 
+	INNER JOIN employees AS e ON e.id = es.employee_id AND e.deleted_at IS NULL AND e.empo_is_active = true
+	WHERE es.service_id IN %s
+	ORDER BY es.service_id, es.employee_id`, strSerIDs)
+	rows, err := db.Query(qe, int(d.Weekday()), d)
+	if err != nil {
+		return err
+	}
+	var serEmps []serEmp
+	var serID string
+	var empID uint
+	var serEmpSt serEmp
+	for rows.Next() {
+		rows.Scan(&serID, &empID)
+		idStr := fmt.Sprintf("%d", serEmpSt.id)
+		if serID == idStr {
+			serEmpSt.emps = append(serEmpSt.emps, empID)
+		} else {
+			if serID != "" {
+				uintID, _ := strconv.ParseUint(serID, 10, 64)
+				serEmpSt.id = uint(uintID)
+				serEmps = append(serEmps, serEmpSt)
+				serEmpSt.emps = append(serEmpSt.emps, empID)
+
+				serEmpSt = serEmp{}
+			}
+		}
+		serID = idStr
+	}
+	// fmt.Println(empID)
+	if len(serEmps) == 0 {
+		if empID != 0 {
+			uintID, _ := strconv.ParseUint(serID, 10, 64)
+			serEmpSt.id = uint(uintID)
+			serEmpSt.emps = append(serEmpSt.emps, empID)
+			serEmps = append(serEmps, serEmpSt)
+		} else {
+			return errors.New("not found employee")
+		}
+	}
+	rows, err = db.Query(fmt.Sprintf(`
+			SELECT 
+				ps.service_id, pl.id, pl.plac_amount
+			FROM places AS pl
+			INNER JOIN place_service AS ps ON ps.place_id = pl.id AND service_id in %s
+			WHERE pl.deleted_at IS NULL 
+			GROUP BY ps.service_id, pl.id, pl.plac_amount
+			ORDER BY pl.id`, strSerIDs))
+	if err != nil {
+		return err
+	}
+	var pla sersPla
+	var p Pla
+	var sersPlas []sersPla
+	serID = ""
+	for rows.Next() {
+		var amount int
+		var plaID uint
+		var id uint
+		rows.Scan(&id, &plaID, &amount)
+		idStr := fmt.Sprintf("%d", plaID)
+		if serID == idStr {
+			p.ID = id
+			p.Amount = amount
+			pla.plas = append(pla.plas, p)
+		} else {
+			if serID != "" {
+				uintID, _ := strconv.ParseUint(serID, 10, 64)
+				pla.id = uint(uintID)
+				sersPlas = append(sersPlas, pla)
+				p = Pla{}
+			}
+		}
+	}
+	if len(sersPlas) == 0 {
+		uintID, _ := strconv.ParseUint(serID, 10, 64)
+		pla.id = uint(uintID)
+		sersPlas = append(sersPlas, pla)
+	}
+	return nil
 }
 
+func (b *Booking) MakeMBPacks(db *sql.DB, pack *Pack, serIDs []string) error {
+	var strSerIDs string
+
+	for i := 0; i < len(serIDs); i++ {
+		strSerIDs += serIDs[i] + ","
+	}
+	strSerIDs = fmt.Sprintf("(%s)", strSerIDs[:len(strSerIDs)-1])
+	qe := fmt.Sprintf(`
+		SELECT 
+			es.employee_id ,
+			ts.time_end, ts.time_start, ts.id,
+			e.empo_image
+		FROM employee_service AS es
+		INNER JOIN employees AS e ON e.id = es.employee_id AND e.deleted_at IS NULL
+		INNER JOIN time_slots AS ts ON ts.employee_id = es.employee_id AND ts.deleted_at IS NULL
+			AND ts.deleted_at IS NULL 
+			AND time_day = $1 
+			AND time_start < $2
+			AND time_end < $3
+			AND ts.time_active = true
+		WHERE es.service_id IN %s
+		ORDER BY es.employee_id`, serIDs)
+	rows, err := db.Query(qe, int(b.BookedDay.Weekday()), b.BookedStart, b.BookedEnd)
+	if err != nil {
+		return err
+	}
+	var serEmps []*serEmp
+	var serID string
+	var empID uint
+	var serEmpSt *serEmp
+	for rows.Next() {
+		rows.Scan(&serID, &empID)
+		idStr := fmt.Sprintf("%d", serEmpSt.id)
+		if serID == idStr {
+			serEmpSt.emps = append(serEmpSt.emps, empID)
+		} else {
+			if serID != "" {
+				uintID, _ := strconv.ParseUint(serID, 10, 64)
+				serEmpSt.id = uint(uintID)
+				serEmps = append(serEmps, serEmpSt)
+				serEmpSt.emps = append(serEmpSt.emps, empID)
+				serEmpSt = &serEmp{}
+			}
+		}
+		serID = idStr
+	}
+	if len(serEmps) == 0 {
+		if empID != 0 {
+			uintID, _ := strconv.ParseUint(serID, 10, 64)
+			serEmpSt.id = uint(uintID)
+			serEmpSt.emps = append(serEmpSt.emps, empID)
+			serEmps = append(serEmps, serEmpSt)
+		} else {
+			return errors.New("not found employee")
+		}
+	}
+
+	return nil
+}
 func (b *Booking) PackNow(db *sql.DB, pack Pack, serIDs []string) error {
 	d := time.Now()
 	var sersPlas []sersPla
@@ -535,35 +793,42 @@ func (b *Booking) PackNow(db *sql.DB, pack Pack, serIDs []string) error {
 	INNER JOIN employees AS e ON e.id = es.employee_id AND e.deleted_at IS NULL AND e.empo_is_active = true
 	WHERE es.service_id IN %s
 	ORDER BY es.service_id, es.employee_id`, strSerIDs)
-	rows, err := db.Query(qe, int(d.Weekday()), start, end)
+
+	rows, err := db.Query(qe, int(d.Weekday()), start.Add(-7*time.Hour), end.Add(-7*time.Hour))
 	if err != nil {
 		return err
 	}
 	var serEmps []serEmp
 	var serID string
 	var empID uint
-	var serEmp serEmp
+	var serEmpSt serEmp
 	for rows.Next() {
 		rows.Scan(&serID, &empID)
-		idStr := fmt.Sprintf("%d", serEmp.id)
+		fmt.Println(empID)
+		idStr := fmt.Sprintf("%d", serEmpSt.id)
 		if serID == idStr {
-			serEmp.emps = append(serEmp.emps, empID)
+			serEmpSt.emps = append(serEmpSt.emps, empID)
 		} else {
 			if serID != "" {
 				uintID, _ := strconv.ParseUint(serID, 10, 64)
-				serEmp.id = uint(uintID)
-				serEmps = append(serEmps, serEmp)
-				serEmp.emps = append(serEmp.emps, empID)
-				clear(serEmp)
+				serEmpSt.id = uint(uintID)
+				serEmps = append(serEmps, serEmpSt)
+				serEmpSt.emps = append(serEmpSt.emps, empID)
+				serEmpSt = serEmp{}
 			}
 		}
 		serID = idStr
 	}
+
 	if len(serEmps) == 0 {
-		uintID, _ := strconv.ParseUint(serID, 10, 64)
-		serEmp.id = uint(uintID)
-		serEmp.emps = append(serEmp.emps, empID)
-		serEmps = append(serEmps, serEmp)
+		if empID != 0 {
+			uintID, _ := strconv.ParseUint(serID, 10, 64)
+			serEmpSt.id = uint(uintID)
+			serEmpSt.emps = append(serEmpSt.emps, empID)
+			serEmps = append(serEmps, serEmpSt)
+		} else {
+			return errors.New("not found employee")
+		}
 	}
 	rows, err = db.Query(fmt.Sprintf(`
 			SELECT 
@@ -577,7 +842,7 @@ func (b *Booking) PackNow(db *sql.DB, pack Pack, serIDs []string) error {
 		return err
 	}
 	var pla sersPla
-	var p place
+	var p Pla
 	serID = ""
 	for rows.Next() {
 		var amount int
@@ -586,8 +851,8 @@ func (b *Booking) PackNow(db *sql.DB, pack Pack, serIDs []string) error {
 		rows.Scan(&id, &plaID, &amount)
 		idStr := fmt.Sprintf("%d", plaID)
 		if serID == idStr {
-			p.id = id
-			p.amount = amount
+			p.ID = id
+			p.Amount = amount
 			pla.plas = append(pla.plas, p)
 		} else {
 			if serID != "" {
@@ -595,12 +860,14 @@ func (b *Booking) PackNow(db *sql.DB, pack Pack, serIDs []string) error {
 				pla.id = uint(uintID)
 
 				sersPlas = append(sersPlas, pla)
-				clear(pla)
+				pla = sersPla{}
 			}
 		}
 	}
 	if len(sersPlas) == 0 {
-
+		uintID, _ := strconv.ParseUint(serID, 10, 64)
+		pla.id = uint(uintID)
+		sersPlas = append(sersPlas, pla)
 	}
 	d, _ = time.Parse("2006-01-02", d.Format("2006-01-02"))
 	fmt.Println(d, start, end)
@@ -611,37 +878,94 @@ func (b *Booking) PackNow(db *sql.DB, pack Pack, serIDs []string) error {
 	return nil
 }
 
-func (b *Booking) Now(db *sql.DB, serI ServiceItem) error {
-	var emploIDs []string
+type EmploTimeSlot struct {
+	EmployeeID string
+	Start      time.Time
+	End        time.Time
+	MBs        []TimeSpent
+}
+
+type TimeSpent struct {
+	Start time.Time
+	End   time.Time
+}
+type ByTimeSpent []EmploTimeSlot
+
+func (a ByTimeSpent) Len() int {
+	return len(a)
+}
+
+func (a ByTimeSpent) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a ByTimeSpent) Less(i, j int) bool {
+	switch {
+	case len(a[j].MBs) == 0:
+		return true
+	case a[i].MBs[0].End.Before(a[j].MBs[0].End):
+		return true
+	default:
+		return false
+	}
+}
+
+func inTimeSpan(start, end, check time.Time) bool {
+	if start.Before(end) {
+		return !check.Before(start) && !check.After(end)
+	}
+	if start.Equal(end) {
+		return check.Equal(start)
+	}
+	return !start.After(check) || !end.Before(check)
+}
+
+func (ets EmploTimeSlot) EmploYeeReady(start, end time.Time) bool {
+	if !inTimeSpan(ets.Start, ets.End, start) && !inTimeSpan(ets.Start, ets.End, end) {
+		return false
+	}
+
+	for _, ms := range ets.MBs {
+		if inTimeSpan(ms.Start, ms.End, start) && inTimeSpan(ms.Start, ms.End, end) {
+			return false
+		}
+	}
+	return true
+}
+
+func (b *Booking) ServiceItemNow(db *sql.DB, serI ServiceItem) ([]MasterBooking, error) {
+	var emplos []EmploTimeSlot
+	var emploIDs string
 	var plaIDs []string
-	var plas []place
+	var plas []Pla
 	d := time.Now()
+	day, _ := time.Parse("2006-01-02", d.Format("2006-01-02"))
+
 	start, end, err := MakeTimeStartAndTimeEnd(d, serI.SSTime)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	start, end = start.Add(-(7 * time.Hour)), end.Add(-(7 * time.Hour))
 	rows, err := db.Query(`
 			SELECT 
-				es.employee_id 
+				es.employee_id, time_start, time_end
 			FROM employee_service AS es
 			INNER JOIN time_slots AS ts ON ts.employee_id = es.employee_id 
 				AND ts.deleted_at IS NULL 
 				AND time_day = $1
 				AND time_start < $2 
-				AND time_end > $3
-			WHERE es.service_id = $4 AND deleted_at IS NULL
-			ORDER BY es.employee_id`, int(d.Weekday()), start, end, serI.Service.ID)
+			WHERE es.service_id = $3 AND deleted_at IS NULL
+			ORDER BY es.employee_id`, int(d.Weekday()), start, serI.Service.ID)
+	// fmt.Println(int(d.Weekday()), start, serI.Service.ID)
+	// AND time_end > $3
 	if err == nil {
 		for rows.Next() {
-			var id string
-			rows.Scan(&id)
-			// fmt.Println(id, "=id")
-			emploIDs = append(emploIDs, id)
+			var emplo EmploTimeSlot
+			rows.Scan(&emplo.EmployeeID, &emplo.Start, &emplo.End)
+			// fmt.Println(emplos, "=id")
+			emploIDs += emplo.EmployeeID + ","
+			emplos = append(emplos, emplo)
 		}
 	}
-	if len(emploIDs) == 0 {
-		return errors.New("not employee")
+	if len(emplos) == 0 {
+		return nil, errors.New("not employee")
 	}
 	rows, err = db.Query(`
 			SELECT 
@@ -652,50 +976,133 @@ func (b *Booking) Now(db *sql.DB, serI ServiceItem) error {
 			GROUP BY pl.id, pl.plac_amount
 			ORDER BY pl.id`, serI.Service.ID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	for rows.Next() {
-		var pla place
-		rows.Scan(&pla.id, pla.amount)
-		plaIDs = append(plaIDs, fmt.Sprintf("%d", pla.id))
+		var pla Pla
+		rows.Scan(&pla.ID, pla.Amount)
+		plaIDs = append(plaIDs, fmt.Sprintf("%d", pla.ID))
 		plas = append(plas, pla)
 	}
 	if len(plaIDs) == 0 {
-		return errors.New("")
+		return nil, errors.New("")
 	}
-	rows, err = db.Query(`
+	emploIDs = emploIDs[:len(emploIDs)-1]
+	qe := fmt.Sprintf(`
 		SELECT 
-			employee_id
+			employee_id, mb_from, mb_to
 		FROM master_bookings AS mb 
 		WHERE 
-			deleted_at IS NULL AND employee_id IN ($1) AND account_id = $2 AND mb_day = $3 AND mb_from BETWEEN $4 AND $5 OR mb_to BETWEEN $6 AND $7
-		GROUP BY employee_id
-		ORDER BY employee_id`, strings.Join(emploIDs, ","), b.AccountID, d,
-		start, end, start, end)
-	var emplID uint
+			deleted_at IS NULL AND employee_id IN (%s) AND account_id = $1 AND mb_day = $2 AND mb_from > $3
+		GROUP BY employee_id, mb_from, mb_to
+		ORDER BY employee_id, mb_from, mb_to`, emploIDs)
+	rows, err = db.Query(qe, b.AccountID, day, start)
+	var Mbs []MasterBooking
 	var isReady bool = true
-	if err == nil {
-		for rows.Next() {
-			rows.Scan(&emplID)
-			for _, empID := range emploIDs {
-				iduint, _ := strconv.ParseUint(empID, 10, 64)
-				if emplID == uint(iduint) {
+	var emplID uint
+	for rows.Next() {
+		var Mb MasterBooking
+		rows.Scan(&Mb.EmployeeID, &Mb.MBFrom, &Mb.MBTo)
+		Mbs = append(Mbs, Mb)
+	}
+	if len(Mbs) == 0 {
+		emploID, _ := strconv.ParseUint(emplos[0].EmployeeID, 10, 64)
+		emplID = uint(emploID)
+	} else {
+
+		for index, emp := range emplos {
+			iduint, _ := strconv.ParseUint(emp.EmployeeID, 10, 64)
+			var fristTime time.Time
+			var lastTime time.Time
+			isReady = true
+			for _, ms := range Mbs {
+				if ms.EmployeeID == uint(iduint) {
 					isReady = false
+					if fristTime.Hour() == 0 {
+						fristTime = ms.MBFrom
+					}
+					lastTime = ms.MBTo
+					if lastTime != ms.MBFrom {
+						if ms.MBFrom.Sub(lastTime) > serI.SSTime {
+							emplos[index].MBs = append(emp.MBs, TimeSpent{Start: fristTime, End: lastTime})
+							fristTime = time.Time{}
+							break
+						} else {
+							emplos[index].MBs = []TimeSpent{TimeSpent{Start: fristTime, End: lastTime}}
+						}
+					}
+					if len(Mbs) == 0 {
+						Mbs = make([]MasterBooking, 0)
+					} else {
+						Mbs = Mbs[1:]
+					}
+				} else {
+					// fmt.Println("====")
 					break
 				}
 			}
 			if isReady {
+				emploID, _ := strconv.ParseUint(emp.EmployeeID, 10, 64)
+				emplID = uint(emploID)
 				break
 			}
 		}
-	} else {
-		emploID, _ := strconv.ParseUint(emploIDs[0], 10, 64)
-		emplID = uint(emploID)
+	}
+	if !isReady {
+		var findSpendTime bool
+		var count int
+		sort.Sort(ByTimeSpent(emplos))
+		for !findSpendTime {
+			var em EmploTimeSlot
+			notFoundTimeSlot := true
+			for index, emplo := range emplos {
+				if len(emplos[index].MBs) == 0 {
+					emplos[index].MBs = make([]TimeSpent, 0)
+					emploID, _ := strconv.ParseUint(emplo.EmployeeID, 10, 64)
+					emplID = uint(emploID)
+					findSpendTime = true
+					notFoundTimeSlot = false
+					em = emplo
+					break
+				}
+				if !inTimeSpan(emplo.Start, emplo.End, start) && !inTimeSpan(emplo.Start, emplo.End, end) {
+					continue
+				} else {
+					notFoundTimeSlot = false
+				}
+				if len(emplo.MBs)-1 < count {
+					emploID, _ := strconv.ParseUint(emplo.EmployeeID, 10, 64)
+					emplID = uint(emploID)
+					findSpendTime = true
+					notFoundTimeSlot = false
+					em = emplo
+					break
+				}
+				if inTimeSpan(emplo.MBs[count].Start, emplo.MBs[count].End, start) && inTimeSpan(emplo.MBs[count].Start, emplo.MBs[count].End, end) {
+					continue
+				}
+
+				if emplos[index].MBs[count].End.After(start) || start.Equal(emplos[index].MBs[count].End) && count > 0 {
+					start = emplos[index].MBs[count].End
+					end = start.Add(serI.SSTime)
+				}
+			}
+			if em.EmployeeID != "" {
+				for _, ms := range em.MBs {
+					if inTimeSpan(ms.Start, ms.End, start) && inTimeSpan(ms.Start, ms.End, end) {
+						findSpendTime = false
+						break
+					}
+				}
+			}
+			if notFoundTimeSlot {
+				return nil, errors.New("employee not ready")
+			}
+			count++
+		}
+
 	}
 
-	if !isReady {
-		return errors.New("place not ready.")
-	}
 	rows, err = db.Query(`
 			SELECT 
 				place_id, MAX(mb_que), mb_from, mb_to
@@ -709,25 +1116,27 @@ func (b *Booking) Now(db *sql.DB, serI ServiceItem) error {
 			GROUP BY place_id, mb_from, mb_to
 			ORDER BY place_id, mb_from, mb_to`, strings.Join(plaIDs, ","), b.AccountID, d,
 		start, end, start, end)
-	fmt.Println("error", err)
+
 	var plaMD MasterBooking
 	var plaMDs []MasterBooking
 	var isPlaReady bool = true
 	for _, plaI := range plas {
 		for rows.Next() {
 			rows.Scan(&plaMD.PlaceID, &plaMD.MBQue, &plaMD.MBFrom, &plaMD.MBTo)
-			if plaI.id == plaMD.PlaceID {
-				if plaI.amount >= plaMD.MBQue {
+			if plaI.ID == plaMD.PlaceID {
+				if plaI.Amount >= plaMD.MBQue {
 					plaMDs = make([]MasterBooking, 0)
 					isPlaReady = false
 				} else {
 					plaMDs = append(plaMDs, plaMD)
 				}
 				if len(plas) == 1 {
-					plas = make([]place, 0)
+					plas = make([]Pla, 0)
 					break
 				}
 				plas = plas[1:]
+			} else {
+				break
 			}
 		}
 
@@ -736,15 +1145,14 @@ func (b *Booking) Now(db *sql.DB, serI ServiceItem) error {
 		}
 	}
 	if !isPlaReady {
-		return errors.New("place not ready.")
+		return nil, errors.New("place not ready.")
 	}
-
 	d, _ = time.Parse("2006-01-02", d.Format("2006-01-02"))
 	b.BookedDay = d
 	b.BookedStart = start
 	b.BookedEnd = end
-
-	return nil
+	b.BookingServiceItem.EmployeeID = emplID
+	return plaMDs, nil
 }
 
 // var timeSs []TimeSlot
