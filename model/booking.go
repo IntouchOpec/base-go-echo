@@ -988,16 +988,10 @@ func (b *Booking) ServiceItemNow(db *sql.DB, serI ServiceItem) ([]MasterBooking,
 		return nil, errors.New("")
 	}
 	emploIDs = emploIDs[:len(emploIDs)-1]
-	qe := fmt.Sprintf(`
-		SELECT 
-			employee_id, mb_from, mb_to
-		FROM master_bookings AS mb 
-		WHERE 
-			deleted_at IS NULL AND employee_id IN (%s) AND account_id = $1 AND mb_day = $2 AND mb_from > $3
-		GROUP BY employee_id, mb_from, mb_to
-		ORDER BY employee_id, mb_from, mb_to`, emploIDs)
-	rows, err = db.Query(qe, b.AccountID, day, start)
-	var Mbs []MasterBooking
+	Mbs, err := b.GetMasterBooking(db, day, start, emploIDs)
+	if err != nil {
+		return nil, errors.New("")
+	}
 	var isReady bool = true
 	var emplID uint
 	for rows.Next() {
@@ -1022,7 +1016,7 @@ func (b *Booking) ServiceItemNow(db *sql.DB, serI ServiceItem) ([]MasterBooking,
 						fristTime = ms.MBFrom
 					}
 					lastTime = ms.MBTo
-					if lastTime != ms.MBFrom {
+					if !lastTime.Equal(ms.MBFrom) {
 						if ms.MBFrom.Sub(lastTime) > serI.SSTime {
 							emplos[index].MBs = append(emp.MBs, TimeSpent{Start: fristTime, End: lastTime})
 							fristTime = time.Time{}
@@ -1153,6 +1147,29 @@ func (b *Booking) ServiceItemNow(db *sql.DB, serI ServiceItem) ([]MasterBooking,
 	b.BookedEnd = end
 	b.BookingServiceItem.EmployeeID = emplID
 	return plaMDs, nil
+}
+
+func (b Booking) GetMasterBooking(db *sql.DB, day, start time.Time, emploIDs string) ([]MasterBooking, error) {
+	qe := fmt.Sprintf(`
+		SELECT 
+			employee_id, mb_from, mb_to
+		FROM master_bookings AS mb 
+		WHERE 
+			deleted_at IS NULL AND employee_id IN (%s) AND account_id = $1 AND mb_day = $2 AND mb_from > $3
+		GROUP BY employee_id, mb_from, mb_to
+		ORDER BY employee_id, mb_from, mb_to`, emploIDs)
+	rows, err := db.Query(qe, b.AccountID, day, start)
+	if err != nil {
+		return nil, err
+	}
+
+	var Mbs []MasterBooking
+	for rows.Next() {
+		var Mb MasterBooking
+		rows.Scan(&Mb.EmployeeID, &Mb.MBFrom, &Mb.MBTo)
+		Mbs = append(Mbs, Mb)
+	}
+	return Mbs, nil
 }
 
 // var timeSs []TimeSlot

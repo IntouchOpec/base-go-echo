@@ -165,6 +165,12 @@ type emplo struct {
 	timeStart time.Time
 	tsID      uint
 	image     string
+	sps       []sp
+}
+
+type sp struct {
+	start time.Time
+	end   time.Time
 }
 
 func PackNow(c *Context, p model.Pack, serIDs []string, setting map[string]string) (string, error) {
@@ -425,15 +431,24 @@ func PackAppointment(c *Context, p model.Pack, serIDs []string) (string, error) 
 	return fmt.Sprintf(timeSlotTemplate, fmt.Sprintf("https://web.%s/files?path=%s", Conf.Server.Domain, p.Image), cont[:len(cont)-1]), nil
 }
 
+func inTimeSpan(start, end, check time.Time) bool {
+	if start.Before(end) {
+		return !check.Before(start) && !check.After(end)
+	}
+	if start.Equal(end) {
+		return check.Equal(start)
+	}
+	return !start.After(check) || !end.Before(check)
+}
 func ServiceItemAppointment(c *Context, serI model.ServiceItem) string {
 	d, err := time.Parse("2006-01-02", c.Event.Postback.Params.Date)
 	var start time.Time
-
+	var emploIDs string
 	if err != nil {
 		fmt.Println("date err")
 		return ""
 	}
-	var emplos []emplo
+	emplos := []emplo{}
 	var template string
 	if err := chackDateBooking(d); err != nil {
 		return ""
@@ -463,13 +478,13 @@ func ServiceItemAppointment(c *Context, serI model.ServiceItem) string {
 			ORDER BY es.employee_id`, int(d.Weekday()), serI.Service.ID)
 	if err != nil {
 		fmt.Println("sql find time slot err")
-		// now not have employee work
 		return ""
 	}
 	if err == nil {
 		for rows.Next() {
 			var empl emplo
 			rows.Scan(&empl.id, &empl.timeEnd, &empl.timeStart, &empl.tsID, &empl.image)
+			emploIDs += fmt.Sprintf("%s,", empl.id)
 			emplos = append(emplos, empl)
 		}
 	}
@@ -484,32 +499,171 @@ func ServiceItemAppointment(c *Context, serI model.ServiceItem) string {
 			ORDER BY pl.id`, serI.Service.ID)
 	if err != nil {
 		fmt.Println(err)
-		// now not have place
 		return ""
 	}
-	for _, emp := range emplos {
-		slot := emp.timeEnd.Sub(start) / (60 * time.Minute)
+	var plas []model.Place
+	var plaIDs string
+	for rows.Next() {
+		var pla model.Place
+		rows.Scan(&pla.ID, &pla.PlacAmount)
+		plas = append(plas, pla)
+		plaIDs = fmt.Sprintf("%d,", pla.ID)
+	}
+	if len(plas) == 0 {
+		return ""
+	}
+
+	qe := fmt.Sprintf(`
+		SELECT 
+			place_id, MAX(mb_que), mb_from, mb_to
+		FROM master_bookings AS mb 
+		WHERE 
+			deleted_at IS NULL AND place_id IN ($1) 
+			AND account_id = $2 
+			AND mb_day = $3 
+			AND mb_from > $4
+		GROUP BY place_id, mb_from, mb_to
+		ORDER BY place_id, mb_from, mb_to`, plaIDs[:len(plaIDs)-1])
+	rows, err = c.sqlDb.Query(qe, c.Account.ID, d, start)
+	if err != nil {
+		return ""
+	}
+	var mbs []model.MasterBooking
+	for rows.Next() {
+		var ms model.MasterBooking
+		rows.Scan(&ms.PlaceID, &ms.MBQue, &ms.MBFrom, &ms.MBTo)
+		mbs = append(mbs, ms)
+	}
+	var isPlaReady bool
+	for _, pl := range plas {
+		for _, mb := range mbs {
+			if mb.PlaceID == pl.ID {
+				if pl.PlacAmount >= mb.MBQue {
+					isPlaReady = false
+				}
+				if len(mbs) == 1 {
+					mbs = make([]model.MasterBooking, 0)
+					break
+				}
+				mbs = mbs[1:]
+			} else {
+				break
+			}
+		}
+	}
+
+	if !isPlaReady {
+		return ""
+	}
+
+	mbs = make([]model.MasterBooking, 0)
+
+	qe = fmt.Sprintf(`
+		SELECT 
+			employee_id, mb_from, mb_to
+		FROM master_bookings AS mb 
+		WHERE 
+			deleted_at IS NULL AND employee_id IN (%s) AND account_id = $1 AND mb_day = $2 AND mb_from > $3
+		GROUP BY employee_id, mb_from, mb_to
+		ORDER BY employee_id, mb_from, mb_to`, emploIDs[:len(emploIDs)-1])
+	rows, err = c.sqlDb.Query(qe, c.Account.ID, d, start)
+	if err != nil {
+		return ""
+	}
+
+	// var mbs []model.MasterBooking
+	for rows.Next() {
+		var ms model.MasterBooking
+		rows.Scan(&ms.EmployeeID, &ms.MBFrom, &ms.MBTo)
+		mbs = append(mbs, ms)
+	}
+
+	for index, emp := range emplos {
+		iduint, _ := strconv.ParseUint(emp.id, 10, 64)
+		var fristTime time.Time
+		var lastTime time.Time
+		for _, ms := range mbs {
+			if ms.EmployeeID == uint(iduint) {
+				if fristTime.Hour() == 0 {
+					fristTime = ms.MBFrom
+				}
+				lastTime = ms.MBTo
+				if !lastTime.Equal(ms.MBFrom) {
+					if ms.MBFrom.Sub(lastTime) > serI.SSTime {
+						emplos[index].sps = append(emp.sps, sp{start: fristTime, end: lastTime})
+						fristTime = time.Time{}
+						break
+					} else {
+						emplos[index].sps = []sp{sp{start: fristTime, end: lastTime}}
+					}
+				}
+				if len(mbs) == 0 {
+					mbs = make([]model.MasterBooking, 0)
+				} else {
+					mbs = mbs[1:]
+				}
+			} else {
+				break
+			}
+		}
+	}
+
+	var subTime time.Time
+	for index, emp := range emplos {
+		var slot time.Duration
+		if isToDay {
+			slot = emp.timeEnd.Sub(start) / (60 * time.Minute)
+		} else {
+			slot = emp.timeEnd.Sub(emp.timeStart) / (60 * time.Minute)
+		}
 		var button string
 		var cont string
-		fmt.Println(slot, start, emp.timeEnd, emp.timeStart)
 		for i := 0; i < int(slot); i++ {
-			tim := start.Add((time.Duration(60*i) * time.Minute) + (7 * time.Hour))
-			ho := tim.Hour()
-			mi := tim.Minute()
+			if isToDay {
+				subTime = start.Add((time.Duration(60*i) * time.Minute))
+			} else {
+				subTime = emp.timeStart.Add((time.Duration(60*i) * time.Minute))
+			}
+			var overTiem bool
+			for _, ms := range emp.sps {
+				end := subTime.Add(serI.SSTime)
+				if inTimeSpan(subTime, end, ms.start) && inTimeSpan(subTime, end, ms.end) {
+					overTiem = true
+					break
+				}
+
+				if inTimeSpan(subTime, end, ms.end) {
+					subTime = subTime.Add(time.Duration(ms.end.Minute()) * time.Minute)
+				}
+
+				if subTime.After(ms.start) && subTime.After(ms.end) {
+					if len(emplos[index].sps) == 1 {
+						emplos[index].sps = make([]sp, 0)
+					} else {
+						emplos[index].sps = emplos[index].sps[1:]
+					}
+				}
+			}
+
+			subTime = subTime.Add(7 * time.Hour)
+			if overTiem {
+				continue
+			}
+			ho := subTime.Hour()
+			mi := subTime.Minute()
 			var hostr string
 			var mistr string
 			if ho < 10 {
-				hostr = fmt.Sprintf("0%d", tim.Hour())
+				hostr = fmt.Sprintf("0%d", subTime.Hour())
 			} else {
-				hostr = fmt.Sprintf("%d", tim.Hour())
+				hostr = fmt.Sprintf("%d", subTime.Hour())
 			}
 			if mi < 10 {
-				mistr = fmt.Sprintf("0%d", tim.Minute())
+				mistr = fmt.Sprintf("0%d", subTime.Minute())
 			} else {
-				mistr = fmt.Sprintf("%d", tim.Minute())
+				mistr = fmt.Sprintf("%d", subTime.Minute())
 			}
 			bookingTime := fmt.Sprintf("%s:%s", hostr, mistr)
-			// fmt.Println(bookingTime, tim.Minute())
 			action := fmt.Sprintf("action=%s&service_item_id=%d&employee_id=%s&date=%s&time=%s&time_slot_id=%d",
 				"checkout", serI.ID, emp.id, c.Event.Postback.Params.Date, bookingTime, emp.tsID)
 			button += fmt.Sprintf(buttonTimeSlotTemplate,
@@ -521,7 +675,6 @@ func ServiceItemAppointment(c *Context, serI model.ServiceItem) string {
 				cont += fmt.Sprintf(layoutTimeSlotTemplate, button[:len(button)-1]) + ","
 			}
 		}
-		fmt.Println(template, cont)
 		if cont != "" {
 			template += fmt.Sprintf(timeSlotTemplate, fmt.Sprintf("https://web.%s/files?path=%s", Conf.Server.Domain, emp.image), cont[:len(cont)-1]) + ","
 		}
