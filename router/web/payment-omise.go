@@ -152,6 +152,9 @@ func ChargeOmiseHandler(c echo.Context) error {
 	if lm.account.AccTypePayment == model.AccTypePaymentBooking {
 		lm.transaction.TranTotal = lm.transaction.TranTotal * float64(lm.account.AccAmountPayment/100)
 	}
+	if lm.transaction.TranTotal <= 20 {
+		lm.transaction.TranTotal = 30
+	}
 	charge, createCharge := &omise.Charge{}, &operations.CreateCharge{
 		Amount:   int64(lm.transaction.TranTotal * 100),
 		Currency: "thb",
@@ -166,7 +169,7 @@ func ChargeOmiseHandler(c echo.Context) error {
 	omiseLog.Json = ev
 	omiseLog.AccountID = lm.account.ID
 	if err := omiseLog.Create(sqlDB); err != nil {
-
+		return c.JSON(http.StatusBadRequest, err)
 	}
 	if charge.Status != omise.ChargeSuccessful {
 		fmt.Println("err", err)
