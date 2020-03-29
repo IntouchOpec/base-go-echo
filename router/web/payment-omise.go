@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/IntouchOpec/base-go-echo/lib/lineapi"
 	"github.com/IntouchOpec/base-go-echo/model"
@@ -21,11 +22,39 @@ func PaymentOmiseHandler(c echo.Context) error {
 	LiffID := c.QueryParam("liff_id")
 	var transaction model.Transaction
 	var account model.Account
-	db := model.DB()
-	db.Where("acc_name = ?", accountName).Find(&account)
-	db.Where("account_id = ? and tran_document_code = ?", account.ID, DocCodeTransaction).Find(&transaction)
-	var chatChannel model.ChatChannel
-	db.Find(&chatChannel, transaction.ChatChannelID)
+	// db := model.DB()
+	sqlDB := model.SqlDB()
+	if err := account.GetAccountByName(sqlDB); err != nil {
+		return c.Render(http.StatusOK, "payment-success", echo.Map{
+			"accountName":        accountName,
+			"DocCodeTransaction": DocCodeTransaction,
+			"detail":             transaction,
+			"title":              "ชำระเงินเรียบร้อยแล้ว",
+		})
+	}
+	row := sqlDB.QueryRow(`
+	SELECT  
+		tr.id AS transaction_id, tran_document_code, tran_total, tran_line_id, tr.created_at
+	FROM transactions AS tr
+	WHERE tr.deleted_at IS NULL AND tran_document_code = $1`, DocCodeTransaction)
+	if err := row.Scan(
+		&transaction.ID,
+		&transaction.TranDocumentCode,
+		&transaction.TranTotal,
+		&transaction.TranLineID,
+		&transaction.CreatedAt,
+	); err != nil {
+		return c.Render(http.StatusOK, "payment-success", echo.Map{
+			"accountName":        accountName,
+			"DocCodeTransaction": DocCodeTransaction,
+			"detail":             transaction,
+			"title":              "ชำระเงินเรียบร้อยแล้ว",
+		})
+	}
+	// db.Where("acc_name = ?", accountName).Find(&account)
+	// db.Where("account_id = ? and tran_document_code = ?", account.ID, DocCodeTransaction).Find(&transaction)
+	// var chatChannel model.ChatChannel
+	// db.Find(&chatChannel, transaction.ChatChannelID)
 
 	if transaction.TranStatus == model.TranStatusPaid {
 		return c.Render(http.StatusOK, "payment-success", echo.Map{
@@ -35,7 +64,9 @@ func PaymentOmiseHandler(c echo.Context) error {
 			"title":              "ชำระเงินเรียบร้อยแล้ว",
 		})
 	}
-
+	if account.AccTypePayment == model.AccTypePaymentBooking {
+		transaction.TranTotal = transaction.TranTotal * float64(account.AccAmountPayment/100)
+	}
 	return c.Render(http.StatusOK, "payment-omise", echo.Map{
 		"accountName":        accountName,
 		"DocCodeTransaction": DocCodeTransaction,
@@ -66,9 +97,9 @@ func ChargeOmiseHandler(c echo.Context) error {
 	// get transaction
 	row := sqlDB.QueryRow(`
 	SELECT 
-		ac.id AS account_id, acc_name, 
+		ac.id AS account_id, acc_name, acc_amount_payment ,acc_booking_type
 		cc.id AS chat_channel_id, cha_channel_secret, cha_channel_access_token, cha_address, 
-		tr.id AS transaction_id, tran_document_code, tran_total, tran_line_id
+		tr.id AS transaction_id, tran_document_code, tran_total, tran_line_id, tr.created_at
 	FROM transactions AS tr
 	INNER JOIN chat_channels AS cc ON tr.chat_channel_id = cc.ID AND cc.deleted_at IS NULL 
 	INNER JOIN accounts AS ac ON cc.account_id = ac.ID AND ac.deleted_at IS NULL AND ac.acc_name = $1
@@ -76,6 +107,8 @@ func ChargeOmiseHandler(c echo.Context) error {
 	err := row.Scan(
 		&lm.account.ID,
 		&lm.account.AccName,
+		&lm.account.AccAmountPayment,
+		&lm.account.AccBookingType,
 		&lm.chatChannel.ID,
 		&lm.chatChannel.ChaChannelSecret,
 		&lm.chatChannel.ChaChannelAccessToken,
@@ -84,7 +117,14 @@ func ChargeOmiseHandler(c echo.Context) error {
 		&lm.transaction.TranDocumentCode,
 		&lm.transaction.TranTotal,
 		&lm.transaction.TranLineID,
+		&lm.transaction.CreatedAt,
 	)
+
+	if time.Now().Sub(lm.transaction.CreatedAt) >= time.Minute*15 {
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"message": "over time of payment",
+		})
+	}
 	if err != nil {
 		fmt.Println("err", err)
 		lm.code = "notFound"
@@ -108,6 +148,9 @@ func ChargeOmiseHandler(c echo.Context) error {
 	token := c.FormValue("token")
 	if token == "" {
 		return c.JSON(http.StatusBadRequest, echo.Map{})
+	}
+	if lm.account.AccTypePayment == model.AccTypePaymentBooking {
+		lm.transaction.TranTotal = lm.transaction.TranTotal * float64(lm.account.AccAmountPayment/100)
 	}
 	charge, createCharge := &omise.Charge{}, &operations.CreateCharge{
 		Amount:   int64(lm.transaction.TranTotal * 100),

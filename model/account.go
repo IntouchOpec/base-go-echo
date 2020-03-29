@@ -192,3 +192,26 @@ func (acc *Account) RemoveAccount(id string) *Account {
 	}
 	return acc
 }
+
+func (acc *Account) GetAccountByName(db *sql.DB) error {
+	row := db.QueryRow(`SELECT * FROM accounts WHERE acc_name = $1`, acc.AccName)
+	if err := row.Scan(
+		&acc.ID,
+		&acc.CreatedAt,
+		&acc.UpdatedAt,
+		&acc.DeletedAt,
+		&acc.Deleted,
+		&acc.AccProjectID,
+		&acc.AccAuthJSONFilePath,
+		&acc.AccProjectIDDialogflow,
+		&acc.AccLang,
+		&acc.AccTimeZone,
+		&acc.AccName,
+		&acc.AccAmountPayment,
+		&acc.AccTransactionConfirmType,
+		&acc.AccBookingType,
+		&acc.AccTypePayment); err != nil {
+		return err
+	}
+	return nil
+}
