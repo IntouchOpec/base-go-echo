@@ -2,9 +2,7 @@ package model
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/IntouchOpec/base-go-echo/model/orm"
@@ -32,14 +30,34 @@ type Pack struct {
 	Price   float64
 	ID      uint
 	Image   string
-	SerIs   []SerI
+	// SerIs   []SerI
 }
 
 type SerI struct {
-	id       uint
+	ID       uint
 	emploIDs []uint
 	placeIDs []uint
 	TimeUse  time.Time
+}
+
+type PackSerI struct {
+	ID      uint
+	PSerIs  []PSerI
+	Name    string
+	TimeUse time.Duration
+	Price   float64
+	Image   string
+}
+
+type PSerI struct {
+	ID             uint
+	EmployeeID     uint
+	ServiceID      uint
+	UseTime        time.Duration
+	EmploTimeSlots []EmploTimeSlot
+	// 	emploIDs []uint
+	// 	placeIDs []uint
+	// 	TimeUse  time.Time
 }
 
 func GetPack(sqlDb *sql.DB, id string) (*Pack, []string, error) {
@@ -60,60 +78,60 @@ func GetPack(sqlDb *sql.DB, id string) (*Pack, []string, error) {
 	}
 	for rows.Next() {
 		var ser SerI
-		rows.Scan(&p.ID, &p.Name, &ser.id, &p.Price, &p.TimeUse, &ser.TimeUse)
+		rows.Scan(&p.ID, &p.Name, &ser.ID, &p.Price, &p.TimeUse, &ser.TimeUse)
 		sers = append(sers, ser)
-		serIDs = append(serIDs, fmt.Sprintf("%d", ser.id))
+		serIDs = append(serIDs, fmt.Sprintf("%d", ser.ID))
 	}
 	return p, serIDs, nil
 }
 
 func GetPackEmployees(sqlDb *sql.DB, d time.Time, serIDs string) ([]*serEmp, error) {
-	qe := fmt.Sprintf(`SELECT 
-			es.employee_id ,
-			ts.time_end, ts.time_start, ts.id,
-			e.empo_image
-		FROM employee_service AS es
-		INNER JOIN employees AS e ON e.id = es.employee_id AND e.deleted_at IS NULL
-		INNER JOIN time_slots AS ts ON ts.employee_id = es.employee_id AND ts.deleted_at IS NULL
-			AND ts.deleted_at IS NULL 
-			AND time_day = $1 
-			AND time_start < $2
-			AND ts.time_active = true
-		WHERE es.service_id IN %s
-		ORDER BY es.employee_id`, serIDs)
-	rows, err := sqlDb.Query(qe, int(d.Weekday()), d)
-	if err != nil {
-		return nil, err
-	}
+	// qe := fmt.Sprintf(`SELECT
+	// 		es.employee_id ,
+	// 		ts.time_end, ts.time_start, ts.id,
+	// 		e.empo_image
+	// 	FROM employee_service AS es
+	// 	INNER JOIN employees AS e ON e.id = es.employee_id AND e.deleted_at IS NULL
+	// 	INNER JOIN time_slots AS ts ON ts.employee_id = es.employee_id AND ts.deleted_at IS NULL
+	// 		AND ts.deleted_at IS NULL
+	// 		AND time_day = $1
+	// 		AND time_start < $2
+	// 		AND ts.time_active = true
+	// 	WHERE es.service_id IN %s
+	// 	ORDER BY es.employee_id`, serIDs)
+	// rows, err := sqlDb.Query(qe, int(d.Weekday()), d)
+	// if err != nil {
+	// 	return nil, err
+	// }
 	var serEmps []*serEmp
-	var serID string
-	var empID uint
-	var serEmpSt *serEmp
-	for rows.Next() {
-		rows.Scan(&serID, &empID)
-		idStr := fmt.Sprintf("%d", serEmpSt.id)
-		if serID == idStr {
-			serEmpSt.emps = append(serEmpSt.emps, empID)
-		} else {
-			if serID != "" {
-				uintID, _ := strconv.ParseUint(serID, 10, 64)
-				serEmpSt.id = uint(uintID)
-				serEmps = append(serEmps, serEmpSt)
-				serEmpSt.emps = append(serEmpSt.emps, empID)
-				serEmpSt = &serEmp{}
-			}
-		}
-		serID = idStr
-	}
-	if len(serEmps) == 0 {
-		if empID != 0 {
-			uintID, _ := strconv.ParseUint(serID, 10, 64)
-			serEmpSt.id = uint(uintID)
-			serEmpSt.emps = append(serEmpSt.emps, empID)
-			serEmps = append(serEmps, serEmpSt)
-		} else {
-			return nil, errors.New("not found employee")
-		}
-	}
+	// var serID string
+	// var empID uint
+	// var serEmpSt *serEmp
+	// for rows.Next() {
+	// 	rows.Scan(&serID, &empID)
+	// 	idStr := fmt.Sprintf("%d", serEmpSt.id)
+	// 	if serID == idStr {
+	// 		serEmpSt.emps = append(serEmpSt.emps, empID)
+	// 	} else {
+	// 		if serID != "" {
+	// 			uintID, _ := strconv.ParseUint(serID, 10, 64)
+	// 			serEmpSt.id = uint(uintID)
+	// 			serEmps = append(serEmps, serEmpSt)
+	// 			serEmpSt.emps = append(serEmpSt.emps, empID)
+	// 			serEmpSt = &serEmp{}
+	// 		}
+	// 	}
+	// 	serID = idStr
+	// }
+	// if len(serEmps) == 0 {
+	// 	if empID != 0 {
+	// 		uintID, _ := strconv.ParseUint(serID, 10, 64)
+	// 		serEmpSt.id = uint(uintID)
+	// 		serEmpSt.emps = append(serEmpSt.emps, empID)
+	// 		serEmps = append(serEmps, serEmpSt)
+	// 	} else {
+	// 		return nil, errors.New("not found employee")
+	// 	}
+	// }
 	return serEmps, nil
 }

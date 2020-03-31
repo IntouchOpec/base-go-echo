@@ -38,32 +38,34 @@ func BookingHandler(c *Context) error {
 	setting := c.ChatChannel.GetSetting([]string{model.NameLIFFIDPayment})
 	var template string
 	if c.PostbackAction.PackageID != "" {
-		var p model.Pack
-		var serIDs []string
+		// var p model.Pack
+		var p model.PackSerI
 		rows, err := c.sqlDb.Query(`
 		SELECT 
-			pa.id, pac_name, si.service_id , pa.pac_price, pa.pac_time, pa.pac_image
+			pa.id AS pa_id, pac_name, pa.pac_price, pa.pac_time, pa.pac_image, 
+			si.service_id, si.ss_time, si.id AS si_id
 		FROM packages AS pa
 		INNER JOIN package_service_item AS psi ON psi.package_id = pa.id
 		INNER JOIN service_items AS si ON si.id = psi.service_item_id AND si.deleted_at IS NULL
 		INNER JOIN services AS s ON s.id = si.service_id AND s.deleted_at IS NULL
 		WHERE pa.deleted_at IS NULL AND pa.id = $1 AND pac_is_active = true`, c.PostbackAction.PackageID)
+		fmt.Println(c.PostbackAction.PackageID)
 		if err != nil {
 			return err
 		}
 		for rows.Next() {
-			var serID string
-			rows.Scan(&p.ID, &p.Name, &serID, &p.Price, &p.TimeUse, &p.Image)
-			serIDs = append(serIDs, serID)
+			var serI model.PSerI
+			rows.Scan(&p.ID, &p.Name, &p.Price, &p.TimeUse, &p.Image, &serI.ServiceID, &serI.UseTime, &serI.ID)
+			p.PSerIs = append(p.PSerIs, serI)
 		}
 		switch c.PostbackAction.Type {
 		case "now":
-			template, err = PackNow(c, p, serIDs, setting)
+			template, err = PackNow(c, p, setting)
 			if err != nil {
 				return err
 			}
 		case "appointment":
-			template, err = PackAppointment(c, p, serIDs)
+			template, err = PackAppointment(c, p)
 			if err != nil {
 				return err
 			}
@@ -173,12 +175,12 @@ type sp struct {
 	end   time.Time
 }
 
-func PackNow(c *Context, p model.Pack, serIDs []string, setting map[string]string) (string, error) {
+func PackNow(c *Context, p model.PackSerI, setting map[string]string) (string, error) {
 	b, err := bindBookingPackageNow(c, model.BookingTypePackage)
 	if err != nil {
 		return "", err
 	}
-	if err := b.PackNow(c.sqlDb, p, serIDs); err != nil {
+	if err := b.PackNow(c.sqlDb, p); err != nil {
 		return "", err
 	}
 
@@ -257,7 +259,7 @@ type masterEmplo struct {
 	SupportAmount int
 }
 
-func PackAppointment(c *Context, p model.Pack, serIDs []string) (string, error) {
+func PackAppointment(c *Context, p model.PackSerI) (string, error) {
 	var rows *sql.Rows
 	var start time.Time
 	var end time.Time
@@ -278,8 +280,8 @@ func PackAppointment(c *Context, p model.Pack, serIDs []string) (string, error) 
 		}
 	}
 	var serIDsStr string
-	for i := 0; i < len(serIDs); i++ {
-		serIDsStr += serIDs[i] + ","
+	for i, _ := range p.PSerIs {
+		serIDsStr += fmt.Sprintf("%d,", p.PSerIs[i].ID)
 	}
 	serIDsStr = serIDsStr[:len(serIDsStr)-1]
 	qe := `
