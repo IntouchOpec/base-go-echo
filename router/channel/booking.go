@@ -793,31 +793,31 @@ func bindTransaction(c *Context, Total float64) (*model.Transaction, error) {
 	return &tran, nil
 }
 
-func bindMSPlace(c *Context, placeID uint, placAmount int) (*model.MasterPlace, error) {
-	var MSPlace model.MasterPlace
-	// day, err := time.Parse("2006-01-02", c.PostbackAction.DateStr)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	MSPlace.PlaceID = placeID
-	// MSPlace.MPlaDay = day
-	MSPlace.AccountID = c.Account.ID
-	form, err := time.Parse("15:04", c.PostbackAction.TimeStr)
-	if err != nil {
-		return nil, err
-	}
-	to, err := time.Parse("15:04", c.PostbackAction.TimeStr)
-	if err != nil {
-		return nil, err
-	}
-	MSPlace.MPlaFrom = form
-	MSPlace.MPlaTo = to
-	// MSPlace.Mp = MSPlace.MPlaAmount + 1
-	// if MSPlace.MPlaAmount == placAmount {
-	// 	MSPlace.MPlaStatus = model.MPlaStatusBusy
-	// }
-	return &MSPlace, nil
-}
+// func bindMSPlace(c *Context, placeID uint, placAmount int) (*model.MasterPlace, error) {
+// 	var MSPlace model.MasterPlace
+// 	// day, err := time.Parse("2006-01-02", c.PostbackAction.DateStr)
+// 	// if err != nil {
+// 	// 	return nil, err
+// 	// }
+// 	MSPlace.PlaceID = placeID
+// 	// MSPlace.MPlaDay = day
+// 	MSPlace.AccountID = c.Account.ID
+// 	form, err := time.Parse("15:04", c.PostbackAction.TimeStr)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	to, err := time.Parse("15:04", c.PostbackAction.TimeStr)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	MSPlace.MPlaFrom = form
+// 	MSPlace.MPlaTo = to
+// 	// MSPlace.Mp = MSPlace.MPlaAmount + 1
+// 	// if MSPlace.MPlaAmount == placAmount {
+// 	// 	MSPlace.MPlaStatus = model.MPlaStatusBusy
+// 	// }
+// 	return &MSPlace, nil
+// }
 
 func bindBookingPackAppoint(c *Context, bookingType model.BookingType, p *model.Pack) (model.Booking, error) {
 	var b model.Booking

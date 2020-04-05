@@ -1,5 +1,12 @@
 package api
 
+import (
+	"net/http"
+
+	"github.com/IntouchOpec/base-go-echo/model"
+	"github.com/labstack/echo"
+)
+
 // CreateAccount route create account.
 // func CreateAccount(c echo.Context) error {
 // 	account := model.Account{}
@@ -20,16 +27,19 @@ package api
 // 	return c.JSON(http.StatusOK, account)
 // }
 
-// func GetAccontList(c echo.Context) error {
-// 	// page := c.QueryParam("page")
-// 	// size := c.QueryParam("size")
+func GetAccontList(c echo.Context) error {
+	// page := c.QueryParam("page")
+	// size := c.QueryParam("size")
 
-// 	// pageInt, _ := strconv.Atoi(page)
-// 	// sizeInt, _ := strconv.Atoi(size)
+	// pageInt, _ := strconv.Atoi(page)
+	// sizeInt, _ := strconv.Atoi(size)
 
-// 	accounts := model.GetAccount()
-// 	return c.JSON(http.StatusOK, accounts)
-// }
+	accounts, err := model.GetAccount()
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	return c.JSON(http.StatusOK, accounts)
+}
 
 // func UpdateAccount(c echo.Context) error {
 // 	id := c.Param("id")

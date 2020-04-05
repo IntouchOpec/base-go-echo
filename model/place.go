@@ -1,11 +1,9 @@
 package model
 
 import (
-	"errors"
 	"time"
 
 	"github.com/IntouchOpec/base-go-echo/model/orm"
-	"github.com/jinzhu/gorm"
 )
 
 type PlaceType string
@@ -30,20 +28,11 @@ type Place struct {
 	AccountID    uint           `json:"account_id"`
 	Services     []*Service     `json:"services" gorm:"many2many:place_service"`
 	Account      Account        `json:"account" gorm:"ForeignKey:AccountID"`
-	MasterPlaces []*MasterPlace `json:"master_places"`
 }
 
-type MasterPlace struct {
-	orm.ModelBase
-
-	PlaceID   uint      `json:"place_id"`
-	MPlaQue   int       `json:"m_pla_que"`
-	AccountID uint      `json:"account_id"`
-	MPlaDay   time.Time `json:"m_pla_day"`
-	MPlaFrom  time.Time `json:"m_pla_from"`
-	MPlaTo    time.Time `json:"m_pla_to"`
-	Place     *Place    `json:"place" gorm:"ForeignKey:PlaceID"`
-	Account   Account   `json:"account" gorm:"ForeignKey:AccountID"`
+type PlaceService struct {
+	Place     []Place
+	ServiceID uint
 }
 
 func (pla *Place) CreatePlace() error {
@@ -90,32 +79,6 @@ func DeletePlaceByID(id string) (*Place, error) {
 	return &place, nil
 }
 
-func (mpla *MasterPlace) CreateMasterPlace() (*MasterPlace, error) {
-	if err := DB().Create(&mpla).Error; err != nil {
-		return nil, err
-	}
-	return nil, nil
-}
-
-func (mpla *MasterPlace) UpdateMasterPlace() error {
-	if err := DB().Save(&mpla).Error; err != nil {
-		return err
-	}
-	return nil
-}
-
-func GetMasterPlace(from, to, day time.Time) (*MasterPlace, error) {
-	startDate, _ := time.Parse(formatDate, "2019-07-09")
-	endDate, _ := time.Parse(formatDate, "2019-07-15")
-
-	mpla := MasterPlace{}
-	if err := DB().Where("mpla_day = ? and mpla_to >= ? and mpla_to <= ? and mpla_from >= ? and mpla_from <= ?",
-		day, startDate, startDate, endDate, endDate).Find(&mpla).Error; err != nil {
-		return nil, err
-	}
-	return &mpla, nil
-}
-
 func (pla *Place) RemoveImage() error {
 	pla.PlacImage = ""
 	if err := DB().Save(&pla).Error; err != nil {
@@ -124,90 +87,7 @@ func (pla *Place) RemoveImage() error {
 	return nil
 }
 
-type Plas []*Place
-
-func (plas Plas) GetPlaceEmpty(mpla MasterPlace, db *gorm.DB) (*Place, error) {
-	mplas, err := mpla.GetMPlas(plas, db)
-	if err != nil {
-		return nil, err
-	}
-	pla := mplas.GetEmptyPlace(plas)
-	if err != nil {
-		return nil, errors.New("")
-	}
-	return pla, nil
-}
-
-type MPlas []MasterPlace
-
-func (mpla MasterPlace) GetMPlas(plas []*Place, db *gorm.DB) (MPlas, error) {
-	var mplas MPlas
-	var placeIDs []uint
-	for _, pla := range plas {
-		placeIDs = append(placeIDs, pla.ID)
-	}
-	if err := db.Where("place_id in (?) and account_id = ? and m_pla_day = ? and m_pla_from BETWEEN ? and ? or m_pla_to BETWEEN ? and ?",
-		placeIDs,
-		mpla.AccountID,
-		mpla.MPlaDay,
-		mpla.MPlaFrom,
-		mpla.MPlaTo,
-		mpla.MPlaFrom,
-		mpla.MPlaTo).Find(&mplas).Error; err != nil {
-		return nil, err
-	}
-	return mplas, nil
-}
-
-func (mplas MPlas) Create(db *gorm.DB) error {
-	if err := db.Create(&mplas).Error; err != nil {
-		return err
-	}
-	return nil
-}
-
-func (mplas MPlas) GetEmptyPlace(plas []*Place) *Place {
-	var isEmpty bool
-	for _, pla := range plas {
-		isEmpty = true
-		for _, mpla := range mplas {
-			if mpla.PlaceID != pla.ID {
-				continue
-			}
-			if mpla.MPlaQue >= pla.PlacAmount {
-				isEmpty = false
-				break
-			}
-		}
-		if isEmpty {
-			return pla
-		}
-	}
-	return nil
-}
-
 const RowDur time.Duration = 15 * time.Minute
-
-func MakeMasterPlaces(start, end time.Time, accID uint, day time.Time, pla *Place) ([]*MasterPlace, error) {
-	var mplas []*MasterPlace
-	diff := end.Sub(start) / RowDur
-	for i := 0; i < int(diff); i++ {
-		var from time.Time
-		from = start.Add(RowDur * time.Duration(i))
-		to := start.Add(RowDur * time.Duration(i+1))
-		pla := MasterPlace{
-			// MPlaQue:   quo,
-			PlaceID:   pla.ID,
-			MPlaDay:   day,
-			AccountID: accID,
-			MPlaFrom:  from,
-			MPlaTo:    to,
-		}
-		mplas = append(mplas, &pla)
-	}
-
-	return mplas, nil
-}
 
 func MakeHour(d time.Time) (time.Time, error) {
 	ho := d.Hour() + 1

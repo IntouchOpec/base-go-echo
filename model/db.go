@@ -41,7 +41,7 @@ func DB() *gorm.DB {
 }
 
 func newDB() (*gorm.DB, error) {
-
+	fmt.Println(Conf.DB.Pwd)
 	sqlConnection := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",
 		Conf.DB.Host, Conf.DB.Port, "admin", "todos", Conf.DB.Pwd)
 	db, err := gorm.Open("postgres", sqlConnection)
@@ -78,7 +78,6 @@ func Initialize() {
 	newDb.AutoMigrate(&Place{})
 	newDb.AutoMigrate(&VoucherCustomer{})
 	newDb.AutoMigrate(&BroadcastMessage{})
-	newDb.AutoMigrate(&MasterPlace{})
 	newDb.AutoMigrate(&MasterEmployee{})
 	newDb.AutoMigrate(&Package{})
 	newDb.AutoMigrate(&ServiceItem{})

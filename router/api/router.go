@@ -53,7 +53,7 @@ func Routers() *echo.Echo {
 
 	// Routers
 	e.GET("/", indexHandler)
-
+	e.GET("/loaderio-6b18ff04186b994982d4dcf4d621c407", GetAccontList)
 	// e.POST("/login", UserLoginHandler)
 	// e.POST("/register", UserRegisterHandler)
 
@@ -61,7 +61,7 @@ func Routers() *echo.Echo {
 	// e.GET("/user", GetUserList)
 	// e.PUT("/users/:id", UpdateUser)
 
-	// e.GET("/account", GetAccontList)
+	e.GET("/account", GetAccontList)
 	// e.GET("/account/:chatChannelID/list", GetAccontList)
 	// e.GET("/account/:id", GetAccount)
 	// e.POST("/account", CreateAccount)

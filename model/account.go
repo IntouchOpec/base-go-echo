@@ -140,12 +140,14 @@ func GetAccountByName(name string) bool {
 }
 
 // GetAccount query account list.
-func GetAccount() []*Account {
+func GetAccount() ([]*Account, error) {
 	accounts := []*Account{}
 
-	DB().Find(&accounts)
-
-	return accounts
+	err := DB().Find(&accounts).Error
+	if err != nil {
+		return nil, err
+	}
+	return accounts, nil
 }
 
 // GetAccountByID find account by id.

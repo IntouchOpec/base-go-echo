@@ -544,56 +544,9 @@ func (b *Booking) BookServiceItem(db *gorm.DB) error {
 // 	return nil
 // }
 
-func MakeTimeSlotBookingNow(d time.Time, serI ServiceItem, db *gorm.DB) (time.Time, time.Time, error) {
-	var msPlas []MasterPlace
-	var msEmplos MEmplos
-	var timeSs []TimeSlot
-	if len(serI.Service.Places) == 0 {
-		return d, d, errors.New("")
-	}
-	plaIDs := SetPlaces(serI.Service.Places)
-	start, end, err := MakeTimeStartAndTimeEnd(d, serI.SSTime)
-	if err != nil {
-
-	}
-	db.Order("employee_id").Where("account_id = ? and time_day = ? and time_start >= ?",
-		serI.AccountID, int(d.Weekday()), start).Find(&timeSs)
-
-	if len(timeSs) == 0 {
-		return d, d, errors.New("")
-	}
-
-	empIDs := SetTimeSlotMixEmployee(timeSs, serI.Service.Employees)
-
-	db.Order("m_empo_from").Where("account_id = ? and m_emplo_day = ? and employee_id in (?) and m_empo_from >= ?",
-		serI.AccountID, d, empIDs, start).Find(&msEmplos)
-	db.Order("m_empo_from").Where("account_id = ? and m_pla_day = ? and place_id in (?) and m_emp_from >= ?",
-		serI.AccountID, d, plaIDs, start).Find(&msPlas)
-	isMsPlas := len(msPlas) == 0
-	isMsEmplos := len(msEmplos) == 0
-	if isMsPlas && isMsEmplos {
-		return start, end, nil
-	}
-	if !isMsPlas {
-		// empl := msEmplos.GetEmptyEmployee(serI.Service.Employees)
-	}
-	if !isMsEmplos {
-
-	}
-	return start, end, nil
-}
-
 func (msEmplos *MEmplos) Get(db *gorm.DB, where string, values ...interface{}) error {
 	// "account_id = ? and m_emplo_day = ? and employee_id in (?) and m_empo_from >= ?"
 	if err := db.Order("employee_id, m_empo_from").Where(where, values).Find(&msEmplos).Error; err != nil {
-		return err
-	}
-	return nil
-}
-
-func (msPlas *MPlas) Get(db *gorm.DB, where string, values ...interface{}) error {
-	// "account_id = ? and m_pla_day = ? and place_id in (?) and m_emp_from >= ?"
-	if err := db.Order("place_id, m_empo_from").Where(where, values).Find(&msPlas).Error; err != nil {
 		return err
 	}
 	return nil
@@ -609,11 +562,11 @@ type sersPla struct {
 	id   uint
 }
 
-type pack struct {
-	id       uint
-	serEmps  []serEmp
-	sersPlas []sersPla
-}
+// type pack struct {
+// 	id       uint
+// 	serEmps  []serEmp
+// 	sersPlas []sersPla
+// }
 
 func (b *Booking) PackAppoint(db *sql.DB, pack Pack, serIDs []string, d time.Time) error {
 	var strSerIDs string
@@ -880,37 +833,19 @@ func (b *Booking) PackNow(db *sql.DB, pack PackSerI) error {
 			INNER JOIN place_service AS ps ON ps.place_id = pl.id AND service_id in %s
 			WHERE pl.deleted_at IS NULL 
 			GROUP BY ps.service_id, pl.id, pl.plac_amount
-			ORDER BY pl.id`, strSerIDs))
+			ORDER BY ps.service_id, pl.id`, strSerIDs))
 	if err != nil {
 		return err
 	}
-	// var pla sersPla
-	// var p Pla
-	// serID = ""
-	for rows.Next() {
-		// var amount int
-		// var plaID uint
-		// var id uint
-		// rows.Scan(&id, &plaID, &amount)
-		// idStr := fmt.Sprintf("%d", plaID)
-		// if serID == idStr {
-		// 	p.ID = id
-		// 	p.Amount = amount
-		// 	pla.plas = append(pla.plas, p)
-		// } else {
-		// 	if serID != "" {
-		// 		uintID, _ := strconv.ParseUint(serID, 10, 64)
-		// 		pla.id = uint(uintID)
+	// var plas []PlaceService
+	// var serviceID uint
+	// for rows.Next() {
+	// 	var place Place
+	// 	rows.Scan(&serviceID, &place.ID, &place.PlacAmount)
+	// 	if serviceID == 0 {
+	// 		serviceID =
+	// 	}
 
-		// 		sersPlas = append(sersPlas, pla)
-		// 		pla = sersPla{}
-		// 	}
-		// }
-	}
-	// if len(sersPlas) == 0 {
-	// uintID, _ := strconv.ParseUint(serID, 10, 64)
-	// pla.id = uint(uintID)
-	// sersPlas = append(sersPlas, pla)
 	// }
 	d, _ = time.Parse("2006-01-02", d.Format("2006-01-02"))
 	fmt.Println(d, start, end)

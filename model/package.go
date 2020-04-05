@@ -52,6 +52,7 @@ type PackSerI struct {
 type PSerI struct {
 	ID             uint
 	EmployeeID     uint
+	PlaceID        uint
 	ServiceID      uint
 	UseTime        time.Duration
 	EmploTimeSlots []EmploTimeSlot
