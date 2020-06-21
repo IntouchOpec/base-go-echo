@@ -1,6 +1,7 @@
 package channel
 
 import (
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"io"
@@ -49,6 +50,7 @@ func Routers() *echo.Echo {
 	e.Renderer = t
 
 	e.GET("/", indexHandler)
+	// e.POST("/", webHookHandler)
 
 	e.GET("/content/:cha_line_id", web.GetContentHandler)
 	e.GET("/register/:lineID", web.LIFFRegisterHandler)
@@ -68,5 +70,15 @@ func Routers() *echo.Echo {
 }
 
 func indexHandler(c echo.Context) error {
+	return c.JSON(http.StatusOK, "welcome line connect "+Conf.Server.DomainLineChannel)
+}
+
+func webHookHandler(c echo.Context) error {
+	var v interface{}
+	err := json.NewDecoder(c.Request().Body).Decode(&v)
+	if err != nil {
+		return err
+	}
+	fmt.Println(v)
 	return c.JSON(http.StatusOK, "welcome line connect "+Conf.Server.DomainLineChannel)
 }

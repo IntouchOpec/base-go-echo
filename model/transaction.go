@@ -115,18 +115,17 @@ func (tran *Transaction) GetLastTransactionSql(db *sql.Tx) error {
 	WHERE deleted_at is null AND account_id = $1
 	ORDER BY tran_document_code DESC LIMIT 1 `, tran.AccountID)
 
-	err := row.Scan(&tran.TranDocumentCode)
-	if err != nil {
-		return err
-	}
-	tran.TranDocumentCode, err = genTranDocumentCode(tran.TranDocumentCode)
-	if err != nil {
-		return err
-	}
+	row.Scan(&tran.TranDocumentCode)
+	// if err != nil {
+	// 	fmt.Println("==-=-=-=")
+	// 	return err
+	// }
+	tran.TranDocumentCode, _ = genTranDocumentCode(tran.TranDocumentCode)
 	return nil
 }
 
 func genTranDocumentCode(lastTranDocumentCode string) (string, error) {
+	fmt.Println(lastTranDocumentCode, "lpadlpskdp")
 	now := time.Now()
 	day := fmt.Sprintf("%d", now.Day())
 	month := fmt.Sprintf("%d", now.Month())
@@ -193,6 +192,7 @@ func (serI *ServiceItem) GetServiceItemPreEmploAndPla(serID string, db *gorm.DB)
 
 func (tran *Transaction) CreateSql(db *sql.Tx) error {
 	if err := tran.GetLastTransactionSql(db); err != nil {
+		fmt.Println(err)
 		return err
 	}
 	stmt, err := db.Prepare(`INSERT INTO transactions 
@@ -200,11 +200,13 @@ func (tran *Transaction) CreateSql(db *sql.Tx) error {
 			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9, now()) 
 			RETURNING id`)
 	if err != nil {
+		fmt.Println(err, "12313")
 		return err
 	}
 	defer stmt.Close()
 	result := stmt.QueryRow(tran.TranState, tran.TranDocumentCode, tran.TranStatus, tran.TranRemark, tran.TranTotal, tran.AccountID, tran.ChatChannelID, tran.CustomerID, tran.TranLineID)
 	if err := result.Scan(&tran.ID); err != nil {
+		fmt.Println(err, ":e13123")
 		return err
 	}
 	return nil
@@ -262,14 +264,14 @@ func (tran *Transaction) GetReceipt(db *sql.DB) ([]Receipt, error) {
 		var PTime time.Duration
 		var PPrice float64
 		rows.Scan(&tran.ID, &tran.TranTotal, &tran.TranDocumentCode, &SSName, &SSTime, &SSPrice, &PName, &PTime, &PPrice)
-		if PPrice != 0 {
-			re.Name = fmt.Sprintf("%s-%s", PName, PTime.String())
-			re.Price = fmt.Sprintf("%.0f", PPrice)
-		} else {
-			re.Name = fmt.Sprintf("%s-%s", SSName, SSTime.String())
-			re.Price = fmt.Sprintf("%.0f", SSPrice)
+		// if PPrice != 0 {
+		// 	re.Name = fmt.Sprintf("%s-%s", PName, PTime.String())
+		// 	re.Price = fmt.Sprintf("%.0f", PPrice)
+		// } else {
+		re.Name = fmt.Sprintf("%s-%s", SSName, SSTime.String())
+		re.Price = fmt.Sprintf("%.0f", SSPrice)
 
-		}
+		// }
 		reList = append(reList, re)
 	}
 	return reList, nil

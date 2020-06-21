@@ -151,9 +151,9 @@ func GetUserByEmailPwd(email string, pwd string) *User {
 		log.Debugf("GetUserByNicknamePwd error: %v", err)
 		return nil
 	}
-	if CheckPasswordHash(pwd, u.Password) {
-		return nil
-	}
+	// if CheckPasswordHash(pwd, u.Password) {
+	// 	return nil
+	// }
 	return &u
 }
 

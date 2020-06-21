@@ -30,7 +30,7 @@ func InitRoutes() map[string]*Host {
 	hosts[Conf.Server.DomainWeb] = &Host{web.Routers()}
 	hosts[Conf.Server.DomainAPI] = &Host{api.Routers()}
 	hosts[Conf.Server.DomainLineChannel] = &Host{channel.Routers()}
-
+	fmt.Println(Conf.Server.DomainLineChannel)
 	return hosts
 }
 
@@ -74,6 +74,7 @@ func RunSubdomains(confFilePath string) {
 		}
 		fmt.Println("=====", u.Hostname(), "======")
 		host := hosts[u.Hostname()]
+		// fmt.Println(host)
 		if host == nil {
 			e.Logger.Info("Host not found")
 			err = echo.ErrNotFound

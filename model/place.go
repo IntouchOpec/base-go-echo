@@ -31,7 +31,7 @@ type Place struct {
 }
 
 type PlaceService struct {
-	Place     []Place
+	Place     []Pla
 	ServiceID uint
 }
 

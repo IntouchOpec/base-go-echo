@@ -67,6 +67,7 @@ func BookingHandler(c *Context) error {
 		case "appointment":
 			template, err = PackAppointment(c, p)
 			if err != nil {
+				fmt.Println("====", err)
 				return err
 			}
 		}
@@ -82,8 +83,10 @@ func BookingHandler(c *Context) error {
 			WHERE si.deleted_at IS NULL AND si.id = $1`, c.PostbackAction.ServiceItemID)
 
 		var ser model.Service
+		fmt.Println("====")
 		err := row.Scan(&ser.ID, &ser.SerName, &ser.SerImage, &serI.ID, &serI.SSPrice, &serI.SSTime, &ser.AccountID, &serI.AccountID)
 		if err != nil {
+			fmt.Println(err)
 			return err
 		}
 		serI.Service = &ser
@@ -91,8 +94,9 @@ func BookingHandler(c *Context) error {
 		switch c.PostbackAction.Type {
 		case "now":
 			template, err = ServiceItemNow(c, serI, ser.SerName, setting)
+			fmt.Println(template, err != nil)
 			if err != nil {
-				fmt.Println(err, "231312")
+				fmt.Println("231312")
 				return err
 			}
 		case "appointment":
@@ -101,6 +105,7 @@ func BookingHandler(c *Context) error {
 	}
 
 	template = fmt.Sprintf(`{ "replyToken": "%s", "messages":[ { "type": "flex",  "altText":  "รายการบริการ",  "contents": %s }]}`, c.Event.ReplyToken, template)
+	fmt.Println(template)
 	err := lineapi.SendMessageCustom("reply", c.ChatChannel.ChaChannelAccessToken, template)
 	if err != nil {
 		return nil
@@ -111,40 +116,50 @@ func BookingHandler(c *Context) error {
 func ServiceItemNow(c *Context, serI model.ServiceItem, serName string, setting map[string]string) (string, error) {
 	b, err := bindBookingServiceItemNow(c, model.BookingTypeServiceItem)
 	if err != nil {
+		fmt.Println("====1")
 		return "", err
 	}
 	plaMDs, err := b.ServiceItemNow(c.sqlDb, serI)
 	if err != nil {
+		fmt.Println("====2")
 		return "", err
 	}
 	tran, err := bindTransaction(c, serI.SSPrice)
 	if err != nil {
+		fmt.Println("====3")
 		return "", err
 	}
 
 	tx, err := c.sqlDb.Begin()
 	if err != nil {
+		fmt.Println("====4")
 		return "", err
 	}
-	if err := tran.CreateSql(tx); err != nil {
+	err = tran.CreateSql(tx)
+	if err != nil {
+		fmt.Println("=9992")
 		tx.Rollback()
 		return "", err
 	}
 	b.TransactionID = tran.ID
 	if err := b.CreateSql(tx); err != nil {
+		fmt.Println("====5")
 		tx.Rollback()
 		return "", err
 	}
 	ms, vStr, err := b.MasterBookingSer(plaMDs)
 	if err != nil {
+		fmt.Println("====6")
 		return "", err
 	}
 	if err := model.CreateMasterBooking(vStr, tx, ms); err != nil {
+		fmt.Println("====7")
 		return "", err
 	}
 
 	if err := tx.Commit(); err != nil {
 		tx.Rollback()
+		fmt.Println("====8")
 		return "", err
 	}
 
@@ -309,6 +324,7 @@ func PackAppointment(c *Context, p model.PackSerI) (string, error) {
 		rows, err = c.sqlDb.Query(qe, int(d.Weekday()))
 	}
 	if err != nil {
+		fmt.Println("xxxxx")
 		return "", err
 	}
 
@@ -453,6 +469,7 @@ func ServiceItemAppointment(c *Context, serI model.ServiceItem) string {
 	emplos := []emplo{}
 	var template string
 	if err := chackDateBooking(d); err != nil {
+		fmt.Println(err, "asdsad")
 		return ""
 	}
 	now := time.Now()
@@ -461,9 +478,11 @@ func ServiceItemAppointment(c *Context, serI model.ServiceItem) string {
 		start, err = model.MakeHour(now)
 		start = start.Add(-7 * time.Hour)
 		if err != nil {
+			fmt.Println(err, "asdsad")
 			return ""
 		}
 	}
+	fmt.Println(err, "asdsad")
 
 	rows, err := c.sqlDb.Query(`	
 			SELECT 
@@ -482,6 +501,8 @@ func ServiceItemAppointment(c *Context, serI model.ServiceItem) string {
 		fmt.Println("sql find time slot err")
 		return ""
 	}
+	fmt.Println(err, "asdsad")
+
 	if err == nil {
 		for rows.Next() {
 			var empl emplo
@@ -490,6 +511,7 @@ func ServiceItemAppointment(c *Context, serI model.ServiceItem) string {
 			emplos = append(emplos, empl)
 		}
 	}
+	fmt.Println(err, "asdsad")
 
 	rows, err = c.sqlDb.Query(`
 			SELECT 
@@ -514,22 +536,26 @@ func ServiceItemAppointment(c *Context, serI model.ServiceItem) string {
 	if len(plas) == 0 {
 		return ""
 	}
+	fmt.Println(err, "asdsad")
 
 	qe := fmt.Sprintf(`
 		SELECT 
 			place_id, MAX(mb_que), mb_from, mb_to
 		FROM master_bookings AS mb 
 		WHERE 
-			deleted_at IS NULL AND place_id IN ($1) 
-			AND account_id = $2 
-			AND mb_day = $3 
-			AND mb_from > $4
+			deleted_at IS NULL AND place_id IN (%s) 
+			AND account_id = $1
+			AND mb_day = $2 
+			AND mb_from > $3
 		GROUP BY place_id, mb_from, mb_to
 		ORDER BY place_id, mb_from, mb_to`, plaIDs[:len(plaIDs)-1])
 	rows, err = c.sqlDb.Query(qe, c.Account.ID, d, start)
 	if err != nil {
+		fmt.Println(err)
 		return ""
 	}
+	fmt.Println(err, "asdsad")
+
 	var mbs []model.MasterBooking
 	for rows.Next() {
 		var ms model.MasterBooking
@@ -553,10 +579,12 @@ func ServiceItemAppointment(c *Context, serI model.ServiceItem) string {
 			}
 		}
 	}
+	fmt.Println(err, "123", isPlaReady)
 
-	if !isPlaReady {
-		return ""
-	}
+	// if !isPlaReady {
+	// 	return ""
+	// }
+	fmt.Println(err, "123451")
 
 	mbs = make([]model.MasterBooking, 0)
 
@@ -570,6 +598,7 @@ func ServiceItemAppointment(c *Context, serI model.ServiceItem) string {
 		ORDER BY employee_id, mb_from, mb_to`, emploIDs[:len(emploIDs)-1])
 	rows, err = c.sqlDb.Query(qe, c.Account.ID, d, start)
 	if err != nil {
+		fmt.Println(err, "errerer")
 		return ""
 	}
 
@@ -579,7 +608,7 @@ func ServiceItemAppointment(c *Context, serI model.ServiceItem) string {
 		rows.Scan(&ms.EmployeeID, &ms.MBFrom, &ms.MBTo)
 		mbs = append(mbs, ms)
 	}
-
+	fmt.Println(emplos)
 	for index, emp := range emplos {
 		iduint, _ := strconv.ParseUint(emp.id, 10, 64)
 		var fristTime time.Time

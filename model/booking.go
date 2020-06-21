@@ -75,6 +75,23 @@ type BookingPackage struct {
 	Package    Package   `json:"package" gorm:"ForeignKey:PackageID"`
 }
 
+type EmploTimeSlot struct {
+	EmployeeID string
+	Start      time.Time
+	End        time.Time
+	MBs        []TimeSpent
+}
+
+type TimeSpent struct {
+	Start time.Time
+	End   time.Time
+}
+type ByTimeSpent []EmploTimeSlot
+
+func (a ByTimeSpent) Len() int {
+	return len(a)
+}
+
 // BookingStatus is status of booking.
 // type BookingStatus struct {
 // 	ID   int    `json:"id"`
@@ -125,6 +142,7 @@ type MasterBooking struct {
 type Pla struct {
 	ID     uint
 	Amount int
+	MBs    []TimeSpent
 }
 
 type employee struct {
@@ -179,15 +197,15 @@ func (tran *Transaction) MakeMasterBooking(sql *sql.DB) ([]interface{}, string, 
 				return nil, query, err
 			}
 		} else {
-			_, serIDs, err := GetPack(sql, booPacID)
-			if err != nil {
-				fmt.Println("====1")
-				return nil, "", err
-			}
-			values, query, err = setMasterPack(sql, serIDs, boo)
-			if err != nil {
-				return nil, "", err
-			}
+			// _, serIDs, err := GetPack(sql, booPacID)
+			// if err != nil {
+			// 	fmt.Println("====1")
+			// 	return nil, "", err
+			// }
+			// values, query, err = setMasterPack(sql, serIDs, boo)
+			// if err != nil {
+			// 	return nil, "", err
+			// }
 		}
 
 	}
@@ -837,40 +855,99 @@ func (b *Booking) PackNow(db *sql.DB, pack PackSerI) error {
 	if err != nil {
 		return err
 	}
-	// var plas []PlaceService
-	// var serviceID uint
-	// for rows.Next() {
-	// 	var place Place
-	// 	rows.Scan(&serviceID, &place.ID, &place.PlacAmount)
-	// 	if serviceID == 0 {
-	// 		serviceID =
-	// 	}
 
-	// }
+	var serviceID uint
+	var plaIDs string
+	for rows.Next() {
+		var pla Pla
+		rows.Scan(&serviceID, &pla.ID, &pla.Amount)
+		plaIDs += fmt.Sprintf("%d,", pla.ID)
+		for index, si := range pack.PSerIs {
+			if si.ID == serviceID {
+				pack.PSerIs[index].Plas = append(pack.PSerIs[index].Plas, pla)
+			}
+		}
+	}
+	qe = fmt.Sprintf(`
+		SELECT 
+			place_id, MAX(mb_que), mb_from, mb_to
+		FROM master_bookings AS mb 
+		WHERE 
+			deleted_at IS NULL AND place_id IN (%s) 
+			AND account_id = $1
+			AND mb_day = $2
+			AND mb_from > $3
+		GROUP BY place_id, mb_from, mb_to
+		ORDER BY place_id, mb_from, mb_to`, plaIDs[:len(plaIDs)-1])
+	rows, err = db.Query(qe, b.AccountID, d, start)
+
+	if err != nil {
+		return err
+	}
+	var plaMB []MasterBooking
+	var plaID uint
+	var plaStart time.Time
+	var plaEnd time.Time
+	var i int = 0
+	for rows.Next() {
+		var mb MasterBooking
+		rows.Scan(&mb.PlaceID, &mb.MBQue, &mb.MBFrom, &mb.MBTo)
+		if plaID == mb.PlaceID {
+			if plaEnd.Equal(mb.MBFrom) {
+			} else {
+				plaStart = mb.MBTo
+				plaMB = append(plaMB, MasterBooking{PlaceID: plaID, MBFrom: plaStart, MBTo: plaEnd})
+			}
+		} else if i != 0 {
+			plaStart = mb.MBTo
+			plaMB = append(plaMB, MasterBooking{PlaceID: plaID, MBFrom: plaStart, MBTo: plaEnd})
+		} else {
+			plaStart = mb.MBTo
+		}
+		plaEnd = mb.MBTo
+		plaID = mb.PlaceID
+		i++
+	}
+	if i >= 1 {
+		plaMB = append(plaMB, MasterBooking{PlaceID: plaID, MBFrom: plaStart, MBTo: plaEnd})
+	}
+
+	for x, serI := range pack.PSerIs {
+		for y, pla := range serI.Plas {
+			for _, plaM := range plaMB {
+				if pla.ID == plaM.PlaceID {
+					pack.PSerIs[x].Plas[y].MBs = append(pack.PSerIs[x].Plas[y].MBs, TimeSpent{Start: plaM.MBFrom, End: plaM.MBTo})
+				}
+			}
+		}
+	}
+	for _, serI := range pack.PSerIs {
+		for _, pla := range serI.Plas {
+			fmt.Println(pla)
+			// for _, ems := range emploMs {
+			// 	if emp.EmployeeID == ems.EmployeeID {
+			// 		if inTimeSpan(emp.Start, emp.End, serStart) && inTimeSpan(emp.Start, emp.End, serEnd) {
+
+			// 			for _, mb := range ems.MBs {
+			// 				if !inTimeSpan(mb.Start, mb.End, serStart) && !inTimeSpan(mb.Start, mb.End, serEnd) {
+			// 					u64, _ := strconv.ParseUint(ems.EmployeeID, 10, 32)
+			// 					pack.PSerIs[index].EmployeeID = uint(u64)
+			// 				}
+			// 				break
+			// 			}
+
+			// 		}
+			// 		break
+			// 	}
+			// }
+		}
+	}
 	d, _ = time.Parse("2006-01-02", d.Format("2006-01-02"))
-	fmt.Println(d, start, end)
 	b.BookedDay = d
 	b.BookedStart = start
 	b.BookedEnd = end
 
 	return nil
-}
-
-type EmploTimeSlot struct {
-	EmployeeID string
-	Start      time.Time
-	End        time.Time
-	MBs        []TimeSpent
-}
-
-type TimeSpent struct {
-	Start time.Time
-	End   time.Time
-}
-type ByTimeSpent []EmploTimeSlot
-
-func (a ByTimeSpent) Len() int {
-	return len(a)
 }
 
 func (a ByTimeSpent) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
@@ -918,6 +995,8 @@ func (b *Booking) ServiceItemNow(db *sql.DB, serI ServiceItem) ([]MasterBooking,
 
 	start, end, err := MakeTimeStartAndTimeEnd(d, serI.SSTime)
 	if err != nil {
+		// fmt.(err)
+		fmt.Println("err")
 		return nil, err
 	}
 	start, end = start.Add(-(7 * time.Hour)), end.Add(-(7 * time.Hour))
@@ -933,6 +1012,7 @@ func (b *Booking) ServiceItemNow(db *sql.DB, serI ServiceItem) ([]MasterBooking,
 			ORDER BY es.employee_id`, int(d.Weekday()), start, serI.Service.ID)
 	// fmt.Println(int(d.Weekday()), start, serI.Service.ID)
 	// AND time_end > $3
+	fmt.Println(err)
 	if err == nil {
 		for rows.Next() {
 			var emplo EmploTimeSlot
@@ -954,6 +1034,7 @@ func (b *Booking) ServiceItemNow(db *sql.DB, serI ServiceItem) ([]MasterBooking,
 			GROUP BY pl.id, pl.plac_amount
 			ORDER BY pl.id`, serI.Service.ID)
 	if err != nil {
+		fmt.Println(err, "err1")
 		return nil, err
 	}
 	for rows.Next() {
@@ -963,6 +1044,7 @@ func (b *Booking) ServiceItemNow(db *sql.DB, serI ServiceItem) ([]MasterBooking,
 		plas = append(plas, pla)
 	}
 	if len(plaIDs) == 0 {
+		fmt.Println(err, "err4")
 		return nil, errors.New("")
 	}
 	emploIDs = emploIDs[:len(emploIDs)-1]

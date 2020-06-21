@@ -20,12 +20,12 @@ func HandleWebHookLineAPI(c echo.Context) error {
 	var con Context
 	con.DB = model.DB()
 	con.sqlDb = model.SqlDB()
+	fmt.Println(name, ChannelID)
 
 	con.AccountLine = model.AccountLineGet(name, ChannelID, con.sqlDb)
-	if con.AccountLine == nil {
-		return c.JSON(http.StatusBadRequest, "")
-	}
-
+	// if con.AccountLine == nil {
+	// 	return c.JSON(http.StatusBadRequest, "")
+	// }
 	if err := con.DB.Where("acc_name = ?", name).Find(&con.Account).Error; err != nil {
 		return c.NoContent(http.StatusNotFound)
 	}

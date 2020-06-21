@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/IntouchOpec/base-go-echo/lib/lineapi"
 	"github.com/IntouchOpec/base-go-echo/model"
@@ -23,8 +22,10 @@ func PaymentOmiseHandler(c echo.Context) error {
 	var transaction model.Transaction
 	var account model.Account
 	// db := model.DB()
+	account.AccName = accountName
 	sqlDB := model.SqlDB()
 	if err := account.GetAccountByName(sqlDB); err != nil {
+		fmt.Println(err)
 		return c.Render(http.StatusOK, "payment-success", echo.Map{
 			"accountName":        accountName,
 			"DocCodeTransaction": DocCodeTransaction,
@@ -32,9 +33,11 @@ func PaymentOmiseHandler(c echo.Context) error {
 			"title":              "ชำระเงินเรียบร้อยแล้ว",
 		})
 	}
+	fmt.Println(account.AccName, DocCodeTransaction)
+	// fmt.Println()
 	row := sqlDB.QueryRow(`
 	SELECT  
-		tr.id AS transaction_id, tran_document_code, tran_total, tran_line_id, tr.created_at
+		tr.id AS transaction_id, tran_document_code, tran_total, tran_line_id, tr.created_at, tr.tran_status
 	FROM transactions AS tr
 	WHERE tr.deleted_at IS NULL AND tran_document_code = $1`, DocCodeTransaction)
 	if err := row.Scan(
@@ -43,7 +46,9 @@ func PaymentOmiseHandler(c echo.Context) error {
 		&transaction.TranTotal,
 		&transaction.TranLineID,
 		&transaction.CreatedAt,
+		&transaction.TranStatus,
 	); err != nil {
+		fmt.Println(err)
 		return c.Render(http.StatusOK, "payment-success", echo.Map{
 			"accountName":        accountName,
 			"DocCodeTransaction": DocCodeTransaction,
@@ -55,8 +60,9 @@ func PaymentOmiseHandler(c echo.Context) error {
 	// db.Where("account_id = ? and tran_document_code = ?", account.ID, DocCodeTransaction).Find(&transaction)
 	// var chatChannel model.ChatChannel
 	// db.Find(&chatChannel, transaction.ChatChannelID)
-
+	fmt.Println(transaction.TranStatus, model.TranStatusPaid)
 	if transaction.TranStatus == model.TranStatusPaid {
+		fmt.Println(transaction.TranStatus == model.TranStatusPaid)
 		return c.Render(http.StatusOK, "payment-success", echo.Map{
 			"accountName":        accountName,
 			"DocCodeTransaction": DocCodeTransaction,
@@ -64,9 +70,9 @@ func PaymentOmiseHandler(c echo.Context) error {
 			"title":              "ชำระเงินเรียบร้อยแล้ว",
 		})
 	}
-	if account.AccTypePayment == model.AccTypePaymentBooking {
-		transaction.TranTotal = transaction.TranTotal * float64(account.AccAmountPayment/100)
-	}
+	// if account.AccTypePayment == model.AccTypePaymentBooking {
+	// 	transaction.TranTotal = transaction.TranTotal * float64(account.AccAmountPayment/100)
+	// }
 	return c.Render(http.StatusOK, "payment-omise", echo.Map{
 		"accountName":        accountName,
 		"DocCodeTransaction": DocCodeTransaction,
@@ -93,13 +99,15 @@ func ChargeOmiseHandler(c echo.Context) error {
 	accountName := c.QueryParam("account_name")
 	DocCodeTransaction := c.QueryParam("doc_code_transaction")
 	var lm LineMassage
+	fmt.Println(accountName, DocCodeTransaction)
 	sqlDB := model.SqlDB()
 	// get transaction
 	row := sqlDB.QueryRow(`
 	SELECT 
-		ac.id AS account_id, acc_name, acc_amount_payment ,acc_booking_type
+		ac.id AS account_id, acc_name, acc_amount_payment ,acc_booking_type,
 		cc.id AS chat_channel_id, cha_channel_secret, cha_channel_access_token, cha_address, 
-		tr.id AS transaction_id, tran_document_code, tran_total, tran_line_id, tr.created_at
+		tr.id AS transaction_id, tran_document_code, tran_total, tran_line_id, tr.created_at,
+		tr.tran_status
 	FROM transactions AS tr
 	INNER JOIN chat_channels AS cc ON tr.chat_channel_id = cc.ID AND cc.deleted_at IS NULL 
 	INNER JOIN accounts AS ac ON cc.account_id = ac.ID AND ac.deleted_at IS NULL AND ac.acc_name = $1
@@ -118,40 +126,47 @@ func ChargeOmiseHandler(c echo.Context) error {
 		&lm.transaction.TranTotal,
 		&lm.transaction.TranLineID,
 		&lm.transaction.CreatedAt,
+		&lm.transaction.TranStatus,
 	)
 
-	if time.Now().Sub(lm.transaction.CreatedAt) >= time.Minute*15 {
-		return c.JSON(http.StatusBadRequest, echo.Map{
-			"message": "over time of payment",
-		})
-	}
+	// if time.Now().Sub(lm.transaction.CreatedAt) >= time.Minute*15 {
+	// 	return c.JSON(http.StatusBadRequest, echo.Map{
+	// 		"message": "over time of payment",
+	// 	})
+	// }
 	if err != nil {
-		fmt.Println("err", err)
+		fmt.Println("erwqewr", err)
 		lm.code = "notFound"
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
 	ms, vStr, err := lm.transaction.MakeMasterBooking(sqlDB)
-	if err != nil {
-		lm.code = vStr
-		if err := lm.sandMassage(sqlDB); err != nil {
-			return c.JSON(http.StatusBadRequest, err)
-		}
-		return c.JSON(http.StatusBadRequest, err)
-	}
+	// if err != nil {
+	lm.code = vStr
+	// 	if err := lm.sandMassage(sqlDB); err != nil {
+	// 		fmt.Println(err, "--1203-2")
+	// 		return c.JSON(http.StatusBadRequest, err)
+	// 	}
+	// 	return c.JSON(http.StatusBadRequest, err)
+	// }
 
 	// payment
+	fmt.Println(ms, vStr)
 	client, err := omise.NewClient(OmisePublicKey, OmiseSecretKey)
 	if err != nil {
+		fmt.Println(err, "99000")
+		// return c.JSON(http.StatusBadRequest, err)
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	token := c.FormValue("token")
 	if token == "" {
 		return c.JSON(http.StatusBadRequest, echo.Map{})
 	}
-	if lm.account.AccTypePayment == model.AccTypePaymentBooking {
-		lm.transaction.TranTotal = lm.transaction.TranTotal * float64(lm.account.AccAmountPayment/100)
-	}
+	// if lm.account.AccTypePayment == model.AccTypePaymentBooking {
+	// 	lm.transaction.TranTotal = lm.transaction.TranTotal * float64(lm.account.AccAmountPayment/100)
+	// }
+	lm.transaction.TranTotal = lm.transaction.TranTotal
+
 	if lm.transaction.TranTotal <= 20 {
 		lm.transaction.TranTotal = 30
 	}
@@ -168,35 +183,47 @@ func ChargeOmiseHandler(c echo.Context) error {
 	ev, err := json.Marshal(charge)
 	omiseLog.Json = ev
 	omiseLog.AccountID = lm.account.ID
+	fmt.Println("=-=-=-=-=")
 	if err := omiseLog.Create(sqlDB); err != nil {
+		fmt.Println(err, "ssss")
 		return c.JSON(http.StatusBadRequest, err)
 	}
+	fmt.Println("=-=-=-=-=1")
+
 	if charge.Status != omise.ChargeSuccessful {
 		fmt.Println("err", err)
 		return c.JSON(http.StatusBadRequest, err)
 	}
+	fmt.Println("=-=-=-=-=2")
 	lm.transaction.TranStatus = model.TranStatusPaid
 	tx, err := sqlDB.Begin()
-	if err := model.CreateMasterBooking(vStr, tx, ms); err != nil {
-		fmt.Println(err, "Err")
-	}
+	// if err := model.CreateMasterBooking(vStr, tx, ms); err != nil {
+	// 	fmt.Println(err, "Err")
+	// }
+	fmt.Println("=-=-=-=-=3")
 	payment := lm.bindPayment()
 	// create
 	if err := payment.Create(tx); err != nil {
 		fmt.Println(err, "===1")
 		tx.Rollback()
 	}
+	fmt.Println("=-=-=-=-=4")
 	_, err = lm.transaction.UpdateStatus(tx)
 	if err != nil {
 		fmt.Println(err, "===2")
 		tx.Rollback()
 	}
-
+	fmt.Println("=-=-=-=-=5")
 	if err := tx.Commit(); err != nil {
 		fmt.Println(err, "===3")
+		tx.Rollback()
 	}
+	fmt.Println("=-=-=-=-=6")
 	lm.code = "succes"
+	fmt.Println("succes")
+
 	if err := lm.sandMassage(sqlDB); err != nil {
+		fmt.Println("err", err)
 		return c.JSON(http.StatusBadRequest, echo.Map{})
 	}
 
@@ -219,33 +246,37 @@ func (lm LineMassage) sandMassage(sqlDB *sql.DB) error {
 	var text string
 	bot, err := lineapi.ConnectLineBot(lm.chatChannel.ChaChannelSecret, lm.chatChannel.ChaChannelAccessToken)
 	if err != nil {
+		fmt.Println("err")
 		return err
 	}
-	switch lm.code {
-	case "succes":
-		reList, err := lm.transaction.GetReceipt(sqlDB)
-		var list string
-		if err != nil {
-			return err
-		}
-		for _, item := range reList {
-			list += fmt.Sprintf(listTemplate,
-				item.Name,
-				item.Price)
-		}
-		text = "ชำรเงินเสำเร็จ"
-		card = fmt.Sprintf(receiptTemplate, lm.account.AccName, lm.chatChannel.ChaAddress, list, len(reList), lm.transaction.TranTotal, lm.transaction.TranDocumentCode)
-	case "notPlace":
-		card = fmt.Sprintf(cardTemplate, lm.code)
-	case "notEmployee":
-		card = fmt.Sprintf(cardTemplate, lm.code)
-	case "notEmployeeReady":
-		card = fmt.Sprintf(cardTemplate, lm.code)
-	case "notPlaceReady":
-		card = fmt.Sprintf(cardTemplate, lm.code)
+	// switch lm.code {
+	// case "succes":
+	reList, err := lm.transaction.GetReceipt(sqlDB)
+	var list string
+	if err != nil {
+		fmt.Println("err")
+		return err
 	}
+	for _, item := range reList {
+		list += fmt.Sprintf(listTemplate,
+			item.Name,
+			item.Price)
+	}
+	fmt.Println(list)
+	text = "ชำรเงินเสำเร็จ"
+	// fmt.Println(lm.account.AccName, lm.chatChannel.ChaAddress, list, len(reList), lm.transaction.TranTotal, lm.transaction.TranDocumentCode)
+	card = fmt.Sprintf(receiptTemplate, lm.account.AccName, lm.chatChannel.ChaAddress, list, len(reList), lm.transaction.TranTotal, lm.transaction.TranDocumentCode)
+	// case "notPlace":
+	// 	card = fmt.Sprintf(cardTemplate, lm.code)
+	// case "notEmployee":
+	// 	card = fmt.Sprintf(cardTemplate, lm.code)
+	// case "notEmployeeReady":
+	// 	card = fmt.Sprintf(cardTemplate, lm.code)
+	// case "notPlaceReady":
+	// 	card = fmt.Sprintf(cardTemplate, lm.code)
+	// }
 	text = lm.code
-
+	fmt.Println(card)
 	flexContainer, err := linebot.UnmarshalFlexMessageJSON([]byte(card))
 	if err != nil {
 		fmt.Println(err, "====")
@@ -254,7 +285,7 @@ func (lm LineMassage) sandMassage(sqlDB *sql.DB) error {
 	message := linebot.NewFlexMessage(text, flexContainer)
 	_, err = bot.PushMessage(lm.transaction.TranLineID, message).Do()
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println(err, "--1203-2")
 		return err
 	}
 	return nil

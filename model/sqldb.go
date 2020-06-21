@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"time"
+
 	. "github.com/IntouchOpec/base-go-echo/conf"
 
 	_ "github.com/lib/pq"
@@ -18,7 +19,6 @@ func newSqlDB() (*sql.DB, error) {
 	}
 	return sqlDb, nil
 }
-
 
 func SqlDB() *sql.DB {
 	newDb, err := newSqlDB()

@@ -121,7 +121,6 @@ func UploadGoolgeStorage(ctx context.Context, code, imagePath string) (string, e
 		return "", err
 	}
 	if _, err := io.Copy(wc, reader); err != nil {
-		fmt.Println(err, "===3")
 		return "", err
 	}
 	if err := wc.Close(); err != nil {

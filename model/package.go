@@ -53,6 +53,7 @@ type PSerI struct {
 	ID             uint
 	EmployeeID     uint
 	PlaceID        uint
+	Plas           []Pla
 	ServiceID      uint
 	UseTime        time.Duration
 	EmploTimeSlots []EmploTimeSlot
@@ -60,6 +61,11 @@ type PSerI struct {
 	// 	placeIDs []uint
 	// 	TimeUse  time.Time
 }
+
+// type Pla struct {
+// 	ID         uint
+// 	TimeSpents []TimeSpent
+// }
 
 func GetPack(sqlDb *sql.DB, id string) (*Pack, []string, error) {
 	var p *Pack
