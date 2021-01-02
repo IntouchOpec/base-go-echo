@@ -12,7 +12,7 @@ import (
 
 func newSqlDB() (*sql.DB, error) {
 	sqlConnection := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",
-		Conf.DB.Host, Conf.DB.Port, "admin", "todos", Conf.DB.Pwd)
+		Conf.DB.Host, Conf.DB.Port, "admin", "line_api", Conf.DB.Pwd)
 	sqlDb, err := sql.Open("postgres", sqlConnection)
 	if err != nil {
 		return nil, err

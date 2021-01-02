@@ -41,9 +41,10 @@ func DB() *gorm.DB {
 }
 
 func newDB() (*gorm.DB, error) {
-	fmt.Println(Conf.DB.Pwd)
 	sqlConnection := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",
-		Conf.DB.Host, Conf.DB.Port, "admin", "todos", Conf.DB.Pwd)
+		// "db", "5432", "admin", "todos", "password")
+		Conf.DB.Host, Conf.DB.Port, "admin", "line_api", Conf.DB.Pwd)
+	// fmt.Printf(sqlConnection)
 	db, err := gorm.Open("postgres", sqlConnection)
 	if err != nil {
 		return nil, err

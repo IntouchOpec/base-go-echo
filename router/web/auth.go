@@ -1,7 +1,6 @@
 package web
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/IntouchOpec/base-go-echo/model"
@@ -20,20 +19,24 @@ type Response struct {
 }
 
 func LoginHandler(c *Context) error {
-	a := c.Auth()
-	if a.User.IsAuthenticated() {
-		c.Redirect(http.StatusMovedPermanently, fmt.Sprintf("/admin/dashboard"))
-		return nil
-	}
-	csrfValue := c.Get("_csrf")
-	err := c.Render(http.StatusOK, "login", echo.Map{
-		"title":  "login",
-		"_csrf":  csrfValue,
-		"method": "POST",
-		// "redirectParam": auth.RedirectParam,
-		"redirect": "",
+	err := c.Render(http.StatusOK, "index", echo.Map{
+		"title": "dashboard",
 	})
 	return err
+	// a := c.Auth()
+	// if a.User.IsAuthenticated() {
+	// 	c.Redirect(http.StatusMovedPermanently, fmt.Sprintf("/admin/dashboard"))
+	// 	return nil
+	// }
+	// csrfValue := c.Get("_csrf")
+	// err := c.Render(http.StatusOK, "login", echo.Map{
+	// 	"title":  "login",
+	// 	"_csrf":  csrfValue,
+	// 	"method": "POST",
+	// 	// "redirectParam": auth.RedirectParam,
+	// 	"redirect": "",
+	// })
+	// return err
 }
 
 func LoginPostHandler(c *Context) error {

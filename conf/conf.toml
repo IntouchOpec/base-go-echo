@@ -21,11 +21,11 @@ version = "0.0.1"
 graceful = true
 addr = ":8080"
 
-# Domains
+# Domains api.localhost
 domain_api = "api.localhost"
 domain_web = "web.localhost"
 domain_socket = "socket.localhost"
-domain_line_channel = "234bc78b.ngrok.io"
+domain_line_channel = "07764d1448c7.ngrok.io"
 domain_static = "localhost"
 domain = "localhotst"
 

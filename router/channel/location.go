@@ -9,6 +9,7 @@ import (
 
 func LocationHandler(c *Context) (linebot.SendingMessage, error) {
 	Latitude, err := strconv.ParseFloat(c.AccountLine.Settings["Latitude"], 64)
+	fmt.Println(Latitude)
 	if err != nil {
 		fmt.Println(err, "err location")
 		return nil, err

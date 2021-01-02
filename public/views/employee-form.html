@@ -1,4 +1,3 @@
-
 {{define "employee-form"}}
 <!DOCTYPE html>
 <html lang="en">
@@ -7,225 +6,240 @@
 
 <body class="">
     <div class="wrapper ">
-    {{ template "sidebar" .base }}
+        {{ template "sidebar" .base }}
         <div class="main-panel">
             {{ template "navbar" .title }}
             <div class="content">
                 <div class="container-fluid">
                     <div class="row">
-                            <div class="col-md-6">
-                                <div class="card">
-                                    <div class="card-header card-header-primary">
-                                        <h4 class="card-title">{{.mode}} employee</h4>
-                                    </div>
-                                    <div class="card-body">
-                                       <form name="create-employee" method="{{.method}}" >
-                                            <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden" >
-                                            <div class="row">
-                                                <div class="col-md-12 mt-2">
-                                                    <div class="form-group">
-                                                        <label class="bmd-label-floating" >name</label>
-                                                        <input name="name" value="{{.detail.EmpoName}}" id="name" class="form-control">
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-12 mt-2">
-                                                    <div class="form-group">
-                                                        <label class="bmd-label-floating" >line id</label>
-                                                        <input name="line_id" value="{{.detail.EmpoLineID}}" id="line_id" class="form-control">
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-12 mt-2">
-                                                    <div class="form-group">
-                                                        <label class="bmd-label-floating" >detail</label>
-                                                        <textarea name="detail" value="{{.detail.EmpoDetail}}" id="detail" type="text" class="form-control" ></textarea>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-12 mt-2">
-                                                    <div class="form-group">
-                                                        <label class="bmd-label-floating" >Chat Channel</label>
-                                                        <select name="chat_channel_id" class="form-control" data-style="btn btn-link" id="chat_channel_id">
-                                                            {{ if .detail.ChatChannelID }}
-                                                                <option value="{{.detail.ChatChannelID}}">{{.detail.ChatChannel.ChaName}}</option>
-                                                            {{ else }}
-                                                                <option value="">choose chat channel</option>
-                                                            {{ end }}
-
-                                                            {{ with .chatChannels }}
-                                                            {{ range . }}
-                                                                <option value='{{ .ID }}'>{{.ChaName}}</option>
-                                                            {{ end }}
-                                                            {{ end }}
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-12 mt-2" id="input-file">
-                                                {{ if .detail.EmpoImage }}
-                                                    <div className="image-wrapper" >
-                                                        <input id="image" name="image" value="{{.detail.ID}}" type="hidden" >
-                                                        <input id="EmpoImage" name="EmpoImage" value="{{.detail.EmpoImage}}" type="hidden" >
-                                                        <img src="/files?path={{ .detail.EmpoImage }}" class="img-fluid mb-2 ml-2 img-thumbnail" />
-                                                        <button id="btn-delete-image" type="button" rel="tooltip" class="btn btn-danger button-wrapper">delete</button>
-                                                    </div>                                                 
-                                                {{ else }}
-                                                    <input id="Image" name="Image" type="file">
-                                                    <p><strong>Note:</strong> Choose any file on your computer and its name will be displayed in an alert dialog box.</p>
-                                                {{ end }}
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header card-header-primary">
+                                    <h4 class="card-title">{{.mode}} employee</h4>
+                                </div>
+                                <div class="card-body">
+                                    <form name="create-employee" method="{{.method}}">
+                                        <input name="_csrf" id="_csrf" value="{{._csrf}}" type="hidden">
+                                        <div class="row">
+                                            <div class="col-md-12 mt-2">
+                                                <div class="form-group">
+                                                    <label class="bmd-label-floating">name</label>
+                                                    <input name="name" value="{{.detail.EmpoName}}" id="name"
+                                                        class="form-control">
                                                 </div>
                                             </div>
-                                            <input type="submit" rel="tooltip" value="Submit" class="btn btn-success">
-                                        </form>
-                                    </div>
+                                            <div class="col-md-12 mt-2">
+                                                <div class="form-group">
+                                                    <label class="bmd-label-floating">line id</label>
+                                                    <input name="line_id" value="{{.detail.EmpoLineID}}" id="line_id"
+                                                        class="form-control">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12 mt-2">
+                                                <div class="form-group">
+                                                    <label class="bmd-label-floating">detail</label>
+                                                    <textarea name="detail" value="{{.detail.EmpoDetail}}" id="detail"
+                                                        type="text" class="form-control"></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12 mt-2">
+                                                <div class="form-group">
+                                                    <label class="bmd-label-floating">Chat Channel</label>
+                                                    <select name="chat_channel_id" class="form-control"
+                                                        data-style="btn btn-link" id="chat_channel_id">
+                                                        {{ if .detail.ChatChannelID }}
+                                                        <option value="{{.detail.ChatChannelID}}">
+                                                            {{.detail.ChatChannel.ChaName}}</option>
+                                                        {{ else }}
+                                                        <option value="">choose chat channel</option>
+                                                        {{ end }}
+
+                                                        {{ with .chatChannels }}
+                                                        {{ range . }}
+                                                        <option value='{{ .ID }}'>{{.ChaName}}</option>
+                                                        {{ end }}
+                                                        {{ end }}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12 mt-2" id="input-file">
+                                                {{ if .detail.EmpoImage }}
+                                                <div className="image-wrapper">
+                                                    <input id="image" name="image" value="{{.detail.ID}}" type="hidden">
+                                                    <input id="EmpoImage" name="EmpoImage" value="{{.detail.EmpoImage}}"
+                                                        type="hidden">
+                                                    <img src="/files?path={{ .detail.EmpoImage }}"
+                                                        class="img-fluid mb-2 ml-2 img-thumbnail" />
+                                                    <button id="btn-delete-image" type="button" rel="tooltip"
+                                                        class="btn btn-danger button-wrapper">delete</button>
+                                                </div>
+                                                {{ else }}
+                                                <input id="Image" name="Image" type="file">
+                                                <p><strong>Note:</strong> Choose any file on your computer and its name
+                                                    will be displayed in an alert dialog box.</p>
+                                                {{ end }}
+                                            </div>
+                                        </div>
+                                        <input type="submit" rel="tooltip" value="Submit" class="btn btn-success">
+                                    </form>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            {{ template "footer" }}
             </div>
+            {{ template "footer" }}
         </div>
     </div>
-  {{ template "script" }}
-  <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
-  <script>
-    (function ($) {
+    </div>
+    {{ template "script" }}
+    <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+    <script>
+        (function ($) {
 
-        function removeImage () {
-            let id = $("#image").val()
-            let _csrf = $("#_csrf").val()
-            let data = new FormData()
-            data.append("_csrf", _csrf)
+            function removeImage() {
+                let id = $("#image").val()
+                let _csrf = $("#_csrf").val()
+                let data = new FormData()
+                data.append("_csrf", _csrf)
 
-            fetch(`/admin/employee/${id}/delete_image`, {
+                fetch(`/admin/employee/${id}/delete_image`, {
                     method: "DELETE",
                     body: data
-            }).then(res => {
-                $("#form-image").html(`
+                }).then(res => {
+                    $("#form-image").html(`
                     <input id="Image" name="Image" type="file">
                     <p><strong>Note:</strong> Choose any file on your computer and its name will be displayed in an alert dialog box.</p>
                 `)
-            }).catch(err => Swal.fire("fial", "", "warning"))
-        }
+                }).catch(err => Swal.fire("fial", "", "warning"))
+            }
 
-        $("#btn-delete-image").click(function () {
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "You won't be able to revert this!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, delete it!'
-            }).then(result => {
-                if (result.value) {
-                    removeImage()
-                }
-            })
-        })
-
-        const toBase64 = file => new Promise((resolve, reject) => {
-            const reader = new FileReader()
-            reader.readAsDataURL(file)
-            reader.onload = () => resolve(reader.result)
-            reader.onerror = error => reject(error)
-        })
-        
-        const onSubmit = (data) => {
-            let method = $("form[name='create-employee']").attr("method")
-            fetch(window.location.href, {
-                method, 
-                body: data
-            })
-            .then(res => {
-                if (res.status !== 201){  
-                    throw ""
-                }
-                return res.json()
-            })
-            .then(json => {
-                Swal.fire("success", "", "success").then(result => {
-                    window.location.href = json.redirect
+            $("#btn-delete-image").click(function () {
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You won't be able to revert this!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then(result => {
+                    if (result.value) {
+                        removeImage()
+                    }
                 })
             })
-            .catch(err => Swal.fire("fial", "", "warning"))
-        }
 
-        $("form[name='create-employee']").validate({
-            rules: {
-                name: {
-                    required: true
-                },
-                line_id: {
-                    required: true
-                },
-                detail: {
-                    required: true
-                },
-                Image: {
-                    required: true
-                },
-                chat_channel_id: {
-                    required: true
-                }
-            },
-            messages: {
-                name:  {
-                    required: "Please enter a valid name"
-                },
-                line_id:  {
-                    required: "Please enter a valid line_id"
-                },
-                detail:  {
-                    required: "Please enter a valid detail"
-                },
-                Image:  {
-                    required: "Please enter a valid Image"
-                },
-                chat_channel_id: {
-                    required: "Please enter a valid chat_channel_id"
-                }
-            },
-            submitHandler: function(form) {
-                let _csrf = $("#_csrf").val()
-                let name = $("#name").val()
-                let line_id = $("#line_id").val()
-                let detail = $("#detail").val()
-                let chat_channel_id = $("#chat_channel_id").val()
-                let Image =  $("#Image")
+            const toBase64 = file => new Promise((resolve, reject) => {
+                const reader = new FileReader()
+                reader.readAsDataURL(file)
+                reader.onload = () => resolve(reader.result)
+                reader.onerror = error => reject(error)
+            })
 
-
-                let encodedKey = encodeURIComponent("_csrf");
-                let encodedValue = encodeURIComponent(_csrf);
-
-                let key_chat_channel_id = encodeURIComponent("chat_channel_id")
-                chat_channel_id = encodeURIComponent(chat_channel_id)
-                let encodenameKey = encodeURIComponent("prov_name")
-                let nameEncodeCalue = encodeURIComponent(name)
-                let encodeline_idKey = encodeURIComponent("prov_line_id")
-                let line_idEncodeCalue = encodeURIComponent(line_id)
-                let encodedetailKey = encodeURIComponent("prov_detail")
-                let detailEncodeCalue = encodeURIComponent(detail)
-                let data = new FormData()
-                
-                data.append("_csrf", _csrf)
-                data.append("chat_channel_id", chat_channel_id)
-                data.append("prov_name", name)
-                data.append("prov_line_id", line_id)
-                data.append("prov_detail", detail)
-                let imageEncodedValue = ""
-                if (Image.length !== 0) {    
-                    toBase64(Image[0].files[0]).then(base64Image => {
-                        data.append("file", base64Image)
-                        onSubmit(data)
+            const onSubmit = (data) => {
+                let method = $("form[name='create-employee']").attr("method")
+                fetch(window.location.href, {
+                    method, 
+                    body: data
+                })
+                .then(res => {
+                    if (res.status !== 201){  
+                        throw ""
+                    }
+                    return res.json()
+                })
+                .then(json => {
+                    Swal.fire("success", "", "success").then(result => {
+                        window.location.href = json.redirect
                     })
-                } else {
-                    imageEncodedValue = $("#EmpoImage").val()
-                    data.append("prov_image", imageEncodedValue)
-                    onSubmit(data)
-                }
+                })
+                .catch(err => Swal.fire("fial", "", "warning"))
             }
-        })
-    })(jQuery)
-  </script>
+
+            $("form[name='create-employee']").validate({
+                rules: {
+                    name: {
+                        required: true
+                    },
+                    line_id: {
+                        required: true
+                    },
+                    detail: {
+                        required: true
+                    },
+                    Image: {
+                        required: true
+                    },
+                    chat_channel_id: {
+                        required: true
+                    }
+                },
+                messages: {
+                    name: {
+                        required: "Please enter a valid name"
+                    },
+                    line_id: {
+                        required: "Please enter a valid line_id"
+                    },
+                    detail: {
+                        required: "Please enter a valid detail"
+                    },
+                    Image: {
+                        required: "Please enter a valid Image"
+                    },
+                    chat_channel_id: {
+                        required: "Please enter a valid chat_channel_id"
+                    }
+                },
+                submitHandler: function (form) {
+                    let _csrf = $("#_csrf").val()
+                    let name = $("#name").val()
+                    let line_id = $("#line_id").val()
+                    let detail = $("#detail").val()
+                    let chat_channel_id = $("#chat_channel_id").val()
+                    let Image = $("#Image")
+
+
+                    // let encodedKey = encodeURIComponent("_csrf");
+                    // let encodedValue = encodeURIComponent(_csrf);
+
+                    // let key_chat_channel_id = encodeURIComponent("chat_channel_id")
+                    // chat_channel_id = encodeURIComponent(chat_channel_id)
+                    // let encodenameKey = encodeURIComponent("empo_name")
+                    // let nameEncodeCalue = encodeURIComponent(name)
+                    // let encodeline_idKey = encodeURIComponent("empo_line_id")
+                    // let line_idEncodeCalue = encodeURIComponent(line_id)
+                    // let encodedetailKey = encodeURIComponent("empo_detail")
+                    // let detailEncodeCalue = encodeURIComponent(detail)
+                    let imageEncodedValue = ""
+                    if (Image.length !== 0) {
+                        toBase64(Image[0].files[0]).then(base64Image => {
+                            let data = new FormData()
+                            data.append("_csrf", _csrf)
+                            data.append("chat_channel_id", chat_channel_id)
+                            data.append("empo_name", name)
+                            data.append("empo_line_id", line_id)
+                            data.append("empo_detail", detail)
+                            data.append("file", base64Image)
+                            // console.log(data)
+                            onSubmit(data)
+                        })
+                    } else {
+                        let data = new FormData()
+                        data.append("_csrf", _csrf)
+                        data.append("chat_channel_id", chat_channel_id)
+                        data.append("empo_name", name)
+                        data.append("empo_line_id", line_id)
+                        data.append("empo_detail", detail)
+                        imageEncodedValue = $("#EmpoImage").val()
+                        data.append("prov_image", imageEncodedValue)
+                        onSubmit(data)
+                    }
+                }
+            })
+        })(jQuery)
+    </script>
 </body>
 
 </html>

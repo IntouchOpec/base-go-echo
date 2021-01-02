@@ -1,10 +1,10 @@
 package main
 
 import (
-	"flag"
 	"log"
 
 	"github.com/IntouchOpec/base-go-echo/conf"
+	// "github.com/IntouchOpec/base-go-echo/model"
 	"github.com/IntouchOpec/base-go-echo/router"
 )
 
@@ -22,7 +22,7 @@ func init() {
 
 func main() {
 	if cmdHelp {
-		flag.PrintDefaults()
+		// flag.PrintDefaults()
 		return
 	}
 	if err := conf.InitConfig(confFilePath); err != nil {

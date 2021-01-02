@@ -2,6 +2,7 @@ package model
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/IntouchOpec/base-go-echo/model/orm"
 	"github.com/google/uuid"
@@ -69,8 +70,7 @@ type AccountLine struct {
 
 func AccountLineGet(name, channelID string, db *sql.DB) *AccountLine {
 	var al AccountLine
-	row := db.QueryRow(`
-	SELECT 
+	row := db.QueryRow(`SELECT 
 		ac.id,
 		acc_project_id,
 		acc_auth_json_file_path ,
@@ -88,7 +88,7 @@ func AccountLineGet(name, channelID string, db *sql.DB) *AccountLine {
 		cha_address
 	FROM accounts AS ac 
 	INNER JOIN chat_channels AS cc ON cc.account_id = ac.id AND cc.deleted_at IS NULL AND cha_channel_id = $1
-	WHERE ac.deleted_at IS NULL AND acc_name = $2 `,
+	WHERE ac.deleted_at IS NULL AND acc_name = $2`,
 		channelID, name)
 	err := row.Scan(&al.ID,
 		&al.AccProjectID,
@@ -106,6 +106,7 @@ func AccountLineGet(name, channelID string, db *sql.DB) *AccountLine {
 		&al.ChaName,
 		&al.ChaAddress)
 	if err != nil {
+		fmt.Println(err)
 		return nil
 	}
 	rows, err := db.Query(`SELECT st.name,st.value FROM settings AS st
@@ -113,6 +114,7 @@ func AccountLineGet(name, channelID string, db *sql.DB) *AccountLine {
 	INNER JOIN chat_channels AS cc ON scc.chat_channel_id = cc.id AND cc.id = $1 AND cc.deleted_at IS NULL
 	WHERE st.deleted_at IS NULL`, al.ID)
 	if err != nil {
+		fmt.Println(err)
 		return nil
 	}
 	al.Settings = make(map[string]string)

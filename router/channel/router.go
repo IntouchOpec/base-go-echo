@@ -77,8 +77,9 @@ func webHookHandler(c echo.Context) error {
 	var v interface{}
 	err := json.NewDecoder(c.Request().Body).Decode(&v)
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
-	fmt.Println(v)
+	fmt.Println(v, "ssss")
 	return c.JSON(http.StatusOK, "welcome line connect "+Conf.Server.DomainLineChannel)
 }

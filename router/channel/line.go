@@ -23,13 +23,15 @@ func HandleWebHookLineAPI(c echo.Context) error {
 	fmt.Println(name, ChannelID)
 
 	con.AccountLine = model.AccountLineGet(name, ChannelID, con.sqlDb)
-	// if con.AccountLine == nil {
-	// 	return c.JSON(http.StatusBadRequest, "")
-	// }
+	if con.AccountLine == nil {
+		return c.JSON(http.StatusBadRequest, "")
+	}
 	if err := con.DB.Where("acc_name = ?", name).Find(&con.Account).Error; err != nil {
+		fmt.Println(err)
 		return c.NoContent(http.StatusNotFound)
 	}
 	if err := con.DB.Preload("Settings").Where("cha_channel_id = ?", ChannelID).Find(&con.ChatChannel).Error; err != nil {
+		fmt.Println(err)
 		return c.NoContent(http.StatusNotFound)
 	}
 
@@ -51,7 +53,7 @@ func HandleWebHookLineAPI(c echo.Context) error {
 
 	for _, event := range events {
 		con.Event = event
-		con.DB.Where("cus_line_id = ? and account_id = ?", event.Source.UserID, con.Account.ID).Find(&con.Customer)
+		con.DB.Where("cus_line_id = ? and account_id = ?", event.Source.UserID, con.AccountLine.ID).Find(&con.Customer)
 		chatAnswer := model.ChatAnswer{}
 		eventType := event.Type
 		chatAnswer.AnsInputType = string(eventType)
@@ -71,7 +73,6 @@ func HandleWebHookLineAPI(c echo.Context) error {
 				return c.JSON(http.StatusBadRequest, err)
 			}
 			con.PostbackAction = &postBackAction
-			fmt.Println(postBackAction.Action)
 			switch postBackAction.Action {
 			case "location":
 				messageReply, err = LocationHandler(&con)
@@ -107,11 +108,11 @@ func HandleWebHookLineAPI(c echo.Context) error {
 			switch message := event.Message.(type) {
 			case *linebot.TextMessage:
 				var dp dialogflow.DialogFlowProcessor
-				dp.Init(con.Account.AccProjectID, con.Account.AccAuthJSONFilePath, con.Account.AccLang, con.Account.AccTimeZone)
+				dp.Init(con.AccountLine.AccProjectID, con.AccountLine.AccAuthJSONFilePath, con.AccountLine.AccLang, con.AccountLine.AccTimeZone)
 				replyDialogflow := dp.ProcessNLP(message.Text, con.Customer.CusDisplayName)
 				fmt.Println(replyDialogflow)
-				if err := con.DB.Where("account_id = ? and chat_input = ?", con.Account.ID, message.Text).Find(&chatAnswer).Error; err != nil {
-					con.DB.Where("account_id = ? and chat_input = 'error'", con.Account.ID).Find(&chatAnswer)
+				if err := con.DB.Where("account_id = ? and chat_input = ?", con.AccountLine.ID, message.Text).Find(&chatAnswer).Error; err != nil {
+					con.DB.Where("account_id = ? and chat_input = 'error'", con.AccountLine.ID).Find(&chatAnswer)
 				}
 				messageReply, err := bot.ReplyLineMessage(chatAnswer)
 				if err != nil {

@@ -37,7 +37,7 @@ func ChooseService(c *Context) {
 	if len(packageModels) < 9 {
 		serviceFilter := c.DB.Model(&services).Where("account_id = ? and ser_active = ?", c.Account.ID, true).Count(&total)
 		serviceFilter.Limit(9).Preload("ServiceItems", "ss_is_active = ?", true).Find(&services)
-		for index, ser := range services {
+		for _, ser := range services {
 			var button string
 			var id uint
 			for _, serI := range ser.ServiceItems {
@@ -53,19 +53,17 @@ func ChooseService(c *Context) {
 				button = button[:len(button)-1]
 				// fmt.Println(button)
 			}
-			fmt.Println(button, index)
+			// fmt.Println(button, index)
 			m += fmt.Sprintf(serviceTemplate,
 				fmt.Sprintf("https://web.%s/files?path=%s", Conf.Server.Domain, ser.SerImage),
 				ser.SerName,
 				ser.SerPrice,
-				fmt.Sprintf("action=booking&type=now&service_item_id=%d", id), button) + ","
+				fmt.Sprintf("action=booking&type=now&service_item_id=%d", id), button[:len(button)-1]) + ","
 		}
 	}
 	m = fmt.Sprintf(`{ "replyToken": "%s", "messages":[ { "type": "flex",  "altText":  "รายการบริการ",  "contents": { "type": "carousel", "contents": [ %s ] } }]}`, c.Event.ReplyToken, m[:len(m)-1])
-
 	err := lineapi.SendMessageCustom("reply", c.ChatChannel.ChaChannelAccessToken, m)
 	if err != nil {
 		fmt.Println(err, "====")
 	}
-	fmt.Println(err)
 }
